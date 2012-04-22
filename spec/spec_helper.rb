@@ -9,6 +9,8 @@ module BVT
 
     module AutoStaging
       class Ruby19Sinatra; end
+      class Ruby18Rack; end
+      class Ruby19Rack; end
     end
   end
 end
