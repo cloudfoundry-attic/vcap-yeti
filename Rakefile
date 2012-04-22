@@ -7,7 +7,9 @@ desc "List help commands"
 task :help do
   puts "Usage: rake [command]"
   puts "  tests\t\t\t\trun all bvts"
-  puts "  clean\t\t\t\tdelete apps and services"
+  puts "  clean\t\t\t\tclean up test environment.\n" +
+           "\t\t\t\t  1, Remove all apps and services under test user\n" +
+           "\t\t\t\t  2, Remove all test users created in admin_user_spec.rb"
   puts "  java\t\t\t\trun java tests (spring, java_web)"
   puts "  jvm\t\t\t\trun jvm tests (spring, java_web, grails, lift)"
   puts "  ruby\t\t\t\trun ruby tests (rails3, sinatra, rack)"
@@ -20,11 +22,6 @@ task :tests do
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
   sh "bundle exec rspec spec/ --format p -c | tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
-end
-
-desc "Delete apps and services"
-task :clean do
-  puts "This task is under development, please stay tuned."
 end
 
 desc "Run java tests (spring, java_web)"
@@ -47,3 +44,7 @@ task :services do
   puts "This task is under development, please stay tuned."
 end
 
+desc "Clean up test environment"
+task :clean do
+  BVT::Harness::RakeHelper.cleanup!
+end

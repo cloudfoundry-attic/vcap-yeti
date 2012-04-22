@@ -2,7 +2,6 @@ require "yaml"
 require "interact"
 require "harness"
 require "curb"
-require "harness/color_helper"
 
 module BVT::Harness
   module RakeHelper
@@ -36,6 +35,35 @@ module BVT::Harness
       profile[:script_hash] = get_script_git_hash
       File.open(VCAP_BVT_PROFILE_FILE, "w") { |f| f.write YAML.dump(profile) }
       puts "Environment profile written to #{VCAP_BVT_PROFILE_FILE}"
+    end
+
+    HTTP_RESPONSE_OK = 200
+
+    def check_network_connection
+      get_config unless @config
+
+      easy = Curl::Easy.new
+      easy.url = "http://api.#{@config['target']}/info"
+      easy.resolve_mode = :ipv4
+      easy.timeout = 10
+      begin
+        easy.http_get
+      rescue Curl::Err::CurlError
+        raise RuntimeError,
+              red("Cannot connect to target environment, #{easy.url}\n" +
+                      "Please check your network connection to target environment.")
+      end
+      unless easy.response_code == HTTP_RESPONSE_OK
+        raise RuntimeError,
+              red("URL: #{easy.url} response code does not equal to " +
+                      "#{HTTP_RESPONSE_OK}\nPlease check your target environment first.")
+      end
+    end
+
+    def cleanup!
+      check_network_connection
+      cleanup_services_apps(@config['user']['email'], @config['user']['passwd'])
+      cleanup_test_accounts
     end
 
     private
@@ -128,19 +156,59 @@ module BVT::Harness
       `git log --pretty=oneline`.split("\n").first
     end
 
-    def check_network_connection
-      easy = Curl::Easy.new
-      easy.url = "http://api.#{@config['target']}/info"
-      easy.resolve_mode = :ipv4
-      easy.timeout = 10
-      begin
-        easy.http_get
-      rescue Curl::Err::TimeoutError
-        raise RuntimeError, red("Cannot connect to target environment, #{easy.url}\n" +
-            "Please check your network connection to target environment.")
+    def cleanup_services_apps(email, passwd)
+      session = BVT::Harness::CFSession.new(false, email, passwd)
+      puts yellow("Ready to clean up for test user: #{session.email}")
+      apps = session.apps
+      services = session.services
+
+      if services.empty?
+        puts "No service has been provisioned by test user: #{session.email}"
+      else
+        puts "List all services belong to test user: #{session.email}"
+        services.each { |service| puts service.name }
+        if ask("Do you want to remove all above servcies?", :default => true)
+          services.each { |service| service.delete }
+          puts yellow("all services belong to #{session.email} have been removed")
+        else
+          puts yellow("Keep those services\n")
+        end
       end
-      raise RuntimeError, red("URL: #{easy.url} response code does not equal to 200.\n" +
-                                  "Please check your target environment first.") unless easy.response_code == 200
+
+      if apps.empty?
+        puts "No application has been created by test user: #{session.email}"
+      else
+        puts "List all applications belong to test user: #{session.email}"
+        apps.each { |app| puts app.name }
+        if ask("Do you want to remove all above applications?", :default => true)
+          apps.each { |app| app.delete }
+          puts yellow("all applications belong to #{session.email} have been removed")
+        else
+          puts yellow("Keep those applications\n")
+        end
+      end
+
+      puts yellow("Clean up work for test user: #{session.email} has been done.\n")
+    end
+
+    def cleanup_test_accounts()
+      test_user_template = 'my_fake@email.address'
+      session = BVT::Harness::CFSession.new(true)
+      puts yellow("Ready to remove all test users created in admin_user_spec.rb")
+      users = session.users.select { |user| user.email =~ /^t.*-#{test_user_template}$/ }
+
+      if users.empty?
+        puts "No test user need to be deleted."
+      else
+        puts "List all test users"
+        users.each { |user| puts user.email }
+        if ask("Do you want to remove all above users?", :default => true)
+          users.each { |user| user.delete }
+        else
+          puts yellow("Keep those test users\n")
+        end
+      end
+      puts yellow("Clean up test accounts has been done.\n")
     end
 
     extend self
