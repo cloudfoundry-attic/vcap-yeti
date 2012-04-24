@@ -6,9 +6,12 @@ module BVT
     end
 
     module AutoStaging
-      class Ruby19Sinatra; end
       class Ruby18Rack; end
+
+      class Ruby19Sinatra; end
       class Ruby19Rack; end
+      class Ruby19Rails3; end
+
       class JavaSpring; end
     end
 
@@ -26,8 +29,18 @@ module BVT
     RABBITMQ_MANIFEST   = {"vendor"=>"rabbitmq", "version"=>"2.4"}
     POSTGRESQL_MANIFEST = {"vendor"=>"postgresql", "version"=>"9.0"}
 
-    SERVICE_URL_MAPPING                     = Hash["mysql" => "mysql", "redis" => "redis", "mongodb" => "mongo", "rabbitmq" => "rabbitmq", "postgresql" => "postgresql"]
-    SERVICE_URL_MAPPING_UNSUPPORTED_VERSION = Hash["mysql" => "mysql", "redis" => "redis", "mongodb" => "mongo", "rabbitmq" => "amqp", "postgresql" => "postgres"]
+    SERVICE_URL_MAPPING = Hash["mysql" => "mysql",
+                               "redis" => "redis",
+                               "mongodb" => "mongo",
+                               "rabbitmq" => "rabbitmq",
+                               "postgresql" => "postgresql"]
+
+    SERVICE_URL_MAPPING_UNSUPPORTED_VERSION = Hash["mysql" => "mysql",
+                                                   "redis" => "redis",
+                                                   "mongodb" => "mongo",
+                                                   "rabbitmq" => "amqp",
+                                                   "postgresql" => "postgres"]
   end
 end
 
+require "autostaging/autostaging_helper"

@@ -53,6 +53,7 @@ broken_app:
 rails3_app:
   framework: "rails3"
   memory: 128
+  runtime: "ruby19"
   path: "assets/rails3/rails3_app"
 
 jpa_app:
@@ -69,11 +70,13 @@ hibernate_app:
 
 dbrails_app:
   framework: "rails3"
+  runtime: "ruby19"
   memory: 128
   path: "assets/rails3/dbrails_app"
 
 dbrails_broken_app:
   framework: "rails3"
+  runtime: "ruby19"
   memory: 128
   path: "assets/rails3/dbrails_broken_app"
 
@@ -127,16 +130,19 @@ app_rails_service:
 
 app_rails_service_autoconfig:
   framework: "rails3"
+  runtime: "ruby19"
   memory: 256
   path: "assets/rails3/app_rails_service_autoconfig"
 
 rails_autoconfig_disabled_by_file:
   framework: "rails3"
+  runtime: "ruby19"
   memory: 256
   path: "assets/rails3/autoconfig_disabled_by_file"
 
 rails_autoconfig_disabled_by_gem:
   framework: "rails3"
+  runtime: "ruby19"
   memory: 256
   path: "assets/rails3/autoconfig_disabled_by_gem"
 

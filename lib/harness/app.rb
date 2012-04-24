@@ -16,7 +16,7 @@ module BVT::Harness
       "#<BVT::Harness::App '#@name'>"
     end
 
-    def push
+    def push(services = nil)
       check_framework(@manifest['framework'])
       check_runtime(@manifest['runtime'])
       @manifest['uris'] = [get_url,]
@@ -41,7 +41,7 @@ module BVT::Harness
         @log.error("Push App: #{@app.name} failed. Manifest: #{@manifest}")
         raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{@manifest}"
       end
-
+      services.each { |service| bind(service.name, false)} if services
       start
     end
 
@@ -91,11 +91,11 @@ module BVT::Harness
           @log.error "Start App: #{@app.name} failed. "
           raise RuntimeError, "Start App: #{@app.name} failed."
         end
+        check_application
       end
-      check_application
     end
 
-    def bind(service_name)
+    def bind(service_name, restart_app = true)
       unless @session.services.collect(&:name).include?(service_name)
         @log.error("Fail to find service: #{service_name}")
         raise RuntimeError, "Fail to find service: #{service_name}"
@@ -103,17 +103,21 @@ module BVT::Harness
       begin
         @log.info("Application: #{@app.name} bind Service: #{service_name}")
         @app.bind(service_name)
-        restart
-      rescue
-        @log.error("Fail to bind Service: #{service_name} to Application: #{@app.name}")
-        raise RuntimeError, "Fail to bind Service: #{service_name} to Application: #{@app.name}"
+      rescue Exception => e
+        @log.error("Fail to bind Service: #{service_name} to Application:" +
+                       " #{@app.name}\n#{e.to_s}")
+        raise RuntimeError, "Fail to bind Service: #{service_name} to " +
+            "Application: #{@app.name}\n#{e.to_s}"
       end
+      restart if restart_app
     end
 
     def unbind(service_name)
       unless @app.services.include?(service_name)
-        @log.error("Fail to find service: #{service_name} binding to application: #{@app.name}")
-        raise RuntimeError, "Fail to find service: #{service_name} binding to application: #{@app.name}"
+        @log.error("Fail to find service: #{service_name} binding to " +
+                       "application: #{@app.name}")
+        raise RuntimeError, "Fail to find service: #{service_name} binding to " +
+            "application: #{@app.name}"
       end
 
       begin
@@ -121,8 +125,10 @@ module BVT::Harness
         @app.unbind(service_name)
         restart
       rescue
-        @log.error("Fail to unbind service: #{service_name} for application: #{@app.name}")
-        raise RuntimeError, "Fail to unbind service: #{service_name} for application: #{@app.name}"
+        @log.error("Fail to unbind service: #{service_name} for " +
+                       "application: #{@app.name}")
+        raise RuntimeError, "Fail to unbind service: #{service_name} for " +
+            "application: #{@app.name}"
       end
     end
 
@@ -166,13 +172,16 @@ module BVT::Harness
     private
 
     def check_application
+      app_config ||= YAML.load_file(VCAP_BVT_APP_CONFIG)
       seconds = 0
       until @app.healthy?
         sleep 1
         seconds += 1
-        if seconds == APP_CHECK_LIMIT
-          @log.error "Application: #{@app.name} cannot be started in #{APP_CHECK_LIMIT} seconds"
-          raise RuntimeError, "Application: #{@app.name} cannot be started in #{APP_CHECK_LIMIT} seconds"
+        if seconds == app_config['timeout_secs']
+          @log.error "Application: #{@app.name} cannot be started " +
+                         " in #{app_config['timeout_secs']} seconds"
+          raise RuntimeError, "Application: #{@app.name} cannot be started " +
+              "in #{app_config['timeout_secs']} seconds"
         end
       end
     end
@@ -188,11 +197,11 @@ module BVT::Harness
       end
       frameworks ||= @session.system_frameworks
 
-      match = true if frameworks.has_key?(framework)
-
-      unless match
-        @log.error("Framework: #{framework} is not available on target: #{@session.TARGET}")
-        pending("Framework: #{framework} is not available on target: #{@session.TARGET}")
+      unless frameworks.has_key?(framework)
+        @log.error("Framework: #{framework} is not available " +
+                       "on target: #{@session.TARGET}")
+        pending("Framework: #{framework} is not available " +
+                    "on target: #{@session.TARGET}")
       end
 
     end
@@ -208,9 +217,7 @@ module BVT::Harness
       end
       runtimes ||= @session.system_runtimes
 
-      match = true if runtimes.has_key?(runtime)
-
-      unless match
+      unless runtimes.has_key?(runtime)
         @log.error("Runtime: #{runtime} is not available on target: #{@session.TARGET}")
         pending("Runtime: #{runtime} is not available on target: #{@session.TARGET}")
       end
@@ -234,7 +241,8 @@ module BVT::Harness
     end
 
     def get_url
-      # URLs synthesized from app names containing '_' are not handled well by the Lift framework.
+      # URLs synthesized from app names containing '_' are not handled well
+      # by the Lift framework.
       # So we used '-' instead of '_'
       # '_' is not a valid character for hostname according to RFC 822,
       # use '-' to replace it.

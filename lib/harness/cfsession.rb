@@ -11,10 +11,14 @@ module BVT::Harness
       @passwd = passwd ? passwd : get_login_passwd(is_admin)
       @TARGET = "http://api.#{get_target}"
 
-      @log = get_logger(LOGGER_LEVEL)
+      @log = get_logger
       @namespace = get_namespace
       login
       check_privilege(is_admin)
+    end
+
+    def inspect
+      "#<BVT::Harness::CFSession '#@TARGET', '#@email'>"
     end
 
     def login
@@ -101,15 +105,15 @@ module BVT::Harness
 
     private
 
-    def get_logger(level = :error)
-      config = {:level => level, :file => VCAP_BVT_LOG_FILE}
-      VCAP::Logging.setup_from_config(config)
+    def get_logger
       VCAP::Logging.logger(File.basename($0))
     end
 
     # generate random string as prefix for one test example
+    BASE36_ENCODE  = 36
+    LARGE_INTEGER  = 2**32
     def get_namespace
-      "t#{rand(2**32).to_s(36)}-"
+      "t#{rand(LARGE_INTEGER).to_s(BASE36_ENCODE)}-"
     end
 
     def get_login_email(expected_admin = false)

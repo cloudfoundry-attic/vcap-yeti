@@ -3,6 +3,7 @@ require "spec_helper"
 include BVT::Spec
 
 describe BVT::Spec::AutoStaging::Ruby19Rack do
+  include BVT::Spec::AutoStagingHelper
 
   before(:each) do
     @session = BVT::Harness::CFSession.new
@@ -10,12 +11,6 @@ describe BVT::Spec::AutoStaging::Ruby19Rack do
 
   after(:each) do
     @session.cleanup!
-  end
-
-  def bind_service(service_manifest, app)
-    service = @session.service(service_manifest['vendor'])
-    service.create(service_manifest)
-    app.bind(service.name)
   end
 
   it "rack ruby 1.9 autostaging" do

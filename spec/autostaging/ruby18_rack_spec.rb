@@ -3,6 +3,7 @@ require "spec_helper"
 include BVT::Spec
 
 describe BVT::Spec::AutoStaging::Ruby18Rack do
+  include BVT::Spec::AutoStagingHelper
 
   before(:each) do
     @session = BVT::Harness::CFSession.new
@@ -10,20 +11,6 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
 
   after(:each) do
     @session.cleanup!
-  end
-
-  def bind_service(service_manifest, app)
-    service = @session.service(service_manifest['vendor'])
-    service.create(service_manifest)
-    app.bind(service.name)
-  end
-
-  def verify_service_autostaging(service_manifest, app)
-    key = "abc"
-    data = "#{service_manifest['vendor']}#{key}"
-    url = SERVICE_URL_MAPPING[service_manifest['vendor']]
-    app.get_response(:post, "/service/#{url}/#{key}", data)
-    app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
   end
 
   it "services autostaging" do
