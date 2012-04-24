@@ -185,7 +185,8 @@ rack_autoconfig_disabled_by_gem:
 
 app_sinatra_service:
   framework: "sinatra"
-  memory: 256
+  runtime: "ruby19"
+  memory: 64
   path: "assets/sinatra/app_sinatra_service"
 
 app_sinatra_service2:
@@ -238,7 +239,7 @@ sinatra_autoconfig_disabled_by_gem:
 app_node_service:
   framework: "node"
   runtime: node
-  memory: 512
+  memory: 64
   path: "assets/node/app_node_service"
 
 app_node_version04:
