@@ -34,7 +34,6 @@ module BVT::Harness
       profile[:frameworks] = client.system_frameworks
       profile[:script_hash] = get_script_git_hash
       File.open(VCAP_BVT_PROFILE_FILE, "w") { |f| f.write YAML.dump(profile) }
-      puts "Environment profile written to #{VCAP_BVT_PROFILE_FILE}"
     end
 
     HTTP_RESPONSE_OK = 200
@@ -70,11 +69,9 @@ module BVT::Harness
 
     def get_config
       if File.exists?(VCAP_BVT_CONFIG_FILE)
-        puts "Using config file #{VCAP_BVT_CONFIG_FILE}"
         @config = YAML.load_file(VCAP_BVT_CONFIG_FILE)
         raise "Invalid config file format, #{VCAP_BVT_CONFIG_FILE}" unless @config.is_a?(Hash)
       else
-        puts "Can't find config file at #{VCAP_BVT_CONFIG_FILE}"
         @config = {}
       end
     end
@@ -140,7 +137,12 @@ module BVT::Harness
 
     def save_config
       File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(@config) }
-      puts "Config file written to #{VCAP_BVT_CONFIG_FILE}"
+      puts yellow("BVT is starting...")
+      puts "target: \t#{yellow(@config['target'])}"
+      puts "admin user: \t#{yellow(@config['admin']['email'])}" +
+              "\t\tadmin user passwd: \t#{yellow(@config['admin']['passwd'])}"
+      puts "normal user: \t#{yellow(@config['user']['email'])}" +
+               "\tnormal user passwd: \t#{yellow(@config['user']['passwd'])}"
     end
 
     def ask_and_validate(question, pattern, default = nil, echo = nil)
