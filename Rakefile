@@ -7,6 +7,7 @@ desc "List help commands"
 task :help do
   puts "Usage: rake [command]"
   puts "  tests\t\t\t\trun all bvts"
+  puts "  admin\t\t\t\trun admin test cases"
   puts "  clean\t\t\t\tclean up test environment.\n" +
            "\t\t\t\t  1, Remove all apps and services under test user\n" +
            "\t\t\t\t  2, Remove all test users created in admin_user_spec.rb"
@@ -21,7 +22,16 @@ desc "Run the Basic Viability Tests"
 task :tests do
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  sh "bundle exec rspec spec/ --format p -c | tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
+  sh "bundle exec rspec spec/ --format p -c | " +
+         "tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
+end
+
+desc "Run admin test cases"
+task :admin do
+  BVT::Harness::RakeHelper.generate_config_file
+  BVT::Harness::RakeHelper.check_environment
+  sh "bundle exec rspec spec/users/admin_user_spec.rb --format p -c | " +
+         "tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
 end
 
 desc "Run java tests (spring, java_web)"
