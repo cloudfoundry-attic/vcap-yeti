@@ -3,19 +3,25 @@ require "vcap/logging"
 
 module BVT::Harness
   class CFSession
-    attr_reader :log, :namespace, :TARGET, :email
+    attr_reader :log, :namespace, :TARGET, :email, :passwd, :is_admin
 
-    def initialize(is_admin = false, email = nil, passwd = nil)
-      get_test_property
-      @email = email ? email : get_login_email(is_admin)
-      @passwd = passwd ? passwd : get_login_passwd(is_admin)
-      @TARGET = "http://api.#{get_target}"
+    def initialize(options = {})
+      options = {:admin => false,
+                 :email => nil,
+                 :passwd => nil,
+                 :target => nil}.merge(options)
+      @is_admin = options[:admin]
+      @email = options[:email] ? options[:email] : get_login_email(@is_admin)
+      @passwd = options[:passwd] ? options[:passwd] : get_login_passwd(@is_admin)
+      domain_url = options[:target] ? options[:target] : get_target
+      @TARGET = domain_url =~ /^http:\/\/api\./ ? domain_url : "http://api.#{domain_url}"
 
       @log = get_logger
       @namespace = get_namespace
       login
-      check_privilege(is_admin)
+      check_privilege(@is_admin)
     end
+
 
     def inspect
       "#<BVT::Harness::CFSession '#@TARGET', '#@email'>"
@@ -93,7 +99,9 @@ module BVT::Harness
       end
     end
 
-    def user(email)
+    def user(email, options={})
+      options = {:require_namespace => true}.merge(options)
+      email = "#{@namespace}#{email}" if options[:require_namespace]
       BVT::Harness::User.new(@client.user(email), self)
     end
 
@@ -117,6 +125,12 @@ module BVT::Harness
     end
 
     def get_login_email(expected_admin = false)
+      @config = VCAP_BVT_CONFIG
+      if ENV['VCAP_BVT_PARALLEL'] && !expected_admin
+        user_info = @config['parallel'][VCAP_BVT_PARALLEL_INDEX]
+        @config['user']['email']  = user_info['email']
+        @config['user']['passwd'] = user_info['passwd']
+      end
       expected_admin ? @config["admin"]["email"] : @config["user"]["email"]
     end
 
@@ -126,19 +140,6 @@ module BVT::Harness
 
     def get_target
       @config["target"]
-    end
-
-    def get_test_property
-      # TODO:
-      config_file = File.join(VCAP_BVT_HOME, "config.yml")
-      begin
-        @config = File.open(config_file) do |f|
-          YAML.load(f)
-        end
-      rescue => e
-        puts "Could not read configuration file:  #{e}"
-        exit
-      end
     end
 
     def check_privilege(expect_admin = false)
@@ -162,6 +163,7 @@ module BVT::Harness
       user.admin?
     end
   end
+
 end
 
 

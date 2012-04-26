@@ -4,8 +4,8 @@ require "spec_helper"
 describe BVT::Spec::UsersManagement::AdminUser do
 
   before(:each) do
-    @admin_session = BVT::Harness::CFSession.new(true)
-    @test_email = "#{@admin_session.namespace}my_fake@email.address"
+    @admin_session = BVT::Harness::CFSession.new(:admin => true)
+    @test_email = "my_fake@email.address"
   end
 
   after(:each) do
@@ -22,15 +22,19 @@ describe BVT::Spec::UsersManagement::AdminUser do
       be_true, "cannot find created user-email, #{test_user.email}"
 
     # login as created user
-    test_session= BVT::Harness::CFSession.new(false, test_user.email, test_user.passwd)
+    test_session = BVT::Harness::CFSession.new(:email => test_user.email,
+                                               :passwd => test_user.passwd,
+                                               :target => @admin_session.TARGET)
 
     # change passwd
-    test_user = test_session.user(@test_email)
+    test_user = test_session.user(test_session.email, :require_namespace => false)
     new_passwd = "new_P@ssw0rd"
     test_user.change_passwd(new_passwd)
 
     # login as new passwd
-    test_session = BVT::Harness::CFSession.new(false, test_user.email, new_passwd)
+    test_session = BVT::Harness::CFSession.new(:email => test_user.email,
+                                               :passwd => new_passwd,
+                                               :target => @admin_session.TARGET)
   end
 
 end

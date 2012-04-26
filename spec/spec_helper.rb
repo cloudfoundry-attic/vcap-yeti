@@ -61,12 +61,19 @@ module BVT
 end
 
 RSpec.configure do |config|
+  include BVT::Harness::ParallelRunner
+
   config.before(:suite) do
+    if ENV['VCAP_BVT_PARALLEL']
+      BVT::Harness::VCAP_BVT_PARALLEL_INDEX = increase_sync_index
+    end
+    BVT::Harness::VCAP_BVT_CONFIG = YAML.load_file(BVT::Harness::VCAP_BVT_CONFIG_FILE)
     profile = YAML.load_file(BVT::Harness::VCAP_BVT_PROFILE_FILE)
     BVT::Harness::VCAP_BVT_SYSTEM_FRAMEWORKS  =  profile[:frameworks]
     BVT::Harness::VCAP_BVT_SYSTEM_RUNTIMES    =  profile[:runtimes]
     BVT::Harness::VCAP_BVT_SYSTEM_SERVICES    =  profile[:services]
   end
+
   config.include BVT::Harness::ScriptsHelper
 end
 

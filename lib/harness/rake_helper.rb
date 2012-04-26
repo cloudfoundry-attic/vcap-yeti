@@ -5,14 +5,15 @@ require "curb"
 require "mongo"
 require "yajl"
 require "digest/md5"
+require "tempfile"
 
 module BVT::Harness
   module RakeHelper
     include Interactive, ColorHelpers
 
-    VCAP_BVT_DEFAULT_TARGET = "vcap.me"
-    VCAP_BVT_DEFAULT_USER = "test@vcap.me"
-    VCAP_BVT_DEFAULT_ADMIN = "admin@vcap.me"
+    VCAP_BVT_DEFAULT_TARGET =   "vcap.me"
+    VCAP_BVT_DEFAULT_USER   =   "test@vcap.me"
+    VCAP_BVT_DEFAULT_ADMIN  =   "admin@vcap.me"
 
     def generate_config_file
       Dir.mkdir(VCAP_BVT_HOME) unless Dir.exists?(VCAP_BVT_HOME)
@@ -29,8 +30,9 @@ module BVT::Harness
 
     def check_environment
       check_network_connection
-
-      client = BVT::Harness::CFSession.new
+      client = BVT::Harness::CFSession.new(:email => @config['user']['email'],
+                                           :passwd => @config['user']['passwd'],
+                                           :target => @config['target'])
       profile = {}
       profile[:runtimes] = client.system_runtimes
       profile[:services] = client.system_services
@@ -62,7 +64,7 @@ module BVT::Harness
 
     def cleanup!
       check_network_connection
-      cleanup_services_apps(@config['user']['email'], @config['user']['passwd'])
+      cleanup_services_apps
       cleanup_test_accounts
     end
 
@@ -190,10 +192,10 @@ module BVT::Harness
       File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(@config) }
       puts yellow("BVT is starting...")
       puts "target: \t#{yellow(@config['target'])}"
-      puts "admin user: \t#{yellow(@config['admin']['email'])}" +
-              "\t\tadmin user passwd: \t#{yellow(@config['admin']['passwd'])}"
-      puts "normal user: \t#{yellow(@config['user']['email'])}" +
-               "\tnormal user passwd: \t#{yellow(@config['user']['passwd'])}"
+      puts "admin user: \t#{yellow(@config['admin']['email'])}"
+      unless ENV['VCAP_BVT_PARALLEL']
+        puts "normal user: \t#{yellow(@config['user']['email'])}"
+      end
     end
 
     def ask_and_validate(question, pattern, default = nil, echo = nil)
@@ -209,8 +211,10 @@ module BVT::Harness
       `git log --pretty=oneline`.split("\n").first
     end
 
-    def cleanup_services_apps(email, passwd)
-      session = BVT::Harness::CFSession.new(false, email, passwd)
+    def cleanup_services_apps
+      session = BVT::Harness::CFSession.new(:email => @config['user']['email'],
+                                            :passwd => @config['user']['passwd'],
+                                            :target => @config['target'])
       puts yellow("Ready to clean up for test user: #{session.email}")
       apps = session.apps
       services = session.services
@@ -244,9 +248,9 @@ module BVT::Harness
       puts yellow("Clean up work for test user: #{session.email} has been done.\n")
     end
 
-    def cleanup_test_accounts()
+    def cleanup_test_accounts
       test_user_template = 'my_fake@email.address'
-      session = BVT::Harness::CFSession.new(true)
+      session = BVT::Harness::CFSession.new(:admin => true)
       puts yellow("Ready to remove all test users created in admin_user_spec.rb")
       users = session.users.select { |user| user.email =~ /^t.*-#{test_user_template}$/ }
 

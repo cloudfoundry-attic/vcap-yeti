@@ -1,5 +1,3 @@
-
-
 module BVT::Spec
   module CanonicalHelper
 
