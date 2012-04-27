@@ -5,48 +5,41 @@ module BVT::Harness
     attr_reader :name
 
     def initialize(app, session)
-      @app = app
-      @name = @app.name
-      @session = session
-      @log = @session.log
+      @app      = app
+      @name     = @app.name
+      @session  = session
+      @log      = @session.log
+      @manifest = load_assets_yml
     end
 
     def inspect
       "#<BVT::Harness::App '#@name'>"
     end
 
-    # manifest example
-    #
-    #{"instances"=>1,
-    # "staging"=>{"framework"=>"sinatra", "runtime"=>"ruby19"},
-    # "resources"=>{"memory"=>64}
-    #}
-    #
-    def push(manifest)
-      check_framework(manifest['staging']['framework'])
-      check_runtime(manifest['staging']['runtime'])
-      manifest['path'] = get_app_path
-      manifest['uris'] = [get_url,]
+    def push
+      check_framework(@manifest['framework'])
+      check_runtime(@manifest['runtime'])
+      @manifest['uris'] = [get_url,]
 
       if @app.exists?
-        @app.upload(manifest['path'])
+        @app.upload(@manifest['path'])
         restart
         return
       end
 
-      @app.total_instances = manifest['instances']
-      @app.urls = manifest['uris']
-      @app.framework = manifest['staging']['framework']
-      @app.runtime = manifest['staging']['runtime']
-      @app.memory = manifest['resources']['memory']
+      @app.total_instances = @manifest['instances']
+      @app.urls            = @manifest['uris']
+      @app.framework       = @manifest['framework']
+      @app.runtime         = @manifest['runtime']
+      @app.memory          = @manifest['memory']
 
       @log.info "Push App: #{@app.name}"
       begin
         @app.create!
-        @app.upload(manifest['path'])
+        @app.upload(@manifest['path'])
       rescue
-        @log.error("Push App: #{@app.name} failed. Manifest: #{manifest}")
-        raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{manifest}"
+        @log.error("Push App: #{@app.name} failed. Manifest: #{@manifest}")
+        raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{@manifest}"
       end
 
       start
@@ -144,8 +137,8 @@ module BVT::Harness
         raise RuntimeError, "REST method #{method} is not supported"
       end
 
-      easy = Curl::Easy.new
-      easy.url = get_url + relative_path
+      easy              = Curl::Easy.new
+      easy.url          = get_url + relative_path
       easy.resolve_mode = :ipv4
       begin
         case method
@@ -171,8 +164,6 @@ module BVT::Harness
     end
 
     private
-
-    APP_CHECK_LIMIT = 60
 
     def check_application
       seconds = 0
@@ -225,7 +216,7 @@ module BVT::Harness
       end
     end
 
-    def get_app_path
+    def load_assets_yml
       app_config = YAML.load_file(VCAP_BVT_APP_CONFIG)
       unless app_config.is_a?(Hash)
         @log.error("Invalid config file format, #{VCAP_BVT_APP_CONFIG}")
@@ -237,7 +228,9 @@ module BVT::Harness
         raise RuntimeError, "Cannot find application #{appid} in #{VCAP_BVT_APP_CONFIG}"
       end
 
-      File.join(File.dirname(__FILE__), "../..", app_config[appid]['path'])
+      app_config[appid]['instances'] = 1 if app_config[appid]['instances'] == nil
+      app_config[appid]['path'] = File.join(File.dirname(__FILE__), "../..", app_config[appid]['path'])
+      app_config[appid]
     end
 
     def get_url

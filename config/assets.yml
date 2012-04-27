@@ -7,77 +7,83 @@ job_timeout_secs: 30
 sleep_secs: 1
 
 simple_app:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 128
   path: "assets/sinatra/hello_vcap"
 
 simple_app2:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
+  instances: 1
+  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/hello_vcap"
 
 simple_app3:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 64
   path: "assets/sinatra/hello_vcap"
 
 tiny_java_app:
-  framework: "java_web/1.0"
-  memory: 128
+  framework: "java_web"
+  instances: 1
+  runtime: "java"
+  memory: 64
   path: "assets/java_web/java_tiny_app/target"
 
 simple_db_app:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 128
   path: "assets/sinatra/simple_db_app"
 
 redis_lb_app:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 128
   path: "assets/sinatra/redis_lb_app"
 
 env_test_app:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 64
   path: "assets/sinatra/env_test_app"
 
 broken_app:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 64
   path: "assets/sinatra/broken_app"
 
 rails3_app:
-  framework: "rails/1.0"
+  framework: "rails3"
   memory: 128
   path: "assets/rails3/rails3_app"
 
 jpa_app:
-  framework: "spring_web/1.0"
+  framework: "spring"
   memory: 512
   path: "assets/spring/jpa-guestbook/target"
 
 hibernate_app:
-  framework: "spring_web/1.0"
-  memory: 512
+  framework: "spring"
+  instances: 1
+  runtime: "java"
+  memory: 320
   path: "assets/spring/hibernate-guestbook/target"
 
 dbrails_app:
-  framework: "rails/1.0"
+  framework: "rails3"
   memory: 128
   path: "assets/rails3/dbrails_app"
 
 dbrails_broken_app:
-  framework: "rails/1.0"
+  framework: "rails3"
   memory: 128
   path: "assets/rails3/dbrails_broken_app"
 
 grails_app:
-  framework: "grails/1.0"
+  framework: "grails3"
   memory: 512
   path: "assets/grails/guestbook/target"
 
 roo_app:
-  framework: "spring_web/1.0"
+  framework: "spring"
   memory: 256
   path: "assets/spring/roo-guestbook/target"
 
@@ -97,7 +103,7 @@ lift-db-app:
   path: "assets/lift/lift-db-app/target"
 
 tomcat-version-check-app:
-  framework: "spring_web/1.0"
+  framework: "spring"
   memory: 128
   tomcat_version: "7.0.26"
   path: "assets/java_web/tomcat-version-check-app/target"
@@ -115,22 +121,22 @@ app_rails_version19:
   path: "assets/rails3/app_rails_version"
 
 app_rails_service:
-  framework: "rails/1.0"
+  framework: "rails3"
   memory: 256
   path: "assets/rails3/app_rails_service"
 
 app_rails_service_autoconfig:
-  framework: "rails/1.0"
+  framework: "rails3"
   memory: 256
   path: "assets/rails3/app_rails_service_autoconfig"
 
 rails_autoconfig_disabled_by_file:
-  framework: "rails/1.0"
+  framework: "rails3"
   memory: 256
   path: "assets/rails3/autoconfig_disabled_by_file"
 
 rails_autoconfig_disabled_by_gem:
-  framework: "rails/1.0"
+  framework: "rails3"
   memory: 256
   path: "assets/rails3/autoconfig_disabled_by_gem"
 
@@ -141,67 +147,85 @@ app_rack_service:
 
 app_rack_service_autoconfig:
   framework: "rack"
+  instances: 1
+  runtime: "ruby18"
   startup: "ruby app.rb"
   memory: 64
   path: "assets/rack/app_rack_service_autoconfig"
 
 rack_autoconfig_ruby19:
   framework: "rack"
+  instances: 1
+  runtime: "ruby19"
   startup: "ruby app.rb"
   memory: 64
-  runtime: ruby19
   path: "assets/rack/autoconfig_ruby19"
 
 rack_autoconfig_disabled_by_file:
   framework: "rack"
+  instances: 1
+  runtime: "ruby18"
   startup: "ruby app.rb"
   memory: 64
   path: "assets/rack/autoconfig_disabled_by_file"
 
 rack_autoconfig_disabled_by_gem:
   framework: "rack"
+  instances: 1
+  runtime: "ruby18"
   startup: "ruby app.rb"
   memory: 64
   path: "assets/rack/autoconfig_disabled_by_gem"
 
 app_sinatra_service:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 256
   path: "assets/sinatra/app_sinatra_service"
 
 app_sinatra_service2:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 256
   path: "assets/sinatra/app_sinatra_service"
 
 app_sinatra_service_autoconfig:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
+  instances: 1
+  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/app_sinatra_service_autoconfig"
 
 amqp_autoconfig:
   framework: "sinatra"
+  instances: 1
+  runtime: "ruby19"
   memory: 64
-  runtime: ruby19
   path: "assets/sinatra/amqp_autoconfig"
 
 autoconfig_unsupported_versions:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
+  instances: 1
+  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/autoconfig_unsupported_versions"
 
 autoconfig_unsupported_carrot_version:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
+  instances: 1
+  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/autoconfig_unsupported_carrot_version"
 
 sinatra_autoconfig_disabled_by_file:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
+  instances: 1
+  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/autoconfig_disabled_by_file"
 
 sinatra_autoconfig_disabled_by_gem:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
+  instances: 1
+  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/autoconfig_disabled_by_gem"
 
@@ -224,17 +248,19 @@ app_node_version06:
   path: "assets/node/app_node_version"
 
 app_spring_service:
-  framework: "spring_web/1.0"
-  memory: 512
+  framework: "spring"
+  instances: 1
+  runtime: "java"
+  memory: 256
   path: "assets/spring/app_spring_service/target"
 
 my_test_app_env_test_app:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 64
   path: "assets/sinatra/hello_vcap"
 
 neo4j_app:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 128
   path: "assets/sinatra/neo4j_app"
 
@@ -259,47 +285,50 @@ simple_php_app:
   path: "assets/php/simple_php_app"
 
 spring-env-app:
-  framework: "spring_web/1.0"
+  framework: "spring"
   memory: 256
   path: "assets/spring/spring-env/target"
 
 auto-reconfig-test-app:
-  framework: "spring_web/1.0"
-  memory: 512
+  framework: "spring"
+  runtime: "java"
+  memory: 128
   path: "assets/spring/auto-reconfig-test-app/target"
 
 auto-reconfig-missing-deps-test-app:
-  framework: "spring_web/1.0"
+  framework: "spring"
   memory: 256
   path: "assets/spring/auto-reconfig-missing-deps-test-app/target"
 
 atmos_app:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 256
   path: "assets/sinatra/atmos_app"
 
 simple_kv_app:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 64
   path: "assets/sinatra/simple_kv_app"
 
 brokered_service_app:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 64
   path: "assets/sinatra/brokered_service_app"
 
 java_app_with_startup_delay:
-  framework: "java_web/1.0"
-  memory: 128
+  framework: "java_web"
+  instances: 1
+  runtime: "java"
+  memory: 64
   path: "assets/java_web/app_with_startup_delay/target"
 
 rails_console_test_app:
-  framework: "rails/1.0"
+  framework: "rails3"
   memory: 256
   path: "assets/rails3/app_rails_service"
 
 vblob_app:
-  framework: "http://b20nine.com/unknown"
+  framework: "sinatra"
   memory: 256
   path: "assets/sinatra/vblob_app"
 

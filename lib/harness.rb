@@ -7,6 +7,7 @@ module BVT
     VCAP_BVT_LOG_FILE = File.join(VCAP_BVT_HOME, "bvt.log")
     LOGGER_LEVEL = :debug
     VCAP_BVT_APP_CONFIG = File.join(File.dirname(__FILE__), "../config/assets.yml")
+    APP_CHECK_LIMIT = 60
   end
 end
 
