@@ -12,6 +12,7 @@ module BVT
     VCAP_BVT_LOG_FILE     = File.join(VCAP_BVT_HOME, "bvt.log")
     LOGGER_LEVEL          = :debug
     config = {:level => LOGGER_LEVEL, :file => VCAP_BVT_LOG_FILE}
+    Dir.mkdir(VCAP_BVT_HOME) unless Dir.exist?(VCAP_BVT_HOME)
     VCAP::Logging.setup_from_config(config)
 
     APP_CHECK_LIMIT = 60
