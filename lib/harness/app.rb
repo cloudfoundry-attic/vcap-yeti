@@ -9,7 +9,6 @@ module BVT::Harness
       @name     = @app.name
       @session  = session
       @log      = @session.log
-      @manifest = load_assets_yml
     end
 
     def inspect
@@ -17,6 +16,8 @@ module BVT::Harness
     end
 
     def push(services = nil)
+      # initailze manifest here to fix the cleanup app bug
+      @manifest = load_assets_yml
       check_framework(@manifest['framework'])
       check_runtime(@manifest['runtime'])
       @manifest['uris'] = [get_url,]
