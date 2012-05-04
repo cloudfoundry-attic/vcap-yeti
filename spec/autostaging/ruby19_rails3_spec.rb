@@ -21,7 +21,7 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
   end
 
   it "start application and write data" do
-    app = @session.app("rails3_app")
+    app = create_app("rails3_app")
     app.push
     app.healthy?.should be_true, "Application #{app.name} is not running"
     widget_name = "somewidget"
@@ -31,25 +31,21 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
 
   it "start and test a rails db app with Gemfile that includes mysql2 gem" do
     service_manifest = MYSQL_MANIFEST
-    service = @session.service(service_manifest['vendor'])
-    service.create(service_manifest)
+    service = create_service(MYSQL_MANIFEST)
 
-    app = @session.app("dbrails_app")
+    app = create_app("dbrails_app")
     app.push([service])
     app.healthy?.should be_true, "Application #{app.name} is not running"
 
-    verify_rails_db_app(app, "/db/init")
-    verify_rails_db_app(app, "/db/query")
-    verify_rails_db_app(app, "/db/update")
-    verify_rails_db_app(app, "/db/create")
+    urls = %W(/db/init /db/query /db/update /db/create)
+    urls.each { |url| verify_rails_db_app(app, url)}
   end
 
   it "rails db app with Gemfile that DOES NOT include mysql2 or sqllite gems" do
     service_manifest = MYSQL_MANIFEST
-    service = @session.service(service_manifest['vendor'])
-    service.create(service_manifest)
+    service = create_service(MYSQL_MANIFEST)
 
-    app = @session.app("dbrails_broken_app")
+    app = create_app("dbrails_broken_app")
     lambda { app.push([service]) }.should raise_error(RuntimeError, \
       "Application: #{app.name} cannot be started in 60 seconds")
   end
@@ -60,7 +56,7 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
     services = []
     service_manifests.each { |manifest| services << create_service(manifest) }
 
-    app = @session.app("app_rails_service_autoconfig")
+    app = create_app("app_rails_service_autoconfig")
     app.push(services)
     app.healthy?.should be_true, "Application #{app.name} is not running"
     app.get_response(:get).body_str.should == "hello from rails"
@@ -82,7 +78,7 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
     services = []
     service_manifests.each { |manifest| services << create_service(manifest) }
 
-    app = @session.app("rails_autoconfig_disabled_by_file")
+    app = create_app("rails_autoconfig_disabled_by_file")
     app.push(services)
     app.healthy?.should be_true, "Application #{app.name} is not running"
     app.get_response(:get).body_str.should == "hello from rails"
@@ -98,7 +94,7 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
     services = []
     service_manifests.each { |manifest| services << create_service(manifest) }
 
-    app = @session.app("rails_autoconfig_disabled_by_gem")
+    app = create_app("rails_autoconfig_disabled_by_gem")
     app.push(services)
     app.healthy?.should be_true, "Application #{app.name} is not running"
     app.get_response(:get).body_str.should == "hello from rails"

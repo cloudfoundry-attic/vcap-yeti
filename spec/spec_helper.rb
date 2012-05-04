@@ -1,3 +1,5 @@
+require "harness"
+
 module BVT
   module Spec
 
@@ -41,6 +43,16 @@ module BVT
                                                    "rabbitmq" => "amqp",
                                                    "postgresql" => "postgres"]
   end
+end
+
+RSpec.configure do |config|
+  config.before(:suite) do
+    profile = YAML.load_file(BVT::Harness::VCAP_BVT_PROFILE_FILE)
+    BVT::Harness::VCAP_BVT_SYSTEM_FRAMEWORKS  =  profile[:frameworks]
+    BVT::Harness::VCAP_BVT_SYSTEM_RUNTIMES    =  profile[:runtimes]
+    BVT::Harness::VCAP_BVT_SYSTEM_SERVICES    =  profile[:services]
+  end
+  config.include BVT::Harness::ScriptsHelper
 end
 
 require "autostaging/autostaging_helper"
