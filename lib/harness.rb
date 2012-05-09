@@ -1,4 +1,5 @@
 require "vcap/logging"
+require "yaml"
 
 module BVT
   module Harness
@@ -7,6 +8,7 @@ module BVT
     VCAP_BVT_PROFILE_FILE = File.join(VCAP_BVT_HOME, "profile.yml")
 
     VCAP_BVT_APP_CONFIG   = File.join(File.dirname(__FILE__), "../config/assets.yml")
+    VCAP_BVT_APP_ASSETS   = YAML.load_file(VCAP_BVT_APP_CONFIG)
 
     # setup logger
     VCAP_BVT_LOG_FILE     = File.join(VCAP_BVT_HOME, "bvt.log")
@@ -26,3 +28,4 @@ require "harness/app"
 require "harness/service"
 require "harness/user"
 require "harness/http_response_code"
+require "harness/scripts_helper"

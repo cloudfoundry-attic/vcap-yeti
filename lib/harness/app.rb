@@ -2,7 +2,7 @@ require "cfoundry"
 
 module BVT::Harness
   class App
-    attr_reader :name
+    attr_reader :name, :manifest
 
     def initialize(app, session)
       @app      = app
@@ -16,8 +16,7 @@ module BVT::Harness
     end
 
     def push(services = nil)
-      # initailze manifest here to fix the cleanup app bug
-      @manifest = load_assets_yml
+      load_manifest
       check_framework(@manifest['framework'])
       check_runtime(@manifest['runtime'])
       @manifest['uris'] = [get_url,]
@@ -38,9 +37,9 @@ module BVT::Harness
       begin
         @app.create!
         @app.upload(@manifest['path'])
-      rescue
-        @log.error("Push App: #{@app.name} failed. Manifest: #{@manifest}")
-        raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{@manifest}"
+      rescue Exception => e
+        @log.error("Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}")
+        raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}"
       end
       services.each { |service| bind(service.name, false)} if services
       start
@@ -88,9 +87,9 @@ module BVT::Harness
         @log.info "Start App: #{@app.name}"
         begin
           @app.start!
-        rescue
-          @log.error "Start App: #{@app.name} failed. "
-          raise RuntimeError, "Start App: #{@app.name} failed."
+        rescue Exception => e
+          @log.error "Start App: #{@app.name} failed.\n#{e.to_s}"
+          raise RuntimeError, "Start App: #{@app.name} failed.\n#{e.to_s}"
         end
         check_application
       end
@@ -165,80 +164,63 @@ module BVT::Harness
         sleep 0.1
         return easy
       rescue Exception => e
-        @log.error("Cannot #{method} data from/to #{easy.url}\n#{e.to_s}")
-        raise RuntimeError, "Cannot #{method} data from/to #{easy.url}\n#{e.to_s}"
+        @log.error("Cannot #{method} response from/to #{easy.url}\n#{e.to_s}")
+        raise RuntimeError, "Cannot #{method} response from/to #{easy.url}\n#{e.to_s}"
+      end
+    end
+
+    def load_manifest
+      unless @manifest
+        unless VCAP_BVT_APP_ASSETS.is_a?(Hash)
+          @log.error("Invalid config file format, #{VCAP_BVT_APP_CONFIG}")
+          raise RuntimeError, "Invalid config file format, #{VCAP_BVT_APP_CONFIG}"
+        end
+        appid = @app.name.split('-', 2).last
+
+        unless VCAP_BVT_APP_ASSETS.has_key?(appid)
+          @log.error("Cannot find application #{appid} in #{VCAP_BVT_APP_CONFIG}")
+          raise RuntimeError, "Cannot find application #{appid} in #{VCAP_BVT_APP_CONFIG}"
+        end
+
+        VCAP_BVT_APP_ASSETS[appid]['instances'] = 1 unless VCAP_BVT_APP_ASSETS[appid]['instances']
+        VCAP_BVT_APP_ASSETS[appid]['path']      =
+            File.join(File.dirname(__FILE__), "../..", VCAP_BVT_APP_ASSETS[appid]['path'])
+        @manifest = VCAP_BVT_APP_ASSETS[appid]
       end
     end
 
     private
 
-    def check_application
-      app_config ||= YAML.load_file(VCAP_BVT_APP_CONFIG)
-      seconds = 0
-      until @app.healthy?
-        sleep 1
-        seconds += 1
-        if seconds == app_config['timeout_secs']
-          @log.error "Application: #{@app.name} cannot be started " +
-                         " in #{app_config['timeout_secs']} seconds"
-          raise RuntimeError, "Application: #{@app.name} cannot be started " +
-              "in #{app_config['timeout_secs']} seconds"
-        end
-      end
-    end
-
     def check_framework(framework)
-      if File.exists?(VCAP_BVT_PROFILE_FILE)
-        @profile ||= YAML.load_file(VCAP_BVT_PROFILE_FILE)
-        unless @profile.is_a?(Hash)
-          @log.error("Invalid profile file format, #{VCAP_BVT_PROFILE_FILE}")
-          raise "Invalid profile file format, #{VCAP_BVT_PROFILE_FILE}"
-        end
-        frameworks = @profile[:frameworks]
-      end
-      frameworks ||= @session.system_frameworks
-
-      unless frameworks.has_key?(framework)
+      unless VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(framework)
         @log.error("Framework: #{framework} is not available " +
                        "on target: #{@session.TARGET}")
-        pending("Framework: #{framework} is not available " +
-                    "on target: #{@session.TARGET}")
+        raise RuntimeError, "Framework: #{framework} is not available " +
+                    "on target: #{@session.TARGET}"
       end
 
     end
 
     def check_runtime(runtime)
-      if File.exists?(VCAP_BVT_PROFILE_FILE)
-        @profile ||= YAML.load_file(VCAP_BVT_PROFILE_FILE)
-        unless @profile.is_a?(Hash)
-          @log.error("Invalid profile file format, #{VCAP_BVT_PROFILE_FILE}")
-          raise "Invalid profile file format, #{VCAP_BVT_PROFILE_FILE}"
-        end
-        runtimes = @profile[:runtimes]
-      end
-      runtimes ||= @session.system_runtimes
-
-      unless runtimes.has_key?(runtime)
+      unless VCAP_BVT_SYSTEM_RUNTIMES.has_key?(runtime)
         @log.error("Runtime: #{runtime} is not available on target: #{@session.TARGET}")
-        pending("Runtime: #{runtime} is not available on target: #{@session.TARGET}")
+        raise RuntimeError, "Runtime: #{runtime} is not available" +
+            " on target: #{@session.TARGET}"
       end
     end
 
-    def load_assets_yml
-      app_config = YAML.load_file(VCAP_BVT_APP_CONFIG)
-      unless app_config.is_a?(Hash)
-        @log.error("Invalid config file format, #{VCAP_BVT_APP_CONFIG}")
-        raise RuntimeError, "Invalid config file format, #{VCAP_BVT_APP_CONFIG}"
+    def check_application
+      seconds = 0
+      until @app.healthy?
+        sleep 1
+        seconds += 1
+        if seconds == VCAP_BVT_APP_ASSETS['timeout_secs']
+          @log.error "Application: #{@app.name} cannot be started " +
+                         " in #{VCAP_BVT_APP_ASSETS['timeout_secs']} seconds"
+          raise RuntimeError, "Application: #{@app.name} cannot be started " +
+              "in #{VCAP_BVT_APP_ASSETS['timeout_secs']} seconds"
+        end
       end
-      appid = @app.name.split('-', 2).last
-      unless app_config.has_key?(appid)
-        @log.error("Cannot find application #{appid} in #{VCAP_BVT_APP_CONFIG}")
-        raise RuntimeError, "Cannot find application #{appid} in #{VCAP_BVT_APP_CONFIG}"
-      end
-
-      app_config[appid]['instances'] = 1 if app_config[appid]['instances'] == nil
-      app_config[appid]['path'] = File.join(File.dirname(__FILE__), "../..", app_config[appid]['path'])
-      app_config[appid]
     end
 
     def get_url

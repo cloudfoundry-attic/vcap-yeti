@@ -14,7 +14,7 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
   end
 
   it "services autostaging" do
-    app = @session.app("app_rack_service_autoconfig")
+    app = create_app("app_rack_service_autoconfig")
     app.push
     app.healthy?.should be_true, "Application #{app.name} is not running"
     app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
@@ -32,7 +32,7 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
   end
 
   it "rack opt-out of autostaging via config file" do
-    app = @session.app("rack_autoconfig_disabled_by_file")
+    app = create_app("rack_autoconfig_disabled_by_file")
     app.push
     app.healthy?.should be_true, "Application #{app.name} is not running"
     app.get_response(:get).body_str.should == "hello from sinatra"
@@ -46,7 +46,7 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
   end
 
   it "rack opt-out of autostaging via cf-runtime gem" do
-    app = @session.app("rack_autoconfig_disabled_by_gem")
+    app = create_app("rack_autoconfig_disabled_by_gem")
     app.push
     app.healthy?.should be_true, "Application #{app.name} is not running"
     app.get_response(:get).body_str.should == "hello from sinatra"

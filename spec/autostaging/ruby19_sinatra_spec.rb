@@ -13,12 +13,17 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
     @session.cleanup!
   end
 
-  it "services autostaging" do
-    app = @session.app("app_sinatra_service_autoconfig")
+  def push_app_and_verify(app_name, relative_url, response_str)
+    app = create_app(app_name)
     app.push
     app.healthy?.should be_true, "Application #{app.name} is not running"
-    app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
+    app.get_response(:get, relative_url).body_str.should =~ /#{response_str}/
+    app
+  end
 
+  it "services autostaging" do
+    app = push_app_and_verify("app_sinatra_service_autoconfig",
+                              "/crash", "502 Bad Gateway")
     # provision service
     manifests = [MYSQL_MANIFEST, REDIS_MANIFEST, MONGODB_MANIFEST, RABBITMQ_MANIFEST, POSTGRESQL_MANIFEST]
     manifests.each do |service_manifest|
@@ -28,11 +33,7 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
   end
 
   it "Sinatra AMQP autostaging" do
-    app = @session.app("amqp_autoconfig")
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
-    app.get_response(:get).body_str.should == "hello from sinatra"
-
+    app = push_app_and_verify("amqp_autoconfig", "/", "hello from sinatra")
     # provision service
     service_manifest = RABBITMQ_MANIFEST
     bind_service(service_manifest, app)
@@ -45,11 +46,8 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
   end
 
   it "Autostaging with unsupported client versions" do
-    app = @session.app("autoconfig_unsupported_versions")
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
-    app.get_response(:get).body_str.should == "hello from sinatra"
-
+    app = push_app_and_verify("autoconfig_unsupported_versions", "/",
+                              "hello from sinatra")
     # provision service
     testdata = [{:service => MYSQL_MANIFEST,
                  :data => "Can'tconnecttoMySQLserveron'127.0.0.1'(111)"},
@@ -69,11 +67,8 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
   end
 
   it "Autostaging with unsupported carrot version" do
-    app = @session.app("autoconfig_unsupported_carrot_version")
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
-    app.get_response(:get).body_str.should == "hello from sinatra"
-
+    app = push_app_and_verify("autoconfig_unsupported_carrot_version", "/",
+                              "hello from sinatra")
     # provision service
     service_manifest = RABBITMQ_MANIFEST
     bind_service(service_manifest, app)
@@ -82,11 +77,8 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
   end
 
   it "Sinatra opt-out of autostaging via config file" do
-    app = @session.app("sinatra_autoconfig_disabled_by_file")
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
-    app.get_response(:get).body_str.should == "hello from sinatra"
-
+    app = push_app_and_verify("sinatra_autoconfig_disabled_by_file", "/",
+                              "hello from sinatra")
     # provision service
     service_manifest = REDIS_MANIFEST
     bind_service(service_manifest, app)
@@ -95,11 +87,8 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
   end
 
   it "Sinatra opt-out of autostaging via cf-runtime gem" do
-    app = @session.app("sinatra_autoconfig_disabled_by_gem")
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
-    app.get_response(:get).body_str.should == "hello from sinatra"
-
+    app = push_app_and_verify("sinatra_autoconfig_disabled_by_gem",  "/",
+                              "hello from sinatra")
     # provision service
     service_manifest = REDIS_MANIFEST
     bind_service(service_manifest, app)
