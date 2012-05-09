@@ -22,7 +22,7 @@ desc "Run the Basic Viability Tests"
 task :tests do
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  sh "bundle exec rspec spec/ --format p -c | " +
+  sh "bundle exec rspec spec/ --tag ~admin --format p -c | " +
          "tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
 end
 
@@ -30,7 +30,7 @@ desc "Run admin test cases"
 task :admin do
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  sh "bundle exec rspec spec/users/admin_user_spec.rb --format p -c | " +
+  sh "bundle exec rspec spec/users/ --tag admin --format p -c | " +
          "tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
 end
 
@@ -57,4 +57,9 @@ end
 desc "Clean up test environment"
 task :clean do
   BVT::Harness::RakeHelper.cleanup!
+end
+
+desc "sync yeti assets binaries"
+task :sync_assets do
+  BVT::Harness::RakeHelper.sync_assets
 end

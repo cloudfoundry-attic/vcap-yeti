@@ -13,7 +13,7 @@ describe BVT::Spec::UsersManagement::AdminUser do
     test_user.delete
   end
 
-  it "test add-user/users/delete-user/passwd command" do
+  it "test add-user/users/delete-user/passwd command", :admin => true do
     # create user
     test_user = @admin_session.user(@test_email)
     test_pwd = "test-pwd"
