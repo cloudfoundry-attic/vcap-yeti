@@ -81,14 +81,14 @@ dbrails_broken_app:
   path: "assets/rails3/dbrails_broken_app"
 
 grails_app:
-  runtime: java
+  runtime: "java"
   framework: "grails3"
   memory: 512
   path: ".assets-binaries/guestbook.war"
 
 roo_app:
   framework: "spring"
-  runtime: java
+  runtime: "java"
   memory: 256
   path: ".assets-binaries/roo-guestbook.war"
 
@@ -100,19 +100,19 @@ mochiweb_test:
 simple-lift-app:
   framework: "lift/1.0"
   memory: 256
-  runtime: java
+  runtime: "java"
   path: ".assets-binaries/hello_lift.war"
 
 lift-db-app:
   framework: "lift/1.0"
   memory: 256
-  runtime: java
+  runtime: "java"
   path: ".assets-binaries/lift-db-app.war"
 
 tomcat-version-check-app:
   framework: "spring"
   memory: 128
-  runtime: java
+  runtime: "java"
   tomcat_version: "7.0.26"
   path: ".assets-binaries/tomcat-version-check-app.war"
 
@@ -299,6 +299,7 @@ simple_php_app:
 spring-env-app:
   framework: "spring"
   memory: 256
+  runtime: "java"
   path: ".assets-binaries/spring-env.war"
 
 auto-reconfig-test-app:
@@ -310,6 +311,7 @@ auto-reconfig-test-app:
 auto-reconfig-missing-deps-test-app:
   framework: "spring"
   memory: 256
+  runtime: "java"
   path: ".assets-binaries/auto-reconfig-missing-deps-test-app.war"
 
 atmos_app:
@@ -331,8 +333,8 @@ java_app_with_startup_delay:
   framework: "java_web"
   instances: 1
   runtime: "java"
-  memory: 64
-  path: ".assets-binaries/java_app_with_startup_delay.war"
+  memory: 128
+  path: ".assets-binaries/app_with_startup_delay.war"
 
 rails_console_test_app:
   framework: "rails3"
@@ -385,7 +387,7 @@ standalone_simple_ruby19_app:
 standalone_java_app:
   framework: "standalone"
   command: "bin/hello-cloud"
-  runtime: java
+  runtime: "java"
   memory: 256
   path: ".assets-binaries/java_app.jar"
   no_url: true

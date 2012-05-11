@@ -21,6 +21,7 @@ module BVT
       class JavaSpring; end
       class Ruby19Sinatra; end
       class NodeNode; end
+      class JavaStandalone; end
     end
 
     module Simple

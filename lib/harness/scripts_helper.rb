@@ -26,11 +26,14 @@ module BVT::Harness
       app.load_manifest
       if VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(app.manifest['framework']) &&
           VCAP_BVT_SYSTEM_RUNTIMES.has_key?(app.manifest['runtime'])
-        app
       else
         pending("Runtime/Framework: #{app.manifest['runtime']}/#{app.manifest['framework']} " +
                     "is not available on target: #{@session.TARGET}")
       end
+      if app.manifest['path'].end_with?('.jar') || app.manifest['path'].end_with?('.war') 
+        pending "Package not found, please run update.sh" unless File.exist? app.manifest['path']
+      end
+      app
     end
   end
 end
