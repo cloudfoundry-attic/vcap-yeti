@@ -28,7 +28,7 @@ tiny_java_app:
   instances: 1
   runtime: "java"
   memory: 64
-  path: "assets/java_web/java_tiny_app/target"
+  path: ".assets-binaries/java_tiny_app.war"
 
 simple_db_app:
   framework: "sinatra"
@@ -59,14 +59,14 @@ rails3_app:
 jpa_app:
   framework: "spring"
   memory: 512
-  path: "assets/spring/jpa-guestbook/target"
+  path: ".assets-binaries/jpa-guestbook.war"
 
 hibernate_app:
   framework: "spring"
   instances: 1
   runtime: "java"
   memory: 320
-  path: "assets/spring/hibernate-guestbook/target"
+  path: ".assets-binaries/hibernate-guestbook.war"
 
 dbrails_app:
   framework: "rails3"
@@ -81,14 +81,16 @@ dbrails_broken_app:
   path: "assets/rails3/dbrails_broken_app"
 
 grails_app:
+  runtime: "java"
   framework: "grails3"
   memory: 512
-  path: "assets/grails/guestbook/target"
+  path: ".assets-binaries/guestbook.war"
 
 roo_app:
   framework: "spring"
+  runtime: "java"
   memory: 256
-  path: "assets/spring/roo-guestbook/target"
+  path: ".assets-binaries/roo-guestbook.war"
 
 mochiweb_test:
   framework: "otp_rebar"
@@ -98,18 +100,21 @@ mochiweb_test:
 simple-lift-app:
   framework: "lift/1.0"
   memory: 256
-  path: "assets/lift/hello_lift/target"
+  runtime: "java"
+  path: ".assets-binaries/hello_lift.war"
 
 lift-db-app:
   framework: "lift/1.0"
   memory: 256
-  path: "assets/lift/lift-db-app/target"
+  runtime: "java"
+  path: ".assets-binaries/lift-db-app.war"
 
 tomcat-version-check-app:
   framework: "spring"
   memory: 128
+  runtime: "java"
   tomcat_version: "7.0.26"
-  path: "assets/java_web/tomcat-version-check-app/target"
+  path: ".assets-binaries/tomcat-version-check-app.war"
 
 app_rails_version18:
   framework: "rails3"
@@ -185,7 +190,8 @@ rack_autoconfig_disabled_by_gem:
 
 app_sinatra_service:
   framework: "sinatra"
-  memory: 256
+  runtime: "ruby19"
+  memory: 64
   path: "assets/sinatra/app_sinatra_service"
 
 app_sinatra_service2:
@@ -238,7 +244,7 @@ sinatra_autoconfig_disabled_by_gem:
 app_node_service:
   framework: "node"
   runtime: node
-  memory: 512
+  memory: 64
   path: "assets/node/app_node_service"
 
 app_node_version04:
@@ -258,7 +264,7 @@ app_spring_service:
   instances: 1
   runtime: "java"
   memory: 256
-  path: "assets/spring/app_spring_service/target"
+  path: ".assets-binaries/app_spring_service.war"
 
 my_test_app_env_test_app:
   framework: "sinatra"
@@ -293,18 +299,20 @@ simple_php_app:
 spring-env-app:
   framework: "spring"
   memory: 256
-  path: "assets/spring/spring-env/target"
+  runtime: "java"
+  path: ".assets-binaries/spring-env.war"
 
 auto-reconfig-test-app:
   framework: "spring"
   runtime: "java"
   memory: 128
-  path: "assets/spring/auto-reconfig-test-app/target"
+  path: ".assets-binaries/auto-reconfig-test-app.war"
 
 auto-reconfig-missing-deps-test-app:
   framework: "spring"
   memory: 256
-  path: "assets/spring/auto-reconfig-missing-deps-test-app/target"
+  runtime: "java"
+  path: ".assets-binaries/auto-reconfig-missing-deps-test-app.war"
 
 atmos_app:
   framework: "sinatra"
@@ -325,8 +333,8 @@ java_app_with_startup_delay:
   framework: "java_web"
   instances: 1
   runtime: "java"
-  memory: 64
-  path: "assets/java_web/app_with_startup_delay/target"
+  memory: 128
+  path: ".assets-binaries/app_with_startup_delay.war"
 
 rails_console_test_app:
   framework: "rails3"
@@ -379,9 +387,9 @@ standalone_simple_ruby19_app:
 standalone_java_app:
   framework: "standalone"
   command: "bin/hello-cloud"
-  runtime: java
+  runtime: "java"
   memory: 256
-  path: "assets/standalone/java_app/target/appassembler"
+  path: ".assets-binaries/java_app.jar"
   no_url: true
 
 standalone_node_app:

@@ -1,0 +1,98 @@
+$:.unshift(File.join(File.dirname(__FILE__), "scripts"))
+require "tools"
+
+task :default => [:help]
+
+desc "List help commands"
+task :help do
+  puts "Usage: rake [command]"
+  puts "  build\t\t\t\tbuild the tests"
+  puts "  upload_assets\t\t\tupload the pre-compiled java packages"
+  puts "  help\t\t\t\tlist help commands"
+end
+
+desc "upload the pre-compiled java packages"
+task :upload_assets do
+  Tools::AssetsHelper.upload_assets
+end
+
+BUILD_ARTIFACT = File.join(Dir.pwd, ".build")
+TESTS_PATH = File.join(Dir.pwd, "../assets")
+VCAP_BVT_ASSETS_PACKAGES_HOME = File.join(File.dirname(__FILE__), "../.assets-binaries")
+
+TESTS_TO_BUILD = ["#{TESTS_PATH}/spring/auto-reconfig-test-app",
+             "#{TESTS_PATH}/spring/auto-reconfig-missing-deps-test-app",
+             "#{TESTS_PATH}/spring/app_spring_service",
+             "#{TESTS_PATH}/java_web/app_with_startup_delay",
+             "#{TESTS_PATH}/java_web/tomcat-version-check-app",
+             "#{TESTS_PATH}/spring/roo-guestbook",
+             "#{TESTS_PATH}/spring/jpa-guestbook",
+             "#{TESTS_PATH}/spring/hibernate-guestbook",
+             "#{TESTS_PATH}/spring/spring-env",
+             "#{TESTS_PATH}/grails/guestbook",
+             "#{TESTS_PATH}/java_web/java_tiny_app",
+             "#{TESTS_PATH}/lift/hello_lift",
+             "#{TESTS_PATH}/lift/lift-db-app",
+             "#{TESTS_PATH}/standalone/java_app"
+]
+
+desc "Build the tests. If the git hash hasn't change, nothing is built. To force a build, invoke 'rake build[--force]'"
+task :build, [:force] do |t, args|
+  puts "\nBuilding tests"
+  sh('cd .. && git submodule update --init')
+  if build_required? args.force
+    prompt_message = "\nBVT need java development environment to build java-base apps.\n"+
+    "Please run 'sudo aptitude install maven2 default-jdk' on your Linux box"
+    `mvn -v 2>&1`
+    raise prompt_message if $?.exitstatus != 0
+    ENV['MAVEN_OPTS']="-XX:MaxPermSize=256M"
+    TESTS_TO_BUILD.each do |test|
+      puts "\tBuilding '#{test}'"
+      Dir.chdir test do
+        sh('mvn package -DskipTests') do |success, exit_code|
+          if success
+            binaryname = File.join("{target,target/appassembler}", "*.{war,jar}")
+            binary_file = Dir.glob(binaryname).first
+            app_name = test.split('/')[-1]
+            file_type = '.'+binary_file.split('.')[-1]
+            target_file = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, app_name+file_type)
+            sh("mkdir #{VCAP_BVT_ASSETS_PACKAGES_HOME}") unless Dir.exist?(VCAP_BVT_ASSETS_PACKAGES_HOME)
+            sh("cp #{binary_file} #{target_file}")
+          else
+            clear_build_artifact
+            sh("mvn clean -q")
+            fail "\tFailed to build #{test} - aborting build"
+          end
+        end
+      end
+      puts "\tCompleted building '#{test}'"
+    end
+    save_git_hash
+    Tools::AssetsHelper.update_local_hash
+  else
+    puts "Built artifacts in sync with test assets - no build required"
+  end
+end
+
+def build_required? (force_build=nil)
+  if File.exists?(BUILD_ARTIFACT) == false or (force_build and force_build == "--force")
+    return true
+  end
+  Dir.chdir(TESTS_PATH) do
+    saved_git_hash = IO.readlines(BUILD_ARTIFACT)[0].split[0]
+    git_hash = `git rev-parse --short=8 --verify HEAD`
+    saved_git_hash.to_s.strip != git_hash.to_s.strip
+  end
+end
+
+def save_git_hash
+  Dir.chdir(TESTS_PATH) do
+    git_hash = `git rev-parse --short=8 --verify HEAD`
+    File.open(BUILD_ARTIFACT, 'w') {|f| f.puts("#{git_hash}")}
+  end
+end
+
+def clear_build_artifact
+  puts "\tClearing build artifact #{BUILD_ARTIFACT}"
+  File.unlink BUILD_ARTIFACT if File.exists? BUILD_ARTIFACT
+end

@@ -12,7 +12,7 @@ module BVT::Harness
     end
 
     def inspect
-      "#<BVT::Harness::App '#@name'>"
+      "#<BVT::Harness::App '#@name' '#@manifest'>"
     end
 
     def push(services = nil)
@@ -182,10 +182,11 @@ module BVT::Harness
           raise RuntimeError, "Cannot find application #{appid} in #{VCAP_BVT_APP_CONFIG}"
         end
 
-        VCAP_BVT_APP_ASSETS[appid]['instances'] = 1 unless VCAP_BVT_APP_ASSETS[appid]['instances']
-        VCAP_BVT_APP_ASSETS[appid]['path']      =
-            File.join(File.dirname(__FILE__), "../..", VCAP_BVT_APP_ASSETS[appid]['path'])
-        @manifest = VCAP_BVT_APP_ASSETS[appid]
+        app_manifest = VCAP_BVT_APP_ASSETS[appid].dup
+        app_manifest['instances'] = 1 unless app_manifest['instances']
+        app_manifest['path']      =
+            File.join(File.dirname(__FILE__), "../..", app_manifest['path'])
+        @manifest = app_manifest
       end
     end
 

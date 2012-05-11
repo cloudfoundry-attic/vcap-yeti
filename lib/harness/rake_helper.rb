@@ -2,6 +2,9 @@ require "yaml"
 require "interact"
 require "harness"
 require "curb"
+require "mongo"
+require "yajl"
+require "digest/md5"
 
 module BVT::Harness
   module RakeHelper
@@ -36,8 +39,6 @@ module BVT::Harness
       File.open(VCAP_BVT_PROFILE_FILE, "w") { |f| f.write YAML.dump(profile) }
     end
 
-    HTTP_RESPONSE_OK = 200
-
     def check_network_connection
       get_config unless @config
 
@@ -52,10 +53,10 @@ module BVT::Harness
               red("Cannot connect to target environment, #{easy.url}\n" +
                       "Please check your network connection to target environment.")
       end
-      unless easy.response_code == HTTP_RESPONSE_OK
+      unless easy.response_code == HTTP_RESPONSE_CODE::OK
         raise RuntimeError,
               red("URL: #{easy.url} response code does not equal to " +
-                      "#{HTTP_RESPONSE_OK}\nPlease check your target environment first.")
+                      "#{HTTP_RESPONSE_CODE::OK}\nPlease check your target environment first.")
       end
     end
 
@@ -63,6 +64,56 @@ module BVT::Harness
       check_network_connection
       cleanup_services_apps(@config['user']['email'], @config['user']['passwd'])
       cleanup_test_accounts
+    end
+
+    def sync_assets
+      downloads = get_assets_info
+      if File.exist?(VCAP_BVT_ASSETS_PACKAGES_MANIFEST)
+        locals = YAML.load_file(VCAP_BVT_ASSETS_PACKAGES_MANIFEST)['packages']
+      else
+        locals = []
+      end
+      puts "check local assets binaries"
+      skipped = []
+      unless locals.empty?
+        total = locals.length
+        locals.each_with_index do |item, index|
+          downloads_index = downloads.index {|e| e['filename'] == item['filename']}
+          index_str = "[#{(index + 1).to_s}/#{total.to_s}]"
+          if downloads_index
+            if downloads[downloads_index]['md5'] == item['md5']
+              puts green("#{index_str}Skipped\t\t#{item['filename']}")
+              downloads.delete_at(downloads_index)
+              skipped << Hash['filename' => item['filename'], 'md5' => item['md5']]
+            else
+              puts yellow("#{index_str}Need to update\t#{item['filename']}")
+            end
+          else
+            puts red("#{index_str}Remove\t\t#{item['filename']}")
+            File.delete(File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, item['filename']))
+          end
+        end
+      end
+
+      unless downloads.empty?
+        puts "\ndownloading assets binaries"
+        Dir.mkdir(VCAP_BVT_ASSETS_PACKAGES_HOME) unless Dir.exist?(VCAP_BVT_ASSETS_PACKAGES_HOME)
+        total = downloads.length
+        downloads.each_with_index do |item, index|
+          index_str = "[#{(index + 1).to_s}/#{total.to_s}]"
+          filepath = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, item['filename'])
+          puts yellow("#{index_str}downloading\t#{item['filename']}")
+          download_binary(filepath)
+          unless check_md5(filepath) == item['md5']
+            puts red("#{index_str}fail to download\t\t#{item['filename']}")
+          end
+          skipped << Hash['filename' => item['filename'], 'md5' => item['md5']]
+          File.open(VCAP_BVT_ASSETS_PACKAGES_MANIFEST, "w") do |f|
+            f.write YAML.dump(Hash['packages' => skipped])
+          end
+        end
+      end
+      puts green("sync assets binaries finished")
     end
 
     private
@@ -211,6 +262,49 @@ module BVT::Harness
         end
       end
       puts yellow("Clean up test accounts has been done.\n")
+    end
+
+    def get_assets_info
+      easy = Curl::Easy.new
+      easy.url = "#{VCAP_BVT_ASSETS_STORE_URL}/list"
+      easy.resolve_mode = :ipv4
+      easy.timeout = 10
+      begin
+        easy.http_get
+      rescue Curl::Err::CurlError
+        raise RuntimeError,
+              red("Cannot connect to yeti assets storage server, #{easy.url}\n" +
+                      "Please check your network connection.")
+      end
+
+      if easy.response_code == HTTP_RESPONSE_CODE::OK
+        parser = Yajl::Parser.new
+        return parser.parse(easy.body_str)
+      end
+    end
+
+    def check_md5(filepath)
+      Digest::MD5.hexdigest(File.read(filepath))
+    end
+
+    def download_binary(filepath)
+      filename = File.basename(filepath)
+      easy = Curl::Easy.new
+      easy.url = "#{VCAP_BVT_ASSETS_STORE_URL}/files/#{filename}"
+      easy.resolve_mode = :ipv4
+      easy.timeout = 60 * 5
+      easy.http_get
+      # retry once
+      unless easy.response_code == HTTP_RESPONSE_CODE::OK
+        sleep(1) # waiting for 1 second and try again
+        easy.http_get
+      end
+
+      if easy.response_code == HTTP_RESPONSE_CODE::OK
+        File.open(filepath, 'wb') { |f| f.write(easy.body_str) }
+      else
+        raise RuntimeError, "Fail to download binary #{filename}"
+      end
     end
 
     extend self

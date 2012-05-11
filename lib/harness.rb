@@ -17,7 +17,13 @@ module BVT
     Dir.mkdir(VCAP_BVT_HOME) unless Dir.exist?(VCAP_BVT_HOME)
     VCAP::Logging.setup_from_config(config)
 
-    APP_CHECK_LIMIT = 60
+    # Assets Data Store Config
+    VCAP_BVT_ASSETS_DATASTORE_CONFIG  =  File.join(VCAP_BVT_HOME, "datastore.yml")
+    VCAP_BVT_ASSETS_PACKAGES_HOME     =  File.join(File.dirname(__FILE__),
+                                                   "../.assets-binaries")
+    VCAP_BVT_ASSETS_PACKAGES_MANIFEST =  File.join(VCAP_BVT_ASSETS_PACKAGES_HOME,
+                                                   "packages.yml")
+    VCAP_BVT_ASSETS_STORE_URL         =  "http://bolbs.cloudfoundry.com"
   end
 end
 

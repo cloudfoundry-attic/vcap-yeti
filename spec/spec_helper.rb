@@ -19,6 +19,9 @@ module BVT
 
     module Canonical
       class JavaSpring; end
+      class Ruby19Sinatra; end
+      class NodeNode; end
+      class JavaStandalone; end
     end
 
     module Simple
@@ -56,3 +59,4 @@ RSpec.configure do |config|
 end
 
 require "autostaging/autostaging_helper"
+require "canonical/canonical_helper"

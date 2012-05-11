@@ -43,16 +43,18 @@ Note:
    just list users, create normal user, delete normal user which created in test script.
 4. Currently yeti run in serial, you could 'tail -f ~/.bvt/bvt.log' to get what is going on
 
-Known Issues:
-1. Cannot call RSpec pending function outside of test example.
-    - I design to embedded pending judgement in harness library,
-      so that yeti DEV create service as usual, do not need to care about whether service
-      is available on target environment.
-    - service.create function will care about service readiness,
-      and execute pending statement when service is not available.
-    - However, it seems RSpec do not allow user to call pending function outside test example.
-    - The outcome is yeti will raise undefined method "pending" for some service cases
-      when you run yeti against dev_setup
+FAQ:
+1. what does "pending" mean and what is the correct number of pending cases that i should see?
+   A: "pending" means your target environment misses some preconditions,
+      usually a service, framework or runtime.
+      The number of pending cases denpends on your target environment and environment variables.
+      For example, postgreSQL service is not available on dev_setup environment. Therefore, 
+      user run yeti against dev_setup environment, there should be some pending cases related
+      to PostgreSQL service, and prompt message like "postgresql service is not available on 
+      target environment, #{url}"
+      On the other hand, mysql service should be available on dev_setup environment. When user
+      run yeti against dev_setup, and get some pending message like "mysql service is not
+      available on target environment, #{url}". That should be a problem.
 
 # License
 
