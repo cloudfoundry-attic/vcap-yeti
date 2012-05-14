@@ -15,10 +15,11 @@ task :help do
   puts "  jvm\t\t\t\trun jvm tests (spring, java_web, grails, lift)"
   puts "  ruby\t\t\t\trun ruby tests (rails3, sinatra, rack)"
   puts "  services\t\t\trun service tests (monbodb, redis, mysql, postgres, rabbitmq)"
+  puts "  longevity\t\t\tloop the bvt tests, add [N] to specify loop times(default: 100)"
   puts "  help\t\t\t\tlist help commands"
 end
 
-desc "Run the Basic Viability Tests"
+desc "Run the Basic Verification Tests"
 task :tests do
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
@@ -62,4 +63,37 @@ end
 desc "sync yeti assets binaries"
 task :sync_assets do
   BVT::Harness::RakeHelper.sync_assets
+end
+
+desc "continuously loop the bvt tests"
+task :longevity, :looptimes do |t, args|
+  loop_times = 100
+  time_start = Time.now
+  if args[:looptimes] != nil && args[:looptimes].to_i > 0
+    loop_times = args[:looptimes].to_i
+  end
+  puts "loop times: #{loop_times}"
+  $stdout.flush
+  loop_times.times {|i|
+    BVT::Harness::RakeHelper.generate_config_file
+    BVT::Harness::RakeHelper.check_environment
+    cmd = "bundle exec rspec spec/ --tag ~admin --format p -c | " +
+       "tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
+    output = %x[#{cmd}]
+    puts output
+    if output.include? "Failures:"
+      t1 = Time.now
+      running_time = (t1 - time_start).to_i
+      puts "Task failed!"
+      puts "longevity task has succeeded for #{i} times"
+      puts "longevity task has been running for #{running_time} seconds"
+      break
+    end
+    t2 = Time.now
+    running_time = (t2 - time_start).to_i
+    puts "Task succeeded!"
+    puts "longevity task has succeeded for #{i+1} times"
+    puts "longevity task has been running for #{running_time} seconds"
+    $stdout.flush
+  }
 end
