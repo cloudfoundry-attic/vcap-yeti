@@ -113,7 +113,7 @@ tomcat-version-check-app:
   framework: "spring"
   memory: 128
   runtime: "java"
-  tomcat_version: "7.0.26"
+  tomcat_version: "6.0.35"
   path: ".assets-binaries/tomcat-version-check-app.war"
 
 app_rails_version18:
