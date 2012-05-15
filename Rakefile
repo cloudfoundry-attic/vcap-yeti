@@ -7,6 +7,7 @@ desc "List help commands"
 task :help do
   puts "Usage: rake [command]"
   puts "  tests\t\t\t\trun all bvts"
+  puts "  random\t\t\trun all bvts randomly, add [N] to specify a seed"
   puts "  admin\t\t\t\trun admin test cases"
   puts "  clean\t\t\t\tclean up test environment.\n" +
            "\t\t\t\t  1, Remove all apps and services under test user\n" +
@@ -24,7 +25,20 @@ task :tests do
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
   sh "bundle exec rspec spec/ --tag ~admin --format p -c | " +
-         "tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
+     "tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
+end
+
+desc "Run all bvts randomly, add [N] to specify a seed"
+task :random, :seed do |t, args|
+  BVT::Harness::RakeHelper.generate_config_file
+  BVT::Harness::RakeHelper.check_environment
+  if args[:seed] != nil
+    sh "bundle exec rspec spec/ --tag ~admin --seed #{args[:seed]} --format" +
+       " d -c | tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
+  else
+    sh "bundle exec rspec spec/ --tag ~admin --order rand --format d -c | " +
+       "tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
+  end
 end
 
 desc "Run admin test cases"
@@ -32,7 +46,7 @@ task :admin do
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
   sh "bundle exec rspec spec/users/ --tag admin --format p -c | " +
-         "tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
+     "tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
 end
 
 desc "Run java tests (spring, java_web)"
