@@ -153,6 +153,7 @@ rails_autoconfig_disabled_by_gem:
 
 app_rack_service:
   framework: "rack"
+  runtime: "ruby18"
   memory: 256
   path: "assets/rack/app_rack_service"
 
@@ -196,6 +197,7 @@ app_sinatra_service:
 
 app_sinatra_service2:
   framework: "sinatra"
+  runtime: "ruby19"
   memory: 256
   path: "assets/sinatra/app_sinatra_service"
 
