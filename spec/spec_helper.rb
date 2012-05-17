@@ -28,6 +28,8 @@ module BVT
     module Simple
       class JavaWeb; end
       class Ruby19Sinatra; end
+      class NodeNode; end
+      class Node06Node; end
     end
 
     MYSQL_MANIFEST      = {"vendor"=>"mysql", "version"=>"5.1"}

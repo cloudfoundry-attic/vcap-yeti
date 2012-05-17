@@ -249,6 +249,18 @@ app_node_service:
   memory: 64
   path: "assets/node/app_node_service"
 
+app_node_dependencies04:
+  framework: "node"
+  runtime: node
+  memory: 64
+  path: "assets/node/node_dependencies04"
+
+app_node_dependencies06:
+  framework: "node"
+  runtime: node06
+  memory: 64
+  path: "assets/node/node_dependencies06"
+
 app_node_version04:
   framework: "node"
   runtime: node
