@@ -19,6 +19,7 @@ module BVT
 
     module Canonical
       class JavaSpring; end
+      class JavaSpring31; end
       class Ruby19Sinatra; end
       class Ruby18Rack; end
       class NodeNode; end

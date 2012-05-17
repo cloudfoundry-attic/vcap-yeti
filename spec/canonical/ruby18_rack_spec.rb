@@ -6,19 +6,11 @@ describe BVT::Spec::Canonical::Ruby18Rack do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
-    @app = create_app("app_rack_service")
-    @app.push
-    @app.healthy?.should be_true, "Application #{@app.name} is not running"
+    @app = create_push_app("app_rack_service")
   end
 
   after(:all) do
     @session.cleanup!
-  end
-
-  def bind_service_and_verify(service_manifest)
-    service = bind_service(service_manifest, @app)
-    %W(abc 123 def).each { |key| verify_service(service_manifest, @app, key)}
-    @app.unbind(service.name)
   end
 
   it "rack test deploy app" do
@@ -27,22 +19,22 @@ describe BVT::Spec::Canonical::Ruby18Rack do
   end
 
   it "rack test mysql service" do
-    bind_service_and_verify(MYSQL_MANIFEST)
+    bind_service_and_verify(@app, MYSQL_MANIFEST)
   end
 
   it "rack test redis service" do
-    bind_service_and_verify(REDIS_MANIFEST)
+    bind_service_and_verify(@app, REDIS_MANIFEST)
   end
 
   it "rack test mongodb service" do
-    bind_service_and_verify(MONGODB_MANIFEST)
+    bind_service_and_verify(@app, MONGODB_MANIFEST)
   end
 
   it "rack test rabbitmq service" do
-    bind_service_and_verify(RABBITMQ_MANIFEST)
+    bind_service_and_verify(@app, RABBITMQ_MANIFEST)
   end
 
   it "rack test postgresql service" do
-    bind_service_and_verify(POSTGRESQL_MANIFEST)
+    bind_service_and_verify(@app, POSTGRESQL_MANIFEST)
   end
 end

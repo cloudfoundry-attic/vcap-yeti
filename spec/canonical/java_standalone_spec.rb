@@ -15,9 +15,7 @@ describe BVT::Spec::Canonical::JavaStandalone do
 
   it "standalone with java runtime", :standalone => true do
     pending "standalone is not supported by VMC libary currently"
-    app = create_app("standalone_java_app")
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
+    app = create_push_app("standalone_java_app")
 
     contents = app.get_response(:get)
     contents.should_not == nil

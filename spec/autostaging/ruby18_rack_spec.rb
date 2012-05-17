@@ -14,16 +14,14 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
   end
 
   it "services autostaging" do
-    app = create_app("app_rack_service_autoconfig")
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
+    app = create_push_app("app_rack_service_autoconfig")
     app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
 
     # provision service
-    manifests = [MYSQL_MANIFEST, 
-                 REDIS_MANIFEST, 
-                 MONGODB_MANIFEST, 
-                 RABBITMQ_MANIFEST, 
+    manifests = [MYSQL_MANIFEST,
+                 REDIS_MANIFEST,
+                 MONGODB_MANIFEST,
+                 RABBITMQ_MANIFEST,
                  POSTGRESQL_MANIFEST]
     manifests.each do |service_manifest|
       bind_service(service_manifest, app)
@@ -32,9 +30,7 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
   end
 
   it "rack opt-out of autostaging via config file" do
-    app = create_app("rack_autoconfig_disabled_by_file")
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
+    app = create_push_app("rack_autoconfig_disabled_by_file")
     app.get_response(:get).body_str.should == "hello from sinatra"
 
     # provision service
@@ -46,9 +42,7 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
   end
 
   it "rack opt-out of autostaging via cf-runtime gem" do
-    app = create_app("rack_autoconfig_disabled_by_gem")
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
+    app = create_push_app("rack_autoconfig_disabled_by_gem")
     app.get_response(:get).body_str.should == "hello from sinatra"
 
     # provision service

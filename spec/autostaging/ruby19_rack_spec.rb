@@ -14,9 +14,7 @@ describe BVT::Spec::AutoStaging::Ruby19Rack do
   end
 
   it "rack ruby 1.9 autostaging" do
-    app = create_app("rack_autoconfig_ruby19")
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
+    app = create_push_app("rack_autoconfig_ruby19")
     app.get_response(:get).body_str.should == "hello from sinatra"
 
     # provision service

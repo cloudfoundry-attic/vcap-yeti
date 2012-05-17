@@ -13,11 +13,9 @@ describe BVT::Spec::Simple::JavaWeb do
   end
 
   it "get applicatioin list", :sinatra => true, :ruby19 => true, :java_web => true do
-    app1 = create_app("simple_app2")
-    app1.push
+    app1 = create_push_app("simple_app2")
 
-    app2 = create_app("tiny_java_app")
-    app2.push
+    app2 = create_push_app("tiny_java_app")
 
     app_list = @session.apps
     app_list.each { |app|
@@ -26,9 +24,7 @@ describe BVT::Spec::Simple::JavaWeb do
   end
 
   it "start java app with startup delay", :java_web => true do
-    app = create_app("java_app_with_startup_delay")
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
+    app = create_push_app("java_app_with_startup_delay")
 
     contents = app.get_response(:get)
     contents.should_not == nil
@@ -38,9 +34,7 @@ describe BVT::Spec::Simple::JavaWeb do
   end
 
   it "tomcat validation", :java_web => true do
-    app = create_app("tomcat-version-check-app")
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
+    app = create_push_app("tomcat-version-check-app")
 
     response = app.get_response(:get)
     response.should_not == nil

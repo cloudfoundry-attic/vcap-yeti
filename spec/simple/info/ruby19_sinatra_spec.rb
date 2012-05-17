@@ -9,9 +9,7 @@ describe BVT::Spec::Simple::Ruby19Sinatra do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
-    @app = create_app("simple_app2")
-    @app.push
-    @app.healthy?.should be_true, "Application #{@app.name} is not running"
+    @app = create_push_app("simple_app2")
   end
 
   after(:all) do
