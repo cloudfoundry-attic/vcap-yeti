@@ -17,8 +17,8 @@ _Supported Operation System_
 # How to run it
 1. gerrit-clone ssh://<YOUR-NAME>@reviews.cloudfoundry.org:29418/vcap-yeti
 2. cd vcap-yeti
-3. ./update.sh      ## if run admin cases, this step can be skipped
-4. bundle install
+3. bundle install
+4. ./update.sh      ## if run admin cases, this step can be skipped
 5. bundle exec rake tests
 6. At first time, yeti will ask you several questions about
     - target
