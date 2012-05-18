@@ -6,11 +6,10 @@ describe BVT::Spec::Simple::Ruby19Sinatra do
 
   VAR_INSTANCE_COUNT = 4
   VAR_MEMORY         = 64
-  VAR_APPNAME        = "simple_app2"
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
-    @app = create_app(VAR_APPNAME)
+    @app = create_app("simple_app2")
     @app.push
     @app.healthy?.should be_true, "Application #{@app.name} is not running"
   end
