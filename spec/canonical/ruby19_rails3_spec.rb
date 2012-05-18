@@ -20,28 +20,28 @@ describe BVT::Spec::Canonical::Ruby19Rails3 do
     %W(abc 123 def).each { |key| verify_service(service_manifest, @app, key)}
   end
 
-  it "sinatra test deploy app" do
+  it "rails3 test deploy app" do
     @app.get_response(:get).body_str.should == "hello from rails"
     @app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
   end
 
-  it "sinatra test mysql service" do
+  it "rails3 test mysql service" do
     bind_service_and_verify(MYSQL_MANIFEST)
   end
 
-  it "sinatra test redis service" do
+  it "rails3 test redis service" do
     bind_service_and_verify(REDIS_MANIFEST)
   end
 
-  it "sinatra test mongodb service" do
+  it "rails3 test mongodb service" do
     bind_service_and_verify(MONGODB_MANIFEST)
   end
 
-  it "sinatra test rabbitmq service" do
+  it "rails3 test rabbitmq service" do
     bind_service_and_verify(RABBITMQ_MANIFEST)
   end
 
-  it "sinatra test postgresql service" do
+  it "rails3 test postgresql service" do
     bind_service_and_verify(POSTGRESQL_MANIFEST)
   end
 end
