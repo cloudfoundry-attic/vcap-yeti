@@ -27,6 +27,10 @@ module BVT
       class Ruby19Rails3; end
     end
 
+    module ServiceQuota
+      class Ruby19Sinatra; end
+    end
+
     module Simple
       class JavaWeb; end
       class Ruby19Sinatra; end

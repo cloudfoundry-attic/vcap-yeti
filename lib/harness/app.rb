@@ -178,7 +178,7 @@ module BVT::Harness
       end
    end
 
-    def instance
+    def instances
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
         raise RuntimeError "Application: #{@app.name} does not exist!"
@@ -196,9 +196,9 @@ module BVT::Harness
       @app.healthy?
     end
 
-    # method should be REST method, only [:get, :put, :post] is supported
+    # method should be REST method, only [:get, :put, :post, :delete] is supported
     def get_response(method, relative_path = "/", data = nil)
-      unless [:get, :put, :post].include?(method)
+      unless [:get, :put, :post, :delete].include?(method)
         @log.error("REST method #{method} is not supported")
         raise RuntimeError, "REST method #{method} is not supported"
       end
@@ -217,6 +217,9 @@ module BVT::Harness
           when :post
             @log.debug("Post data: #{data} to URL: #{easy.url}")
             easy.http_post(data)
+          when :delete
+            @log.debug("Delete URL: #{easy.url}")
+            easy.http_delete
           else nil
         end
         # Time dependency

@@ -209,6 +209,12 @@ app_sinatra_service_autoconfig:
   memory: 64
   path: "assets/sinatra/app_sinatra_service_autoconfig"
 
+service_quota_app:
+  framework: "sinatra"
+  runtime: "ruby19"
+  memory: 512
+  path: "assets/sinatra/app_sinatra_service_quota/"
+
 amqp_autoconfig:
   framework: "sinatra"
   instances: 1
