@@ -42,7 +42,7 @@ describe BVT::Spec::Simple::Ruby19Sinatra do
     hash_all["state"].should == "RUNNING"
     hash_stats = hash_all["stats"]
     arr_name = hash_stats["name"].split("-")
-    arr_name[1].should == VAR_APPNAME
+    arr_name[1].should == "simple_app2"
   end
 
 end
