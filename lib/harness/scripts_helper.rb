@@ -18,6 +18,8 @@ module BVT::Harness
     def bind_service(service_manifest, app)
       service = create_service(service_manifest)
       app.bind(service.name)
+      # return service, for later use in the case, i.e. unbind()
+      service
     end
 
     # Application

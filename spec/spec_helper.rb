@@ -20,12 +20,19 @@ module BVT
     module Canonical
       class JavaSpring; end
       class Ruby19Sinatra; end
+      class Ruby18Rack; end
       class NodeNode; end
       class JavaStandalone; end
+      class Ruby19Rails3; end
     end
 
     module Simple
       class JavaWeb; end
+      class Ruby19Sinatra; end
+      class NodeNode; end
+      class Node06Node; end
+      class Ruby18Rails3; end
+      class Ruby19Rails3; end
     end
 
     MYSQL_MANIFEST      = {"vendor"=>"mysql", "version"=>"5.1"}

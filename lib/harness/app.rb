@@ -132,6 +132,66 @@ module BVT::Harness
       end
     end
 
+    def stats
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError "Application: #{@app.name} does not exist!"
+      end
+      begin
+        @log.info("Display application: #{@app.name} status")
+        @app.stats
+      rescue
+        @log.error("Fail to display application: #{@app.name} status!")
+        raise RuntimeError, "Fail to display application: #{@app.name} status!"
+      end
+    end
+
+    def files(path)
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError "Application: #{@app.name} does not exist!"
+      end
+      begin
+        @log.info("Examine an application: #{@app.name} files")
+        @app.files(path)
+      rescue
+        @log.error("Fail to examine an application: #{@app.name} files!")
+        raise RuntimeError, "Fail to examine an application: #{@app.name} files!"
+      end
+    end
+
+    def scale(instance, memory)
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError "Application: #{@app.name} does not exist!"
+      end
+      begin
+        @log.info("Update the instances/memory limit for Application: #{@app.name}!")
+        @app.total_instances = instance.to_i
+        @app.memory = memory
+        @app.update!
+      rescue
+        @log.error("Fail to Update the instances/memory limit for " +
+                   "Application: #{@app.name} !")
+        raise RuntimeError, "Fail to update the instances/memory limit for " +
+                   "Application: #{@app.name} !"
+      end
+   end
+
+    def instance
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError "Application: #{@app.name} does not exist!"
+      end
+      begin
+        @log.info("List an application: #{@app.name} instance!")
+        @app.instances
+      rescue
+        @log.error("Fail to list the instances for Application: #{@app.name} !")
+        raise RuntimeError, "Fail to list the instances for Application: #{@app.name} !"
+      end
+    end
+
     def healthy?
       @app.healthy?
     end
@@ -199,7 +259,6 @@ module BVT::Harness
         raise RuntimeError, "Framework: #{framework} is not available " +
                     "on target: #{@session.TARGET}"
       end
-
     end
 
     def check_runtime(runtime)
@@ -232,5 +291,7 @@ module BVT::Harness
       # use '-' to replace it.
       "#{@app.name}.#{@session.TARGET.gsub("http://api.", "")}".gsub("_", "-")
     end
+
+
   end
 end

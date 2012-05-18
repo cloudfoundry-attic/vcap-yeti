@@ -113,7 +113,7 @@ tomcat-version-check-app:
   framework: "spring"
   memory: 128
   runtime: "java"
-  tomcat_version: "7.0.26"
+  tomcat_version: "6.0.35"
   path: ".assets-binaries/tomcat-version-check-app.war"
 
 app_rails_version18:
@@ -130,6 +130,7 @@ app_rails_version19:
 
 app_rails_service:
   framework: "rails3"
+  runtime: ruby19
   memory: 256
   path: "assets/rails3/app_rails_service"
 
@@ -153,6 +154,7 @@ rails_autoconfig_disabled_by_gem:
 
 app_rack_service:
   framework: "rack"
+  runtime: "ruby18"
   memory: 256
   path: "assets/rack/app_rack_service"
 
@@ -196,6 +198,7 @@ app_sinatra_service:
 
 app_sinatra_service2:
   framework: "sinatra"
+  runtime: "ruby19"
   memory: 256
   path: "assets/sinatra/app_sinatra_service"
 
@@ -246,6 +249,18 @@ app_node_service:
   runtime: node
   memory: 64
   path: "assets/node/app_node_service"
+
+app_node_dependencies04:
+  framework: "node"
+  runtime: node
+  memory: 64
+  path: "assets/node/node_dependencies04"
+
+app_node_dependencies06:
+  framework: "node"
+  runtime: node06
+  memory: 64
+  path: "assets/node/node_dependencies06"
 
 app_node_version04:
   framework: "node"
