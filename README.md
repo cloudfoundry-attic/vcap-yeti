@@ -17,7 +17,7 @@ _Supported Operation System_
 # How to run it
 1. gerrit-clone ssh://<YOUR-NAME>@reviews.cloudfoundry.org:29418/vcap-yeti
 2. cd vcap-yeti
-3. git submodule update --init --recursive ## if run admin cases, this step can be skipped
+3. ./update.sh      ## if run admin cases, this step can be skipped
 4. bundle install
 5. bundle exec rake tests
 6. At first time, yeti will ask you several questions about
@@ -56,11 +56,28 @@ FAQ:
       run yeti against dev_setup, and get some pending message like "mysql service is not
       available on target environment, #{url}". That should be a problem.
 
-# License
+2. What is done in "./update.sh"?
+   A: Yeti has uploaded all precompiled java apps onto one blobs server. Therefore,
+      Yeti users do not need maven, and build java-based apps locally, just need to sync
+      precompiled JAR/WAR files from blobs.cloudfoundry.com.
+      This action has been done by ./update.sh script automatically, so Yeti users need to
+      run ./update.sh script before running Yeti tests
 
-Cloud Foundry uses the Apache 2.0 license. See
-[LICENSE](https://github.com/cloudfoundry/vcap-tests/blob/master/LICENSE) for details.
+3. What is example?
+   A: Example is the conception in RSpec. It is entire test unit, and it will has one result,
+      Pass/Failure/Pending.
 
-# Copyright
+4. Where are binary assets stored?
+   A: Binary assets are stored in blobs.cloudfoundry.com, which is simple Ruby/Sinatra application
+      with Mongodb service
 
-Copyright (c) 2009-2012 VMware, Inc.
+5. How do I submit binary assets?
+   A: There are two roles in Yeti project, one is Yeti User, the other is Yeti DEV.
+      - Yeti user just run yeti scripts against any target environment.
+      - Yeti DEV develop yeti scripts
+      Currently only Yeti DEV can submit binary assets
+
+6. Where is the log file stored?
+   A: There two level logs, runtime logs and error logs
+      - Runtime log is stored in <YOUR-USER-HOME>/.bvt/bvt.log
+      - Error log is stored in <YOUR-USER-HOME>/.bvt/error.log
