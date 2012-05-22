@@ -5,6 +5,7 @@ module BVT
 
     module UsersManagement
       class AdminUser; end
+      class UAA; end
     end
 
     module AutoStaging
