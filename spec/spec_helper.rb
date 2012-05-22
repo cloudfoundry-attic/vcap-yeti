@@ -9,12 +9,13 @@ module BVT
 
     module AutoStaging
       class Ruby18Rack; end
-
+      class Ruby18Standalone; end
       class Ruby19Sinatra; end
       class Ruby19Rack; end
       class Ruby19Rails3; end
-
+      class Ruby19Standalone; end
       class JavaSpring; end
+
     end
 
     module Canonical
@@ -33,11 +34,16 @@ module BVT
 
     module Simple
       class JavaWeb; end
-      class Ruby19Sinatra; end
+      class JavaStandalone; end
       class NodeNode; end
+      class NodeStandalone; end
       class Node06Node; end
+      class Node06Standalone; end
       class Ruby18Rails3; end
+      class Ruby18Standalone; end
       class Ruby19Rails3; end
+      class Ruby19Sinatra; end
+      class Ruby19Standalone; end
     end
 
     MYSQL_MANIFEST      = {"vendor"=>"mysql", "version"=>"5.1"}

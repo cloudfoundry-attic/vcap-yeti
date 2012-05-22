@@ -376,21 +376,21 @@ vblob_app:
 standalone_ruby18_app:
   framework: "standalone"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
-  memory: 256
+  memory: 64
   runtime: ruby18
   path: "assets/standalone/ruby_app"
 
 standalone_ruby19_app:
   framework: "standalone"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
-  memory: 256
+  memory: 64
   runtime: ruby19
   path: "assets/standalone/ruby_app"
 
 standalone_simple_ruby18_app:
   framework: "standalone"
   command: "ruby simple.rb"
-  memory: 256
+  memory: 64
   runtime: ruby18
   path: "assets/standalone/simple_ruby_app"
   no_url: true
@@ -398,7 +398,7 @@ standalone_simple_ruby18_app:
 standalone_simple_ruby18_quotes_app:
   framework: "standalone"
   command: "ruby \"simple.rb\""
-  memory: 256
+  memory: 64
   runtime: ruby18
   path: "assets/standalone/simple_ruby_app"
   no_url: true
@@ -406,7 +406,7 @@ standalone_simple_ruby18_quotes_app:
 standalone_simple_ruby19_app:
   framework: "standalone"
   command: "ruby simple.rb"
-  memory: 256
+  memory: 64
   runtime: ruby19
   path: "assets/standalone/simple_ruby_app"
   no_url: true
@@ -415,7 +415,7 @@ standalone_java_app:
   framework: "standalone"
   command: "bin/hello-cloud"
   runtime: "java"
-  memory: 256
+  memory: 64
   path: ".assets-binaries/java_app.jar"
   no_url: true
 
