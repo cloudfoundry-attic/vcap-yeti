@@ -64,6 +64,7 @@ rails3_app:
 
 jpa_app:
   framework: "spring"
+  runtime: java
   memory: 512
   path: ".assets-binaries/jpa-guestbook.war"
 
@@ -332,7 +333,7 @@ spring-env-app:
 auto-reconfig-test-app:
   framework: "spring"
   runtime: "java"
-  memory: 128
+  memory: 256
   path: ".assets-binaries/auto-reconfig-test-app.war"
 
 auto-reconfig-missing-deps-test-app:

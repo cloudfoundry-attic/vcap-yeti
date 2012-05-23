@@ -56,6 +56,17 @@ module BVT::Harness
       end
     end
 
+    def update!(what = {})
+      @log.info("Update App: #{@app.name}")
+      begin
+        @app.update!(what)
+        restart
+      rescue
+        @log.error "Update App: #{@app.name} failed. "
+        raise RuntimeError, "Update App: #{@app.name} failed."
+      end
+    end
+
     def restart
       stop
       start
