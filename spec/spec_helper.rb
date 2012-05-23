@@ -34,6 +34,10 @@ module BVT
       class Ruby19Sinatra; end
     end
 
+    module ServiceRebinding
+      class Ruby19Sinatra; end
+    end
+
     module Simple
       class JavaWeb; end
       class JavaStandalone; end

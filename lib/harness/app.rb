@@ -124,7 +124,7 @@ module BVT::Harness
       restart if restart_app
     end
 
-    def unbind(service_name)
+    def unbind(service_name, restart_app = true)
       unless @app.services.include?(service_name)
         @log.error("Fail to find service: #{service_name} binding to " +
                        "application: #{@app.name}")
@@ -135,7 +135,7 @@ module BVT::Harness
       begin
         @log.info("Application: #{@app.name} unbind Service: #{service_name}")
         @app.unbind(service_name)
-        restart
+        restart if restart_app
       rescue
         @log.error("Fail to unbind service: #{service_name} for " +
                        "application: #{@app.name}")

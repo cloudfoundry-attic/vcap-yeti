@@ -207,7 +207,7 @@ app_sinatra_service:
 app_sinatra_service2:
   framework: "sinatra"
   runtime: "ruby19"
-  memory: 256
+  memory: 128
   path: "assets/sinatra/app_sinatra_service"
 
 app_sinatra_service_autoconfig:
