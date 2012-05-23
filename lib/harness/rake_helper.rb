@@ -15,15 +15,17 @@ module BVT::Harness
     VCAP_BVT_DEFAULT_USER   =   "test@vcap.me"
     VCAP_BVT_DEFAULT_ADMIN  =   "admin@vcap.me"
 
-    def generate_config_file
+    def generate_config_file(admin=false)
       Dir.mkdir(VCAP_BVT_HOME) unless Dir.exists?(VCAP_BVT_HOME)
       get_config
 
       get_target
       get_user
       get_user_passwd
-      get_admin_user
-      get_admin_user_passwd
+      if admin
+        get_admin_user
+        get_admin_user_passwd
+      end
 
       save_config
     end
@@ -70,6 +72,11 @@ module BVT::Harness
 
     def sync_assets
       downloads = get_assets_info
+      if downloads == nil
+        raise RuntimeError,
+          red("Get remote file list faild, might be caused by unstable network.\n" +
+              "Please try again.")
+      end
       if File.exist?(VCAP_BVT_ASSETS_PACKAGES_MANIFEST)
         locals = YAML.load_file(VCAP_BVT_ASSETS_PACKAGES_MANIFEST)['packages']
       else
@@ -107,7 +114,8 @@ module BVT::Harness
           puts yellow("#{index_str}downloading\t#{item['filename']}")
           download_binary(filepath)
           unless check_md5(filepath) == item['md5']
-            puts red("#{index_str}fail to download\t\t#{item['filename']}")
+            puts red("#{index_str}fail to download\t\t#{item['filename']}.\n"+
+                     "Might be caused by unstable network, please try again.")
           end
           skipped << Hash['filename' => item['filename'], 'md5' => item['md5']]
           File.open(VCAP_BVT_ASSETS_PACKAGES_MANIFEST, "w") do |f|
@@ -131,12 +139,13 @@ module BVT::Harness
 
     def get_target
       if ENV['VCAP_BVT_TARGET']
-        @config['target'] = ENV['VCAP_BVT_TARGET']
+        @config['target'] = format_target(ENV['VCAP_BVT_TARGET'])
       elsif @config['target'].nil?
-        @config['target'] = ask_and_validate("VCAP Target",
+        input = ask_and_validate("VCAP Target",
                                              '\A.*',
                                              VCAP_BVT_DEFAULT_TARGET
                                             )
+        @config['target'] = format_target(input)
       end
     end
 
@@ -205,6 +214,16 @@ module BVT::Harness
         res = ask(question, :default => default, :echo => echo)
       end
       res
+    end
+
+    def format_target(str)
+      if str.start_with? 'http://api.'
+        str.gsub('http://api.', '')
+      elsif str.start_with? 'api.'
+        str.gsub('api.', '')
+      else
+        str
+      end
     end
 
     def get_script_git_hash
@@ -297,11 +316,17 @@ module BVT::Harness
       easy.url = "#{VCAP_BVT_ASSETS_STORE_URL}/files/#{filename}"
       easy.resolve_mode = :ipv4
       easy.timeout = 60 * 5
-      easy.http_get
-      # retry once
-      unless easy.response_code == HTTP_RESPONSE_CODE::OK
-        sleep(1) # waiting for 1 second and try again
+      begin
         easy.http_get
+        # retry once
+        unless easy.response_code == HTTP_RESPONSE_CODE::OK
+          sleep(1) # waiting for 1 second and try again
+          easy.http_get
+        end
+      rescue
+        raise RuntimeError,
+              red("Download faild, might be caused by unstable network.\n" +
+                      "Please try again.")
       end
 
       if easy.response_code == HTTP_RESPONSE_CODE::OK
