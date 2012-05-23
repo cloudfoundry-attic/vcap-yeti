@@ -50,8 +50,14 @@ broken_app:
   memory: 64
   path: "assets/sinatra/broken_app"
 
+broken_gem_app:
+  framework: "sinatra"
+  runtime: "ruby19"
+  memory: 64
+  path: "assets/sinatra/broken_gem_app"
+
 rails3_app:
-  framework: "rails3"
+  framework: "rail3"
   memory: 128
   runtime: "ruby19"
   path: "assets/rails3/rails3_app"
