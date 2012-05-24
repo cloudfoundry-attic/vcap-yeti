@@ -22,6 +22,7 @@ module BVT
     module Canonical
       class JavaSpring; end
       class JavaSpring31; end
+      class JavaLift; end
       class Ruby19Sinatra; end
       class Ruby18Rack; end
       class NodeNode; end
@@ -45,6 +46,10 @@ module BVT
       class Ruby19Rails3; end
       class Ruby19Sinatra; end
       class Ruby19Standalone; end
+      class ErlangOtpRebar; end
+      class PhpPhp; end
+      class Python2Wsgi; end
+      class Python2Django; end
     end
 
     MYSQL_MANIFEST      = {"vendor"=>"mysql", "version"=>"5.1"}

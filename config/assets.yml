@@ -101,17 +101,18 @@ roo_app:
 
 mochiweb_test:
   framework: "otp_rebar"
+  runtime: "erlangR14B02"
   memory: 64
   path: "assets/mochiweb/mochiweb_test/rel/mochiweb_test"
 
 simple-lift-app:
-  framework: "lift/1.0"
+  framework: "lift"
   memory: 256
   runtime: "java"
   path: ".assets-binaries/hello_lift.war"
 
 lift-db-app:
-  framework: "lift/1.0"
+  framework: "lift"
   memory: 256
   runtime: "java"
   path: ".assets-binaries/lift-db-app.war"
@@ -306,21 +307,25 @@ neo4j_app:
 
 simple_wsgi_app:
   framework: "wsgi"
+  runtime: "python2"
   memory: 64
   path: "assets/django/simple_wsgi_app"
 
 wsgi_app_with_requirements:
   framework: "wsgi"
+  runtime: "python2"
   memory: 64
   path: "assets/django/wsgi_app_with_requirements"
 
 simple_django_app:
   framework: "django"
+  runtime: "python2"
   memory: 64
   path: "assets/django/simple_django_app"
 
 simple_php_app:
   framework: "php"
+  runtime: "php"
   memory: 64
   path: "assets/php/simple_php_app"
 
