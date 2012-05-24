@@ -107,7 +107,7 @@ RSpec.configure do |config|
     if ENV['VCAP_BVT_PARALLEL']
       BVT::Harness::VCAP_BVT_PARALLEL_INDEX = increase_sync_index
     end
-    BVT::Harness::VCAP_BVT_CONFIG = YAML.load_file(BVT::Harness::VCAP_BVT_CONFIG_FILE)
+    BVT::Harness::VCAP_BVT_CONFIG = BVT::Harness::RakeHelper.get_config
     profile = YAML.load_file(BVT::Harness::VCAP_BVT_PROFILE_FILE)
     BVT::Harness::VCAP_BVT_SYSTEM_FRAMEWORKS  =  profile[:frameworks]
     BVT::Harness::VCAP_BVT_SYSTEM_RUNTIMES    =  profile[:runtimes]
