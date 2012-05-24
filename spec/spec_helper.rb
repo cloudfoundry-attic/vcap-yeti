@@ -15,7 +15,7 @@ module BVT
       class Ruby19Rails3; end
       class Ruby19Standalone; end
       class JavaSpring; end
-
+      class JavaGrails; end
     end
 
     module Canonical

@@ -89,7 +89,7 @@ dbrails_broken_app:
 
 grails_app:
   runtime: "java"
-  framework: "grails3"
+  framework: "grails"
   memory: 512
   path: ".assets-binaries/guestbook.war"
 

@@ -150,9 +150,9 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     app.delete
 
     app2 = create_push_app("jpa_app")
-    app.bind(service.name)
+    app2.bind(service.name)
 
-    verify_records(app, records, 3)
+    verify_records(app2, records, 3)
   end
 
   it "Spring Web application using Hibernate and mysql", :spring => true do
@@ -166,9 +166,9 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     app.delete
 
     app2 = create_push_app("hibernate_app")
-    app.bind(service.name)
+    app2.bind(service.name)
 
-    verify_records(app, records, 3)
+    verify_records(app2, records, 3)
   end
 
   it "Spring Roo application using mysql", :spring => true do
@@ -183,10 +183,10 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     app.delete
 
     app2 = create_push_app("roo_app")
-    app.bind(service.name)
+    app2.bind(service.name)
 
     # The Roo page returns an extra row for the footer in the table .. hence the "+ 1"
-    verify_records(app, records, 4, '/guests', '//table/tr')
+    verify_records(app2, records, 4, '/guests', '//table/tr')
   end
 
   it "Spring Web application using Hibernate and postgresql", :spring => true do
@@ -200,9 +200,9 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     app.delete
 
     app2 = create_push_app("hibernate_app")
-    app.bind(service.name)
+    app2.bind(service.name)
 
-    verify_records(app, records, 3)
+    verify_records(app2, records, 3)
   end
 end
 
