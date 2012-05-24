@@ -28,10 +28,11 @@ module BVT::Harness
       end
 
       @app.total_instances = @manifest['instances']
-      @app.urls            = @manifest['uris']
+      @app.urls            = @manifest['uris'] unless @manifest['no_url']
       @app.framework       = @manifest['framework']
       @app.runtime         = @manifest['runtime']
       @app.memory          = @manifest['memory']
+      @app.command         = @manifest['command']
 
       @log.info "Push App: #{@app.name}"
       begin
@@ -190,6 +191,21 @@ module BVT::Harness
         @log.error("Fail to list the instances for Application: #{@app.name} !")
         raise RuntimeError, "Fail to list the instances for Application: #{@app.name} !"
       end
+    end
+
+    # only retrieve logs of instance #0
+    def logs
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError "Application: #{@app.name} does not exist!"
+      end
+
+      instance = @app.instances[0]
+      body = ""
+      instance.files("logs").each do |log|
+        body += instance.file(*log)
+      end
+      body
     end
 
     def healthy?
