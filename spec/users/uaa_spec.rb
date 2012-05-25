@@ -15,14 +15,14 @@ class UaaHelper
     @password = "dev"
   end
 
-  def webclient
+  def webclient(logger)
 
     return @webclient if @webclient
 
     begin
       token = client_token(@admin_client, @admin_secret)
     rescue RestClient::Unauthorized
-      puts "Unauthorized admin client (check your config or env vars)"
+      logger.error("Unauthorized admin client (check your config or env vars)")
     end
     return nil unless token
 
@@ -101,22 +101,19 @@ describe BVT::Spec::UsersManagement::UAA do
   include BVT::Spec
 
   before(:all) do
-    @session = BVT::Harness::CFSession.new(true)
+    @session = BVT::Harness::CFSession.new
     @uaabase = @session.info["authorization_endpoint"]
     @uaahelper = UaaHelper.instance
     @uaahelper.uaabase = @uaabase
   end
 
-  after(:each) do
-    @session.cleanup!
-  end
-
   it "get approval prompts and the content should contain correct paths" do
     headers = @uaahelper.login
+    @webclient = @uaahelper.webclient(@session.log)
+    pending "Client registration unsuccessful. " +
+                "This case is only available on dev_setup environment." unless @webclient
     @cookie = headers[:set_cookie][0]
     headers[:location].should == "#{@uaabase}/"
-    @webclient = @uaahelper.webclient
-    pending "Client registration unsuccessful" unless @webclient
     @uaahelper.get_url "/oauth/authorize?response_type=code&client_id=#{@webclient[:client_id]}" +
       "&redirect_uri=http://anywhere.com", "Cookie" => @cookie
     response = @uaahelper.get_url "/oauth/confirm_access", "Cookie" => @cookie
