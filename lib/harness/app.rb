@@ -172,6 +172,20 @@ module BVT::Harness
       end
     end
 
+    def file(path)
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError "Application: #{@app.name} does not exist!"
+      end
+      begin
+        @log.info("Examine an application: #{@app.name} file")
+        @app.file(path)
+      rescue
+        @log.error("Fail to examine an application: #{@app.name} file!")
+        raise RuntimeError, "Fail to examine an application: #{@app.name} file!"
+      end
+    end
+
     def scale(instance, memory)
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"

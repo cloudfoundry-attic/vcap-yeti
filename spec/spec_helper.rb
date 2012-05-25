@@ -20,6 +20,7 @@ module BVT
     end
 
     module Canonical
+      class JavaPlay; end
       class JavaSpring; end
       class JavaSpring31; end
       class JavaLift; end
@@ -28,6 +29,7 @@ module BVT
       class NodeNode; end
       class JavaStandalone; end
       class Ruby19Rails3; end
+      class ScalaPlay; end
     end
 
     module ServiceQuota
