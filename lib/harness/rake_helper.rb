@@ -126,6 +126,15 @@ module BVT::Harness
       puts green("sync assets binaries finished")
     end
 
+    def print_test_config
+      puts yellow("\n\nBVT is starting...")
+      puts "target: \t#{yellow(@config['target'])}"
+      puts "admin user: \t#{yellow(@config['admin']['email'])}" if @config['admin']
+      unless ENV['VCAP_BVT_PARALLEL']
+        puts "normal user: \t#{yellow(@config['user']['email'])}"
+      end
+    end
+
     private
 
     def get_config
@@ -154,9 +163,7 @@ module BVT::Harness
       if ENV['VCAP_BVT_ADMIN_USER']
         @config['admin']['email'] = ENV['VCAP_BVT_ADMIN_USER']
       elsif @config['admin']['email'].nil?
-        @config['admin']['email'] = ask_and_validate('Admin User Email ' +
-                                                       '(If you do not know, just type "enter". ' +
-                                                       'Some admin user cases may be failed)',
+        @config['admin']['email'] = ask_and_validate('Admin User Email',
                                                      '\A.*\@',
                                                      VCAP_BVT_DEFAULT_ADMIN
                                                     )
@@ -167,9 +174,7 @@ module BVT::Harness
       if ENV['VCAP_BVT_ADMIN_USER_PASSWD']
         @config['admin']['passwd'] = ENV['VCAP_BVT_ADMIN_USER_PASSWD']
       elsif @config['admin']['passwd'].nil?
-        @config['admin']['passwd'] = ask_and_validate('Admin User Passwd ' +
-                                                        '(If you do not know, just type "enter". ' +
-                                                        'Some admin user cases may be failed)',
+        @config['admin']['passwd'] = ask_and_validate('Admin User Passwd',
                                                       '.*',
                                                       '*',
                                                       '*'
@@ -199,12 +204,6 @@ module BVT::Harness
 
     def save_config
       File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(@config) }
-      puts yellow("BVT is starting...")
-      puts "target: \t#{yellow(@config['target'])}"
-      puts "admin user: \t#{yellow(@config['admin']['email'])}" if @config['admin']
-      unless ENV['VCAP_BVT_PARALLEL']
-        puts "normal user: \t#{yellow(@config['user']['email'])}"
-      end
     end
 
     def ask_and_validate(question, pattern, default = nil, echo = nil)

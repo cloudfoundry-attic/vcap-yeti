@@ -30,6 +30,7 @@ task :tests do
   if ENV['VCAP_BVT_PARALLEL']
     BVT::Harness::ParallelRunner.run_tests
   else
+    BVT::Harness::RakeHelper.print_test_config
     sh("rspec spec/ --tag ~admin | tee #{BVT::Harness::VCAP_BVT_ERROR_LOG}")
   end
 end
