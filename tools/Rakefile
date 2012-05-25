@@ -18,7 +18,8 @@ end
 
 BUILD_ARTIFACT = File.join(Dir.pwd, ".build")
 TESTS_PATH = File.join(Dir.pwd, "../assets")
-VCAP_BVT_ASSETS_PACKAGES_HOME = File.join(File.dirname(__FILE__), "../.assets-binaries")
+VCAP_BVT_ASSETS_PACKAGES_HOME = File.join(File.dirname(__FILE__),
+  "../.assets-binaries")
 
 TESTS_TO_BUILD = ["#{TESTS_PATH}/spring/auto-reconfig-test-app",
              "#{TESTS_PATH}/spring/auto-reconfig-missing-deps-test-app",
@@ -33,19 +34,35 @@ TESTS_TO_BUILD = ["#{TESTS_PATH}/spring/auto-reconfig-test-app",
              "#{TESTS_PATH}/java_web/java_tiny_app",
              "#{TESTS_PATH}/lift/hello_lift",
              "#{TESTS_PATH}/lift/lift-db-app",
-             "#{TESTS_PATH}/standalone/java_app"
+             "#{TESTS_PATH}/standalone/java_app",
+             "#{TESTS_PATH}/play/computer_database_autoconfig_disabled",
+             "#{TESTS_PATH}/play/computer_database_cf_by_name",
+             "#{TESTS_PATH}/play/computer_database_cf_by_type",
+             "#{TESTS_PATH}/play/computer_database_jpa",
+             "#{TESTS_PATH}/play/computer_database_jpa_mysql",
+             "#{TESTS_PATH}/play/computer_database_multi_dbs",
+             "#{TESTS_PATH}/play/computer_database_scala",
+             "#{TESTS_PATH}/play/todolist",
+             "#{TESTS_PATH}/play/todolist_with_cfruntime",
+             "#{TESTS_PATH}/play/zentasks_cf_by_name",
+             "#{TESTS_PATH}/play/zentasks_cf_by_type"
 ]
 
 desc "Build the tests. If the git hash hasn't change, nothing is built. To force a build, invoke 'rake build[--force]'"
 task :build, [:force] do |t, args|
   puts "\nBuilding tests"
-  sh('cd .. && git submodule update --init')
+  sh('cd .. && git submodule update')
   if build_required? args.force
     prompt_message = "\nBVT need java development environment to build java-base apps.\n"+
     "Please run 'sudo aptitude install maven2 default-jdk' on your Linux box"
     `mvn -v 2>&1`
     raise prompt_message if $?.exitstatus != 0
     ENV['MAVEN_OPTS']="-XX:MaxPermSize=256M"
+
+    play_home = gets "Please input the play framework path (S to skip): "
+
+    ENV['PLAY2_HOME'] = play_home
+
     TESTS_TO_BUILD.each do |test|
       puts "\tBuilding '#{test}'"
       Dir.chdir test do
