@@ -201,7 +201,7 @@ module BVT::Harness
       File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(@config) }
       puts yellow("BVT is starting...")
       puts "target: \t#{yellow(@config['target'])}"
-      puts "admin user: \t#{yellow(@config['admin']['email'])}"
+      puts "admin user: \t#{yellow(@config['admin']['email'])}" if @config['admin']
       unless ENV['VCAP_BVT_PARALLEL']
         puts "normal user: \t#{yellow(@config['user']['email'])}"
       end
