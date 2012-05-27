@@ -110,8 +110,7 @@ describe BVT::Spec::UsersManagement::UAA do
   it "get approval prompts and the content should contain correct paths" do
     headers = @uaahelper.login
     @webclient = @uaahelper.webclient(@session.log)
-    pending "Client registration unsuccessful. " +
-                "This case is only available on dev_setup environment." unless @webclient
+    pending "Client registration unsuccessful. "
     @cookie = headers[:set_cookie][0]
     headers[:location].should =~ /#{@uaabase}/
     @uaahelper.get_url "/oauth/authorize?response_type=code&client_id=#{@webclient[:client_id]}" +
