@@ -113,7 +113,7 @@ describe BVT::Spec::UsersManagement::UAA do
     pending "Client registration unsuccessful. " +
                 "This case is only available on dev_setup environment." unless @webclient
     @cookie = headers[:set_cookie][0]
-    headers[:location].should == "#{@uaabase}/"
+    headers[:location].should =~ "#{@uaabase}/"
     @uaahelper.get_url "/oauth/authorize?response_type=code&client_id=#{@webclient[:client_id]}" +
       "&redirect_uri=http://anywhere.com", "Cookie" => @cookie
     response = @uaahelper.get_url "/oauth/confirm_access", "Cookie" => @cookie
