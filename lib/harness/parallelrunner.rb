@@ -8,6 +8,12 @@ module BVT::Harness
     def create_parallel_users
       user_info = YAML.load_file(VCAP_BVT_CONFIG_FILE)
       unless user_info['parallel']
+        unless user_info['admin']
+          puts "please input admin account to create concurrent users"
+          BVT::Harness::RakeHelper::generate_config_file(true)
+          user_info = YAML.load_file(VCAP_BVT_CONFIG_FILE)
+        end
+
         user_info['parallel'] = []
         begin
           session = BVT::Harness::CFSession.new(:admin => true,
@@ -27,6 +33,7 @@ module BVT::Harness
           config = {}
           config['email']   = user.email
           config['passwd']  = passwd
+          puts "create user: #{yellow(config['email'])}"
           user_info['parallel'] << config
         end
         File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(user_info) }
@@ -153,6 +160,7 @@ module BVT::Harness
       end
       create_parallel_users
       init_sync_index
+      BVT::Harness::RakeHelper.print_test_config
       parallel_users = YAML.load_file(VCAP_BVT_CONFIG_FILE)['parallel']
       (0..number - 1).to_a.each { |index| puts "run parallel bvt via" +
                                     " #{yellow(parallel_users[index]['email'])}" }
