@@ -7,10 +7,9 @@ describe BVT::Spec::Canonical::ScalaPlay do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
-    @app = create_push_app("play_computer_database_scala_app")
   end
 
-  after(:all) do
+  after(:each) do
     @session.cleanup!
   end
 
@@ -20,16 +19,17 @@ describe BVT::Spec::Canonical::ScalaPlay do
     :play => true, :scala => true do
 
     pending "asset binary not yet available"
+    app = create_push_app("play_computer_database_scala_app")
 
-    bind_service( POSTGRESQL_MANIFEST, @app )
+    bind_service( POSTGRESQL_MANIFEST, app )
 
-    contents = @app.get_response( :get, '/computers' )
+    contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
     contents.body_str.should_not    == nil
     contents.response_code.should   == 200
     contents.close
 
-    log = @app.file(LOG_STDOUT)
+    log = app.file(LOG_STDOUT)
     log.should_not == nil
     log.should include("Auto-reconfiguring default")
     log.should include("database [default] connected at jdbc:postgresql")
@@ -41,15 +41,16 @@ describe BVT::Spec::Canonical::ScalaPlay do
 
     pending "asset binary not yet available"
 
-    bind_service( POSTGRESQL_MANIFEST, @app )
+    app = create_push_app("play_computer_database_scala_app")
+    bind_service( POSTGRESQL_MANIFEST, app )
 
-    contents = @app.get_response( :get, '/computers' )
+    contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
     contents.body_str.should_not    == nil
     contents.response_code.should   == 200
     contents.close
 
-    log = @app.file(LOG_STDOUT)
+    log = app.file(LOG_STDOUT)
     log.should_not == nil
     log.should include("Auto-reconfiguring default")
     log.should include("database [default] connected at jdbc:postgresql")
@@ -60,19 +61,19 @@ describe BVT::Spec::Canonical::ScalaPlay do
     :play => true, :scala => true do
 
     pending "asset binary not yet available"
-
+    app = create_push_app("play_computer_database_scala_app")
 # provision a postgresql servfice named play-comp-db-app-production
-    bind_service( POSTGRESQL_MANIFEST, @app )
+    bind_service( POSTGRESQL_MANIFEST, app )
 
-    bind_service( POSTGRESQL_MANIFEST, @app )
+    bind_service( POSTGRESQL_MANIFEST, app )
 
-    contents = @app.get_response( :get, '/computers' )
+    contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
     contents.body_str.should_not    == nil
     contents.response_code.should   == 200
     contents.close
 
-    log = @app.file(LOG_STDOUT)
+    log = app.file(LOG_STDOUT)
     log.should_not == nil
     log.should include "Found 0 or multiple database services bound to app.  " +
       "Skipping auto-reconfiguration"

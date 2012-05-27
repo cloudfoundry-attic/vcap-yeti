@@ -9,7 +9,7 @@ describe BVT::Spec::Canonical::JavaPlay do
     @session = BVT::Harness::CFSession.new
   end
 
-  after(:all) do
+  after(:each) do
     @session.cleanup!
   end
 
@@ -17,6 +17,7 @@ describe BVT::Spec::Canonical::JavaPlay do
 
   it "play application with mysql auto-reconfiguration", :play => true do
 
+    pending "asset binary not yet available"
     app = create_push_app("play_todolist_app")
 
     bind_service( MYSQL_MANIFEST, app )
