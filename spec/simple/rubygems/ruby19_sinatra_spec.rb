@@ -1,7 +1,7 @@
 require "harness"
 require "spec_helper"
 
-describe BVT::Spec::Simple::Ruby18Rails3 do
+describe BVT::Spec::Simple::Ruby19Sinatra do
   include BVT::Spec
 
   before(:all) do
@@ -12,11 +12,11 @@ describe BVT::Spec::Simple::Ruby18Rails3 do
     @session.cleanup!
   end
 
-  it "access my application root and see it's running version 1.8.7" do
-    @app = create_push_app("app_rails_version18")
+  it "access my application root and see hello from sinatra" do
+    @app = create_push_app("broken_gem_app")
     @app.stats.should_not == nil
     @app.get_response(:get).should_not == nil
     @app.get_response(:get).body_str.should_not == nil
-    @app.get_response(:get).body_str.should == "running version 1.8.7"
+    @app.get_response(:get).body_str.should == "hello from sinatra"
   end
 end

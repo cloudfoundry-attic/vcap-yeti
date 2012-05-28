@@ -3,9 +3,15 @@ require "yaml"
 
 module BVT
   module Harness
-    VCAP_BVT_HOME         = File.join(ENV['HOME'], '.bvt')
+    if ENV['VCAP_BVT_HOME']
+      VCAP_BVT_HOME       = ENV['VCAP_BVT_HOME']
+    else
+      VCAP_BVT_HOME       = File.join(ENV['HOME'], '.bvt')
+    end
+
     VCAP_BVT_CONFIG_FILE  = File.join(VCAP_BVT_HOME, "config.yml")
     VCAP_BVT_PROFILE_FILE = File.join(VCAP_BVT_HOME, "profile.yml")
+    VCAP_BVT_ERROR_LOG    = File.join(VCAP_BVT_HOME, "error.log")
 
     VCAP_BVT_APP_CONFIG   = File.join(File.dirname(__FILE__), "../config/assets.yml")
     VCAP_BVT_APP_ASSETS   = YAML.load_file(VCAP_BVT_APP_CONFIG)
@@ -24,6 +30,10 @@ module BVT
     VCAP_BVT_ASSETS_PACKAGES_MANIFEST =  File.join(VCAP_BVT_ASSETS_PACKAGES_HOME,
                                                    "packages.yml")
     VCAP_BVT_ASSETS_STORE_URL         =  "http://blobs.cloudfoundry.com"
+
+    ## parallel
+    VCAP_BVT_PARALLEL_MAX_USERS  = 8
+    VCAP_BVT_PARALLEL_SYNC_FILE  = File.join(VCAP_BVT_HOME, "sync.yml")
   end
 end
 
@@ -35,3 +45,4 @@ require "harness/service"
 require "harness/user"
 require "harness/http_response_code"
 require "harness/scripts_helper"
+require "harness/parallelrunner"

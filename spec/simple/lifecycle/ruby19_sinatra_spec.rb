@@ -4,36 +4,33 @@ require "spec_helper"
 describe BVT::Spec::Simple::Ruby19Sinatra do
   include BVT::Spec
 
-  before(:each) do
+  before(:all) do
     @session = BVT::Harness::CFSession.new
-    @app = create_app("simple_app2")
-    @app.push
-    @app.healthy?.should be_true, "Application #{@app.name} is not running"
   end
 
   after(:each) do
     @session.cleanup!
   end
 
-  it "create application" do
-    @app.should_not == nil
-  end
+  it "create/start/stop/delete application" do
+    # create app
+    app = create_push_app("simple_app2")
+    app.should_not == nil
 
-  it "start application" do
-    @app.start
-    hash_all = @app.stats["0"]
+    # start app
+    app.start
+    hash_all = app.stats["0"]
     hash_all["state"].should == "RUNNING"
-  end
 
-  it "stop application" do
-    @app.stop
-    @session.apps[0].stats == {}
-  end
+    # stop app
+    app.stop
+    app.stats == {}
 
-  it "delete application" do
+    # delete app
     len = @session.apps.length
-    @app.delete
+    app.delete
     @session.apps.length.should == len - 1
   end
 
 end
+

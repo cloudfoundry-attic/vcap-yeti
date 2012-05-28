@@ -9,9 +9,7 @@ describe BVT::Spec::Simple::Ruby19Sinatra do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
-    @app = create_app("simple_app2")
-    @app.push
-    @app.healthy?.should be_true, "Application #{@app.name} is not running"
+    @app = create_push_app("simple_app2")
   end
 
   after(:all) do
@@ -33,7 +31,7 @@ describe BVT::Spec::Simple::Ruby19Sinatra do
   #should get status on all instances of my application(multiple instances)
   it "get instances information" do
     @app.scale(VAR_INSTANCE_COUNT, VAR_MEMORY)
-    @app.instance.length.should == VAR_INSTANCE_COUNT
+    @app.instances.length.should == VAR_INSTANCE_COUNT
   end
 
   #should get app_name & status

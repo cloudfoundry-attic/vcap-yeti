@@ -28,10 +28,11 @@ module BVT::Harness
       end
 
       @app.total_instances = @manifest['instances']
-      @app.urls            = @manifest['uris']
+      @app.urls            = @manifest['uris'] unless @manifest['no_url']
       @app.framework       = @manifest['framework']
       @app.runtime         = @manifest['runtime']
       @app.memory          = @manifest['memory']
+      @app.command         = @manifest['command']
 
       @log.info "Push App: #{@app.name}"
       begin
@@ -52,6 +53,17 @@ module BVT::Harness
       rescue
         @log.error "Delete App: #{@app.name} failed. "
         raise RuntimeError, "Delete App: #{@app.name} failed."
+      end
+    end
+
+    def update!(what = {})
+      @log.info("Update App: #{@app.name}")
+      begin
+        @app.update!(what)
+        restart
+      rescue
+        @log.error "Update App: #{@app.name} failed. "
+        raise RuntimeError, "Update App: #{@app.name} failed."
       end
     end
 
@@ -112,7 +124,7 @@ module BVT::Harness
       restart if restart_app
     end
 
-    def unbind(service_name)
+    def unbind(service_name, restart_app = true)
       unless @app.services.include?(service_name)
         @log.error("Fail to find service: #{service_name} binding to " +
                        "application: #{@app.name}")
@@ -123,7 +135,7 @@ module BVT::Harness
       begin
         @log.info("Application: #{@app.name} unbind Service: #{service_name}")
         @app.unbind(service_name)
-        restart
+        restart if restart_app
       rescue
         @log.error("Fail to unbind service: #{service_name} for " +
                        "application: #{@app.name}")
@@ -160,6 +172,20 @@ module BVT::Harness
       end
     end
 
+    def file(path)
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError "Application: #{@app.name} does not exist!"
+      end
+      begin
+        @log.info("Examine an application: #{@app.name} file")
+        @app.file(path)
+      rescue
+        @log.error("Fail to examine an application: #{@app.name} file!")
+        raise RuntimeError, "Fail to examine an application: #{@app.name} file!"
+      end
+    end
+
     def scale(instance, memory)
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
@@ -178,7 +204,7 @@ module BVT::Harness
       end
    end
 
-    def instance
+    def instances
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
         raise RuntimeError "Application: #{@app.name} does not exist!"
@@ -192,13 +218,28 @@ module BVT::Harness
       end
     end
 
+    # only retrieve logs of instance #0
+    def logs
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError "Application: #{@app.name} does not exist!"
+      end
+
+      instance = @app.instances[0]
+      body = ""
+      instance.files("logs").each do |log|
+        body += instance.file(*log)
+      end
+      body
+    end
+
     def healthy?
       @app.healthy?
     end
 
-    # method should be REST method, only [:get, :put, :post] is supported
+    # method should be REST method, only [:get, :put, :post, :delete] is supported
     def get_response(method, relative_path = "/", data = nil)
-      unless [:get, :put, :post].include?(method)
+      unless [:get, :put, :post, :delete].include?(method)
         @log.error("REST method #{method} is not supported")
         raise RuntimeError, "REST method #{method} is not supported"
       end
@@ -217,6 +258,9 @@ module BVT::Harness
           when :post
             @log.debug("Post data: #{data} to URL: #{easy.url}")
             easy.http_post(data)
+          when :delete
+            @log.debug("Delete URL: #{easy.url}")
+            easy.http_delete
           else nil
         end
         # Time dependency

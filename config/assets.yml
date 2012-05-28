@@ -50,6 +50,12 @@ broken_app:
   memory: 64
   path: "assets/sinatra/broken_app"
 
+broken_gem_app:
+  framework: "sinatra"
+  runtime: "ruby19"
+  memory: 64
+  path: "assets/sinatra/broken_gem_app"
+
 rails3_app:
   framework: "rails3"
   memory: 128
@@ -58,6 +64,7 @@ rails3_app:
 
 jpa_app:
   framework: "spring"
+  runtime: java
   memory: 512
   path: ".assets-binaries/jpa-guestbook.war"
 
@@ -82,7 +89,7 @@ dbrails_broken_app:
 
 grails_app:
   runtime: "java"
-  framework: "grails3"
+  framework: "grails"
   memory: 512
   path: ".assets-binaries/guestbook.war"
 
@@ -94,17 +101,18 @@ roo_app:
 
 mochiweb_test:
   framework: "otp_rebar"
+  runtime: "erlangR14B02"
   memory: 64
   path: "assets/mochiweb/mochiweb_test/rel/mochiweb_test"
 
 simple-lift-app:
-  framework: "lift/1.0"
+  framework: "lift"
   memory: 256
   runtime: "java"
   path: ".assets-binaries/hello_lift.war"
 
 lift-db-app:
-  framework: "lift/1.0"
+  framework: "lift"
   memory: 256
   runtime: "java"
   path: ".assets-binaries/lift-db-app.war"
@@ -199,7 +207,7 @@ app_sinatra_service:
 app_sinatra_service2:
   framework: "sinatra"
   runtime: "ruby19"
-  memory: 256
+  memory: 128
   path: "assets/sinatra/app_sinatra_service"
 
 app_sinatra_service_autoconfig:
@@ -208,6 +216,12 @@ app_sinatra_service_autoconfig:
   runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/app_sinatra_service_autoconfig"
+
+service_quota_app:
+  framework: "sinatra"
+  runtime: "ruby19"
+  memory: 512
+  path: "assets/sinatra/app_sinatra_service_quota/"
 
 amqp_autoconfig:
   framework: "sinatra"
@@ -293,21 +307,25 @@ neo4j_app:
 
 simple_wsgi_app:
   framework: "wsgi"
+  runtime: "python2"
   memory: 64
   path: "assets/django/simple_wsgi_app"
 
 wsgi_app_with_requirements:
   framework: "wsgi"
+  runtime: "python2"
   memory: 64
   path: "assets/django/wsgi_app_with_requirements"
 
 simple_django_app:
   framework: "django"
+  runtime: "python2"
   memory: 64
   path: "assets/django/simple_django_app"
 
 simple_php_app:
   framework: "php"
+  runtime: "php"
   memory: 64
   path: "assets/php/simple_php_app"
 
@@ -320,7 +338,7 @@ spring-env-app:
 auto-reconfig-test-app:
   framework: "spring"
   runtime: "java"
-  memory: 128
+  memory: 256
   path: ".assets-binaries/auto-reconfig-test-app.war"
 
 auto-reconfig-missing-deps-test-app:
@@ -364,21 +382,21 @@ vblob_app:
 standalone_ruby18_app:
   framework: "standalone"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
-  memory: 256
+  memory: 64
   runtime: ruby18
   path: "assets/standalone/ruby_app"
 
 standalone_ruby19_app:
   framework: "standalone"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
-  memory: 256
+  memory: 64
   runtime: ruby19
   path: "assets/standalone/ruby_app"
 
 standalone_simple_ruby18_app:
   framework: "standalone"
   command: "ruby simple.rb"
-  memory: 256
+  memory: 64
   runtime: ruby18
   path: "assets/standalone/simple_ruby_app"
   no_url: true
@@ -386,7 +404,7 @@ standalone_simple_ruby18_app:
 standalone_simple_ruby18_quotes_app:
   framework: "standalone"
   command: "ruby \"simple.rb\""
-  memory: 256
+  memory: 64
   runtime: ruby18
   path: "assets/standalone/simple_ruby_app"
   no_url: true
@@ -394,7 +412,7 @@ standalone_simple_ruby18_quotes_app:
 standalone_simple_ruby19_app:
   framework: "standalone"
   command: "ruby simple.rb"
-  memory: 256
+  memory: 64
   runtime: ruby19
   path: "assets/standalone/simple_ruby_app"
   no_url: true
@@ -403,7 +421,7 @@ standalone_java_app:
   framework: "standalone"
   command: "bin/hello-cloud"
   runtime: "java"
-  memory: 256
+  memory: 64
   path: ".assets-binaries/java_app.jar"
   no_url: true
 
@@ -472,5 +490,73 @@ standalone_erlang_app:
   memory: 64
   path: "assets/standalone/erlang_app"
   no_url: true
+
+play_computer_database_autoconfig_disabled_app:
+  framework: "play"
+  memory: 128
+  runtime: java
+  path: ".assets-binaries/computer-database-autoconfig-disabled.zip"
+
+play_computer_database_cf_by_name_app:
+  framework: "play"
+  memory: 128
+  runtime: java
+  path: ".assets-binaries/computer-database-cf-by-name.zip"
+
+play_computer_database_cf_by_type_app:
+  framework: "play"
+  memory: 128
+  runtime: java
+  path: ".assets-binaries/computer-database-cf-by-type.zip"
+
+play_computer_database_jpa_mysql_app:
+  framework: "play"
+  memory: 128
+  runtime: java
+  path: ".assets-binaries/computer-database-jpa-mysql.zip"
+
+play_computer_database_jpa_app:
+  framework: "play"
+  memory: 128
+  runtime: java
+  path: ".assets-binaries/computer-database-jpa.zip"
+
+play_computer_database_multi_dbs_app:
+  framework: "play"
+  memory: 128
+  runtime: java
+  path: ".assets-binaries/computer-database-multi-dbs.zip"
+
+play_computer_database_scala_app:
+  framework: "play"
+  memory: 128
+  runtime: java
+  path: ".assets-binaries/computer-database-scala.zip"
+
+play_todolist_app:
+  framework: "play"
+  memory: 128
+  runtime: java
+  path: ".assets-binaries/todolist.zip"
+
+play_todolist_with_cfruntime_app:
+  framework: "play"
+  memory: 128
+  runtime: java
+  path: ".assets-binaries/todolist-with-cfruntime.zip"
+
+play_zentasks_cf_by_name_app:
+  framework: "play"
+  memory: 128
+  runtime: java
+  path: ".assets-binaries/zentasks-cf-by-name.zip"
+
+play_zentasks_cf_by_type_app:
+  framework: "play"
+  memory: 128
+  runtime: java
+  path: ".assets-binaries/zentasks-cf-by-type.zip"
+
+
 
 

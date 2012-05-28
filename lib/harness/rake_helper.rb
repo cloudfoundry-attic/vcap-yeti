@@ -5,32 +5,36 @@ require "curb"
 require "mongo"
 require "yajl"
 require "digest/md5"
+require "tempfile"
 
 module BVT::Harness
   module RakeHelper
     include Interactive, ColorHelpers
 
-    VCAP_BVT_DEFAULT_TARGET = "vcap.me"
-    VCAP_BVT_DEFAULT_USER = "test@vcap.me"
-    VCAP_BVT_DEFAULT_ADMIN = "admin@vcap.me"
+    VCAP_BVT_DEFAULT_TARGET =   "vcap.me"
+    VCAP_BVT_DEFAULT_USER   =   "test@vcap.me"
+    VCAP_BVT_DEFAULT_ADMIN  =   "admin@vcap.me"
 
-    def generate_config_file
+    def generate_config_file(admin=false)
       Dir.mkdir(VCAP_BVT_HOME) unless Dir.exists?(VCAP_BVT_HOME)
       get_config
 
       get_target
       get_user
       get_user_passwd
-      get_admin_user
-      get_admin_user_passwd
+      if admin
+        get_admin_user
+        get_admin_user_passwd
+      end
 
       save_config
     end
 
     def check_environment
       check_network_connection
-
-      client = BVT::Harness::CFSession.new
+      client = BVT::Harness::CFSession.new(:email => @config['user']['email'],
+                                           :passwd => @config['user']['passwd'],
+                                           :target => @config['target'])
       profile = {}
       profile[:runtimes] = client.system_runtimes
       profile[:services] = client.system_services
@@ -62,12 +66,17 @@ module BVT::Harness
 
     def cleanup!
       check_network_connection
-      cleanup_services_apps(@config['user']['email'], @config['user']['passwd'])
+      cleanup_services_apps
       cleanup_test_accounts
     end
 
     def sync_assets
       downloads = get_assets_info
+      if downloads == nil
+        raise RuntimeError,
+          red("Get remote file list faild, might be caused by unstable network.\n" +
+              "Please try again.")
+      end
       if File.exist?(VCAP_BVT_ASSETS_PACKAGES_MANIFEST)
         locals = YAML.load_file(VCAP_BVT_ASSETS_PACKAGES_MANIFEST)['packages']
       else
@@ -105,7 +114,8 @@ module BVT::Harness
           puts yellow("#{index_str}downloading\t#{item['filename']}")
           download_binary(filepath)
           unless check_md5(filepath) == item['md5']
-            puts red("#{index_str}fail to download\t\t#{item['filename']}")
+            puts red("#{index_str}fail to download\t\t#{item['filename']}.\n"+
+                     "Might be caused by unstable network, please try again.")
           end
           skipped << Hash['filename' => item['filename'], 'md5' => item['md5']]
           File.open(VCAP_BVT_ASSETS_PACKAGES_MANIFEST, "w") do |f|
@@ -114,6 +124,15 @@ module BVT::Harness
         end
       end
       puts green("sync assets binaries finished")
+    end
+
+    def print_test_config
+      puts yellow("\n\nBVT is starting...")
+      puts "target: \t#{yellow(@config['target'])}"
+      puts "admin user: \t#{yellow(@config['admin']['email'])}" if @config['admin']
+      unless ENV['VCAP_BVT_PARALLEL']
+        puts "normal user: \t#{yellow(@config['user']['email'])}"
+      end
     end
 
     private
@@ -129,12 +148,13 @@ module BVT::Harness
 
     def get_target
       if ENV['VCAP_BVT_TARGET']
-        @config['target'] = ENV['VCAP_BVT_TARGET']
+        @config['target'] = format_target(ENV['VCAP_BVT_TARGET'])
       elsif @config['target'].nil?
-        @config['target'] = ask_and_validate("VCAP Target",
+        input = ask_and_validate("VCAP Target",
                                              '\A.*',
                                              VCAP_BVT_DEFAULT_TARGET
                                             )
+        @config['target'] = format_target(input)
       end
     end
 
@@ -143,9 +163,7 @@ module BVT::Harness
       if ENV['VCAP_BVT_ADMIN_USER']
         @config['admin']['email'] = ENV['VCAP_BVT_ADMIN_USER']
       elsif @config['admin']['email'].nil?
-        @config['admin']['email'] = ask_and_validate('Admin User Email ' +
-                                                       '(If you do not know, just type "enter". ' +
-                                                       'Some admin user cases may be failed)',
+        @config['admin']['email'] = ask_and_validate('Admin User Email',
                                                      '\A.*\@',
                                                      VCAP_BVT_DEFAULT_ADMIN
                                                     )
@@ -156,9 +174,7 @@ module BVT::Harness
       if ENV['VCAP_BVT_ADMIN_USER_PASSWD']
         @config['admin']['passwd'] = ENV['VCAP_BVT_ADMIN_USER_PASSWD']
       elsif @config['admin']['passwd'].nil?
-        @config['admin']['passwd'] = ask_and_validate('Admin User Passwd ' +
-                                                        '(If you do not know, just type "enter". ' +
-                                                        'Some admin user cases may be failed)',
+        @config['admin']['passwd'] = ask_and_validate('Admin User Passwd',
                                                       '.*',
                                                       '*',
                                                       '*'
@@ -188,12 +204,6 @@ module BVT::Harness
 
     def save_config
       File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(@config) }
-      puts yellow("BVT is starting...")
-      puts "target: \t#{yellow(@config['target'])}"
-      puts "admin user: \t#{yellow(@config['admin']['email'])}" +
-              "\t\tadmin user passwd: \t#{yellow(@config['admin']['passwd'])}"
-      puts "normal user: \t#{yellow(@config['user']['email'])}" +
-               "\tnormal user passwd: \t#{yellow(@config['user']['passwd'])}"
     end
 
     def ask_and_validate(question, pattern, default = nil, echo = nil)
@@ -205,12 +215,24 @@ module BVT::Harness
       res
     end
 
+    def format_target(str)
+      if str.start_with? 'http://api.'
+        str.gsub('http://api.', '')
+      elsif str.start_with? 'api.'
+        str.gsub('api.', '')
+      else
+        str
+      end
+    end
+
     def get_script_git_hash
       `git log --pretty=oneline`.split("\n").first
     end
 
-    def cleanup_services_apps(email, passwd)
-      session = BVT::Harness::CFSession.new(false, email, passwd)
+    def cleanup_services_apps
+      session = BVT::Harness::CFSession.new(:email => @config['user']['email'],
+                                            :passwd => @config['user']['passwd'],
+                                            :target => @config['target'])
       puts yellow("Ready to clean up for test user: #{session.email}")
       apps = session.apps
       services = session.services
@@ -244,9 +266,9 @@ module BVT::Harness
       puts yellow("Clean up work for test user: #{session.email} has been done.\n")
     end
 
-    def cleanup_test_accounts()
+    def cleanup_test_accounts
       test_user_template = 'my_fake@email.address'
-      session = BVT::Harness::CFSession.new(true)
+      session = BVT::Harness::CFSession.new(:admin => true)
       puts yellow("Ready to remove all test users created in admin_user_spec.rb")
       users = session.users.select { |user| user.email =~ /^t.*-#{test_user_template}$/ }
 
@@ -293,11 +315,17 @@ module BVT::Harness
       easy.url = "#{VCAP_BVT_ASSETS_STORE_URL}/files/#{filename}"
       easy.resolve_mode = :ipv4
       easy.timeout = 60 * 5
-      easy.http_get
-      # retry once
-      unless easy.response_code == HTTP_RESPONSE_CODE::OK
-        sleep(1) # waiting for 1 second and try again
+      begin
         easy.http_get
+        # retry once
+        unless easy.response_code == HTTP_RESPONSE_CODE::OK
+          sleep(1) # waiting for 1 second and try again
+          easy.http_get
+        end
+      rescue
+        raise RuntimeError,
+              red("Download faild, might be caused by unstable network.\n" +
+                      "Please try again.")
       end
 
       if easy.response_code == HTTP_RESPONSE_CODE::OK

@@ -5,34 +5,57 @@ module BVT
 
     module UsersManagement
       class AdminUser; end
+      class UAA; end
     end
 
     module AutoStaging
       class Ruby18Rack; end
-
+      class Ruby18Standalone; end
       class Ruby19Sinatra; end
       class Ruby19Rack; end
       class Ruby19Rails3; end
-
+      class Ruby19Standalone; end
       class JavaSpring; end
+      class JavaGrails; end
     end
 
     module Canonical
+      class JavaPlay; end
       class JavaSpring; end
+      class JavaSpring31; end
+      class JavaLift; end
       class Ruby19Sinatra; end
       class Ruby18Rack; end
       class NodeNode; end
       class JavaStandalone; end
       class Ruby19Rails3; end
+      class ScalaPlay; end
+    end
+
+    module ServiceQuota
+      class Ruby19Sinatra; end
+    end
+
+    module ServiceRebinding
+      class Ruby19Sinatra; end
     end
 
     module Simple
       class JavaWeb; end
-      class Ruby19Sinatra; end
+      class JavaStandalone; end
       class NodeNode; end
+      class NodeStandalone; end
       class Node06Node; end
+      class Node06Standalone; end
       class Ruby18Rails3; end
+      class Ruby18Standalone; end
       class Ruby19Rails3; end
+      class Ruby19Sinatra; end
+      class Ruby19Standalone; end
+      class ErlangOtpRebar; end
+      class PhpPhp; end
+      class Python2Wsgi; end
+      class Python2Django; end
     end
 
     MYSQL_MANIFEST      = {"vendor"=>"mysql", "version"=>"5.1"}
@@ -56,12 +79,19 @@ module BVT
 end
 
 RSpec.configure do |config|
+  include BVT::Harness::ParallelRunner
+
   config.before(:suite) do
+    if ENV['VCAP_BVT_PARALLEL']
+      BVT::Harness::VCAP_BVT_PARALLEL_INDEX = increase_sync_index
+    end
+    BVT::Harness::VCAP_BVT_CONFIG = YAML.load_file(BVT::Harness::VCAP_BVT_CONFIG_FILE)
     profile = YAML.load_file(BVT::Harness::VCAP_BVT_PROFILE_FILE)
     BVT::Harness::VCAP_BVT_SYSTEM_FRAMEWORKS  =  profile[:frameworks]
     BVT::Harness::VCAP_BVT_SYSTEM_RUNTIMES    =  profile[:runtimes]
     BVT::Harness::VCAP_BVT_SYSTEM_SERVICES    =  profile[:services]
   end
+
   config.include BVT::Harness::ScriptsHelper
 end
 

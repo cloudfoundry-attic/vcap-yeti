@@ -32,9 +32,16 @@ module BVT::Harness
         pending("Runtime/Framework: #{app.manifest['runtime']}/#{app.manifest['framework']} " +
                     "is not available on target: #{@session.TARGET}")
       end
-      if app.manifest['path'].end_with?('.jar') || app.manifest['path'].end_with?('.war') 
+      if app.manifest['path'].end_with?('.jar') || app.manifest['path'].end_with?('.war')
         pending "Package not found, please run update.sh" unless File.exist? app.manifest['path']
       end
+      app
+    end
+
+    def create_push_app(app_name)
+      app = create_app(app_name)
+      app.push
+      app.healthy?.should be_true, "Application #{app.name} is not running"
       app
     end
   end
