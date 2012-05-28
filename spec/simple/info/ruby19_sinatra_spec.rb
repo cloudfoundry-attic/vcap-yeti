@@ -1,7 +1,7 @@
 require "harness"
 require "spec_helper"
 
-describe BVT::Spec::Simple::Ruby19Sinatra do
+describe BVT::Spec::Simple::Info::Ruby19Sinatra do
   include BVT::Spec
 
   VAR_INSTANCE_COUNT = 4
