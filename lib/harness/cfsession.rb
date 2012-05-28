@@ -58,13 +58,20 @@ module BVT::Harness
 
     def system_frameworks
       @log.debug "get system frameworks, target: #{@TARGET}"
-      info = @client.info
-      info["frameworks"] || {}
+      @info ||= @client.info
+      @info["frameworks"] || {}
     end
 
     def system_runtimes
       @log.debug "get system runtimes, target: #{@TARGET}"
-      @client.system_runtimes
+      @info ||= @client.info
+      runtimes = {}
+      @info["frameworks"].each do |_, f|
+        f["runtimes"].each do |r|
+          runtimes[r["name"]] = r
+        end
+      end
+      runtimes
     end
 
     def system_services
