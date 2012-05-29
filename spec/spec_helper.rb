@@ -50,12 +50,20 @@ module BVT
       class Ruby18Rails3; end
       class Ruby18Standalone; end
       class Ruby19Rails3; end
-      class Ruby19Sinatra; end
       class Ruby19Standalone; end
       class ErlangOtpRebar; end
       class PhpPhp; end
       class Python2Wsgi; end
       class Python2Django; end
+      module Info
+        class Ruby19Sinatra; end
+      end
+      module Lifecycle
+        class Ruby19Sinatra; end
+      end
+      module Update
+        class Ruby19Sinatra; end
+      end
     end
 
     MYSQL_MANIFEST      = {"vendor"=>"mysql", "version"=>"5.1"}
