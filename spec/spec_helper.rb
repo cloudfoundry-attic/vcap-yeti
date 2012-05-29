@@ -5,6 +5,7 @@ module BVT
 
     module UsersManagement
       class AdminUser; end
+      class NormalUser; end
       class UAA; end
     end
 
