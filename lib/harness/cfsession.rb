@@ -3,7 +3,7 @@ require "vcap/logging"
 
 module BVT::Harness
   class CFSession
-    attr_reader :log, :namespace, :TARGET, :email, :passwd, :is_admin
+    attr_reader :log, :namespace, :TARGET, :email, :passwd, :is_admin, :token
 
     def initialize(options = {})
       options = {:admin => false,
@@ -31,7 +31,7 @@ module BVT::Harness
       @log.debug("Login in, target: #{@TARGET}, email = #{@email}, pssswd = #{@passwd}")
       @client = CFoundry::Client.new(@TARGET)
       begin
-        @client.login(@email, @passwd)
+        @token = @client.login(@email, @passwd)
       rescue
         @log.error "Fail to login in, target: #{@TARGET}, user: #{@email}, passwd = #{@passwd}"
         raise "Cannot login target environment. " +
