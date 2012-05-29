@@ -1,7 +1,7 @@
 require "harness"
 require "spec_helper"
 
-describe BVT::Spec::Simple::Ruby19Sinatra do
+describe BVT::Spec::Simple::RubyGems::Ruby19Sinatra do
   include BVT::Spec
 
   before(:all) do

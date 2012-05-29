@@ -55,13 +55,20 @@ module BVT
       class PhpPhp; end
       class Python2Wsgi; end
       class Python2Django; end
+
       module Info
         class Ruby19Sinatra; end
       end
+
       module Lifecycle
         class Ruby19Sinatra; end
       end
+
       module Update
+        class Ruby19Sinatra; end
+      end
+
+      module RubyGems
         class Ruby19Sinatra; end
       end
     end
