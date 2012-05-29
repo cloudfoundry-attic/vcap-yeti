@@ -302,6 +302,7 @@ my_test_app_env_test_app:
 
 neo4j_app:
   framework: "sinatra"
+  runtime: "ruby19"
   memory: 128
   path: "assets/sinatra/neo4j_app"
 
@@ -376,8 +377,9 @@ rails_console_test_app:
 
 vblob_app:
   framework: "sinatra"
+  runtime: "ruby19"
   memory: 256
-  path: "assets/sinatra/vblob_app"
+  path: "assets/sinatra/app_sinatra_service"
 
 standalone_ruby18_app:
   framework: "standalone"

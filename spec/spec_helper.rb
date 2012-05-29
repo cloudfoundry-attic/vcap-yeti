@@ -71,17 +71,21 @@ module BVT
     MONGODB_MANIFEST    = {"vendor"=>"mongodb", "version"=>"1.8"}
     RABBITMQ_MANIFEST   = {"vendor"=>"rabbitmq", "version"=>"2.4"}
     POSTGRESQL_MANIFEST = {"vendor"=>"postgresql", "version"=>"9.0"}
+    NEO4J_MANIFEST      = {"vendor"=>"neo4j", "version"=>"1.4"}
+    VBLOB_MANIFEST      = {"vendor"=>"vblob", "version"=>"1.0"}
 
-    SERVICE_URL_MAPPING = Hash["mysql" => "mysql",
-                               "redis" => "redis",
-                               "mongodb" => "mongo",
-                               "rabbitmq" => "rabbitmq",
-                               "postgresql" => "postgresql"]
+    SERVICE_URL_MAPPING = Hash["mysql"      => "mysql",
+                               "redis"      => "redis",
+                               "mongodb"    => "mongo",
+                               "rabbitmq"   => "rabbitmq",
+                               "postgresql" => "postgresql",
+                               "neo4j"      => "neo4j",
+                               "vblob"      => "vblob"]
 
-    SERVICE_URL_MAPPING_UNSUPPORTED_VERSION = Hash["mysql" => "mysql",
-                                                   "redis" => "redis",
-                                                   "mongodb" => "mongo",
-                                                   "rabbitmq" => "amqp",
+    SERVICE_URL_MAPPING_UNSUPPORTED_VERSION = Hash["mysql"      => "mysql",
+                                                   "redis"      => "redis",
+                                                   "mongodb"    => "mongo",
+                                                   "rabbitmq"   => "amqp",
                                                    "postgresql" => "postgres"]
   end
 end
