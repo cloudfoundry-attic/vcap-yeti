@@ -90,8 +90,12 @@ module BVT::Harness
       @client.services.collect {|service| BVT::Harness::Service.new(service, self)}
     end
 
-    def service(name)
-      BVT::Harness::Service.new(@client.service("#{@namespace}#{name}"), self)
+    def service(name, require_namespace=true)
+      if require_namespace
+        BVT::Harness::Service.new(@client.service("#{@namespace}#{name}"), self)
+      else
+        BVT::Harness::Service.new(@client.service(name), self)
+      end
     end
 
     def users

@@ -556,7 +556,7 @@ play_todolist_with_cfruntime_app:
 
 play_zentasks_cf_by_name_app:
   framework: "play"
-  memory: 128
+  memory: 256
   runtime: java
   path: ".assets-binaries/zentasks-cf-by-name.zip"
 

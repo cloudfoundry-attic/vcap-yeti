@@ -48,8 +48,11 @@ TESTS_TO_BUILD = ["#{TESTS_PATH}/spring/auto-reconfig-test-app",
              "#{TESTS_PATH}/play/zentasks_cf_by_type"
 ]
 
+PLAY_VERSION="2.0.1"
+
 desc "Build the tests. If the git hash hasn't change, nothing is built. To force a build, invoke 'rake build[--force]'"
 task :build, [:force] do |t, args|
+  download_play if not File.exists? File.join(Dir.pwd, "play-#{PLAY_VERSION}","play")
   puts "\nBuilding tests"
   sh('cd .. && git submodule update')
   if build_required? args.force
@@ -58,10 +61,7 @@ task :build, [:force] do |t, args|
     `mvn -v 2>&1`
     raise prompt_message if $?.exitstatus != 0
     ENV['MAVEN_OPTS']="-XX:MaxPermSize=256M"
-
-    play_home = gets "Please input the play framework path (S to skip): "
-
-    ENV['PLAY2_HOME'] = play_home
+    ENV['PLAY2_HOME']=File.join(Dir.pwd, "play-#{PLAY_VERSION}")
 
     TESTS_TO_BUILD.each do |test|
       puts "\tBuilding '#{test}'"
@@ -74,7 +74,7 @@ task :build, [:force] do |t, args|
               target_file = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, app_name+'.zip')
               sh("cd #{build_folder} && zip -r #{target_file} *")
             else
-              binaryname = File.join("{target}", "*.war")
+              binaryname = File.join("target", "*.{war,zip}")
               binary_file = Dir.glob(binaryname).first
               app_name = test.split('/')[-1]
               file_type = '.'+binary_file.split('.')[-1]
@@ -108,6 +108,13 @@ def build_required? (force_build=nil)
     git_hash = `git rev-parse --short=8 --verify HEAD`
     saved_git_hash.to_s.strip != git_hash.to_s.strip
   end
+end
+
+def download_play
+  puts "Downloading and unpacking Play Framework"
+  sh("wget http://download.playframework.org/releases/play-#{PLAY_VERSION}.zip")
+  sh("unzip -q play-#{PLAY_VERSION}.zip")
+  FileUtils.rm_f("play-#{PLAY_VERSION}.zip")
 end
 
 def save_git_hash
