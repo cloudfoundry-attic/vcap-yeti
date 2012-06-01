@@ -16,8 +16,8 @@ module BVT::Harness
       "#<BVT::Harness::App '#@name' '#@manifest'>"
     end
 
-    def push(services = nil)
-      load_manifest
+    def push(services = nil, appid = nil)
+      load_manifest(appid)
       check_framework(@manifest['framework'])
       check_runtime(@manifest['runtime'])
       @manifest['uris'] = [get_url,]
@@ -159,27 +159,23 @@ module BVT::Harness
       end
     end
 
-    def get_newurl(str)
-      new_name= @app.name + "-" + str
-      "#{new_name}.#{@session.TARGET.gsub("http://api.", "")}".gsub("_", "-")
-    end
-
     def map(url)
+      @log.info("Map URL: #{url} to Application: #{@app.name}.")
       @app.urls <<  url
       @app.update!
+      @log.debug("Application: #{@app.name}, URLs: #{@app.urls}")
     end
 
     def unmap(url)
+      @log.info("Unmap URL: #{url} to Application: #{@app.name}")
       @app.urls.delete(url)
       @app.update!
+      @log.debug("Application: #{@app.name}, URLs: #{@app.urls}")
     end
 
-    def http_get(url, relative_path = "/")
-      easy             = Curl::Easy.new
-      easy.url         = url + relative_path
-      easy.resolve_mode = :ipv4
-      easy.http_get
-      return easy
+    def urls
+      @log.debug("List URLs: #{@app.urls} of Application: #{@app.name}")
+      @app.urls
     end
 
     def files(path)
@@ -216,7 +212,8 @@ module BVT::Harness
         raise RuntimeError "Application: #{@app.name} does not exist!"
       end
       begin
-        @log.info("Update the instances/memory limit for Application: #{@app.name}!")
+        @log.info("Update the instances/memory: #{instance}/#{memory} " +
+                      "for Application: #{@app.name}")
         @app.total_instances = instance.to_i
         @app.memory = memory
         @app.update!
@@ -234,7 +231,7 @@ module BVT::Harness
         raise RuntimeError "Application: #{@app.name} does not exist!"
       end
       begin
-        @log.info("List an application: #{@app.name} instance!")
+        @log.debug("Get application: #{@app.name} instances list")
         @app.instances
       rescue
         @log.error("Fail to list the instances for Application: #{@app.name} !")
@@ -254,6 +251,7 @@ module BVT::Harness
       instance.files("logs").each do |log|
         body += instance.file(*log)
       end
+      @log.debug("Get Application #{@app.name}, logs contents: #{body}")
       body
     end
 
@@ -262,14 +260,14 @@ module BVT::Harness
     end
 
     # method should be REST method, only [:get, :put, :post, :delete] is supported
-    def get_response(method, relative_path = "/", data = nil)
+    def get_response(method, relative_path = "/", data = nil, second_domain = nil)
       unless [:get, :put, :post, :delete].include?(method)
         @log.error("REST method #{method} is not supported")
         raise RuntimeError, "REST method #{method} is not supported"
       end
 
       easy              = Curl::Easy.new
-      easy.url          = get_url + relative_path
+      easy.url          = get_url(second_domain) + relative_path
       easy.resolve_mode = :ipv4
       begin
         case method
@@ -297,13 +295,13 @@ module BVT::Harness
       end
     end
 
-    def load_manifest
-      unless @manifest
+    def load_manifest(appid = nil)
+      if !@manifest || appid
         unless VCAP_BVT_APP_ASSETS.is_a?(Hash)
           @log.error("Invalid config file format, #{VCAP_BVT_APP_CONFIG}")
           raise RuntimeError, "Invalid config file format, #{VCAP_BVT_APP_CONFIG}"
         end
-        appid = @app.name.split('-', 2).last
+        appid ||= @app.name.split('-', 2).last
 
         unless VCAP_BVT_APP_ASSETS.has_key?(appid)
           @log.error("Cannot find application #{appid} in #{VCAP_BVT_APP_CONFIG}")
@@ -318,13 +316,14 @@ module BVT::Harness
       end
     end
 
-    def get_url
+    def get_url(second_domain = nil)
       # URLs synthesized from app names containing '_' are not handled well
       # by the Lift framework.
       # So we used '-' instead of '_'
       # '_' is not a valid character for hostname according to RFC 822,
       # use '-' to replace it.
-      "#{@app.name}.#{@session.TARGET.gsub("http://api.", "")}".gsub("_", "-")
+      second_domain = "-#{second_domain}" if second_domain
+      "#{@app.name}#{second_domain}.#{@session.TARGET.gsub("http://api.", "")}".gsub("_", "-")
     end
 
     private
@@ -359,9 +358,5 @@ module BVT::Harness
         end
       end
     end
-
-
-
-
   end
 end
