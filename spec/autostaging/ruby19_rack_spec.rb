@@ -13,7 +13,7 @@ describe BVT::Spec::AutoStaging::Ruby19Rack do
     @session.cleanup!
   end
 
-  it "rack ruby 1.9 autostaging" do
+  it "rack ruby 1.9 autostaging", :redis => true do
     app = create_push_app("rack_autoconfig_ruby19")
     app.get_response(:get).body_str.should == "hello from sinatra"
 

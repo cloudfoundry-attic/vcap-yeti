@@ -29,7 +29,8 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
       "Saved #{widget_name}"
   end
 
-  it "start and test a rails db app with Gemfile that includes mysql2 gem" do
+  it "start and test a rails db app with Gemfile that includes mysql2 gem",
+    :mysql => true do
     service_manifest = MYSQL_MANIFEST
     service = create_service(MYSQL_MANIFEST)
 
@@ -41,7 +42,8 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
     urls.each { |url| verify_rails_db_app(app, url)}
   end
 
-  it "rails db app with Gemfile that DOES NOT include mysql2 or sqllite gems" do
+  it "rails db app with Gemfile that DOES NOT include mysql2 or sqllite gems",
+    :mysql => true do
     service_manifest = MYSQL_MANIFEST
     service = create_service(MYSQL_MANIFEST)
 
@@ -50,7 +52,8 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
       "Application: #{app.name} cannot be started in 60 seconds")
   end
 
-  it "Rails autostaging" do
+  it "Rails autostaging", :mysql => true, :redis => true, :mongodb => true,
+    :rabbitmq => true, :postgresql => true do
     # provision service
     service_manifests = [MYSQL_MANIFEST, REDIS_MANIFEST, MONGODB_MANIFEST]
     services = []
@@ -72,7 +75,7 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
     end
   end
 
-  it "Rails opt-out of autostaging via config file" do
+  it "Rails opt-out of autostaging via config file", :mysql => true, :redis => true do
     # provision service
     service_manifests = [MYSQL_MANIFEST, REDIS_MANIFEST]
     services = []
@@ -88,7 +91,8 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
     app.get_response(:get, "/service/redis/#{key}").body_str.should == data
   end
 
-  it "Rails opt-out of autokstaging via cf-runtime gem" do
+  it "Rails opt-out of autokstaging via cf-runtime gem", :mysql => true,
+    :redis => true do
     # provision service
     service_manifests = [MYSQL_MANIFEST, REDIS_MANIFEST]
     services = []

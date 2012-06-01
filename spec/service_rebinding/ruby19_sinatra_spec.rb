@@ -105,23 +105,23 @@ describe BVT::Spec::ServiceRebinding::Ruby19Sinatra do
     drop_db_obj(service_manifest, app2)
   end
 
-  it "Verify rebinding for mysql" do
+  it "Verify rebinding for mysql", :mysql => true do
     app1 = create_push_app("app_sinatra_service")
     rebind(MYSQL_MANIFEST, app1)
   end
 
-  it "Verify rebinding for postgresql" do
+  it "Verify rebinding for postgresql", :postgresql => true do
     app1 = create_push_app("app_sinatra_service")
     rebind(POSTGRESQL_MANIFEST, app1)
   end
 
-  it "Verify binding mysql to two applications" do
+  it "Verify binding mysql to two applications", :mysql => true do
     app1 = create_push_app("app_sinatra_service")
     app2 = create_push_app("app_sinatra_service2")
     bind_apps(MYSQL_MANIFEST, app1, app2)
   end
 
-  it "Verify binding postgresql to two applications" do
+  it "Verify binding postgresql to two applications", :postgresql => true do
     app1 = create_push_app("app_sinatra_service")
     app2 = create_push_app("app_sinatra_service2")
     bind_apps(POSTGRESQL_MANIFEST, app1, app2)

@@ -36,7 +36,7 @@ describe BVT::Spec::Canonical::JavaLift do
     response.code
   end
 
-  it "deploy simple Scala / Lift Application", :lift => true do
+  it "deploy simple Scala / Lift Application" do
     pending("lift script is not ready")
     app = create_push_app("simple-lift-app")
 
@@ -46,7 +46,7 @@ describe BVT::Spec::Canonical::JavaLift do
     response.body_str.should =~ /scala_lift/
   end
 
-  it "start Scala / Lift application and add some records", :lift => true do
+  it "start Scala / Lift application and add some records", :mysql => true do
     pending("lift script is not ready")
     app = create_push_app("lift-db-app")
 

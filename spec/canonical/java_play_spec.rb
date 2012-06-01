@@ -19,7 +19,7 @@ describe BVT::Spec::Canonical::JavaPlay do
     app.update!(manifest)
   end
 
-  it "play application with mysql auto-reconfiguration", :play => true do
+  it "play application with mysql auto-reconfiguration", :mysql => true do
     app = create_push_app("play_todolist_app")
 
     bind_service( MYSQL_MANIFEST, app )
@@ -36,7 +36,7 @@ describe BVT::Spec::Canonical::JavaPlay do
     log.should include("database [default] connected at jdbc:mysql")
   end
 
-  it "play application using cloud foundry runtime lib", :play => true do
+  it "play application using cloud foundry runtime lib", :mysql => true do
     app = create_push_app("play_todolist_with_cfruntime_app")
 
     bind_service( MYSQL_MANIFEST, app )
@@ -55,7 +55,7 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application using cloud properties for mysql configuration by " +
-    "service name", :play => true do
+    "service name", :mysql => true do
     pending "under development"
     app = create_app("play_zentasks_cf_by_name_app")
 
@@ -82,7 +82,7 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application using cloud properties for mysql configuration " +
-    "by service type", :play => true do
+    "by service type", :mysql => true do
     pending "under development"
     app = create_push_app("play_zentasks_cf_by_type_app")
 
@@ -105,7 +105,7 @@ describe BVT::Spec::Canonical::JavaPlay do
     # should not find app/lib/postgresql-9.0-801.jdbc4.jar
   end
 
-  it "play application with auto-reconfiguration disabled", :play => true do
+  it "play application with auto-reconfiguration disabled", :mysql => true do
     app = create_push_app("play_computer_database_autoconfig_disabled_app")
 
     bind_service( MYSQL_MANIFEST, app )
@@ -123,7 +123,7 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application using cloud properties for postgresql configuration " +
-    "by service name", :play => true do
+    "by service name", :postgresql => true do
     pending "under development"
     app = create_push_app("play_computer_database_cf_by_name_app")
 
@@ -147,7 +147,7 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application using cloud properties for postgresql configuration " +
-    "by service type", :play => true do
+    "by service type", :postgresql => true do
     pending "under development"
 
     app = create_push_app("play_computer_database_cf_by_type_app")
@@ -171,7 +171,8 @@ describe BVT::Spec::Canonical::JavaPlay do
     # should not find app/lib/postgresql-9.0-801.jdbc4.jar
   end
 
-  it "play application with mysql JPA auto-reconfiguration", :play => true do
+  it "play application with mysql JPA auto-reconfiguration",
+    :mysql => true do
     app = create_push_app("play_computer_database_jpa_mysql_app")
 
     bind_service( MYSQL_MANIFEST, app )
@@ -189,7 +190,7 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application with postgresql JPA auto-reconfiguration",
-    :play => true do
+    :postgresql => true do
     app = create_push_app("play_computer_database_jpa_app")
 
     bind_service( POSTGRESQL_MANIFEST, app )
@@ -206,7 +207,8 @@ describe BVT::Spec::Canonical::JavaPlay do
     log.should include("database [default] connected at jdbc:postgresql")
   end
 
-  it "play application with multiple databases", :play => true do
+  it "play application with multiple databases", :mysql => true,
+    :postgresql => true do
     app = create_push_app("play_computer_database_multi_dbs_app")
 
     bind_service( POSTGRESQL_MANIFEST, app )
@@ -225,7 +227,8 @@ describe BVT::Spec::Canonical::JavaPlay do
     log.should include("database [default] connected at jdbc:h2")
   end
 
-  it "play application with postgres auto-reconfiguration", :play => true do
+  it "play application with postgres auto-reconfiguration",
+    :postgresql => true do
     app = create_push_app("play_computer_database_scala_app")
 
     bind_service( POSTGRESQL_MANIFEST, app )
@@ -243,7 +246,7 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application with multiple database services, one named production",
-    :play => true do
+    :postgresql => true do
     app = create_push_app("play_computer_database_scala_app")
 
     bind_service( POSTGRESQL_MANIFEST, app )
@@ -261,7 +264,8 @@ describe BVT::Spec::Canonical::JavaPlay do
     log.should include("database [default] connected at jdbc:postgresql")
   end
 
-  it "play application with multiple database services", :play => true do
+  it "play application with multiple database services", :mysql => true,
+    :postgresql => true do
     app = create_push_app("play_computer_database_scala_app")
 
     bind_service( POSTGRESQL_MANIFEST, app )

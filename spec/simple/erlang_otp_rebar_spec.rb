@@ -46,8 +46,7 @@ describe BVT::Spec::Simple::ErlangOtpRebar do
     end
   end
 
-  it "Deploy Simple Erlang Application", :erlang => true do
-    pending "erlang build error, need to be resolved"
+  it "Deploy Simple Erlang Application" do
     check_erlang_env
     app = create_push_app("mochiweb_test")
 

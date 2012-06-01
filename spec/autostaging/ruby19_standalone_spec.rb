@@ -13,7 +13,8 @@ describe BVT::Spec::AutoStaging::Ruby19Standalone do
     @session.cleanup!
   end
 
-  it "standalone ruby19 autostaging" do
+  it "standalone ruby19 autostaging", :mysql => true, :redis => true,
+    :mongodb => true, :rabbitmq => true, :postgresql => true do
     app = create_push_app("standalone_ruby19_autoconfig")
 
     # provision service

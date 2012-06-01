@@ -23,7 +23,6 @@ module BVT
     module Canonical
       class JavaPlay; end
       class JavaSpring; end
-      class JavaSpring31; end
       class JavaLift; end
       class Ruby19Sinatra; end
       class Ruby18Rack; end
@@ -45,7 +44,7 @@ module BVT
     end
 
     module Simple
-      class JavaWeb; end
+      class JavaJavaWeb; end
       class JavaStandalone; end
       class NodeNode; end
       class NodeStandalone; end

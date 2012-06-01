@@ -12,7 +12,7 @@ describe BVT::Spec::Simple::Python2Wsgi do
     @session.cleanup!
   end
 
-  it "Deploy Simple Python Application", :python => true do
+  it "Deploy Simple Python Application" do
     app = create_push_app("simple_wsgi_app")
 
     contents = app.get_response(:get)
@@ -21,7 +21,7 @@ describe BVT::Spec::Simple::Python2Wsgi do
     contents.close
   end
 
-  it "Deploy Python Application With Dependency", :python => true do
+  it "Deploy Python Application With Dependency" do
     app = create_push_app("wsgi_app_with_requirements")
 
     contents = app.get_response(:get)

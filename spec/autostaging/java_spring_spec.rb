@@ -58,7 +58,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     nil
   end
 
-  it "Spring Web Application specifying a Cloud Service and Data Source", :spring => true do
+  it "Spring Web Application specifying a Cloud Service and Data Source",
+    :mysql => true, :mongodb => true do
     app = create_push_app("auto-reconfig-test-app")
     bind_service(MONGODB_MANIFEST, app)
     bind_service(MYSQL_MANIFEST, app)
@@ -71,7 +72,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     response.body_str.should == 'jdbc:mysql://localhost:3306/vcap-java-test-app'
   end
 
-  it "Spring Web Application specifying a Service Scan and Data Source", :spring => true do
+  it "Spring Web Application specifying a Service Scan and Data Source",
+    :mysql => true do
     app = create_push_app("auto-reconfig-test-app")
     bind_service(MYSQL_MANIFEST, app)
 
@@ -83,7 +85,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     response.body_str.should == 'jdbc:mysql://localhost:3306/vcap-java-test-app'
   end
 
-  it "Spring Web Application using a local MongoDBFactory", :spring => true do
+  it "Spring Web Application using a local MongoDBFactory", :mongodb => true do
     app = create_push_app("auto-reconfig-test-app")
     bind_service(MONGODB_MANIFEST, app)
 
@@ -95,7 +97,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     response.body_str.should =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
   end
 
-  it "Spring Web Application using a local RedisConnectionFactory", :spring => true do
+  it "Spring Web Application using a local RedisConnectionFactory",
+    :redis => true do
     app = create_push_app("auto-reconfig-test-app")
     bind_service(REDIS_MANIFEST, app)
 
@@ -107,7 +110,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     response.body_str.should =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
   end
 
-  it "Spring Web Application using a local RabbitConnectionFactory", :spring => true do
+  it "Spring Web Application using a local RabbitConnectionFactory",
+    :rabbitmq => true do
     app = create_push_app("auto-reconfig-test-app")
     bind_service(RABBITMQ_MANIFEST, app)
 
@@ -119,7 +123,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     response.body_str.should =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
   end
 
-  it "Spring 3.1 Hibernate application using a local DataSource", :spring => true do
+  it "Spring 3.1 Hibernate application using a local DataSource",
+    :mysql => true do
     app = create_push_app("auto-reconfig-test-app")
     bind_service(MYSQL_MANIFEST, app)
 
@@ -131,7 +136,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     response.body_str.should == 'org.hibernate.dialect.MySQLDialect'
   end
 
-  it "Start Spring Web Application with no service dependencies", :spring => true do
+  it "Start Spring Web Application with no service dependencies",
+    :mysql => true do
     app = create_push_app("auto-reconfig-missing-deps-test-app")
 
     response = app.get_response(:get)
@@ -139,7 +145,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     response.response_code.should == 200
   end
 
-  it "Spring Web application using JPA using mysql", :spring => true do
+  it "Spring Web application using JPA using mysql", :mysql => true do
     app = create_push_app("jpa_app")
     service = bind_service(MYSQL_MANIFEST, app)
 
@@ -155,7 +161,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     verify_records(app2, records, 3)
   end
 
-  it "Spring Web application using Hibernate and mysql", :spring => true do
+  it "Spring Web application using Hibernate and mysql", :mysql => true do
     app = create_push_app("hibernate_app")
     service = bind_service(MYSQL_MANIFEST, app)
 
@@ -171,13 +177,14 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     verify_records(app2, records, 3)
   end
 
-  it "Spring Roo application using mysql", :spring => true do
+  it "Spring Roo application using mysql", :mysql => true do
     app = create_push_app("roo_app")
     service = bind_service(MYSQL_MANIFEST, app)
 
     records = add_records(app, 3, '/guests')
 
-    # The Roo page returns an extra row for the footer in the table .. hence the "+ 1"
+    # The Roo page returns an extra row for the footer in the table
+    # hence the "+ 1"
     verify_records(app, records, 4, '/guests', '//table/tr')
 
     app.delete
@@ -185,11 +192,13 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     app2 = create_push_app("roo_app")
     app2.bind(service.name)
 
-    # The Roo page returns an extra row for the footer in the table .. hence the "+ 1"
+    # The Roo page returns an extra row for the footer in the table
+    # hence the "+ 1"
     verify_records(app2, records, 4, '/guests', '//table/tr')
   end
 
-  it "Spring Web application using Hibernate and postgresql", :spring => true do
+  it "Spring Web application using Hibernate and postgresql",
+    :postgresql => true do
     app = create_push_app("hibernate_app")
     service = bind_service(POSTGRESQL_MANIFEST, app)
 
