@@ -22,7 +22,6 @@ module BVT::Harness
       check_privilege(@is_admin)
     end
 
-
     def inspect
       "#<BVT::Harness::CFSession '#@TARGET', '#@email'>"
     end
