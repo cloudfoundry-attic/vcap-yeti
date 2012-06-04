@@ -148,6 +148,15 @@ module BVT::Harness
       @config
     end
 
+    def save_config(hash = nil)
+      @config = hash || @config
+      config_dup  = Marshal.load(Marshal.dump(@config))
+      config_dup['user']['passwd'] = base64_encode(config_dup['user']['passwd'])
+      config_dup['admin']['passwd'] = base64_encode(
+          config_dup['admin']['passwd']) if config_dup['admin']
+      File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(config_dup) }
+    end
+
     private
 
     def get_target
@@ -204,14 +213,6 @@ module BVT::Harness
       elsif @config['user'].nil? || @config['user']['passwd'].nil?
         @config['user']['passwd'] = ask_and_validate('User Passwd', '.*', '*', '*')
       end
-    end
-
-    def save_config
-      config_dup  = Marshal.load(Marshal.dump(@config))
-      config_dup['user']['passwd'] = base64_encode(config_dup['user']['passwd'])
-      config_dup['admin']['passwd'] = base64_encode(
-        config_dup['admin']['passwd']) if config_dup['admin']
-      File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(config_dup) }
     end
 
     def ask_and_validate(question, pattern, default = nil, echo = nil)

@@ -6,16 +6,18 @@ module BVT::Harness
     include ColorHelpers
 
     def create_parallel_users
-      user_info = YAML.load_file(VCAP_BVT_CONFIG_FILE)
+      user_info = BVT::Harness::RakeHelper.get_config
       unless user_info['parallel']
         unless user_info['admin']
-          puts "please input admin account to create concurrent users"
+          puts "please input admin account for target: #{yellow(user_info['target'])}" +
+                   " to create concurrent users"
           BVT::Harness::RakeHelper::generate_config_file(true)
-          user_info = YAML.load_file(VCAP_BVT_CONFIG_FILE)
+          user_info = BVT::Harness::RakeHelper.get_config
         end
 
         user_info['parallel'] = []
         begin
+          puts "creating concurrent users..."
           session = BVT::Harness::CFSession.new(:admin => true,
                                                 :email => user_info['admin']['email'],
                                                 :passwd => user_info['admin']['passwd'],
@@ -36,7 +38,7 @@ module BVT::Harness
           puts "create user: #{yellow(config['email'])}"
           user_info['parallel'] << config
         end
-        File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(user_info) }
+        BVT::Harness::RakeHelper.save_config(user_info)
       end
       user_info['parallel']
     end
@@ -55,7 +57,7 @@ module BVT::Harness
         f.write("#{value}\n")
         f.flush
         f.truncate(f.pos)
-        # wait 5 second to release lock
+        # wait 5 seconds to release lock
         # in order to ramp up multiple processes one by one
         sleep(5)
       end
@@ -74,6 +76,8 @@ module BVT::Harness
         case piece
           when /^[.*F]+un.*$/ then
             print piece.gsub(/^([.*F]+)un.*$/, '\1').strip
+          when /^[.*F]+R/ then
+            print piece.gsub(/^([.*F]+)R/, '\1').strip
           when /^[.*F]+$/ then
             print piece.gsub(/^([.*F]+)$/, '\1').strip
           when /^Took/
