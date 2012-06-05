@@ -17,7 +17,7 @@ module Tools
       if Dir.exist?(VCAP_BVT_ASSETS_PACKAGES_HOME)
         skipped = []
         Dir.new(VCAP_BVT_ASSETS_PACKAGES_HOME).each {|d|
-          if d.end_with?('.war') or d.end_with?('.jar')
+          if d.end_with?('.war') or d.end_with?('.zip')
             file_path = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, d)
             md5 = check_md5(file_path)
             skipped << Hash['filename' => d, 'md5' => md5]

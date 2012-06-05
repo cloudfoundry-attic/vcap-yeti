@@ -92,7 +92,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     response = app.get_response(:get, "/mongo")
     response.should_not == nil
     response.response_code.should == 200
-    response.body_str.should =~ /\d{3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
+    response.body_str.should =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
   end
 
   it "Spring Web Application using a local RedisConnectionFactory", :spring => true do
@@ -104,7 +104,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     response = app.get_response(:get, "/redis/host")
     response.should_not == nil
     response.response_code.should == 200
-    response.body_str.should =~ /\d{3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
+    response.body_str.should =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
   end
 
   it "Spring Web Application using a local RabbitConnectionFactory", :spring => true do
@@ -116,7 +116,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     response = app.get_response(:get, "/rabbit")
     response.should_not == nil
     response.response_code.should == 200
-    response.body_str.should =~ /\d{3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
+    response.body_str.should =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
   end
 
   it "Spring 3.1 Hibernate application using a local DataSource", :spring => true do

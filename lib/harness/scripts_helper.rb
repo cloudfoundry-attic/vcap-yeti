@@ -5,8 +5,10 @@ module BVT::Harness
   module ScriptsHelper
 
     # Service
-    def create_service(service_manifest)
-      service = @session.service(service_manifest['vendor'])
+    def create_service(service_manifest, name=nil)
+      service_name = name || service_manifest['vendor']
+      require_namespace = name.nil?
+      service = @session.service(service_name, require_namespace)
       unless service.has_vendor?(service_manifest)
         pending("Service: (#{service_manifest['vendor']} #{service_manifest['version']}) " +
                     "is not available on target: #{@session.TARGET}")
@@ -15,10 +17,9 @@ module BVT::Harness
       service
     end
 
-    def bind_service(service_manifest, app)
-      service = create_service(service_manifest)
+    def bind_service(service_manifest, app, name=nil)
+      service = create_service(service_manifest, name)
       app.bind(service.name)
-      # return service, for later use in the case, i.e. unbind()
       service
     end
 

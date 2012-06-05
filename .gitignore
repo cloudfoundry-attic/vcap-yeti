@@ -1,4 +1,5 @@
 .assets-binaries/
 tools/.build
+tools/play-2.0.1
 vendor/
 !vendor/cache/vcap_logging-1.0.0.gem

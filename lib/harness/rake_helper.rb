@@ -140,7 +140,7 @@ module BVT::Harness
       if File.exists?(VCAP_BVT_CONFIG_FILE)
         @config = YAML.load_file(VCAP_BVT_CONFIG_FILE)
         @config['user']['passwd'] = base64_decode(@config['user']['passwd'])
-        @config['admin']['passwd'] = base64_decode(@config['admin']['passwd'])
+        @config['admin']['passwd'] = base64_decode(@config['admin']['passwd']) if @config['admin']
         raise "Invalid config file format, #{VCAP_BVT_CONFIG_FILE}" unless @config.is_a?(Hash)
       else
         @config = {}
@@ -209,7 +209,8 @@ module BVT::Harness
     def save_config
       config_dup  = Marshal.load(Marshal.dump(@config))
       config_dup['user']['passwd'] = base64_encode(config_dup['user']['passwd'])
-      config_dup['admin']['passwd'] = base64_encode(config_dup['admin']['passwd'])
+      config_dup['admin']['passwd'] = base64_encode(
+        config_dup['admin']['passwd']) if config_dup['admin']
       File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(config_dup) }
     end
 
