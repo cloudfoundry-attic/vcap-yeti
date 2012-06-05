@@ -68,13 +68,21 @@ task :build, [:force] do |t, args|
       Dir.chdir test do
         sh('mvn package -DskipTests') do |success, exit_code|
           if success
-            binaryname = File.join("{target,target/appassembler}", "*.{war,jar}")
-            binary_file = Dir.glob(binaryname).first
-            app_name = test.split('/')[-1]
-            file_type = '.'+binary_file.split('.')[-1]
-            target_file = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, app_name+file_type)
-            sh("mkdir #{VCAP_BVT_ASSETS_PACKAGES_HOME}") unless Dir.exist?(VCAP_BVT_ASSETS_PACKAGES_HOME)
-            sh("cp #{binary_file} #{target_file}")
+            if test.include? "/standalone/java"
+              app_name = test.split('/')[-1]
+              build_folder = File.join(test, "/target/appassembler")
+              target_file = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, app_name+'.zip')
+              sh("cd #{build_folder} && zip -r #{target_file} *")
+            else
+              binaryname = File.join("{target}", "*.war")
+              binary_file = Dir.glob(binaryname).first
+              app_name = test.split('/')[-1]
+              file_type = '.'+binary_file.split('.')[-1]
+              target_file = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, app_name+file_type)
+              sh("mkdir #{VCAP_BVT_ASSETS_PACKAGES_HOME}") unless Dir.exist?(
+                VCAP_BVT_ASSETS_PACKAGES_HOME)
+              sh("cp #{binary_file} #{target_file}")
+            end
           else
             clear_build_artifact
             sh("mvn clean -q")

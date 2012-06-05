@@ -424,7 +424,7 @@ standalone_java_app:
   command: "bin/hello-cloud"
   runtime: "java"
   memory: 64
-  path: ".assets-binaries/java_app.jar"
+  path: ".assets-binaries/java_app.zip"
   no_url: true
 
 standalone_node_app:
@@ -488,7 +488,7 @@ standalone_python_app:
 standalone_erlang_app:
   framework: "standalone"
   command: "erl -noshell -s helloworld start -s"
-  runtime: erlangR14B02
+  runtime: "erlangR14B02"
   memory: 64
   path: "assets/standalone/erlang_app"
   no_url: true

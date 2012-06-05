@@ -27,7 +27,6 @@ module BVT
       class Ruby19Sinatra; end
       class Ruby18Rack; end
       class NodeNode; end
-      class JavaStandalone; end
       class Ruby19Rails3; end
       class ScalaPlay; end
     end
@@ -51,6 +50,9 @@ module BVT
       class Ruby18Standalone; end
       class Ruby19Rails3; end
       class Ruby19Standalone; end
+      class ErlangStandalone; end
+      class PhpStandalone; end
+      class Python2Standalone; end
       class ErlangOtpRebar; end
       class PhpPhp; end
       class Python2Wsgi; end

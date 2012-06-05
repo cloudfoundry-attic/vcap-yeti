@@ -1,11 +1,10 @@
 require "harness"
 require "spec_helper"
-include BVT::Spec
 
-describe BVT::Spec::Canonical::JavaStandalone do
-  include BVT::Spec::CanonicalHelper, BVT::Spec
+describe BVT::Spec::Simple::JavaStandalone do
+  include BVT::Spec
 
-  before(:each) do
+  before(:all) do
     @session = BVT::Harness::CFSession.new
   end
 
@@ -14,15 +13,13 @@ describe BVT::Spec::Canonical::JavaStandalone do
   end
 
   it "standalone with java runtime", :standalone => true do
-    pending "standalone is not supported by VMC libary currently"
     app = create_push_app("standalone_java_app")
 
     contents = app.get_response(:get)
     contents.should_not == nil
 
-    response = @session.get_app_files(app, '0', 'logs/stdout.log', @token)
-    response.should == 'Hello from the cloud.  Java opts:  -Xms256m -Xmx256m'+
+    response = app.logs
+    response.should == 'Hello from the cloud.  Java opts:  -Xms64m -Xmx64m'+
     ' -Djava.io.tmpdir=appdir/temp'
   end
-
 end
