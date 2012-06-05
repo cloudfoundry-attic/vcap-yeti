@@ -6,6 +6,7 @@ require "mongo"
 require "yajl"
 require "digest/md5"
 require "tempfile"
+require "base64"
 
 module BVT::Harness
   module RakeHelper
@@ -135,16 +136,19 @@ module BVT::Harness
       end
     end
 
-    private
-
     def get_config
       if File.exists?(VCAP_BVT_CONFIG_FILE)
         @config = YAML.load_file(VCAP_BVT_CONFIG_FILE)
+        @config['user']['passwd'] = base64_decode(@config['user']['passwd'])
+        @config['admin']['passwd'] = base64_decode(@config['admin']['passwd'])
         raise "Invalid config file format, #{VCAP_BVT_CONFIG_FILE}" unless @config.is_a?(Hash)
       else
         @config = {}
       end
+      @config
     end
+
+    private
 
     def get_target
       if ENV['VCAP_BVT_TARGET']
@@ -203,7 +207,10 @@ module BVT::Harness
     end
 
     def save_config
-      File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(@config) }
+      config_dup  = Marshal.load(Marshal.dump(@config))
+      config_dup['user']['passwd'] = base64_encode(config_dup['user']['passwd'])
+      config_dup['admin']['passwd'] = base64_encode(config_dup['admin']['passwd'])
+      File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(config_dup) }
     end
 
     def ask_and_validate(question, pattern, default = nil, echo = nil)
@@ -223,6 +230,19 @@ module BVT::Harness
       else
         str
       end
+    end
+
+    def base64_decode(str)
+      result = Base64.decode64(str)
+      if result.end_with? '@@@'
+        result.gsub('@@@', '')
+      else
+        str
+      end
+    end
+
+    def base64_encode(str)
+      Base64.encode64(str+'@@@').strip!
     end
 
     def get_script_git_hash
