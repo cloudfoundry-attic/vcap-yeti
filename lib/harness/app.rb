@@ -1,5 +1,6 @@
 require "cfoundry"
 
+
 module BVT::Harness
   class App
     attr_reader :name, :manifest
@@ -158,6 +159,29 @@ module BVT::Harness
       end
     end
 
+    def get_newurl(str)
+      new_name= @app.name + "-" + str
+      "#{new_name}.#{@session.TARGET.gsub("http://api.", "")}".gsub("_", "-")
+    end
+
+    def map(url)
+      @app.urls <<  url
+      @app.update!
+    end
+
+    def unmap(url)
+      @app.urls.delete(url)
+      @app.update!
+    end
+
+    def http_get(url, relative_path = "/")
+      easy             = Curl::Easy.new
+      easy.url         = url + relative_path
+      easy.resolve_mode = :ipv4
+      easy.http_get
+      return easy
+    end
+
     def files(path)
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
@@ -294,6 +318,15 @@ module BVT::Harness
       end
     end
 
+    def get_url
+      # URLs synthesized from app names containing '_' are not handled well
+      # by the Lift framework.
+      # So we used '-' instead of '_'
+      # '_' is not a valid character for hostname according to RFC 822,
+      # use '-' to replace it.
+      "#{@app.name}.#{@session.TARGET.gsub("http://api.", "")}".gsub("_", "-")
+    end
+
     private
 
     def check_framework(framework)
@@ -327,14 +360,7 @@ module BVT::Harness
       end
     end
 
-    def get_url
-      # URLs synthesized from app names containing '_' are not handled well
-      # by the Lift framework.
-      # So we used '-' instead of '_'
-      # '_' is not a valid character for hostname according to RFC 822,
-      # use '-' to replace it.
-      "#{@app.name}.#{@session.TARGET.gsub("http://api.", "")}".gsub("_", "-")
-    end
+
 
 
   end
