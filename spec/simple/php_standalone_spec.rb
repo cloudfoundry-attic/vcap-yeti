@@ -19,6 +19,6 @@ describe BVT::Spec::Simple::PhpStandalone do
     contents.should_not == nil
 
     response = app.logs
-    response.should == 'Hello from VCAP'
+    response.should =~ /Hello from VCAP/
   end
 end
