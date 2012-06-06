@@ -223,7 +223,7 @@ module BVT::Harness
         raise RuntimeError, "Fail to update the instances/memory limit for " +
                    "Application: #{@app.name} !"
       end
-   end
+    end
 
     def instances
       unless @app.exists?
@@ -236,6 +236,20 @@ module BVT::Harness
       rescue
         @log.error("Fail to list the instances for Application: #{@app.name} !")
         raise RuntimeError, "Fail to list the instances for Application: #{@app.name} !"
+      end
+    end
+
+    def services
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError "Application: #{@app.name} does not exist!"
+      end
+      begin
+        @log.debug("Get application: #{@app.name} services list")
+        @app.services
+      rescue
+        @log.error("Fail to list the services for Application: #{@app.name} !")
+        raise RuntimeError, "Fail to list the services for Application: #{@app.name} !"
       end
     end
 

@@ -40,6 +40,10 @@ module BVT
       class Ruby19Sinatra; end
     end
 
+    module AppPerformance
+      class Ruby19Sinatra; end
+    end
+
     module Simple
       class JavaWeb; end
       class JavaStandalone; end

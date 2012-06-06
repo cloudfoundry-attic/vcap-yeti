@@ -44,11 +44,13 @@ simple_db_app:
 
 redis_lb_app:
   framework: "sinatra"
+  runtime: "ruby19"
   memory: 128
   path: "assets/sinatra/redis_lb_app"
 
 env_test_app:
   framework: "sinatra"
+  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/env_test_app"
 
