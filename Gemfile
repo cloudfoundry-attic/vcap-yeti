@@ -2,7 +2,7 @@ source "http://rubygems.org"
 
 gem "rake"
 gem "rspec"
-gem "cfoundry", ">= 0.1.1"
+gem "cfoundry", "~> 0.2.0"
 gem "vcap_logging", ">= 1.0"
 gem "interact"
 gem "curb"

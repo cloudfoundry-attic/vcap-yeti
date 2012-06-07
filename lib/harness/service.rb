@@ -52,23 +52,25 @@ module BVT::Harness
 
     def has_vendor?(service_manifest)
       match = false
-      VCAP_BVT_SYSTEM_SERVICES.each do |type, vendors|
-        vendors.each do |vendor, versions|
-          versions.each do |version, _|
-            if vendor =~ /#{service_manifest['vendor']}/ &&
-                version =~ /#{service_manifest['version']}/
-              match = true
-              @service.type = type
-              @service.vendor = vendor
-              @service.version = version
-              # TODO: only free service plan is supported
-              @service.tier = "free"
-              break
-            end
-          end
-          break if match
-        end
+
+      VCAP_BVT_SYSTEM_SERVICES.each do |vendor, meta|
+        next unless vendor =~ /#{service_manifest['vendor']}/
+
+        version = meta[:versions].find { |v|
+          v =~ /#{service_manifest['version']}/
+        }
+        next unless version
+
+        @service.type = meta[:type]
+        @service.vendor = vendor
+        @service.version = version
+        # TODO: only free service plan is supported
+        @service.tier = "free"
+
+        match = true
+        break
       end
+
       match
     end
   end
