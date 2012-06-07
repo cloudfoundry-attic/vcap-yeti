@@ -169,7 +169,6 @@ module BVT::Harness
 
     def admin?
       user = @client.user(@email)
-      user.manifest
       user.admin?
     end
   end

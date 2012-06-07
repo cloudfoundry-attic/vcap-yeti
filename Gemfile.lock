@@ -9,7 +9,7 @@ GEM
       json_pure (~> 1.6.5)
       rest-client (~> 1.6.1)
       rubyzip (~> 0.9.5)
-    ci_reporter (1.6.3)
+    ci_reporter (1.6.4)
       builder (>= 2.1.2)
     curb (0.8.0)
     diff-lcs (1.1.3)
