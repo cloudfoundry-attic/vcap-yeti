@@ -37,7 +37,6 @@ describe BVT::Spec::Canonical::JavaLift do
   end
 
   it "deploy simple Scala / Lift Application" do
-    pending("lift script is not ready")
     app = create_push_app("simple-lift-app")
 
     response = app.get_response(:get)
@@ -47,7 +46,6 @@ describe BVT::Spec::Canonical::JavaLift do
   end
 
   it "start Scala / Lift application and add some records", :mysql => true do
-    pending("lift script is not ready")
     app = create_push_app("lift-db-app")
 
     service = bind_service(MYSQL_MANIFEST, app)
