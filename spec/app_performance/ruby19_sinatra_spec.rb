@@ -105,7 +105,7 @@ describe BVT::Spec::AppPerformance::Ruby19Sinatra do
 
         # then record for testing against the environment variables
         manifest['name'] = myname
-        service = create_service(manifest, app, myname)
+        service = create_service(manifest, myname)
         app.bind(service.name)
         should_be_there << manifest
       end
