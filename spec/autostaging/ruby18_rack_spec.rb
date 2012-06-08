@@ -13,7 +13,8 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
     @session.cleanup!
   end
 
-  it "services autostaging" do
+  it "services autostaging", :mysql => true, :redis => true, :mongodb => true,
+    :rabbitmq => true, :postgresql => true do
     app = create_push_app("app_rack_service_autoconfig")
     app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
 
@@ -29,7 +30,7 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
     end
   end
 
-  it "rack opt-out of autostaging via config file" do
+  it "rack opt-out of autostaging via config file", :redis => true do
     app = create_push_app("rack_autoconfig_disabled_by_file")
     app.get_response(:get).body_str.should == "hello from sinatra"
 
@@ -41,7 +42,7 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
     app.get_response(:get, url).body_str.should == data
   end
 
-  it "rack opt-out of autostaging via cf-runtime gem" do
+  it "rack opt-out of autostaging via cf-runtime gem", :redis => true do
     app = create_push_app("rack_autoconfig_disabled_by_gem")
     app.get_response(:get).body_str.should == "hello from sinatra"
 

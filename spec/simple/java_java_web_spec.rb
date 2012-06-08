@@ -2,7 +2,7 @@ require "harness"
 require "spec_helper"
 require "nokogiri"
 
-describe BVT::Spec::Simple::JavaWeb do
+describe BVT::Spec::Simple::JavaJavaWeb do
 
   before(:each) do
     @session = BVT::Harness::CFSession.new
@@ -12,7 +12,7 @@ describe BVT::Spec::Simple::JavaWeb do
     @session.cleanup!
   end
 
-  it "get applicatioin list", :sinatra => true, :ruby19 => true, :java_web => true do
+  it "get applicatioin list" do
     app1 = create_push_app("simple_app2")
 
     app2 = create_push_app("tiny_java_app")
@@ -23,7 +23,7 @@ describe BVT::Spec::Simple::JavaWeb do
     }
   end
 
-  it "start java app with startup delay", :java_web => true do
+  it "start java app with startup delay" do
     app = create_push_app("java_app_with_startup_delay")
 
     contents = app.get_response(:get)
@@ -33,7 +33,7 @@ describe BVT::Spec::Simple::JavaWeb do
     contents.close
   end
 
-  it "tomcat validation", :java_web => true do
+  it "tomcat validation" do
     app = create_push_app("tomcat-version-check-app")
 
     response = app.get_response(:get)

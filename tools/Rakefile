@@ -62,27 +62,34 @@ task :build, [:force] do |t, args|
     raise prompt_message if $?.exitstatus != 0
     ENV['MAVEN_OPTS']="-XX:MaxPermSize=256M"
     ENV['PLAY2_HOME']=File.join(Dir.pwd, "play-#{PLAY_VERSION}")
+    update_list = []
 
     TESTS_TO_BUILD.each do |test|
       puts "\tBuilding '#{test}'"
       Dir.chdir test do
         sh('mvn package -DskipTests') do |success, exit_code|
           if success
+            target_file = ''
+            file_name = ''
             if test.include? "/standalone/java"
               app_name = test.split('/')[-1]
               build_folder = File.join(test, "/target/appassembler")
-              target_file = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, app_name+'.zip')
+              file_name = app_name+'.zip'
+              target_file = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, file_name)
               sh("cd #{build_folder} && zip -r #{target_file} *")
             else
               binaryname = File.join("target", "*.{war,zip}")
               binary_file = Dir.glob(binaryname).first
               app_name = test.split('/')[-1]
               file_type = '.'+binary_file.split('.')[-1]
-              target_file = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, app_name+file_type)
+              file_name = app_name+file_type
+              target_file = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, file_name)
               sh("mkdir #{VCAP_BVT_ASSETS_PACKAGES_HOME}") unless Dir.exist?(
                 VCAP_BVT_ASSETS_PACKAGES_HOME)
               sh("cp #{binary_file} #{target_file}")
             end
+            md5 = Tools::AssetsHelper.check_md5(target_file)
+            update_list << Hash['filename' => file_name, 'md5' => md5]
           else
             clear_build_artifact
             sh("mvn clean -q")
@@ -93,7 +100,7 @@ task :build, [:force] do |t, args|
       puts "\tCompleted building '#{test}'"
     end
     save_git_hash
-    Tools::AssetsHelper.update_local_hash
+    Tools::AssetsHelper.update_local_hash(update_list)
   else
     puts "Built artifacts in sync with test assets - no build required"
   end

@@ -18,32 +18,32 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
   end
 
-  it "sinatra test mysql service" do
+  it "sinatra test mysql service", :mysql => true do
     app = create_push_app("app_sinatra_service")
     bind_service_and_verify(app, MYSQL_MANIFEST)
   end
 
-  it "sinatra test redis service" do
+  it "sinatra test redis service", :redis => true do
     app = create_push_app("app_sinatra_service")
     bind_service_and_verify(app, REDIS_MANIFEST)
   end
 
-  it "sinatra test mongodb service" do
+  it "sinatra test mongodb service", :mongodb => true do
     app = create_push_app("app_sinatra_service")
     bind_service_and_verify(app, MONGODB_MANIFEST)
   end
 
-  it "sinatra test rabbitmq service" do
+  it "sinatra test rabbitmq service", :rabbitmq => true do
     app = create_push_app("app_sinatra_service")
     bind_service_and_verify(app, RABBITMQ_MANIFEST)
   end
 
-  it "sinatra test postgresql service" do
+  it "sinatra test postgresql service", :postgresql => true do
     app = create_push_app("app_sinatra_service")
     bind_service_and_verify(app, POSTGRESQL_MANIFEST)
   end
 
-  it "sinatra test neo4j service" do
+  it "sinatra test neo4j service", :neo4j => true do
     neo4j_service = create_service(NEO4J_MANIFEST)
     app = create_push_app("neo4j_app")
     app.bind(neo4j_service.name)
@@ -63,7 +63,7 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     r2.close
   end
 
-  it "sinatra test vblob service" do
+  it "sinatra test vblob service", :vblob => true do
     vblob_service = create_service(VBLOB_MANIFEST)
     app = create_push_app("vblob_app")
     app.bind(vblob_service.name)

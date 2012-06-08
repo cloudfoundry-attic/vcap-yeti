@@ -107,7 +107,8 @@ describe BVT::Spec::UsersManagement::UAA do
     @uaahelper.uaabase = @uaabase
   end
 
-  it "get approval prompts and the content should contain correct paths" do
+  it "get approval prompts and the content should contain correct paths",
+  :admin => true do
     headers = @uaahelper.login
     @webclient = @uaahelper.webclient(@session.log)
     pending "Client registration unsuccessful. "

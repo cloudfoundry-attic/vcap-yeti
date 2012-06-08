@@ -11,7 +11,6 @@ module BVT::Spec
     def bind_service_and_verify(app, service_manifest)
       service = bind_service(service_manifest, app)
       %W(abc 123 def).each { |key| verify_service(service_manifest, app, key)}
-      app.unbind(service.name)
     end
   end
 end

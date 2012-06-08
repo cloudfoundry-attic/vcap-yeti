@@ -12,7 +12,7 @@ describe BVT::Spec::Simple::Python2Standalone do
     @session.cleanup!
   end
 
-  it "standalone with python runtime", :standalone => true do
+  it "standalone with python runtime" do
     app = create_push_app("standalone_python_app")
 
     contents = app.get_response(:get)

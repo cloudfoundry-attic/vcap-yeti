@@ -13,19 +13,11 @@ module Tools
   module AssetsHelper
     include Interactive, BVT::Harness::ColorHelpers, BVT::Harness::HTTP_RESPONSE_CODE
 
-    def update_local_hash
+    def update_local_hash(update_list)
       if Dir.exist?(VCAP_BVT_ASSETS_PACKAGES_HOME)
-        skipped = []
-        Dir.new(VCAP_BVT_ASSETS_PACKAGES_HOME).each {|d|
-          if d.end_with?('.war') or d.end_with?('.zip')
-            file_path = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, d)
-            md5 = check_md5(file_path)
-            skipped << Hash['filename' => d, 'md5' => md5]
-          end
-        }
-        if skipped != []
+        unless update_list.empty?
           File.open(VCAP_BVT_ASSETS_PACKAGES_MANIFEST, "w") do |f|
-            f.write YAML.dump(Hash['packages' => skipped])
+            f.write YAML.dump(Hash['packages' => update_list])
           end
         end
       end

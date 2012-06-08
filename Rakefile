@@ -18,7 +18,7 @@ task :help do
   puts "  java\t\trun java tests (spring, java_web)"
   puts "  jvm\t\trun jvm tests (spring, java_web, grails, lift)"
   puts "  ruby\t\trun ruby tests (rails3, sinatra, rack)"
-  puts "  services\trun service tests (monbodb, redis, mysql, postgres, rabbitmq)"
+  puts "  services\trun service tests (monbodb, redis, mysql, postgres, rabbitmq, neo4j, vblob)"
   puts "  longevity\tloop the bvt tests, add [N] to specify loop times(default: 100)"
   puts "  help\t\tlist help commands"
 end
@@ -58,22 +58,36 @@ end
 
 desc "Run java tests (spring, java_web)"
 task :java do
-  puts "This task is under development, please stay tuned."
+  BVT::Harness::RakeHelper.generate_config_file
+  BVT::Harness::RakeHelper.check_environment
+  sh "bundle exec rspec -P spec/**/*_spring_spec.rb,spec/**/*_java_web_spec.rb" +
+     " --format d -c | tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
 end
 
 desc "Run jvm tests (spring, java_web, grails, lift)"
 task :jvm do
-  puts "This task is under development, please stay tuned."
+  BVT::Harness::RakeHelper.generate_config_file
+  BVT::Harness::RakeHelper.check_environment
+  sh "bundle exec rspec -P spec/**/*_spring_spec.rb,spec/**/*_java_web_spec.rb," +
+     "spec/**/*_grails_spec.rb,spec/**/*_lift_spec.rb --format d -c | tee " +
+     "#{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
 end
 
 desc "Run ruby tests (rails3, sinatra, rack)"
 task :ruby do
-  puts "This task is under development, please stay tuned."
+  BVT::Harness::RakeHelper.generate_config_file
+  BVT::Harness::RakeHelper.check_environment
+  sh "bundle exec rspec -P spec/**/ruby18_*_spec.rb,spec/**/ruby19_*_spec.rb" +
+     " --format d -c | tee #{File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")}"
 end
 
-desc "Run service tests (monbodb, redis, mysql, postgres, rabbitmq)"
+desc "Run service tests (mongodb, redis, mysql, postgres, rabbitmq, neo4j, vblob)"
 task :services do
-  puts "This task is under development, please stay tuned."
+  BVT::Harness::RakeHelper.generate_config_file
+  BVT::Harness::RakeHelper.check_environment
+  sh "bundle exec rspec spec/ --tag mongodb --tag rabbitmq --tag mysql --tag " +
+     "redis --tag postgresql --tag neo4j --tag vblob --format d -c | tee " +
+     File.join(BVT::Harness::VCAP_BVT_HOME, "error.log")
 end
 
 desc "Clean up test environment"

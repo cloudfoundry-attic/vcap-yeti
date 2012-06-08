@@ -9,10 +9,13 @@ describe BVT::Spec::Simple::Info::Ruby19Sinatra do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
+  end
+
+  before(:each) do
     @app = create_push_app("simple_app2")
   end
 
-  after(:all) do
+  after(:each) do
     @session.cleanup!
   end
 

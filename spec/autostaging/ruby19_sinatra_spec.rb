@@ -21,18 +21,20 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
     app
   end
 
-  it "services autostaging" do
+  it "services autostaging", :mysql => true, :mongodb => true, :rabbitmq => true,
+    :postgresql => true, :redis => true do
     app = push_app_and_verify("app_sinatra_service_autoconfig",
                               "/crash", "502 Bad Gateway")
     # provision service
-    manifests = [MYSQL_MANIFEST, REDIS_MANIFEST, MONGODB_MANIFEST, RABBITMQ_MANIFEST, POSTGRESQL_MANIFEST]
+    manifests = [MYSQL_MANIFEST, REDIS_MANIFEST, MONGODB_MANIFEST,
+                 RABBITMQ_MANIFEST, POSTGRESQL_MANIFEST]
     manifests.each do |service_manifest|
       bind_service(service_manifest, app)
       verify_service_autostaging(service_manifest, app)
     end
   end
 
-  it "Sinatra AMQP autostaging" do
+  it "Sinatra AMQP autostaging", :rabbitmq => true do
     app = push_app_and_verify("amqp_autoconfig", "/", "hello from sinatra")
     # provision service
     service_manifest = RABBITMQ_MANIFEST
@@ -45,7 +47,8 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
     app.get_response(:get, "/service/amqpoptions/abc").body_str.should == data
   end
 
-  it "Autostaging with unsupported client versions" do
+  it "Autostaging with unsupported client versions", :mysql => true,
+    :redis => true, :rabbitmq => true, :mongodb => true, :postgresql => true do
     app = push_app_and_verify("autoconfig_unsupported_versions", "/",
                               "hello from sinatra")
     # provision service
@@ -66,7 +69,7 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
     end
   end
 
-  it "Autostaging with unsupported carrot version" do
+  it "Autostaging with unsupported carrot version", :rabbitmq => true do
     app = push_app_and_verify("autoconfig_unsupported_carrot_version", "/",
                               "hello from sinatra")
     # provision service
@@ -76,7 +79,7 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
     app.get_response(:get, "/service/carrot/connection").body_str.should == data
   end
 
-  it "Sinatra opt-out of autostaging via config file" do
+  it "Sinatra opt-out of autostaging via config file", :redis => true do
     app = push_app_and_verify("sinatra_autoconfig_disabled_by_file", "/",
                               "hello from sinatra")
     # provision service
@@ -86,7 +89,7 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
     app.get_response(:get, "/service/#{service_manifest['vendor']}/connection").body_str.should == data
   end
 
-  it "Sinatra opt-out of autostaging via cf-runtime gem" do
+  it "Sinatra opt-out of autostaging via cf-runtime gem", :redis => true do
     app = push_app_and_verify("sinatra_autoconfig_disabled_by_gem",  "/",
                               "hello from sinatra")
     # provision service
