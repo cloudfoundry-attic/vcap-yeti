@@ -26,7 +26,7 @@ describe BVT::Spec::Simple::ErlangOtpRebar do
 
     # figure out if BVT environment has Erlang installed
     begin
-      installed_erlang = `erl -version`
+      installed_erlang = `erl -version 2>&1`
     rescue
     end
     if $? != 0
