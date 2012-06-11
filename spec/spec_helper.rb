@@ -104,6 +104,21 @@ module BVT
   end
 end
 
+def log_case_begin_end(flag)
+  # add case begin/end string to log file
+  logger = VCAP::Logging.logger(File.basename($0))
+  metadata = example.metadata
+  case flag
+    when :begin
+      logger.info("======= #{metadata[:example_group][:description_args]} " +
+                      "#{metadata[:description_args]} begin =======")
+    when :end
+      logger.info("======= #{metadata[:example_group][:description_args]} " +
+                      "#{metadata[:description_args]} end =======")
+    else
+  end
+end
+
 RSpec.configure do |config|
   include BVT::Harness::ParallelRunner
 
@@ -116,6 +131,14 @@ RSpec.configure do |config|
     BVT::Harness::VCAP_BVT_SYSTEM_FRAMEWORKS  =  profile[:frameworks]
     BVT::Harness::VCAP_BVT_SYSTEM_RUNTIMES    =  profile[:runtimes]
     BVT::Harness::VCAP_BVT_SYSTEM_SERVICES    =  profile[:services]
+  end
+
+  config.before(:each) do
+    log_case_begin_end(:begin)
+  end
+
+  config.after(:each) do
+    log_case_begin_end(:end)
   end
 
   config.include BVT::Harness::ScriptsHelper
