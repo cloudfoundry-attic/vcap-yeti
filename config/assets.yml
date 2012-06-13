@@ -9,6 +9,7 @@ sleep_secs: 1
 simple_app:
   framework: "sinatra"
   memory: 128
+  runtime: "ruby19"
   path: "assets/sinatra/hello_vcap"
 
 simple_app2:
