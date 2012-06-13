@@ -575,6 +575,15 @@ play_zentasks_cf_by_type_app:
   runtime: java
   path: ".assets-binaries/zentasks_cf_by_type.zip"
 
+auto-reconfig-annotation-app:
+  framework: "spring"
+  runtime: java
+  memory: 512
+  path: ".assets-binaries/auto-reconfig-annotation-app.war"
 
-
-
+javaee-namespace-app:
+  framework: "spring"
+  runtime: java
+  startup: "thin start"
+  memory: 256
+  path: ".assets-binaries/javaee-namespace-app.war"
