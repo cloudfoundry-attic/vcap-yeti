@@ -31,7 +31,7 @@ task :tests do
     BVT::Harness::ParallelRunner.run_tests
   else
     BVT::Harness::RakeHelper.print_test_config
-    sh("rspec spec/ --tag ~admin | tee #{BVT::Harness::VCAP_BVT_ERROR_LOG}")
+    sh("rspec --format Fuubar --color spec/ --tag ~admin")
   end
 end
 

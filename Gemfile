@@ -11,6 +11,7 @@ gem "bson_ext"
 gem "yajl-ruby"
 gem "nokogiri"
 gem "parallel_tests"
+gem "fuubar"
 
 group :ci do
   gem "ci_reporter"
