@@ -30,6 +30,12 @@ simple_app3:
   memory: 64
   path: "assets/sinatra/hello_vcap"
 
+memcached_app:
+  framework: "sinatra"
+  runtime: "ruby19"
+  memory: 128
+  path: "assets/sinatra/memcached_app"
+
 tiny_java_app:
   framework: "java_web"
   instances: 1
