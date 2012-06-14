@@ -284,5 +284,16 @@ describe BVT::Spec::Canonical::JavaPlay do
     log.should include("database [default] connected at jdbc:h2")
   end
 
+  it "Deploy Play Application using Java 6" do
+    app = create_push_app("play_todolist_app")
+
+    contents = app.get_response(:get, '/java')
+    contents.should_not == nil
+    contents.body_str.should_not  == nil
+    contents.body_str.should =~ /1\.6/
+    contents.response_code.should == 200
+    contents.close
+  end
+
 
 end
