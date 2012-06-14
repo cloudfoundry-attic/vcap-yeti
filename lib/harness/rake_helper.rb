@@ -42,6 +42,10 @@ module BVT::Harness
       profile[:frameworks] = client.system_frameworks
       profile[:script_hash] = get_script_git_hash
       File.open(VCAP_BVT_PROFILE_FILE, "w") { |f| f.write YAML.dump(profile) }
+
+      # clear parallel env
+      ENV.delete('YETI_PARALLEL_USER')
+      ENV.delete('YETI_PARALLEL_USER_PASSWD')
     end
 
     def check_network_connection
@@ -131,9 +135,9 @@ module BVT::Harness
       puts yellow("\n\nBVT is starting...")
       puts "target: \t#{yellow(@config['target'])}"
       puts "admin user: \t#{yellow(@config['admin']['email'])}" if @config['admin']
-      unless ENV['VCAP_BVT_PARALLEL']
-        puts "normal user: \t#{yellow(@config['user']['email'])}"
-      end
+      #unless ENV['VCAP_BVT_PARALLEL']
+      puts "normal user: \t#{yellow(@config['user']['email'])}"
+      #end
     end
 
     def get_config
