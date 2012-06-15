@@ -12,7 +12,7 @@ module BVT::Harness
         unless user_info['admin']
           puts "please input admin account to create concurrent users"
           BVT::Harness::RakeHelper::generate_config_file(true)
-          user_info = YAML.load_file(VCAP_BVT_CONFIG_FILE)
+          user_info = RakeHelper.get_config
         end
 
         user_info['parallel'] = []
@@ -47,6 +47,7 @@ module BVT::Harness
         puts "threads_number can't be greater than #{VCAP_BVT_PARALLEL_MAX_USERS}"
         return
       end
+      @lock = Mutex.new
       t1 = Time.now
       all_users = create_parallel_users
       parallel_users = []
@@ -79,7 +80,9 @@ module BVT::Harness
             if task_output =~ /Failures/
               failure_number += 1
               failure_list << [task, parse_failure_log(task_output)]
-              puts parse_failure_log(task_output)
+              @lock.synchronize do
+                puts parse_failure_log(task_output)
+              end
             elsif task_output =~ /Pending/
               pending_number += 1
               pending_list << [task, parse_pending_log(task_output)]

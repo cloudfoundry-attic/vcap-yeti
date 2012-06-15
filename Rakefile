@@ -32,7 +32,7 @@ end
 
 desc "run tests in parallel"
 task :tests, :thread_number do |t, args|
-  BVT::Harness::RakeHelper.generate_config_file
+  BVT::Harness::RakeHelper.generate_config_file(true)
   BVT::Harness::RakeHelper.check_environment
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
