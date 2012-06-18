@@ -9,6 +9,7 @@ sleep_secs: 1
 simple_app:
   framework: "sinatra"
   memory: 128
+  runtime: "ruby19"
   path: "assets/sinatra/hello_vcap"
 
 simple_app2:
@@ -29,6 +30,12 @@ simple_app3:
   framework: "sinatra"
   memory: 64
   path: "assets/sinatra/hello_vcap"
+
+memcached_app:
+  framework: "sinatra"
+  runtime: "ruby19"
+  memory: 128
+  path: "assets/sinatra/memcached_app"
 
 tiny_java_app:
   framework: "java_web"
@@ -568,6 +575,15 @@ play_zentasks_cf_by_type_app:
   runtime: java
   path: ".assets-binaries/zentasks_cf_by_type.zip"
 
+auto-reconfig-annotation-app:
+  framework: "spring"
+  runtime: java
+  memory: 512
+  path: ".assets-binaries/auto-reconfig-annotation-app.war"
 
-
-
+javaee-namespace-app:
+  framework: "spring"
+  runtime: java
+  startup: "thin start"
+  memory: 256
+  path: ".assets-binaries/javaee-namespace-app.war"

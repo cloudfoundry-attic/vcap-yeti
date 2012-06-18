@@ -136,10 +136,13 @@ module BVT::Harness
 
     def get_login_email(expected_admin = false)
       @config = VCAP_BVT_CONFIG
-      if ENV['VCAP_BVT_PARALLEL'] && !expected_admin
-        user_info = @config['parallel'][VCAP_BVT_PARALLEL_INDEX]
-        @config['user']['email']  = user_info['email']
-        @config['user']['passwd'] = user_info['passwd']
+      if ENV['YETI_PARALLEL_USER']
+        @config['user']['email']  = ENV['YETI_PARALLEL_USER']
+        @config['user']['passwd'] = ENV['YETI_PARALLEL_USER_PASSWD']
+      #elsif ENV['VCAP_BVT_PARALLEL'] && !expected_admin
+      #  user_info = @config['parallel'][VCAP_BVT_PARALLEL_INDEX]
+      #  @config['user']['email']  = user_info['email']
+      #  @config['user']['passwd'] = user_info['passwd']
       end
       expected_admin ? @config["admin"]["email"] : @config["user"]["email"]
     end

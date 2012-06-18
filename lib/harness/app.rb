@@ -270,7 +270,12 @@ module BVT::Harness
     end
 
     def healthy?
-      @app.healthy?
+      h = @app.healthy?
+      unless h
+        sleep(0.1)
+        h = @app.healthy?
+      end
+      h
     end
 
     # method should be REST method, only [:get, :put, :post, :delete] is supported

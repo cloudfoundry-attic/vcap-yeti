@@ -32,7 +32,7 @@ module BVT
     VCAP_BVT_ASSETS_STORE_URL         =  "http://blobs.cloudfoundry.com"
 
     ## parallel
-    VCAP_BVT_PARALLEL_MAX_USERS  = 8
+    VCAP_BVT_PARALLEL_MAX_USERS  = 16
     VCAP_BVT_PARALLEL_SYNC_FILE  = File.join(VCAP_BVT_HOME, "sync.yml")
   end
 end
@@ -46,3 +46,4 @@ require "harness/user"
 require "harness/http_response_code"
 require "harness/scripts_helper"
 require "harness/parallelrunner"
+require "harness/parallel_helper"

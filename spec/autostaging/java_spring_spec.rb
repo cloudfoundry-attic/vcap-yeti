@@ -145,6 +145,17 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     response.response_code.should == 200
   end
 
+  it "start Spring 3.1 Hibernate application with an annotation context using" +
+     " a local DataSource", :mysql => true do
+    app = create_push_app("auto-reconfig-annotation-app")
+    bind_service(MYSQL_MANIFEST, app)
+
+    response = app.get_response(:get, "/hibernate")
+    response.should_not == nil
+    response.response_code.should == 200
+    response.body_str.should == 'org.hibernate.dialect.MySQLDialect'
+  end
+
   it "Spring Web application using JPA using mysql", :mysql => true do
     app = create_push_app("jpa_app")
     service = bind_service(MYSQL_MANIFEST, app)
@@ -213,5 +224,14 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
     verify_records(app2, records, 3)
   end
+
+  it "Start Spring Web Application with no service dependencies" do
+    app = create_push_app("javaee-namespace-app")
+
+    response = app.get_response(:get)
+    response.should_not == nil
+    response.response_code.should == 200
+  end
+
 end
 

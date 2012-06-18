@@ -45,7 +45,9 @@ TESTS_TO_BUILD = ["#{TESTS_PATH}/spring/auto-reconfig-test-app",
              "#{TESTS_PATH}/play/todolist",
              "#{TESTS_PATH}/play/todolist_with_cfruntime",
              "#{TESTS_PATH}/play/zentasks_cf_by_name",
-             "#{TESTS_PATH}/play/zentasks_cf_by_type"
+             "#{TESTS_PATH}/play/zentasks_cf_by_type",
+             "#{TESTS_PATH}/spring/auto-reconfig-annotation-app",
+             "#{TESTS_PATH}/spring/javaee-namespace-app"
 ]
 
 PLAY_VERSION="2.0.1"

@@ -22,7 +22,11 @@ module BVT
 
     module Canonical
       class JavaPlay; end
+      class Java7Play; end
       class JavaSpring; end
+      class Java7Spring; end
+      class JavaGrails; end
+      class Java7Grails; end
       class JavaLift; end
       class Ruby19Sinatra; end
       class Ruby18Rack; end
@@ -46,6 +50,7 @@ module BVT
     module Simple
       class JavaJavaWeb; end
       class JavaStandalone; end
+      class Java7Standalone; end
       class NodeNode; end
       class NodeStandalone; end
       class Node06Node; end
@@ -53,6 +58,7 @@ module BVT
       class Ruby18Rails3; end
       class Ruby18Standalone; end
       class Ruby19Rails3; end
+      class Ruby19Sinatra; end
       class Ruby19Standalone; end
       class ErlangStandalone; end
       class PhpStandalone; end
@@ -86,7 +92,7 @@ module BVT
     POSTGRESQL_MANIFEST = {"vendor"=>"postgresql", "version"=>"9.0"}
     NEO4J_MANIFEST      = {"vendor"=>"neo4j", "version"=>"1.4"}
     VBLOB_MANIFEST      = {"vendor"=>"vblob", "version"=>"1.0"}
-
+    MEMCACHED_MANIFEST  = {"vendor"=>"memcached","version"=>"1.4"}
     SERVICE_URL_MAPPING = Hash["mysql"      => "mysql",
                                "redis"      => "redis",
                                "mongodb"    => "mongo",
@@ -103,18 +109,41 @@ module BVT
   end
 end
 
+def log_case_begin_end(flag)
+  # add case begin/end string to log file
+  logger = VCAP::Logging.logger(File.basename($0))
+  metadata = example.metadata
+  case flag
+    when :begin
+      logger.info("======= #{metadata[:example_group][:description_args]} " +
+                      "#{metadata[:description_args]} begin =======")
+    when :end
+      logger.info("======= #{metadata[:example_group][:description_args]} " +
+                      "#{metadata[:description_args]} end =======")
+    else
+  end
+end
+
 RSpec.configure do |config|
   include BVT::Harness::ParallelRunner
 
   config.before(:suite) do
-    if ENV['VCAP_BVT_PARALLEL']
-      BVT::Harness::VCAP_BVT_PARALLEL_INDEX = increase_sync_index
-    end
+    #if ENV['VCAP_BVT_PARALLEL']
+    #  BVT::Harness::VCAP_BVT_PARALLEL_INDEX = increase_sync_index
+    #end
     BVT::Harness::VCAP_BVT_CONFIG = BVT::Harness::RakeHelper.get_config
     profile = YAML.load_file(BVT::Harness::VCAP_BVT_PROFILE_FILE)
     BVT::Harness::VCAP_BVT_SYSTEM_FRAMEWORKS  =  profile[:frameworks]
     BVT::Harness::VCAP_BVT_SYSTEM_RUNTIMES    =  profile[:runtimes]
     BVT::Harness::VCAP_BVT_SYSTEM_SERVICES    =  profile[:services]
+  end
+
+  config.before(:each) do
+    log_case_begin_end(:begin)
+  end
+
+  config.after(:each) do
+    log_case_begin_end(:end)
   end
 
   config.include BVT::Harness::ScriptsHelper

@@ -71,6 +71,8 @@ describe BVT::Spec::AppPerformance::Ruby19Sinatra do
     manifest = {}
     manifest['instances'] = 5
     app.update!(manifest)
+    # sleep to let all instances up
+    sleep 1
     app.instances.length.should == 5
 
     incr_counter(app, 150)

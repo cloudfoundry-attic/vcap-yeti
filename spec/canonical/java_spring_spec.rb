@@ -90,5 +90,17 @@ describe BVT::Spec::Canonical::JavaSpring do
     aliased_password.should == password
   end
 
+  it "java test deploy app using java 6" do
+    app = create_push_app("app_spring_service")
+
+    contents = app.get_response(:get, '/java')
+    contents.should_not == nil
+    contents.body_str.should_not == nil
+    contents.body_str.should =~ /1\.6/
+    contents.response_code.should == 200
+    contents.close
+
+  end
+
 end
 

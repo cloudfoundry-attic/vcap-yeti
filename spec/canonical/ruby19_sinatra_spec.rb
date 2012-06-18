@@ -83,4 +83,21 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     r3.close
   end
 
+  it "memcached services" do
+    memcached_service = create_service(MEMCACHED_MANIFEST)
+    app = create_push_app("memcached_app")
+    app.bind(memcached_service.name)
+
+    r1 = app.get_response(:post,"/storeincache",{:key => 'foo', :value => 'bar'}.to_json)
+    r1.response_code.should == 200
+    r1.close
+
+    r2 = app.get_response(:get,"/getfromcache/foo")
+    r2.should_not == nil
+    r2.response_code.should == 200
+    contents = JSON.parse r2.body_str
+    contents["requested_key"].should == "foo"
+    contents["value"].should == "bar"
+    r2.close
+  end
 end
