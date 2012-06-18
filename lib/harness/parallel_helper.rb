@@ -59,7 +59,7 @@ module BVT::Harness
       }
       puts "threads number: #{thread_number}"
       parse_case_list(options)
-      pbar = ProgressBar.new("Task Progress", @queue.size)
+      pbar = ProgressBar.new("0/#{@queue.size}", @queue.size, $stdout)
       pbar.format_arguments = [:title, :percentage, :bar, :stat]
       case_number = 0
       failure_number = 0
@@ -81,7 +81,8 @@ module BVT::Harness
               failure_number += 1
               failure_list << [task, parse_failure_log(task_output)]
               @lock.synchronize do
-                puts parse_failure_log(task_output)
+                $stdout.print "\e[K"
+                puts parse_failure_log(task_output) + "\n\n"
               end
             elsif task_output =~ /Pending/
               pending_number += 1
@@ -89,6 +90,7 @@ module BVT::Harness
             end
             case_number += 1
             pbar.inc
+            pbar.instance_variable_set("@title", "#{pbar.current}/#{pbar.total}")
             # add think time when finishing every task
             sleep 0.1
           end
@@ -207,7 +209,7 @@ module BVT::Harness
       }
 
       cmd << ENV.to_hash.merge(env_extras)
-      cmd += ["bundle", "exec", "rspec", task]
+      cmd += ["bundle", "exec", "rspec", "--color", task]
       cmd
 
       output = ""
