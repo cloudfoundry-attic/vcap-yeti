@@ -142,15 +142,28 @@ module BVT::Harness
           }
           case_desc = c.scan(/it\s+['"](.*?)['"]/)[0][0]
           i = 0
+          cross_line = false
           f.each_line { |line|
             i += 1
             if i <= line_number && line_number > 0
               next
             end
             if line.include? case_desc
+              if line.strip.end_with? " do"
+                case_hash = {"line" => "#{filename.strip}:#{i}", "tags" => tags}
+                case_list << case_hash
+                line_number = i
+                cross_line = false
+                break
+              else
+                cross_line = true
+              end
+            end
+            if cross_line && (line.strip.end_with? " do")
               case_hash = {"line" => "#{filename.strip}:#{i}", "tags" => tags}
               case_list << case_hash
               line_number = i
+              cross_line = false
               break
             end
           }
