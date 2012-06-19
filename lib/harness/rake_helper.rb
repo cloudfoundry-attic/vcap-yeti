@@ -135,9 +135,7 @@ module BVT::Harness
       puts yellow("\n\nBVT is starting...")
       puts "target: \t#{yellow(@config['target'])}"
       puts "admin user: \t#{yellow(@config['admin']['email'])}" if @config['admin']
-      #unless ENV['VCAP_BVT_PARALLEL']
       puts "normal user: \t#{yellow(@config['user']['email'])}"
-      #end
     end
 
     def get_config

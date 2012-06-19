@@ -14,5 +14,9 @@ module BVT::Harness
       "\e[33m#{text}\e[0m"
     end
 
+    def blue(text)
+      "\e[36m#{text}\e[0m"
+    end
+
   end
 end

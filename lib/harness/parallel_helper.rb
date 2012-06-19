@@ -44,7 +44,7 @@ module BVT::Harness
 
     def run_tests(thread_number, options = {"tags" => "~admin"})
       if thread_number > VCAP_BVT_PARALLEL_MAX_USERS
-        puts "threads_number can't be greater than #{VCAP_BVT_PARALLEL_MAX_USERS}"
+        puts red("threads_number can't be greater than #{VCAP_BVT_PARALLEL_MAX_USERS}")
         return
       end
       @lock = Mutex.new
@@ -57,7 +57,7 @@ module BVT::Harness
         i += 1
         break if i == thread_number
       }
-      puts "threads number: #{thread_number}"
+      puts yellow("threads number: #{thread_number}\n")
       parse_case_list(options)
       pbar = ProgressBar.new("0/#{@queue.size}", @queue.size, $stdout)
       pbar.format_arguments = [:title, :percentage, :bar, :stat]
@@ -82,7 +82,10 @@ module BVT::Harness
               failure_list << [task, parse_failure_log(task_output)]
               @lock.synchronize do
                 $stdout.print "\e[K"
-                puts parse_failure_log(task_output) + "\n\n"
+                if failure_number == 1
+                  puts "Failures:"
+                end
+                puts "  #{failure_number}) #{parse_failure_log(task_output)}\n\n"
               end
             elsif task_output =~ /Pending/
               pending_number += 1
@@ -104,9 +107,14 @@ module BVT::Harness
 
       $stdout.print "\n\n"
       t2 = Time.now
-      $stdout.print "Finished in #{format_time(t2-t1)}\n"
-      $stdout.print "#{case_number} examples, #{failure_number} failures"
-      $stdout.print ", #{pending_number} pending" if pending_number > 0
+      $stdout.print green("Finished in #{format_time(t2-t1)}\n")
+      if failure_number > 0
+        $stdout.print red("#{case_number} examples, #{failure_number} failures")
+        $stdout.print red(", #{pending_number} pending") if pending_number > 0
+      else
+        $stdout.print yellow("#{case_number} examples, #{failure_number} failures")
+        $stdout.print yellow(", #{pending_number} pending") if pending_number > 0
+      end
       $stdout.print "\n"
 
       unless failure_list.empty?
@@ -118,7 +126,8 @@ module BVT::Harness
              break
           }
           rerun_cmd = 'rspec .' + log[0].match(/\/spec\/.*_spec\.rb:\d{1,4}/).to_s
-          $stdout.print "#{rerun_cmd} # #{case_desc}"
+          $stdout.print red(rerun_cmd)
+          $stdout.print blue(" # #{case_desc}")
         end
         $stdout.print "\n"
       end
@@ -232,7 +241,18 @@ module BVT::Harness
     def parse_failure_log(str)
       index1 = str.index('1) ')
       index2 = str.index('Finished in')
-      str.slice(index1+3..index2-1).strip
+      output = ""
+      temp = str.slice(index1+3..index2-1).strip
+      temp.each_line { |line|
+        if line.strip.start_with? "BVT::Spec::"
+          output += line
+        elsif line.strip.start_with? "# "
+          output += blue(line)
+        else
+          output += red(line)
+        end
+      }
+      output
     end
 
     def parse_pending_log(str)
