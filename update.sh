@@ -2,7 +2,7 @@ echo -e "\n### update yeti code"
 git pull
 echo -e "\n### update yeti submodule, i.e. assets"
 git submodule update --init --recursive
-echo -e "\n### bunlde install ruby gems"
+echo -e "\n### bundle install ruby gems"
 ext_opt=$1
 if [[ $ext_opt = 'ci' ]]
 then
