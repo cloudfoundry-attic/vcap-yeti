@@ -12,7 +12,7 @@ describe BVT::Spec::Simple::JavaJavaWeb do
     @session.cleanup!
   end
 
-  it "get applicatioin list" do
+  it "get applicatioin list", :p1 => true do
     app1 = create_push_app("simple_app2")
 
     app2 = create_push_app("tiny_java_app")
@@ -33,7 +33,7 @@ describe BVT::Spec::Simple::JavaJavaWeb do
     contents.close
   end
 
-  it "tomcat validation" do
+  it "tomcat validation", :p1 => true do
     app = create_push_app("tomcat-version-check-app")
 
     response = app.get_response(:get)

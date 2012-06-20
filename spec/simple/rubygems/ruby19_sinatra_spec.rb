@@ -12,7 +12,7 @@ describe BVT::Spec::Simple::RubyGems::Ruby19Sinatra do
     @session.cleanup!
   end
 
-  it "access my application root and see hello from sinatra" do
+  it "access my application root and see hello from sinatra", :p1 => true do
     @app = create_push_app("broken_gem_app")
     @app.stats.should_not == nil
     @app.get_response(:get).should_not == nil

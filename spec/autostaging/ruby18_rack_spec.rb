@@ -14,7 +14,7 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
   end
 
   it "services autostaging", :mysql => true, :redis => true, :mongodb => true,
-    :rabbitmq => true, :postgresql => true do
+    :rabbitmq => true, :postgresql => true, :p1 => true do
     app = create_push_app("app_rack_service_autoconfig")
     app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
 

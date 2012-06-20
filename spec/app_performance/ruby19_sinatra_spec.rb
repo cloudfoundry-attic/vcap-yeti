@@ -58,7 +58,7 @@ describe BVT::Spec::AppPerformance::Ruby19Sinatra do
     response.close
   end
 
-  it "deploy redis lb app", :redis => true do
+  it "deploy redis lb app", :redis => true, :p1 => true do
     app = create_push_app("redis_lb_app")
     bind_service(REDIS_MANIFEST, app)
     health_check(app)

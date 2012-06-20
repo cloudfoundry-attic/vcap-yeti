@@ -21,7 +21,7 @@ describe BVT::Spec::Canonical::Ruby19Rails3 do
     @app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
   end
 
-  it "sinatra test mysql service", :mysql => true do
+  it "sinatra test mysql service", :mysql => true, :p1 => true do
     bind_service_and_verify(@app, MYSQL_MANIFEST)
   end
 

@@ -15,7 +15,8 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     @session.cleanup!
   end
 
-  it "deploy service quota application with postgresql service", :postgresql => true do
+  it "deploy service quota application with postgresql service", :postgresql => true,
+    :p1 => true do
     unless @service_quota_pg_maxdbsize
       # default max db size for postgresql in dev instance is 128
       @service_quota_pg_maxdbsize = 128

@@ -12,7 +12,7 @@ describe BVT::Spec::Simple::Python2Django do
     @session.cleanup!
   end
 
-  it "Deploy Django Application" do
+  it "Deploy Django Application", :p1 => true do
     app = create_push_app("simple_django_app")
 
     contents = app.get_response(:get)

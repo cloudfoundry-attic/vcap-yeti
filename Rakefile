@@ -6,9 +6,10 @@ task :default => [:help]
 desc "List help commands"
 task :help do
   puts "Usage: rake [command]"
-  puts "  tests\t\trun all bvts in parallel, add [N] to specify threads " +
-          "number(default:10)"
-  puts "  serial\trun all bvts in serial"
+  puts "  tests\t\trun p1 subset in parallel, add [N] to specify threads " +
+          "number(default:10), 1 for serial"
+  puts "  full\t\trun full tests in parallel, add [N] to specify threads " +
+          "number(default:10), 1 for serial"
   puts "  random\trun all bvts randomly, add [N] to specify a seed"
   puts "  admin\t\trun admin test cases"
   puts "  clean\t\tclean up test environment.\n" +
@@ -22,22 +23,32 @@ task :help do
   puts "  help\t\tlist help commands"
 end
 
-desc "Run the Basic Verification Tests"
-task :serial do
-  BVT::Harness::RakeHelper.generate_config_file
+desc "run full tests (not include admin cases)"
+task :full, :thread_number do |t, args|
+  BVT::Harness::RakeHelper.generate_config_file(true)
   BVT::Harness::RakeHelper.check_environment
   BVT::Harness::RakeHelper.print_test_config
-  sh("rspec --format Fuubar --color spec/ --tag ~admin")
+  threads = 10
+  threads = args[:thread_number].to_i if args[:thread_number]
+  if threads == 1
+    sh("rspec --format Fuubar --color spec/ --tag ~admin")
+  else
+    BVT::Harness::ParallelHelper.run_tests(threads, {"tags" => "~admin"})
+  end
 end
 
-desc "run tests in parallel"
+desc "run tests subset"
 task :tests, :thread_number do |t, args|
   BVT::Harness::RakeHelper.generate_config_file(true)
   BVT::Harness::RakeHelper.check_environment
   BVT::Harness::RakeHelper.print_test_config
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
-  BVT::Harness::ParallelHelper.run_tests(threads)
+  if threads == 1
+    sh("rspec --format Fuubar --color spec/ --tag ~admin --tag p1")
+  else
+    BVT::Harness::ParallelHelper.run_tests(threads, {"tags" => "p1,~admin"})
+  end
 end
 
 desc "Run all bvts randomly, add [N] to specify a seed"

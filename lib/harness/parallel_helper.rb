@@ -145,7 +145,7 @@ module BVT::Harness
         line_number = 0
         cases.each { |c|
           tags = []
-          draft_tags = c.scan(/:([a-zA-Z]+)/)
+          draft_tags = c.scan(/:([a-zA-Z0-9_]+)/)
           draft_tags.each { |tag|
             tags << tag[0]
           }

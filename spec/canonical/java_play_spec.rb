@@ -19,7 +19,8 @@ describe BVT::Spec::Canonical::JavaPlay do
     app.update!(manifest)
   end
 
-  it "play application with mysql auto-reconfiguration", :mysql => true do
+  it "play application with mysql auto-reconfiguration", :mysql => true,
+    :p1 => true do
     app = create_push_app("play_todolist_app")
 
     bind_service( MYSQL_MANIFEST, app )
@@ -123,7 +124,7 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application using cloud properties for postgresql configuration " +
-    "by service name", :postgresql => true do
+    "by service name", :postgresql => true, :p1 => true do
     pending "under development"
     app = create_push_app("play_computer_database_cf_by_name_app")
 
