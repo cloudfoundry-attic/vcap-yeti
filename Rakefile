@@ -18,8 +18,8 @@ task :help do
   puts "  java\t\trun java tests (spring, java_web)"
   puts "  jvm\t\trun jvm tests (spring, java_web, grails, lift)"
   puts "  ruby\t\trun ruby tests (rails3, sinatra, rack)"
-  puts "  services\trun service tests (monbodb, redis, mysql, postgres, rabbitmq, neo4j, vblob)"
-  puts "  longevity\tloop the bvt tests, add [N] to specify loop times(default: 100)"
+  puts "  services\trun service tests (mongodb, redis, mysql, postgres, rabbitmq, neo4j, vblob)"
+  puts "  longevity\tloop bvt tests, add [N] to specify loop number (default: 100)"
   puts "  help\t\tlist help commands"
 end
 
@@ -117,7 +117,7 @@ task :sync_assets do
   BVT::Harness::RakeHelper.sync_assets
 end
 
-desc "continuously loop the bvt tests"
+desc "longevity bvt tests"
 task :longevity, :looptimes do |t, args|
   loop_times = 100
   time_start = Time.now
