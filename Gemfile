@@ -10,7 +10,6 @@ gem "mongo"
 gem "bson_ext"
 gem "yajl-ruby"
 gem "nokogiri"
-gem "parallel_tests"
 gem "fuubar"
 gem "progressbar", "~> 0.11.0"
 

@@ -127,7 +127,7 @@ module BVT::Harness
           }
           rerun_cmd = 'rspec .' + log[0].match(/\/spec\/.*_spec\.rb:\d{1,4}/).to_s
           $stdout.print red(rerun_cmd)
-          $stdout.print blue(" # #{case_desc}")
+          $stdout.print cyan(" # #{case_desc}")
         end
         $stdout.print "\n"
       end
@@ -260,7 +260,7 @@ module BVT::Harness
         if line.strip.start_with? "BVT::Spec::"
           output += line
         elsif line.strip.start_with? "# "
-          output += blue(line)
+          output += cyan(line)
         else
           output += red(line)
         end

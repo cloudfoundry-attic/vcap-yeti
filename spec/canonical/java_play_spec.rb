@@ -204,7 +204,7 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application with postgresql JPA auto-reconfiguration",
-    :postgresql => true do
+    :postgresql => true, :p1 => true do
     app = create_push_app("play_computer_database_jpa_app")
 
     bind_service( POSTGRESQL_MANIFEST, app )
