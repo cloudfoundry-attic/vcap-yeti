@@ -370,10 +370,13 @@ module BVT::Harness
         sleep 1
         seconds += 1
         if seconds == VCAP_BVT_APP_ASSETS['timeout_secs']
-          @log.error "Application: #{@app.name} cannot be started " +
+          sleep 2
+          unless @app.healthy?
+            @log.error "Application: #{@app.name} cannot be started " +
                          " in #{VCAP_BVT_APP_ASSETS['timeout_secs']} seconds"
-          raise RuntimeError, "Application: #{@app.name} cannot be started " +
+            raise RuntimeError, "Application: #{@app.name} cannot be started " +
               "in #{VCAP_BVT_APP_ASSETS['timeout_secs']} seconds"
+          end
         end
       end
     end

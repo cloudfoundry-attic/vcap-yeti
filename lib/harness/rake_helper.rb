@@ -6,7 +6,6 @@ require "mongo"
 require "yajl"
 require "digest/md5"
 require "tempfile"
-require "base64"
 
 module BVT::Harness
   module RakeHelper
@@ -135,16 +134,12 @@ module BVT::Harness
       puts yellow("\n\nBVT is starting...")
       puts "target: \t#{yellow(@config['target'])}"
       puts "admin user: \t#{yellow(@config['admin']['email'])}" if @config['admin']
-      #unless ENV['VCAP_BVT_PARALLEL']
       puts "normal user: \t#{yellow(@config['user']['email'])}"
-      #end
     end
 
     def get_config
       if File.exists?(VCAP_BVT_CONFIG_FILE)
         @config = YAML.load_file(VCAP_BVT_CONFIG_FILE)
-        @config['user']['passwd'] = base64_decode(@config['user']['passwd'])
-        @config['admin']['passwd'] = base64_decode(@config['admin']['passwd']) if @config['admin']
         raise "Invalid config file format, #{VCAP_BVT_CONFIG_FILE}" unless @config.is_a?(Hash)
       else
         @config = {}
@@ -154,11 +149,7 @@ module BVT::Harness
 
     def save_config(hash = nil)
       @config = hash || @config
-      config_dup  = Marshal.load(Marshal.dump(@config))
-      config_dup['user']['passwd'] = base64_encode(config_dup['user']['passwd'])
-      config_dup['admin']['passwd'] = base64_encode(
-          config_dup['admin']['passwd']) if config_dup['admin']
-      File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(config_dup) }
+      File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(@config) }
     end
 
     private
@@ -166,12 +157,15 @@ module BVT::Harness
     def get_target
       if ENV['VCAP_BVT_TARGET']
         @config['target'] = format_target(ENV['VCAP_BVT_TARGET'])
+        puts "target read from ENV: \t\t#{yellow(@config['target'])}"
       elsif @config['target'].nil?
         input = ask_and_validate("VCAP Target",
                                              '\A.*',
                                              VCAP_BVT_DEFAULT_TARGET
                                             )
         @config['target'] = format_target(input)
+      else
+        puts "target read from #{VCAP_BVT_CONFIG_FILE}: \t\t#{yellow(@config['target'])}"
       end
     end
 
@@ -179,11 +173,15 @@ module BVT::Harness
       @config['admin'] = {} if @config['admin'].nil?
       if ENV['VCAP_BVT_ADMIN_USER']
         @config['admin']['email'] = ENV['VCAP_BVT_ADMIN_USER']
+        puts "admin user read from ENV: \t#{yellow(@config['admin']['email'])}"
       elsif @config['admin']['email'].nil?
-        @config['admin']['email'] = ask_and_validate('Admin User Email',
+        @config['admin']['email'] = ask_and_validate('Admin User',
                                                      '\A.*\@',
                                                      VCAP_BVT_DEFAULT_ADMIN
                                                     )
+      else
+        puts "admin user read from #{VCAP_BVT_CONFIG_FILE}: " +
+             "\t#{yellow(@config['admin']['email'])}"
       end
     end
 
@@ -203,11 +201,15 @@ module BVT::Harness
       @config['user'] = {} if @config['user'].nil?
       if ENV['VCAP_BVT_USER']
         @config['user']['email'] = ENV['VCAP_BVT_USER']
+        puts "normal user read from ENV: \t#{yellow(@config['user']['email'])}"
       elsif @config['user']['email'].nil?
-        @config['user']['email'] = ask_and_validate('User Email',
+        @config['user']['email'] = ask_and_validate('Non-admin User',
                                                     '\A.*\@',
                                                     VCAP_BVT_DEFAULT_USER
                                                    )
+      else
+        puts "normal user read from #{VCAP_BVT_CONFIG_FILE}: " +
+             "\t#{yellow(@config['user']['email'])}"
       end
     end
 
@@ -236,19 +238,6 @@ module BVT::Harness
       else
         str
       end
-    end
-
-    def base64_decode(str)
-      result = Base64.decode64(str)
-      if result.end_with? '@@@'
-        result.gsub('@@@', '')
-      else
-        str
-      end
-    end
-
-    def base64_encode(str)
-      Base64.encode64(str+'@@@').strip!
     end
 
     def get_script_git_hash

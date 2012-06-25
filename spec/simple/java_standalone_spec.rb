@@ -12,7 +12,7 @@ describe BVT::Spec::Simple::JavaStandalone do
     @session.cleanup!
   end
 
-  it "standalone with java runtime" do
+  it "standalone with java runtime", :p1 => true do
     app = create_push_app("standalone_java_app")
 
     contents = app.get_response(:get)

@@ -12,7 +12,7 @@ describe BVT::Spec::Simple::PhpPhp do
     @session.cleanup!
   end
 
-  it "Deploy Simple PHP Application" do
+  it "Deploy Simple PHP Application", :p1 => true do
     app = create_push_app("simple_php_app")
 
     contents = app.get_response(:get)

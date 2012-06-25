@@ -53,7 +53,7 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
   end
 
   it "Rails autostaging", :mysql => true, :redis => true, :mongodb => true,
-    :rabbitmq => true, :postgresql => true do
+    :rabbitmq => true, :postgresql => true, :p1 => true do
     # provision service
     service_manifests = [MYSQL_MANIFEST, REDIS_MANIFEST, MONGODB_MANIFEST]
     services = []

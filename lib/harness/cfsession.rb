@@ -33,8 +33,9 @@ module BVT::Harness
         @token = @client.login(@email, @passwd)
       rescue
         @log.error "Fail to login in, target: #{@TARGET}, user: #{@email}, passwd = #{@passwd}"
-        raise "Cannot login target environment. " +
-                  "target = '#{@TARGET}', user: '#{@email}', passwd: '#{@passwd}'"
+        raise "Cannot login target environment:\n" +
+              "target = '#{@TARGET}', user: '#{@email}', passwd: '#{@passwd}'.\n" +
+              "Pleae check your ENV and #{VCAP_BVT_CONFIG_FILE}"
       end
       # TBD - ABS: This is a hack around the 1 sec granularity of our token time stamp
       sleep(1)
@@ -139,10 +140,6 @@ module BVT::Harness
       if ENV['YETI_PARALLEL_USER']
         @config['user']['email']  = ENV['YETI_PARALLEL_USER']
         @config['user']['passwd'] = ENV['YETI_PARALLEL_USER_PASSWD']
-      #elsif ENV['VCAP_BVT_PARALLEL'] && !expected_admin
-      #  user_info = @config['parallel'][VCAP_BVT_PARALLEL_INDEX]
-      #  @config['user']['email']  = user_info['email']
-      #  @config['user']['passwd'] = user_info['passwd']
       end
       expected_admin ? @config["admin"]["email"] : @config["user"]["email"]
     end

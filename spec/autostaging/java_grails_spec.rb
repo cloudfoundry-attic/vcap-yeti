@@ -51,7 +51,7 @@ describe BVT::Spec::AutoStaging::JavaGrails do
     nil
   end
 
-  it "Start grails app and add some records", :mysql => true do
+  it "Start grails app and add some records", :mysql => true, :p1 => true do
     app = create_push_app("grails_app")
     service = bind_service(MYSQL_MANIFEST, app)
 

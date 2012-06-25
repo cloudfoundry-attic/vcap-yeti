@@ -108,7 +108,7 @@ describe BVT::Spec::UsersManagement::UAA do
   end
 
   it "get approval prompts and the content should contain correct paths",
-  :admin => true do
+  :admin => true, :p1 => true do
     headers = @uaahelper.login
     @webclient = @uaahelper.webclient(@session.log)
     pending "Client registration unsuccessful. "
@@ -121,13 +121,13 @@ describe BVT::Spec::UsersManagement::UAA do
     @approval["options"].should_not == nil
   end
 
-  it "get login prompts and the content should contain prompts" do
+  it "get login prompts and the content should contain prompts", :p1 => true do
     headers = @uaahelper.login
     @prompts = @uaahelper.get_url "/login"
     @prompts.should =~ /prompts/
   end
 
-  it "get Users data and the response should be UNAUTHORIZED" do
+  it "get Users data and the response should be UNAUTHORIZED", :p1 => true do
     @code = @uaahelper.get_status "/Users"
     @code.should == 401
   end

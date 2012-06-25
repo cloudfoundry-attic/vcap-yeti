@@ -19,7 +19,19 @@ describe BVT::Spec::Canonical::JavaPlay do
     app.update!(manifest)
   end
 
-  it "play application with mysql auto-reconfiguration", :mysql => true do
+  def verify_file(file_list, file1)
+    has_file = false
+    file_list.each {|f|
+      if f[1] == file1
+        has_file = true
+        break
+      end
+    }
+    has_file
+  end
+
+  it "play application with mysql auto-reconfiguration", :mysql => true,
+    :p1 => true do
     app = create_push_app("play_todolist_app")
 
     bind_service( MYSQL_MANIFEST, app )
@@ -56,8 +68,32 @@ describe BVT::Spec::Canonical::JavaPlay do
 
   it "play application using cloud properties for mysql configuration by " +
     "service name", :mysql => true do
-    pending "under development"
     app = create_app("play_zentasks_cf_by_name_app")
+
+    service = create_service(MYSQL_MANIFEST, "play_zentasks_cf_by_name_appmysql")
+    app.push([service])
+
+    contents = app.get_response( :get, '/login' )
+    contents.should_not             == nil
+    contents.body_str.should_not    == nil
+    contents.response_code.should   == 200
+    contents.close
+
+    log = app.logs
+    log.should_not == nil
+    log.should include("Found cloud properties in configuration.  " +
+      "Auto-reconfiguration disabled")
+    log.should include("database [default] connected at jdbc:mysql")
+
+    files = app.files("/app/lib/")
+    has_file = verify_file(files, "mysql-connector-java-5.1.12-bin.jar")
+
+    has_file.should == false
+  end
+
+  it "play application using cloud properties for mysql configuration " +
+    "by service type", :mysql => true do
+    app = create_app("play_zentasks_cf_by_type_app")
 
     service = create_service(MYSQL_MANIFEST)
     app.push([service])
@@ -74,35 +110,10 @@ describe BVT::Spec::Canonical::JavaPlay do
       "Auto-reconfiguration disabled")
     log.should include("database [default] connected at jdbc:mysql")
 
-    files = app.files
-    files.should_not                == nil
+    files = app.files('app/lib/')
+    has_file = verify_file(files, "postgresql-9.0-801.jdbc4.jar")
 
-    # TODO: should not find app/lib/mysql-connector-java-5.1.12-bin.jar
-    put files
-  end
-
-  it "play application using cloud properties for mysql configuration " +
-    "by service type", :mysql => true do
-    pending "under development"
-    app = create_push_app("play_zentasks_cf_by_type_app")
-
-    bind_service( MYSQL_MANIFEST, app )
-
-    contents = app.get_response( :get, '/login' )
-    contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
-
-    log = app.logs
-    log.should_not == nil
-    log.should include("Found cloud properties in configuration.  " +
-      "Auto-reconfiguration disabled")
-    log.should include("database [default] connected at jdbc:mysql")
-
-    files = app.files
-    files.should_not                == nil
-    # should not find app/lib/postgresql-9.0-801.jdbc4.jar
+    has_file.should == false
   end
 
   it "play application with auto-reconfiguration disabled", :mysql => true do
@@ -124,10 +135,11 @@ describe BVT::Spec::Canonical::JavaPlay do
 
   it "play application using cloud properties for postgresql configuration " +
     "by service name", :postgresql => true do
-    pending "under development"
-    app = create_push_app("play_computer_database_cf_by_name_app")
+    app = create_app("play_computer_database_cf_by_name_app")
 
-    bind_service( POSTGRESQL_MANIFEST, app )
+    service = create_service(POSTGRESQL_MANIFEST,
+      "play_computer_database_cf_by_name_apppostgresql")
+    app.push([service])
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
@@ -141,18 +153,19 @@ describe BVT::Spec::Canonical::JavaPlay do
       "Auto-reconfiguration disabled" )
     log.should include("database [default] connected at jdbc:postgresql")
 
-    files = app.files
-    files.should_not                == nil
-    # should not find app/lib/postgresql-9.0-801.jdbc4.jar
+    files = app.files("/app/lib/")
+    has_file = verify_file(files, "postgresql-9.0-801.jdbc4.jar")
+
+    has_file.should == false
   end
 
   it "play application using cloud properties for postgresql configuration " +
     "by service type", :postgresql => true do
-    pending "under development"
+    app = create_app("play_computer_database_cf_by_type_app")
 
-    app = create_push_app("play_computer_database_cf_by_type_app")
+    service = create_service(POSTGRESQL_MANIFEST)
 
-    bind_service( POSTGRESQL_MANIFEST, app )
+    app.push([service])
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
@@ -166,9 +179,10 @@ describe BVT::Spec::Canonical::JavaPlay do
       "Auto-reconfiguration disabled" )
     log.should include("database [default] connected at jdbc:postgresql")
 
-    files = app.files
-    files.should_not                == nil
-    # should not find app/lib/postgresql-9.0-801.jdbc4.jar
+    files = app.files("/app/lib/")
+    has_file = verify_file(files, "postgresql-9.0-801.jdbc4.jar")
+
+    has_file.should == false
   end
 
   it "play application with mysql JPA auto-reconfiguration",
@@ -190,7 +204,7 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application with postgresql JPA auto-reconfiguration",
-    :postgresql => true do
+    :postgresql => true, :p1 => true do
     app = create_push_app("play_computer_database_jpa_app")
 
     bind_service( POSTGRESQL_MANIFEST, app )

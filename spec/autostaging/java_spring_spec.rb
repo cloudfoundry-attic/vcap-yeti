@@ -59,7 +59,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
   end
 
   it "Spring Web Application specifying a Cloud Service and Data Source",
-    :mysql => true, :mongodb => true do
+    :mysql => true, :mongodb => true, :p1 => true do
     app = create_push_app("auto-reconfig-test-app")
     bind_service(MONGODB_MANIFEST, app)
     bind_service(MYSQL_MANIFEST, app)
@@ -98,7 +98,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
   end
 
   it "Spring Web Application using a local RedisConnectionFactory",
-    :redis => true do
+    :redis => true, :p1 => true do
     app = create_push_app("auto-reconfig-test-app")
     bind_service(REDIS_MANIFEST, app)
 
@@ -111,7 +111,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
   end
 
   it "Spring Web Application using a local RabbitConnectionFactory",
-    :rabbitmq => true do
+    :rabbitmq => true, :p1 => true do
     app = create_push_app("auto-reconfig-test-app")
     bind_service(RABBITMQ_MANIFEST, app)
 
@@ -209,7 +209,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
   end
 
   it "Spring Web application using Hibernate and postgresql",
-    :postgresql => true do
+    :postgresql => true, :p1 => true do
     app = create_push_app("hibernate_app")
     service = bind_service(POSTGRESQL_MANIFEST, app)
 

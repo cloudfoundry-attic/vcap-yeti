@@ -23,9 +23,6 @@ GEM
     mongo (1.6.2)
       bson (~> 1.6.2)
     nokogiri (1.5.2)
-    parallel (0.5.16)
-    parallel_tests (0.8.1)
-      parallel
     progressbar (0.11.0)
     rake (0.9.2.2)
     rest-client (1.6.7)
@@ -57,7 +54,6 @@ DEPENDENCIES
   interact
   mongo
   nokogiri
-  parallel_tests
   progressbar (~> 0.11.0)
   rake
   rspec

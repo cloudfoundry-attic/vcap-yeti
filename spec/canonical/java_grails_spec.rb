@@ -13,8 +13,8 @@ describe BVT::Spec::Canonical::JavaGrails do
     @session.cleanup!
   end
 
-
-  it "start Spring Grails application using Java 6", :mysql => true do
+  it "start Spring Grails application using Java 6", :mysql => true,
+    :p1 => true do
     app = create_push_app("grails_app")
     service = bind_service(MYSQL_MANIFEST, app)
 

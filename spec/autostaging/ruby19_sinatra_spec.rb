@@ -22,7 +22,7 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
   end
 
   it "services autostaging", :mysql => true, :mongodb => true, :rabbitmq => true,
-    :postgresql => true, :redis => true do
+    :postgresql => true, :redis => true, :p1 => true do
     app = push_app_and_verify("app_sinatra_service_autoconfig",
                               "/crash", "502 Bad Gateway")
     # provision service

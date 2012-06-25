@@ -15,7 +15,7 @@ describe BVT::Spec::Simple::Ruby19Sinatra do
 
   FILE_NAME = "foo.rb"
 
-  it "should get back the final 10 bytes of the file" do
+  it "should get back the final 10 bytes of the file", :p1 => true do
 
     @app = create_push_app("simple_app")
     @app.stats.should_not == nil

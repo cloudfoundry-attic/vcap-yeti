@@ -16,12 +16,12 @@ describe BVT::Spec::Canonical::Ruby18Rack do
     @session.cleanup!
   end
 
-  it "rack test deploy app" do
+  it "rack test deploy app", :p1 => true do
     @app.get_response(:get).body_str.should == "hello from sinatra"
     @app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
   end
 
-  it "rack test mysql service", :mysql => true do
+  it "rack test mysql service", :mysql => true, :p1 => true do
     bind_service_and_verify(@app, MYSQL_MANIFEST)
   end
 

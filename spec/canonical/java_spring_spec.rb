@@ -13,7 +13,7 @@ describe BVT::Spec::Canonical::JavaSpring do
     @session.cleanup!
   end
 
-  it "spring test deploy app" do
+  it "spring test deploy app", :p1 => true do
     app = create_push_app("app_spring_service")
     contents = app.get_response(:get)
     contents.should_not == nil
@@ -28,22 +28,22 @@ describe BVT::Spec::Canonical::JavaSpring do
     contents.close
   end
 
-  it "spring test mysql service", :mysql => true do
+  it "spring test mysql service", :mysql => true, :p1 => true do
     app = create_push_app("app_spring_service")
     bind_service_and_verify(app, MYSQL_MANIFEST)
   end
 
-  it "spring test redis service", :redis => true do
+  it "spring test redis service", :redis => true, :p1 => true do
     app = create_push_app("app_spring_service")
     bind_service_and_verify(app, REDIS_MANIFEST)
   end
 
-  it "spring test mongodb service", :mongodb => true do
+  it "spring test mongodb service", :mongodb => true, :p1 => true do
     app = create_push_app("app_spring_service")
     bind_service_and_verify(app, MONGODB_MANIFEST)
   end
 
-  it "spring test rabbitmq service", :rabbitmq => true do
+  it "spring test rabbitmq service", :rabbitmq => true, :p1 => true do
     app = create_push_app("app_spring_service")
     bind_service_and_verify(app, RABBITMQ_MANIFEST)
   end

@@ -20,7 +20,7 @@ describe BVT::Spec::Simple::Update::Ruby19Sinatra do
     @session.cleanup!
   end
 
-  it "increase/decrease instance count" do
+  it "increase/decrease instance count", :p1 => true do
     added_instance_count =  @app.instances.length + VAR_INC_INSTANCE
     @app.scale(added_instance_count, VAR_USE_MEMORY)
     @app.instances.length.should == added_instance_count
@@ -30,7 +30,7 @@ describe BVT::Spec::Simple::Update::Ruby19Sinatra do
     @app.instances.length.should == reduced_instance_count
   end
 
-  it "map and unmap a url for the application to respond to" do
+  it "map and unmap a url for the application to respond to", :p1 => true do
     second_domain_name = "new-app-url"
     new_url = @app.get_url(second_domain_name)
     @app.map(new_url)
@@ -47,7 +47,7 @@ describe BVT::Spec::Simple::Update::Ruby19Sinatra do
         " mapped to application: #{@app.name}"
   end
 
-  it "redeploy application" do
+  it "redeploy application", :p1 => true do
     @app.push(nil, "modified_simple_app2")
     @app.get_response(:get).body_str.should =~ /Hello from modified VCAP/
   end

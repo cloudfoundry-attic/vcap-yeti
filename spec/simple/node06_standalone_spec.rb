@@ -12,7 +12,7 @@ describe BVT::Spec::Simple::Node06Standalone do
     @session.cleanup!
   end
 
-  it "Simple app with node06 runtime and no URL" do
+  it "Simple app with node06 runtime and no URL", :p1 => true do
     app = create_push_app("standalone_node06_app")
     app.logs =~ /it's running version v0.6.8/
   end

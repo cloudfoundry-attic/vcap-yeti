@@ -23,17 +23,17 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     bind_service_and_verify(app, MYSQL_MANIFEST)
   end
 
-  it "sinatra test redis service", :redis => true do
+  it "sinatra test redis service", :redis => true, :p1 => true do
     app = create_push_app("app_sinatra_service")
     bind_service_and_verify(app, REDIS_MANIFEST)
   end
 
-  it "sinatra test mongodb service", :mongodb => true do
+  it "sinatra test mongodb service", :mongodb => true, :p1 => true do
     app = create_push_app("app_sinatra_service")
     bind_service_and_verify(app, MONGODB_MANIFEST)
   end
 
-  it "sinatra test rabbitmq service", :rabbitmq => true do
+  it "sinatra test rabbitmq service", :rabbitmq => true, :p1 => true do
     app = create_push_app("app_sinatra_service")
     bind_service_and_verify(app, RABBITMQ_MANIFEST)
   end
@@ -43,7 +43,7 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     bind_service_and_verify(app, POSTGRESQL_MANIFEST)
   end
 
-  it "sinatra test neo4j service", :neo4j => true do
+  it "sinatra test neo4j service", :neo4j => true, :p1 => true do
     neo4j_service = create_service(NEO4J_MANIFEST)
     app = create_push_app("neo4j_app")
     app.bind(neo4j_service.name)
@@ -63,7 +63,7 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     r2.close
   end
 
-  it "sinatra test vblob service", :vblob => true do
+  it "sinatra test vblob service", :vblob => true, :p1 => true do
     vblob_service = create_service(VBLOB_MANIFEST)
     app = create_push_app("vblob_app")
     app.bind(vblob_service.name)
@@ -83,7 +83,7 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     r3.close
   end
 
-  it "memcached services" do
+  it "memcached services", :p1 => true do
     memcached_service = create_service(MEMCACHED_MANIFEST)
     app = create_push_app("memcached_app")
     app.bind(memcached_service.name)

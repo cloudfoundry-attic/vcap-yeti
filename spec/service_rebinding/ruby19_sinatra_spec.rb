@@ -105,7 +105,7 @@ describe BVT::Spec::ServiceRebinding::Ruby19Sinatra do
     drop_db_obj(service_manifest, app2)
   end
 
-  it "Verify rebinding for mysql", :mysql => true do
+  it "Verify rebinding for mysql", :mysql => true, :p1 => true do
     app1 = create_push_app("app_sinatra_service")
     rebind(MYSQL_MANIFEST, app1)
   end
