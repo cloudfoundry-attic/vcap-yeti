@@ -85,7 +85,8 @@ module BVT::Harness
                 if failure_number == 1
                   puts "Failures:"
                 end
-                puts "  #{failure_number}) #{parse_failure_log(task_output)}\n\n"
+                puts "  #{failure_number}) #{parse_failure_log(task_output)}\n"
+                puts red("     (Failure time: #{Time.now})\n\n")
               end
             elsif task_output =~ /Pending/
               pending_number += 1

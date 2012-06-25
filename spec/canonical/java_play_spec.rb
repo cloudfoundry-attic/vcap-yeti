@@ -134,7 +134,7 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application using cloud properties for postgresql configuration " +
-    "by service name", :postgresql => true, :p1 => true do
+    "by service name", :postgresql => true do
     app = create_app("play_computer_database_cf_by_name_app")
 
     service = create_service(POSTGRESQL_MANIFEST,

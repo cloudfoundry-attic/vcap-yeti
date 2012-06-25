@@ -33,8 +33,9 @@ module BVT::Harness
         @token = @client.login(@email, @passwd)
       rescue
         @log.error "Fail to login in, target: #{@TARGET}, user: #{@email}, passwd = #{@passwd}"
-        raise "Cannot login target environment. " +
-                  "target = '#{@TARGET}', user: '#{@email}', passwd: '#{@passwd}'"
+        raise "Cannot login target environment:\n" +
+              "target = '#{@TARGET}', user: '#{@email}', passwd: '#{@passwd}'.\n" +
+              "Pleae check your ENV and #{VCAP_BVT_CONFIG_FILE}"
       end
       # TBD - ABS: This is a hack around the 1 sec granularity of our token time stamp
       sleep(1)

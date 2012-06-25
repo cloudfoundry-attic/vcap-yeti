@@ -25,28 +25,30 @@ end
 
 desc "run full tests (not include admin cases)"
 task :full, :thread_number do |t, args|
-  BVT::Harness::RakeHelper.generate_config_file(true)
-  BVT::Harness::RakeHelper.check_environment
-  BVT::Harness::RakeHelper.print_test_config
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
   if threads == 1
+    BVT::Harness::RakeHelper.generate_config_file
+    BVT::Harness::RakeHelper.check_environment
     sh("rspec --format Fuubar --color spec/ --tag ~admin")
   else
+    BVT::Harness::RakeHelper.generate_config_file(true)
+    BVT::Harness::RakeHelper.check_environment
     BVT::Harness::ParallelHelper.run_tests(threads, {"tags" => "~admin"})
   end
 end
 
 desc "run tests subset"
 task :tests, :thread_number do |t, args|
-  BVT::Harness::RakeHelper.generate_config_file(true)
-  BVT::Harness::RakeHelper.check_environment
-  BVT::Harness::RakeHelper.print_test_config
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
   if threads == 1
+    BVT::Harness::RakeHelper.generate_config_file
+    BVT::Harness::RakeHelper.check_environment
     sh("rspec --format Fuubar --color spec/ --tag ~admin --tag p1")
   else
+    BVT::Harness::RakeHelper.generate_config_file(true)
+    BVT::Harness::RakeHelper.check_environment
     BVT::Harness::ParallelHelper.run_tests(threads, {"tags" => "p1,~admin"})
   end
 end
@@ -55,7 +57,6 @@ desc "Run all bvts randomly, add [N] to specify a seed"
 task :random, :seed do |t, args|
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  BVT::Harness::RakeHelper.print_test_config
   if args[:seed] != nil
     sh "bundle exec rspec spec/ --tag ~admin --seed #{args[:seed]} --format d -c"
   else
@@ -67,7 +68,6 @@ desc "Run admin test cases"
 task :admin do
   BVT::Harness::RakeHelper.generate_config_file(true)
   BVT::Harness::RakeHelper.check_environment
-  BVT::Harness::RakeHelper.print_test_config
   sh "bundle exec rspec spec/users/ --tag admin --format p -c"
 end
 
@@ -75,7 +75,6 @@ desc "Run java tests (spring, java_web)"
 task :java do
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  BVT::Harness::RakeHelper.print_test_config
   sh "bundle exec rspec -P spec/**/*_spring_spec.rb,spec/**/*_java_web_spec.rb" +
      " --format d -c"
 end
@@ -84,7 +83,6 @@ desc "Run jvm tests (spring, java_web, grails, lift)"
 task :jvm do
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  BVT::Harness::RakeHelper.print_test_config
   sh "bundle exec rspec -P spec/**/*_spring_spec.rb,spec/**/*_java_web_spec.rb," +
      "spec/**/*_grails_spec.rb,spec/**/*_lift_spec.rb --format d -c"
 end
@@ -93,7 +91,6 @@ desc "Run ruby tests (rails3, sinatra, rack)"
 task :ruby do
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  BVT::Harness::RakeHelper.print_test_config
   sh "bundle exec rspec -P spec/**/ruby18_*_spec.rb,spec/**/ruby19_*_spec.rb" +
      " --format d -c"
 end
@@ -102,7 +99,6 @@ desc "Run service tests (mongodb, redis, mysql, postgres, rabbitmq, neo4j, vblob
 task :services do
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  BVT::Harness::RakeHelper.print_test_config
   sh "bundle exec rspec spec/ --tag mongodb --tag rabbitmq --tag mysql --tag " +
      "redis --tag postgresql --tag neo4j --tag vblob --format d -c"
 end
@@ -129,8 +125,7 @@ task :longevity, :looptimes do |t, args|
   loop_times.times {|i|
     BVT::Harness::RakeHelper.generate_config_file
     BVT::Harness::RakeHelper.check_environment
-    BVT::Harness::RakeHelper.print_test_config
-    cmd = "bundle exec rspec spec/ --tag ~admin --format p -c"
+    cmd = "bundle exec rspec spec/ --tag ~admin --tag p1 --format p -c"
     output = %x[#{cmd}]
     puts output
     if output.include? "Failures:"
