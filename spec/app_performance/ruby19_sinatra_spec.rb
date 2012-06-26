@@ -72,13 +72,10 @@ describe BVT::Spec::AppPerformance::Ruby19Sinatra do
     manifest['instances'] = 5
     app.update!(manifest)
     app.instances.length.should == 5
-    sleep_time = 0
-    while(sleep_time < 60)
-      break if app.healthy?
-      sleep_time += 1
-    end
-    log = @session.log
-    log.debug "sleep_time: #{sleep_time}"
+
+    sleep 2
+    incr_counter(app, 10)
+    reset_counter(app)
 
     incr_counter(app, 150)
     check_sum_instances(app, 150)
