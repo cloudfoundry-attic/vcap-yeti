@@ -12,8 +12,9 @@ basic validation test for cloud foundry environments.
 This repository contains tests for [vcap](https://github.com/cloudfoundry/vcap).
 
 ## Dependencies
-RVM (Ruby Version Manager) is used to manage different ruby versions on unix-based systems,
-<br>https://rvm.io/
+1. Ruby 1.9.2
+2. Bundle >= 1.1
+It is recommended to manage Ruby runtime via RVM or rbenv
 
 ## _Tested Operating Systems_
 1. Mac OS X 64bit, 10.6 and above
@@ -21,7 +22,7 @@ RVM (Ruby Version Manager) is used to manage different ruby versions on unix-bas
 
 How to run it
 -------------
-1. ```gerrit-clone ssh://<YOUR-NAME>@reviews.cloudfoundry.org:29418/vcap-yeti```
+1. ```git clone ssh://<YOUR-NAME>@reviews.cloudfoundry.org:29418/vcap-yeti```
 2. ```cd vcap-yeti```
 3. ```./update.sh      ## this is not required for running administrative test cases```
 4. ```bundle exec rake tests```
@@ -44,10 +45,12 @@ Notes:
 |VCAP_BVT_ADMIN_USER_PASSWD|Declare admin user password|VCAP_BVT_ADMIN_USER_PASSWD=<ADMIN-PASSWD>|
 ```
 
-2. In order to support administrative test cases, Yeti will ask administrative account information.
+2. In order to support parallel running, and administrative test cases, Yeti will ask administrative
+   account information.
    <br>However, yeti will not abuse administrative privileges, just list users, create users,
    <br>delete users created by the test script.
-3. Currently yeti run in serial, you could ```tail -f ~/.bvt/bvt.log``` to get what is going on
+3. yeti run in parallel by default, you could input following command to run in serial
+   ```bundle exec rake tests[1]```
 
 FAQ:
 ----
