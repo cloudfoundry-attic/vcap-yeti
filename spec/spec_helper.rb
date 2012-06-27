@@ -47,6 +47,9 @@ module BVT
       class Ruby19Sinatra; end
     end
 
+    module AcmManager
+      class Acm; end
+    end
     module Simple
       class JavaJavaWeb; end
       class JavaStandalone; end
