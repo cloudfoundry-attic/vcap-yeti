@@ -76,7 +76,7 @@ module BVT::Harness
     def stop
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
-        raise RuntimeError "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
 
       unless @app.stopped?
@@ -93,7 +93,7 @@ module BVT::Harness
     def start
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
-        raise RuntimeError "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
 
       unless @app.running?
@@ -148,7 +148,7 @@ module BVT::Harness
     def stats
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
-        raise RuntimeError "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
       begin
         @log.info("Display application: #{@app.name} status")
@@ -181,7 +181,7 @@ module BVT::Harness
     def files(path)
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
-        raise RuntimeError "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
       begin
         @log.info("Examine an application: #{@app.name} files")
@@ -195,7 +195,7 @@ module BVT::Harness
     def file(path)
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
-        raise RuntimeError "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
       begin
         @log.info("Examine an application: #{@app.name} file")
@@ -209,7 +209,7 @@ module BVT::Harness
     def scale(instance, memory)
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
-        raise RuntimeError "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
       begin
         @log.info("Update the instances/memory: #{instance}/#{memory} " +
@@ -228,7 +228,7 @@ module BVT::Harness
     def instances
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
-        raise RuntimeError "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
       begin
         @log.debug("Get application: #{@app.name} instances list")
@@ -242,7 +242,7 @@ module BVT::Harness
     def services
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
-        raise RuntimeError "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
       begin
         @log.debug("Get application: #{@app.name} services list")
@@ -257,7 +257,7 @@ module BVT::Harness
     def logs
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
-        raise RuntimeError "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
 
       instance = @app.instances[0]
