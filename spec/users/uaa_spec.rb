@@ -6,11 +6,13 @@ require "restclient"
 class UaaHelper
   include Singleton
 
-  attr_writer :uaabase
+  attr_writer :uaabase, :username, :password
 
   def initialize
-    @admin_client = "admin"
-    @admin_secret = "adminsecret"
+    @admin_client = ENV['VCAP_BVT_ADMIN_CLIENT'] || "admin"
+    @admin_secret = ENV['VCAP_BVT_ADMIN_SECRET'] || "adminsecret"
+    puts "** Using admin client: '#{@admin_client}' (set environment variables" +
+         " VCAP_BVT_ADMIN_CLIENT / VCAP_BVT_ADMIN_SECRET to override) **"
     @username = "dev@cloudfoundry.org"
     @password = "dev"
   end
@@ -105,13 +107,17 @@ describe BVT::Spec::UsersManagement::UAA do
     @uaabase = @session.info["authorization_endpoint"]
     @uaahelper = UaaHelper.instance
     @uaahelper.uaabase = @uaabase
+
+    # get admin user/password from ENV || config.yml
+    yeti_config = YAML.load_file(BVT::Harness::VCAP_BVT_CONFIG_FILE)
+    @uaahelper.username = ENV['VCAP_BVT_ADMIN_USER'] || yeti_config['admin']['email']
+    @uaahelper.password = ENV['VCAP_BVT_ADMIN_USER_PASSWD'] || yeti_config['admin']['passwd']
   end
 
   it "get approval prompts and the content should contain correct paths",
   :admin => true, :p1 => true do
     headers = @uaahelper.login
     @webclient = @uaahelper.webclient(@session.log)
-    pending "Client registration unsuccessful. "
     @cookie = headers[:set_cookie][0]
     headers[:location].should =~ /#{@uaabase}/
     @uaahelper.get_url "/oauth/authorize?response_type=code&client_id=#{@webclient[:client_id]}" +

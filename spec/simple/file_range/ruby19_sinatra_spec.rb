@@ -2,11 +2,13 @@ require "harness"
 require "spec_helper"
 require "rest-client"
 
-describe BVT::Spec::Simple::Ruby19Sinatra do
+describe BVT::Spec::Simple::FileRange::Ruby19Sinatra do
   include BVT::Spec
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
+    pending("File range content feature is only available on multi-node cloud foundry environment," +
+                " is not available on dev_setup") if @session.TARGET =~ /\.vcap\.me$/
   end
 
   after(:each) do
