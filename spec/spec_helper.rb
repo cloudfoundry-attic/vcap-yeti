@@ -39,6 +39,11 @@ module BVT
       class Ruby19Sinatra; end
     end
 
+    module ImageMagicKSupport
+      class Ruby19Sinatra; end
+      class NodeNode; end
+    end
+
     module ServiceRebinding
       class Ruby19Sinatra; end
     end

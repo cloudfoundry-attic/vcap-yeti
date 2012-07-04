@@ -587,3 +587,15 @@ javaee-namespace-app:
   startup: "thin start"
   memory: 256
   path: ".assets-binaries/javaee-namespace-app.war"
+
+sinatra_rmagick:
+  framework: "sinatra"
+  memory: 64
+  runtime: ruby19
+  path: "assets/sinatra/sinatra_rmagick"
+
+node_imagemagick:
+  framework: "node"
+  runtime: node
+  memory: 64
+  path: "assets/node/node_imagemagick"
