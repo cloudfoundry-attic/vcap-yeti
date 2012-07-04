@@ -106,7 +106,16 @@ module BVT::Harness
       threads.each { |t| t.join }
       pbar.finish
 
-      $stdout.print "\n\n"
+      $stdout.print "\n"
+      if ENV['VCAP_BVT_SHOW_PENDING'] == 'true'
+        if pending_number > 0
+          puts "Pending:"
+          pending_list.each {|p|
+            puts "  #{p[1]}\n"
+          }
+        end
+      end
+      $stdout.print "\n"
       t2 = Time.now
       $stdout.print green("Finished in #{format_time(t2-t1)}\n")
       if failure_number > 0
@@ -272,7 +281,18 @@ module BVT::Harness
     def parse_pending_log(str)
       index1 = str.index('Pending:')
       index2 = str.index('Finished in')
-      str.slice(index1+8..index2-1).strip
+      output = ""
+      temp = str.slice(index1+8..index2-1).strip
+      temp.each_line { |line|
+        if line.strip.start_with? "BVT::Spec::"
+          output += yellow(line)
+        elsif line.strip.start_with? "# "
+          output += cyan(line)
+        else
+          output += line
+        end
+      }
+      output
     end
 
     extend self

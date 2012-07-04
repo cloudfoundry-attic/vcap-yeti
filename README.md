@@ -34,10 +34,11 @@ How to run it
     - admin user/admin password
    <br>This information is saved to ~/.bvt/config.yml file.
    <br>When run the second time around, Yeti will not prompt for the information again.
+6. If you want to see pending cases in run result: ```export VCAP_BVT_SHOW_PENDING=true```
 
 Notes:
 -----
-1. To be compatible with BVT, these environment variables are preserved in Yeti:
+1. To be compatible with BVT, some environment variables are preserved in Yeti:
 ```
 ||Environment Variables       ||Function          ||Example                                ||
 |VCAP_BVT_TARGET              |target environment |VCAP_BVT_TARGET=cloudfoundry.com         |
@@ -45,6 +46,7 @@ Notes:
 |VCAP_BVT_USER_PASSWD         |test user password |VCAP_BVT_USER_PASSWD=<MY-PASSWORD>       |
 |VCAP_BVT_ADMIN_USER          |admin user         |VCAP_BVT_ADMIN_USER=admin@admin.com      |
 |VCAP_BVT_ADMIN_USER_PASSWD   |admin user password|VCAP_BVT_ADMIN_USER_PASSWD=<ADMIN-PASSWD>|
+|VCAP_BVT_SHOW_PENDING        |show pending cases |VCAP_BVT_SHOW_PENDING=true               |
 |VCAP_BVT_SERVICE_PG_MAXDBSIZE|service quota(MB)  |VCAP_BVT_SERVICE_PG_MAXDBSIZE=128        |
 |VCAP_BVT_ADMIN_CLIENT        |admin client of uaa|VCAP_BVT_ADMIN_CLIENT=admin              |
 |VCAP_BVT_ADMIN_SECRET        |admin secret of uaa|VCAP_BVT_ADMIN_SECRET=adminsecret        |
