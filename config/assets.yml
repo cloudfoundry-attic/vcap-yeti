@@ -388,8 +388,15 @@ java_app_with_startup_delay:
 
 rails_console_test_app:
   framework: "rails3"
+  runtime: "ruby18"
   memory: 256
   path: "assets/rails3/app_rails_service"
+
+rails_console_19_test_app:
+  framework: "rails3"
+  runtime: "ruby19"
+  memory: 256
+  path: "assets/rails3/hello_vcap"
 
 vblob_app:
   framework: "sinatra"

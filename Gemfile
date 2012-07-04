@@ -11,6 +11,8 @@ gem "bson_ext"
 gem "yajl-ruby"
 gem "nokogiri"
 gem "fuubar"
+gem "vmc"
+gem "cli"
 gem "progressbar", "~> 0.11.0"
 
 group :ci do

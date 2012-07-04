@@ -95,6 +95,11 @@ module BVT
       module FileRange
         class Ruby19Sinatra; end
       end
+
+      module RailsConsole
+        class Ruby18Rails3; end
+        class Ruby19Rails3; end
+      end
     end
 
     MYSQL_MANIFEST      = {"vendor"=>"mysql", "version"=>"5.1"}
