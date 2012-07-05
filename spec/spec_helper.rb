@@ -114,6 +114,9 @@ module BVT
     NEO4J_MANIFEST      = {"vendor"=>"neo4j", "version"=>"1.4"}
     VBLOB_MANIFEST      = {"vendor"=>"vblob", "version"=>"1.0"}
     MEMCACHED_MANIFEST  = {"vendor"=>"memcached","version"=>"1.4"}
+    COUCHDB_MANIFEST    = {"vendor"=>"couchdb","version"=>"1.2"}
+    ELASTICSSEARCH_MANIFEST   = {"vendor"=>"elasticsearch","version"=>"0.19"}
+
     SERVICE_URL_MAPPING = Hash["mysql"      => "mysql",
                                "redis"      => "redis",
                                "mongodb"    => "mongo",

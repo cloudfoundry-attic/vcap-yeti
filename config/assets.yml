@@ -606,3 +606,15 @@ node_imagemagick:
   runtime: node
   memory: 64
   path: "assets/node/node_imagemagick"
+
+couchdb_app:
+  framework: "sinatra"
+  memory: 64
+  runtime: ruby19
+  path: "assets/sinatra/couchdb_app"
+
+elasticsearch_app:
+  framework: "sinatra"
+  memory: 64
+  runtime: ruby19
+  path: "assets/sinatra/elasticsearch_app"
