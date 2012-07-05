@@ -94,10 +94,30 @@ FAQ:
    blobs.cloudfoundry.com.
 
 6. Where is the log file stored?
-
    <br>A: There two log files, runtime and error logs
       - Runtime log is stored in ~/.bvt/bvt.log
       - Error log is stored in ~/.bvt/error.log
+
+7. What runtimes/frameworks/services should my environment have?
+   <br>Dev setup:
+   - runtimes: java, ruby18, ruby19, node, node06, php, python2, erlangR14B01
+   - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone, php,
+   django, wsgi, otp_rebar
+   - services: mongodb, mysql, postgresql, rabbitmq, redis, vblob, filesystem
+   <br>(env variable CLOUD_FOUNDRY_EXCLUDED_COMPONENT can disable components, for details, please
+   check REAME under vcap/dev_setup.)
+
+   Dev instance:
+   - runtimes: java, java7, ruby18, ruby19, node, node06
+   - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone
+   - services: mongodb, mysql, postgresql, rabbitmq, redis, vblob
+
+   Production:
+   - runtimes: java, java7, ruby18, ruby19, node, node06
+   - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone
+   - services: mongodb, mysql, postgresql, rabbitmq, redis
+
+   (updated on July 5th, 2012)
 
 Rake Tasks:
 -----------
