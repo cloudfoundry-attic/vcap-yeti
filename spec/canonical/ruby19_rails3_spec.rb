@@ -16,28 +16,28 @@ describe BVT::Spec::Canonical::Ruby19Rails3 do
     @session.cleanup!
   end
 
-  it "sinatra test deploy app" do
+  it "rails3 test deploy app" do
     @app.get_response(:get).body_str.should == "hello from rails"
     @app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
   end
 
-  it "sinatra test mysql service", :mysql => true, :p1 => true do
+  it "rails3 test mysql service", :mysql => true, :p1 => true do
     bind_service_and_verify(@app, MYSQL_MANIFEST)
   end
 
-  it "sinatra test redis service", :redis => true do
+  it "rails3 test redis service", :redis => true do
     bind_service_and_verify(@app, REDIS_MANIFEST)
   end
 
-  it "sinatra test mongodb service", :mongodb => true do
+  it "rails3 test mongodb service", :mongodb => true do
     bind_service_and_verify(@app, MONGODB_MANIFEST)
   end
 
-  it "sinatra test rabbitmq service", :rabbitmq => true do
+  it "rails3 test rabbitmq service", :rabbitmq => true do
     bind_service_and_verify(@app, RABBITMQ_MANIFEST)
   end
 
-  it "sinatra test postgresql service", :postgresql => true do
+  it "rails3 test postgresql service", :postgresql => true do
     bind_service_and_verify(@app, POSTGRESQL_MANIFEST)
   end
 end
