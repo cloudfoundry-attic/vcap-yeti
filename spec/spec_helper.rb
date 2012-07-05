@@ -44,6 +44,10 @@ module BVT
       class NodeNode; end
     end
 
+    module ServiceLifecycle
+      class Ruby19Sinatra; end
+    end
+
     module ServiceRebinding
       class Ruby19Sinatra; end
     end
@@ -163,3 +167,4 @@ end
 
 require "autostaging/autostaging_helper"
 require "canonical/canonical_helper"
+require "service_lifecycle/service_lifecycle_helper"
