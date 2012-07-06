@@ -371,11 +371,13 @@ atmos_app:
 
 simple_kv_app:
   framework: "sinatra"
+  runtime: "ruby18"
   memory: 64
   path: "assets/sinatra/simple_kv_app"
 
 brokered_service_app:
   framework: "sinatra"
+  runtime: "ruby18"
   memory: 64
   path: "assets/sinatra/brokered_service_app"
 

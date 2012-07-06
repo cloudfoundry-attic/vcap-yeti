@@ -48,6 +48,10 @@ module BVT
       class Ruby19Sinatra; end
     end
 
+    module ServiceBroker
+      class Ruby18Sinatra; end
+    end
+
     module ServiceRebinding
       class Ruby19Sinatra; end
     end
