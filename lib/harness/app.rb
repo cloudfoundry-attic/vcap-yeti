@@ -58,7 +58,7 @@ module BVT::Harness
     end
 
     def update!(what = {})
-      @log.info("Update App: #{@app.name}")
+      @log.info("Update App: #{@app.name}, what = #{what}")
       begin
         @app.update!(what)
         restart
