@@ -109,6 +109,12 @@ grails_app:
   memory: 512
   path: ".assets-binaries/guestbook.war"
 
+grails_app_7:
+  framework: "grails"
+  runtime: java7
+  memory: 512
+  path: ".assets-binaries/guestbook.war"
+
 roo_app:
   framework: "spring"
   runtime: "java"
@@ -311,6 +317,12 @@ app_spring_service:
   memory: 256
   path: ".assets-binaries/app_spring_service.war"
 
+app_spring_service_7:
+  framework: "spring"
+  runtime: java7
+  memory: 512
+  path: ".assets-binaries/app_spring_service.war"
+
 my_test_app_env_test_app:
   framework: "sinatra"
   memory: 64
@@ -452,6 +464,15 @@ standalone_java_app:
   path: ".assets-binaries/java_app.zip"
   no_url: true
 
+standalone_java_app_7:
+  framework: "standalone"
+  command: "bin/hello-cloud"
+  runtime: java7
+  memory: 256
+  path: ".assets-binaries/java_app.zip"
+  no_url: true
+
+
 standalone_node_app:
   framework: "standalone"
   command: "node app.js"
@@ -564,6 +585,12 @@ play_todolist_app:
   framework: "play"
   memory: 128
   runtime: java
+  path: ".assets-binaries/todolist.zip"
+
+play_todolist_app_7:
+  framework: "play"
+  runtime: java7
+  memory: 256
   path: ".assets-binaries/todolist.zip"
 
 play_todolist_with_cfruntime_app:

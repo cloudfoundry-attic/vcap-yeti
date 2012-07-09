@@ -40,19 +40,21 @@ Notes:
 -----
 1. To be compatible with BVT, some environment variables are preserved in Yeti:
 ```
-||Environment Variables       ||Function          ||Example                                ||
-|VCAP_BVT_TARGET              |target environment |VCAP_BVT_TARGET=cloudfoundry.com         |
-|VCAP_BVT_USER                |test user          |VCAP_BVT_USER=pxie@vmware.com            |
-|VCAP_BVT_USER_PASSWD         |test user password |VCAP_BVT_USER_PASSWD=<MY-PASSWORD>       |
-|VCAP_BVT_ADMIN_USER          |admin user         |VCAP_BVT_ADMIN_USER=admin@admin.com      |
-|VCAP_BVT_ADMIN_USER_PASSWD   |admin user password|VCAP_BVT_ADMIN_USER_PASSWD=<ADMIN-PASSWD>|
-|VCAP_BVT_SHOW_PENDING        |show pending cases |VCAP_BVT_SHOW_PENDING=true               |
-|VCAP_BVT_SERVICE_PG_MAXDBSIZE|service quota(MB)  |VCAP_BVT_SERVICE_PG_MAXDBSIZE=128        |
-|VCAP_BVT_ADMIN_CLIENT        |admin client of uaa|VCAP_BVT_ADMIN_CLIENT=admin              |
-|VCAP_BVT_ADMIN_SECRET        |admin secret of uaa|VCAP_BVT_ADMIN_SECRET=adminsecret        |
-|ACM_URL                      |acm base url       |ACM_URL=<URL>                            |
-|ACM_USER                     |acm user           |ACM_USER=<user>                          |
-|ACM_PASSWORD                 |acm user password  |ACM_PASSWORD=<***>                       |
+||Environment Variables       ||Function            ||Example                                ||
+|VCAP_BVT_TARGET              |target environment   |VCAP_BVT_TARGET=cloudfoundry.com         |
+|VCAP_BVT_USER                |test user            |VCAP_BVT_USER=pxie@vmware.com            |
+|VCAP_BVT_USER_PASSWD         |test user password   |VCAP_BVT_USER_PASSWD=<MY-PASSWORD>       |
+|VCAP_BVT_ADMIN_USER          |admin user           |VCAP_BVT_ADMIN_USER=admin@admin.com      |
+|VCAP_BVT_ADMIN_USER_PASSWD   |admin user password  |VCAP_BVT_ADMIN_USER_PASSWD=<ADMIN-PASSWD>|
+|VCAP_BVT_SHOW_PENDING        |show pending cases   |VCAP_BVT_SHOW_PENDING=true               |
+|VCAP_BVT_SERVICE_PG_MAXDBSIZE|service quota(MB)    |VCAP_BVT_SERVICE_PG_MAXDBSIZE=128        |
+|VCAP_BVT_ADMIN_CLIENT        |admin client of uaa  |VCAP_BVT_ADMIN_CLIENT=admin              |
+|VCAP_BVT_ADMIN_SECRET        |admin secret of uaa  |VCAP_BVT_ADMIN_SECRET=adminsecret        |
+|ACM_URL                      |acm base url         |ACM_URL=<URL>                            |
+|ACM_USER                     |acm user             |ACM_USER=<user>                          |
+|ACM_PASSWORD                 |acm user password    |ACM_PASSWORD=<***>                       |
+|SERVICE_BROKER_TOKEN         |service broker token |SERVICE_BROKER_TOKEN=<token>             |
+|SERVICE_BROKER_URL           |service broker url   |SERVICE_BROKER_URL=http://...            |
 ```
 
 2. In order to support parallel running, and administrative test cases, Yeti will ask administrative

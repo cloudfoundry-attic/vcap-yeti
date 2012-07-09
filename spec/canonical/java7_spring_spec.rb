@@ -14,15 +14,14 @@ describe BVT::Spec::Canonical::Java7Spring do
   end
 
   it "java test deploy app using java 7" , :mysql => true  do
-    pending "not running because java7 runtime not installed"
     app = create_push_app("app_spring_service_7")
-    contents = app.get_response(:get,'java')
+    contents = app.get_response(:get,'/java')
     contents.should_not == nil
     contents.body_str.should_not == nil
     contents.body_str.should =~ /1\.7/
     contents.close
 
-    bind_service_and_verify(@app, MYSQL_MANIFEST)
+    bind_service_and_verify(app, MYSQL_MANIFEST)
   end
 
 

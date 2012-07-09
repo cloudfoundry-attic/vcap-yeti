@@ -13,7 +13,6 @@ describe BVT::Spec::Simple::Java7Standalone do
   end
 
   it "Deploy Standalone App with Java 7 runtime" do
-    pending "not running because java7 runtime not installed"
     app = create_push_app("standalone_java_app_7")
 
     contents = app.get_response(:get)

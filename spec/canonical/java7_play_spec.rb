@@ -21,7 +21,6 @@ describe BVT::Spec::Canonical::Java7Play do
 
 
   it "Deploy Play Application using Java 7 with mysql auto-reconfiguration" do
-    pending "not running because java7 runtime not installed"
     app = create_push_app("play_todolist_app_7")
 
     bind_service( MYSQL_MANIFEST, app )
