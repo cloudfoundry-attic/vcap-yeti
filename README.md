@@ -34,23 +34,27 @@ How to run it
     - admin user/admin password
    <br>This information is saved to ~/.bvt/config.yml file.
    <br>When run the second time around, Yeti will not prompt for the information again.
+6. If you want to see pending cases in run result: ```export VCAP_BVT_SHOW_PENDING=true```
 
 Notes:
 -----
-1. To be compatible with BVT, these environment variables are preserved in Yeti:
+1. To be compatible with BVT, some environment variables are preserved in Yeti:
 ```
-||Environment Variables       ||Function          ||Example                                ||
-|VCAP_BVT_TARGET              |target environment |VCAP_BVT_TARGET=cloudfoundry.com         |
-|VCAP_BVT_USER                |test user          |VCAP_BVT_USER=pxie@vmware.com            |
-|VCAP_BVT_USER_PASSWD         |test user password |VCAP_BVT_USER_PASSWD=<MY-PASSWORD>       |
-|VCAP_BVT_ADMIN_USER          |admin user         |VCAP_BVT_ADMIN_USER=admin@admin.com      |
-|VCAP_BVT_ADMIN_USER_PASSWD   |admin user password|VCAP_BVT_ADMIN_USER_PASSWD=<ADMIN-PASSWD>|
-|VCAP_BVT_SERVICE_PG_MAXDBSIZE|service quota(MB)  |VCAP_BVT_SERVICE_PG_MAXDBSIZE=128        |
-|VCAP_BVT_ADMIN_CLIENT        |admin client of uaa|VCAP_BVT_ADMIN_CLIENT=admin              |
-|VCAP_BVT_ADMIN_SECRET        |admin secret of uaa|VCAP_BVT_ADMIN_SECRET=adminsecret        |
-|ACM_URL                      |acm base url       |ACM_URL=<URL>                            |
-|ACM_USER                     |acm user           |ACM_USER=<user>                          |
-|ACM_PASSWORD                 |acm user password  |ACM_PASSWORD=<***>                       |
+||Environment Variables       ||Function            ||Example                                ||
+|VCAP_BVT_TARGET              |target environment   |VCAP_BVT_TARGET=cloudfoundry.com         |
+|VCAP_BVT_USER                |test user            |VCAP_BVT_USER=pxie@vmware.com            |
+|VCAP_BVT_USER_PASSWD         |test user password   |VCAP_BVT_USER_PASSWD=<MY-PASSWORD>       |
+|VCAP_BVT_ADMIN_USER          |admin user           |VCAP_BVT_ADMIN_USER=admin@admin.com      |
+|VCAP_BVT_ADMIN_USER_PASSWD   |admin user password  |VCAP_BVT_ADMIN_USER_PASSWD=<ADMIN-PASSWD>|
+|VCAP_BVT_SHOW_PENDING        |show pending cases   |VCAP_BVT_SHOW_PENDING=true               |
+|VCAP_BVT_SERVICE_PG_MAXDBSIZE|service quota(MB)    |VCAP_BVT_SERVICE_PG_MAXDBSIZE=128        |
+|VCAP_BVT_ADMIN_CLIENT        |admin client of uaa  |VCAP_BVT_ADMIN_CLIENT=admin              |
+|VCAP_BVT_ADMIN_SECRET        |admin secret of uaa  |VCAP_BVT_ADMIN_SECRET=adminsecret        |
+|ACM_URL                      |acm base url         |ACM_URL=<URL>                            |
+|ACM_USER                     |acm user             |ACM_USER=<user>                          |
+|ACM_PASSWORD                 |acm user password    |ACM_PASSWORD=<***>                       |
+|SERVICE_BROKER_TOKEN         |service broker token |SERVICE_BROKER_TOKEN=<token>             |
+|SERVICE_BROKER_URL           |service broker url   |SERVICE_BROKER_URL=http://...            |
 ```
 
 2. In order to support parallel running, and administrative test cases, Yeti will ask administrative
@@ -92,10 +96,30 @@ FAQ:
    blobs.cloudfoundry.com.
 
 6. Where is the log file stored?
-
    <br>A: There two log files, runtime and error logs
       - Runtime log is stored in ~/.bvt/bvt.log
       - Error log is stored in ~/.bvt/error.log
+
+7. What runtimes/frameworks/services should my environment have?
+   <br>Dev setup:
+   - runtimes: java, ruby18, ruby19, node, node06, php, python2, erlangR14B01
+   - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone, php,
+   django, wsgi, otp_rebar
+   - services: mongodb, mysql, postgresql, rabbitmq, redis, vblob, filesystem
+   <br>(env variable CLOUD_FOUNDRY_EXCLUDED_COMPONENT can disable components, for details, please
+   check REAME under vcap/dev_setup.)
+
+   Dev instance:
+   - runtimes: java, java7, ruby18, ruby19, node, node06
+   - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone
+   - services: mongodb, mysql, postgresql, rabbitmq, redis, vblob
+
+   Production:
+   - runtimes: java, java7, ruby18, ruby19, node, node06
+   - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone
+   - services: mongodb, mysql, postgresql, rabbitmq, redis
+
+   (updated on July 5th, 2012)
 
 Rake Tasks:
 -----------

@@ -2,7 +2,7 @@ require "harness"
 require "spec_helper"
 
 describe BVT::Spec::Canonical::Ruby19Sinatra do
-  include BVT::Spec::CanonicalHelper, BVT::Spec
+  include BVT::Spec::CanonicalHelper, BVT::Spec, BVT::Harness
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
@@ -83,7 +83,7 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     r3.close
   end
 
-  it "memcached services", :p1 => true do
+  it "memcached services", :p1 => true, :memcached => true do
     memcached_service = create_service(MEMCACHED_MANIFEST)
     app = create_push_app("memcached_app")
     app.bind(memcached_service.name)
@@ -99,5 +99,34 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     contents["requested_key"].should == "foo"
     contents["value"].should == "bar"
     r2.close
+  end
+
+  it "sinatra test couchdb service", :couchdb => true, :p1 => true do
+    app = create_push_app("couchdb_app")
+    service = bind_service(COUCHDB_MANIFEST, app)
+
+    data = { :key => 'foo', :value => 'bar'}
+    res = app.get_response(:post, "/storeincouchdb", data.to_json)
+    res.response_code.should == HTTP_RESPONSE_CODE::OK
+
+    res = app.get_response(:get, "/getfromcouchdb/#{data[:key]}")
+    res.response_code.should == HTTP_RESPONSE_CODE::OK
+    contents = JSON.parse(res.body_str)
+    contents["requested_key"].should == data[:key]
+    contents["value"].should == data[:value]
+  end
+
+  it "sinatra test elasticsearch service", :elasticsearch => true, :p1 => true do
+    app = create_push_app("elasticsearch_app")
+    service = bind_service(ELASTICSSEARCH_MANIFEST, app)
+
+    data = "id=foo&message=bar"
+    res = app.get_response(:post, "/es/save", data)
+    res.response_code.should == HTTP_RESPONSE_CODE::OK
+    res.body_str.should include('"ok":true')
+
+    res = app.get_response(:get, "/es/get/foo")
+    res.response_code.should == HTTP_RESPONSE_CODE::OK
+    res.body_str.should include('"exists":true')
   end
 end

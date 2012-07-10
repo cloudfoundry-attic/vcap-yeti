@@ -109,6 +109,12 @@ grails_app:
   memory: 512
   path: ".assets-binaries/guestbook.war"
 
+grails_app_7:
+  framework: "grails"
+  runtime: java7
+  memory: 512
+  path: ".assets-binaries/guestbook.war"
+
 roo_app:
   framework: "spring"
   runtime: "java"
@@ -311,6 +317,12 @@ app_spring_service:
   memory: 256
   path: ".assets-binaries/app_spring_service.war"
 
+app_spring_service_7:
+  framework: "spring"
+  runtime: java7
+  memory: 512
+  path: ".assets-binaries/app_spring_service.war"
+
 my_test_app_env_test_app:
   framework: "sinatra"
   memory: 64
@@ -371,11 +383,13 @@ atmos_app:
 
 simple_kv_app:
   framework: "sinatra"
+  runtime: "ruby18"
   memory: 64
   path: "assets/sinatra/simple_kv_app"
 
 brokered_service_app:
   framework: "sinatra"
+  runtime: "ruby18"
   memory: 64
   path: "assets/sinatra/brokered_service_app"
 
@@ -388,8 +402,15 @@ java_app_with_startup_delay:
 
 rails_console_test_app:
   framework: "rails3"
+  runtime: "ruby18"
   memory: 256
   path: "assets/rails3/app_rails_service"
+
+rails_console_19_test_app:
+  framework: "rails3"
+  runtime: "ruby19"
+  memory: 256
+  path: "assets/rails3/hello_vcap"
 
 vblob_app:
   framework: "sinatra"
@@ -442,6 +463,15 @@ standalone_java_app:
   memory: 64
   path: ".assets-binaries/java_app.zip"
   no_url: true
+
+standalone_java_app_7:
+  framework: "standalone"
+  command: "bin/hello-cloud"
+  runtime: java7
+  memory: 256
+  path: ".assets-binaries/java_app.zip"
+  no_url: true
+
 
 standalone_node_app:
   framework: "standalone"
@@ -557,6 +587,12 @@ play_todolist_app:
   runtime: java
   path: ".assets-binaries/todolist.zip"
 
+play_todolist_app_7:
+  framework: "play"
+  runtime: java7
+  memory: 256
+  path: ".assets-binaries/todolist.zip"
+
 play_todolist_with_cfruntime_app:
   framework: "play"
   memory: 128
@@ -587,3 +623,27 @@ javaee-namespace-app:
   startup: "thin start"
   memory: 256
   path: ".assets-binaries/javaee-namespace-app.war"
+
+sinatra_rmagick:
+  framework: "sinatra"
+  memory: 64
+  runtime: ruby19
+  path: "assets/sinatra/sinatra_rmagick"
+
+node_imagemagick:
+  framework: "node"
+  runtime: node
+  memory: 64
+  path: "assets/node/node_imagemagick"
+
+couchdb_app:
+  framework: "sinatra"
+  memory: 64
+  runtime: ruby19
+  path: "assets/sinatra/couchdb_app"
+
+elasticsearch_app:
+  framework: "sinatra"
+  memory: 64
+  runtime: ruby19
+  path: "assets/sinatra/elasticsearch_app"

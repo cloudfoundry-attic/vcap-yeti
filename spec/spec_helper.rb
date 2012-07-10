@@ -39,6 +39,19 @@ module BVT
       class Ruby19Sinatra; end
     end
 
+    module ImageMagicKSupport
+      class Ruby19Sinatra; end
+      class NodeNode; end
+    end
+
+    module ServiceLifecycle
+      class Ruby19Sinatra; end
+    end
+
+    module ServiceBroker
+      class Ruby18Sinatra; end
+    end
+
     module ServiceRebinding
       class Ruby19Sinatra; end
     end
@@ -90,6 +103,11 @@ module BVT
       module FileRange
         class Ruby19Sinatra; end
       end
+
+      module RailsConsole
+        class Ruby18Rails3; end
+        class Ruby19Rails3; end
+      end
     end
 
     MYSQL_MANIFEST      = {"vendor"=>"mysql", "version"=>"5.1"}
@@ -100,6 +118,9 @@ module BVT
     NEO4J_MANIFEST      = {"vendor"=>"neo4j", "version"=>"1.4"}
     VBLOB_MANIFEST      = {"vendor"=>"vblob", "version"=>"1.0"}
     MEMCACHED_MANIFEST  = {"vendor"=>"memcached","version"=>"1.4"}
+    COUCHDB_MANIFEST    = {"vendor"=>"couchdb","version"=>"1.2"}
+    ELASTICSSEARCH_MANIFEST   = {"vendor"=>"elasticsearch","version"=>"0.19"}
+
     SERVICE_URL_MAPPING = Hash["mysql"      => "mysql",
                                "redis"      => "redis",
                                "mongodb"    => "mongo",
@@ -153,3 +174,4 @@ end
 
 require "autostaging/autostaging_helper"
 require "canonical/canonical_helper"
+require "service_lifecycle/service_lifecycle_helper"

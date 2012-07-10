@@ -14,8 +14,7 @@ describe BVT::Spec::Canonical::Java7Grails do
   end
 
 
-  it "start Spring Grails application using Java 6", :mysql => true do
-    pending "not running because java7 runtime not installed"
+  it "start Spring Grails application using Java 7", :mysql => true do
     app = create_push_app("grails_app_7")
     service = bind_service(MYSQL_MANIFEST, app)
 
@@ -26,7 +25,6 @@ describe BVT::Spec::Canonical::Java7Grails do
     contents.body_str.should =~ /JVM version: 1\.7/
     contents.close
 
-    #should add verification of grails service here
   end
 
 end
