@@ -64,7 +64,7 @@ task :random, :seed do |t, args|
        " --seed #{args[:seed]} --format d -c"
   else
     sh "bundle exec rspec spec/ --tag ~admin --tag p1" +
-       "--order rand --format d -c"
+       " --order rand --format d -c"
   end
 end
 
