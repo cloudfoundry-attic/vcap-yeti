@@ -22,6 +22,7 @@ class UaaHelper
     return @webclient if @webclient
 
     begin
+      logger.debug("Login as admin")
       token = client_token(@admin_client, @admin_secret)
     rescue RestClient::Unauthorized
       logger.error("Unauthorized admin client (check your config or env vars)")
@@ -38,7 +39,8 @@ class UaaHelper
         :client_secret=>"appsecret", :authorized_grant_types=>
         ["authorization_code"]}, token)
     rescue RestClient::Unauthorized
-      puts "Unauthorized admin client not able to create new client"
+      logger.error("Unauthorized admin client not able to create new client")
+      raise RuntimeError, "Unauthorized admin client not able to create new client"
     end
 
     @webclient
@@ -118,6 +120,8 @@ describe BVT::Spec::UsersManagement::UAA do
   :admin => true, :p1 => true do
     headers = @uaahelper.login
     @webclient = @uaahelper.webclient(@session.log)
+    pending("admin client is not valid, please input VCAP_BVT_ADMIN_CLIENT/VCAP_BVT_ADMIN_SECRET" +
+                " via ENV variable.") unless @webclient
     @cookie = headers[:set_cookie][0]
     headers[:location].should =~ /#{@uaabase}/
     @uaahelper.get_url "/oauth/authorize?response_type=code&client_id=#{@webclient[:client_id]}" +
