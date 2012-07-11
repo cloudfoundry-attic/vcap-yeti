@@ -283,7 +283,11 @@ module BVT::Harness
 
     def cleanup_test_accounts
       test_user_template = 'my_fake@email.address'
-      session = BVT::Harness::CFSession.new(:admin => true)
+
+      session = BVT::Harness::CFSession.new(:admin => true,
+                                            :email => @config['admin']['email'],
+                                            :passwd => @config['admin']['passwd'],
+                                            :target => @config['target'])
       puts yellow("Ready to remove all test users created in admin_user_spec.rb")
       users = session.users.select { |user| user.email =~ /^t.*-#{test_user_template}$/ }
 
