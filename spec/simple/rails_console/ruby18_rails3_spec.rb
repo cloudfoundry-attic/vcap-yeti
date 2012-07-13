@@ -33,6 +33,7 @@ describe BVT::Spec::Simple::RailsConsole::Ruby18Rails3 do
     run_console(app.name)
 
     expected_results = ["irb():001:0> "]
+
     expected_results.should == @console_response
 
     2.times do
@@ -104,7 +105,15 @@ describe BVT::Spec::Simple::RailsConsole::Ruby18Rails3 do
     expected_results = ["irb():001:0> "]
     expected_results.should == @console_response
 
-    @console_response = @console_cmd.send_console_command("`rake routes`")
+    2.times do
+      begin
+        @console_response = @console_cmd.send_console_command("`rake routes`")
+        break
+      rescue EOFError => e
+        @session.log.debug("Fail to send console command, retrying. #{e.to_s}")
+      end
+    end
+
     matched = false
     @console_response.each do |response|
       matched = true if response=~ /#{Regexp.escape(':action=>\"hello\"')}/

@@ -18,6 +18,8 @@ module BVT::Spec
           sleep 1
         end
       end
+      @console_response.should_not be_nil, "rails console connection " +
+          "cannot be established in 3 times"
     end
   end
 end
