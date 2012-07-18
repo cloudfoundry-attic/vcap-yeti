@@ -30,8 +30,9 @@ module BVT::Harness
       @log.debug("Login in, target: #{@TARGET}, email = #{@email}, pssswd = #{@passwd}")
       @client = CFoundry::Client.new(@TARGET)
       begin
-        @token = @client.login(@email, @passwd)
-      rescue
+        @token = @client.login({:username => @email, :password =>  @passwd})
+      rescue Exception => e
+        puts e.to_s
         @log.error "Fail to login in, target: #{@TARGET}, user: #{@email}, passwd = #{@passwd}"
         raise "Cannot login target environment:\n" +
               "target = '#{@TARGET}', user: '#{@email}', passwd: '#{@passwd}'.\n" +
@@ -59,16 +60,16 @@ module BVT::Harness
     def system_frameworks
       @log.debug "get system frameworks, target: #{@TARGET}"
       @info ||= @client.info
-      @info["frameworks"] || {}
+      @info[:frameworks] || {}
     end
 
     def system_runtimes
       @log.debug "get system runtimes, target: #{@TARGET}"
       @info ||= @client.info
       runtimes = {}
-      @info["frameworks"].each do |_, f|
-        f["runtimes"].each do |r|
-          runtimes[r["name"]] = r
+      @info[:frameworks].each do |_, f|
+        f[:runtimes].each do |r|
+          runtimes[r[:name]] = r
         end
       end
       runtimes
@@ -76,7 +77,17 @@ module BVT::Harness
 
     def system_services
       @log.debug "get system services, target: #{@TARGET}"
-      @client.system_services
+      services = {}
+      @client.services.each do |service|
+        if services[service.label]
+          versions = services[service.label][:versions] || []
+        else
+          versions = []
+        end
+        versions << service.version.to_s unless versions.index(service.version.to_s)
+        services[service.label] = {:versions => versions}
+      end
+      services
     end
 
     def app(name)
@@ -88,14 +99,14 @@ module BVT::Harness
     end
 
     def services
-      @client.services.collect {|service| BVT::Harness::Service.new(service, self)}
+      @client.service_instances.collect {|service| BVT::Harness::Service.new(service, self)}
     end
 
     def service(name, require_namespace=true)
       if require_namespace
-        BVT::Harness::Service.new(@client.service("#{@namespace}#{name}"), self)
+        BVT::Harness::Service.new(@client.service_instance("#{@namespace}#{name}"), self)
       else
-        BVT::Harness::Service.new(@client.service(name), self)
+        BVT::Harness::Service.new(@client.service_instance(name), self)
       end
     end
 

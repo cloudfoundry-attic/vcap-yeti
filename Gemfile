@@ -1,8 +1,9 @@
 source "http://rubygems.org"
+#source "http://ruby.taobao.org"
 
 gem "rake"
 gem "rspec"
-gem "cfoundry", "~> 0.2.0"
+gem "cfoundry", "~> 0.3.8"
 gem "vcap_logging", ">= 1.0"
 gem "interact"
 gem "curb"
@@ -19,3 +20,4 @@ gem "caldecott"
 group :ci do
   gem "ci_reporter"
 end
+gem "ruby-debug19"

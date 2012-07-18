@@ -348,7 +348,7 @@ module BVT::Harness
     private
 
     def check_framework(framework)
-      unless VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(framework)
+      unless VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(framework.to_sym)
         @log.error("Framework: #{framework} is not available " +
                        "on target: #{@session.TARGET}")
         raise RuntimeError, "Framework: #{framework} is not available " +

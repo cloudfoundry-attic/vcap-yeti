@@ -27,7 +27,7 @@ module BVT::Harness
     def create_app(app_name)
       app = @session.app(app_name)
       app.load_manifest
-      if VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(app.manifest['framework']) &&
+      if VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(app.manifest['framework'].to_sym) &&
           VCAP_BVT_SYSTEM_RUNTIMES.has_key?(app.manifest['runtime'])
       else
         pending("Runtime/Framework: #{app.manifest['runtime']}/#{app.manifest['framework']} " +
