@@ -70,6 +70,7 @@ module BVT
       class NodeNode; end
       class NodeStandalone; end
       class Node06Node; end
+      class Node08Node; end
       class Node06Standalone; end
       class Ruby18Rails3; end
       class Ruby18Standalone; end

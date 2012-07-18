@@ -48,8 +48,9 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
     service = create_service(MYSQL_MANIFEST)
 
     app = create_app("dbrails_broken_app")
-    lambda { app.push([service]) }.should raise_error(RuntimeError, \
-      "Application: #{app.name} cannot be started in 60 seconds")
+    app.push([service], nil, false)
+    health = app.healthy?
+    health.should be_false
   end
 
   it "Rails autostaging", :mysql => true, :redis => true, :mongodb => true,
