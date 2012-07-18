@@ -348,7 +348,8 @@ module BVT::Harness
       end
 
       if easy.response_code == HTTP_RESPONSE_CODE::OK
-        File.open(filepath, 'wb') { |f| f.write(easy.body_str) }
+        contents = easy.body_str.chomp
+        File.open(filepath, 'wb') { |f| f.write(contents) }
       else
         raise RuntimeError, "Fail to download binary #{filename}"
       end
