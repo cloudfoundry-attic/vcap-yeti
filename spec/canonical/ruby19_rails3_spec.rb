@@ -21,6 +21,17 @@ describe BVT::Spec::Canonical::Ruby19Rails3 do
     @app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
   end
 
+  it "rails test setting RAILS_ENV" do
+    pending "cf-release update"
+    @app.stop
+    add_env(@app,'RAILS_ENV','development')
+    @app.start
+
+    @app.get_response(:get).body_str.should == "hello from rails"
+    logs = @app.log
+    logs.should include "starting in development"
+  end
+
   it "rails3 test mysql service", :mysql => true, :p1 => true do
     bind_service_and_verify(@app, MYSQL_MANIFEST)
   end

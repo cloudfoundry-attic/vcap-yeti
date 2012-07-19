@@ -18,6 +18,18 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
   end
 
+  it "sinatra test setting RACK_ENV" do
+    pending "cf-release update"
+    app = create_push_app("app_sinatra_service")
+    add_env(app,'RACK_ENV','development')
+    app.stop
+    app.start
+    app.get_response(:get,'/rack/env').body_str.should == "development"
+
+    logs = app.log
+    logs.should include "development"
+  end
+
   it "sinatra test mysql service", :mysql => true do
     app = create_push_app("app_sinatra_service")
     bind_service_and_verify(app, MYSQL_MANIFEST)
