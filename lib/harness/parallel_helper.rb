@@ -46,6 +46,9 @@ module BVT::Harness
       if thread_number > VCAP_BVT_PARALLEL_MAX_USERS
         puts red("threads_number can't be greater than #{VCAP_BVT_PARALLEL_MAX_USERS}")
         return
+      elsif thread_number < 1
+        puts red("threads_number can't be less than 1")
+        return
       end
       @lock = Mutex.new
       t1 = Time.now
