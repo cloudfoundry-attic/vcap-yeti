@@ -44,7 +44,7 @@ describe BVT::Spec::Simple::RailsConsole::Ruby19Rails3 do
     @console_cmd.close_console if @console_cmd
   end
 
-  it "Rails Console runs tasks with correct ruby 1.9 version in path", :p1 => true do
+  it "Rails Console runs tasks with correct ruby 1.9 version in path" do
     app = create_push_app("rails_console_19_test_app")
     manifest = {}
     manifest["console"] = true
