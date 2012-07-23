@@ -15,7 +15,7 @@ This repository contains tests for [vcap](https://github.com/cloudfoundry/vcap).
 1. Ruby 1.9.2
 2. Bundle >= 1.1
 3. admin user/password is needed for parallel run, if you don't have it, run serial like:
-```bundle exec rake tests[1]```
+```bundle exec rake full[1]```
 <br>It is recommended to manage Ruby runtime via RVM or rbenv
 
 ## _Tested Operating Systems_
@@ -24,7 +24,7 @@ This repository contains tests for [vcap](https://github.com/cloudfoundry/vcap).
 
 How to run it
 -------------
-1. ```git clone ssh://<YOUR-NAME>@reviews.cloudfoundry.org:29418/vcap-yeti```
+1. ```git clone git://github.com/cloudfoundry/vcap-yeti.git```
 2. ```cd vcap-yeti```
 3. ```./update.sh      ## this is not required for running administrative test cases```
 4. ```bundle exec rake full```
@@ -34,7 +34,6 @@ How to run it
     - admin user/admin password
    <br>This information is saved to ~/.bvt/config.yml file.
    <br>When run the second time around, Yeti will not prompt for the information again.
-6. If you want to see pending cases in run result: ```export VCAP_BVT_SHOW_PENDING=true```
 
 Notes:
 -----
@@ -55,6 +54,7 @@ Notes:
 |ACM_PASSWORD                 |acm user password    |ACM_PASSWORD=<***>                       |
 |SERVICE_BROKER_TOKEN         |service broker token |SERVICE_BROKER_TOKEN=<token>             |
 |SERVICE_BROKER_URL           |service broker url   |SERVICE_BROKER_URL=http://...            |
+|VCAP_BVT_LONGEVITY           |run testing N times  |VCAP_BVT_LONGEVITY=100                   |
 ```
 
 2. In order to support parallel running, and administrative test cases, Yeti will ask administrative
@@ -62,7 +62,7 @@ Notes:
    <br>However, yeti will not abuse administrative privileges, just list users, create users,
    <br>delete users created by the test script.
 3. rake tests/full use parallel by default, you could run in serial by specifying thread number=1:
-   ```bundle exec rake tests[1]```
+   ```bundle exec rake full[1]```
 4. As dev setup has limited resources, we strongly recommend running 1-4 threads against dev_setup.
 
 FAQ:
@@ -86,40 +86,55 @@ FAQ:
    steps, if any of the steps within an example fail then the test case will be marked as failed.
 
 4. Where are binary assets stored?
-   <br>A: Binary assets are stored in blobs.cloudfoundry.com which is a simple Sinatra application
-      with blob service backend.  These assets are then synchronized via the update.sh script into
-      the .assets-binaries directory of vcap-yeti.
+   <br>A: Binary assets are stored in http://blobs.cloudfoundry.com which is a simple Sinatra application
+      with blob service backend hosted on Cloud Foundry. These assets are then synchronized via the
+      update.sh script into the .assets-binaries directory of vcap-yeti.
 
 5. How do I submit binary assets?
-   <br>A: Currently binaries are generated manually based on source code updates to vcap-assets.  In
+   <br>A: Currently binaries are generated manually based on source code updates to vcap-assets. In
    the near future, source code updates will trigger a job to compile sources and update
    blobs.cloudfoundry.com.
 
 6. Where is the log file stored?
    <br>A: There two log files, runtime and error logs
       - Runtime log is stored in ~/.bvt/bvt.log
-      - Error log is stored in ~/.bvt/error.log
 
 7. What runtimes/frameworks/services should my environment have?
    <br>Dev setup:
-   - runtimes: java, ruby18, ruby19, node, node06, php, python2, erlangR14B01
+   - runtimes: java, ruby18, ruby19, node, node06, node08, php, python2, erlangR14B01
    - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone, php,
    django, wsgi, otp_rebar
    - services: mongodb, mysql, postgresql, rabbitmq, redis, vblob, filesystem
    <br>(env variable CLOUD_FOUNDRY_EXCLUDED_COMPONENT can disable components, for details, please
-   check REAME under vcap/dev_setup.)
+   check README under vcap/dev_setup.)
 
    Dev instance:
-   - runtimes: java, java7, ruby18, ruby19, node, node06
+   - runtimes: java, java7, ruby18, ruby19, node, node06, node08
    - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone
    - services: mongodb, mysql, postgresql, rabbitmq, redis, vblob
 
    Production:
-   - runtimes: java, java7, ruby18, ruby19, node, node06
+   - runtimes: java, java7, ruby18, ruby19, node, node06, node08
    - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone
    - services: mongodb, mysql, postgresql, rabbitmq, redis
 
-   (updated on July 5th, 2012)
+   (updated on July 19th, 2012)
+
+8. Runtime errors
+   <br>Sometimes runtime errors happen during Yeti execution,
+   - 504 Gateway Error: Application fail to be started in 30 seconds
+   - 502 Internal Error: Application fail to connect to service instance, including provision/un-provision
+     bind/unbind.
+   - 404 Not Found: Route fail to redirect request to specific application URL
+
+9. Run specific case
+   <br>User can run specific case via passing spec file with specify line number of an example
+    or group as parameter
+    For example:
+    bundle exec rspec ./spec/simple/rails_console/ruby18_rails3_spec.rb:95
+
+10. Build java-based assets
+    <br>Please refer to docs/how-to-build-assets.md
 
 Rake Tasks:
 -----------
@@ -131,7 +146,6 @@ Rake Tasks:
 <br>run full tests in parallel, e.g. rake full\[5\] (default to 10, max = 16)
 - random
 <br>run all bvts randomly, e.g. rake random\[1023\] to re-run seed 1023
-- longevity loop bvt tests, e.g. rake longevity\[10\] (default to 100)
 - java
 <br>run java tests (spring, java_web) in parallel
 <br>e.g. rake java\[5\] (default to 10, max = 16)

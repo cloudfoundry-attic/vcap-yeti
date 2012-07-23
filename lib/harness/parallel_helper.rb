@@ -46,6 +46,9 @@ module BVT::Harness
       if thread_number > VCAP_BVT_PARALLEL_MAX_USERS
         puts red("threads_number can't be greater than #{VCAP_BVT_PARALLEL_MAX_USERS}")
         return
+      elsif thread_number < 1
+        puts red("threads_number can't be less than 1")
+        return
       end
       @lock = Mutex.new
       t1 = Time.now
@@ -227,9 +230,32 @@ module BVT::Harness
       else
         tags_filter_list = pattern_filter_list
       end
+      # rails console doesn't support parallel, so arrange rails console cases dispersively
+      total_number = tags_filter_list.size
+      rails_console_list = []
+
+      for i in 0..total_number-1
+        t = tags_filter_list[i]["line"]
+        if t.include? "rails_console"
+          rails_console_list << i
+        end
+      end
+      rails_console_number = rails_console_list.size
+      if rails_console_number > 1
+        mod = total_number / rails_console_number
+        for i in 0..rails_console_number-1
+          swap(tags_filter_list, i * mod, rails_console_list[i])
+        end
+      end
       tags_filter_list.each { |t|
         @queue << t["line"]
       }
+    end
+
+    def swap(a, i1, i2)
+      temp = a[i1]
+      a[i1] = a[i2]
+      a[i2] = temp
     end
 
     def run_task(task, user, password)

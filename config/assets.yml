@@ -14,7 +14,7 @@ simple_app:
 
 simple_app2:
   framework: "sinatra"
-  instances: 3
+  instances: 1
   runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/hello_vcap"
@@ -63,7 +63,8 @@ env_test_app:
 
 broken_app:
   framework: "sinatra"
-  memory: 64
+  runtime: "ruby18"
+  memory: 128
   path: "assets/sinatra/broken_app"
 
 broken_gem_app:
@@ -307,6 +308,12 @@ app_node_version04:
 app_node_version06:
   framework: "node"
   runtime: node06
+  memory: 64
+  path: "assets/node/app_node_version"
+
+app_node_version08:
+  framework: "node"
+  runtime: node08
   memory: 64
   path: "assets/node/app_node_version"
 

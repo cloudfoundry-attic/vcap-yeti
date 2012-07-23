@@ -21,6 +21,16 @@ describe BVT::Spec::Canonical::Ruby18Rack do
     @app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
   end
 
+  it "rack test setting RACK_ENV" do
+    pending "cf-release update"
+    add_env(@app,'RACK_ENV','development')
+    @app.stop
+    @app.start
+
+    @app.get_response(:get,"/rack/env").response_code.should == 200
+    @app.get_response(:get,"/rack/env").body_str.should == 'development'
+  end
+
   it "rack test mysql service", :mysql => true, :p1 => true do
     bind_service_and_verify(@app, MYSQL_MANIFEST)
   end

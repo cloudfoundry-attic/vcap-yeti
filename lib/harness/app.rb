@@ -16,7 +16,7 @@ module BVT::Harness
       "#<BVT::Harness::App '#@name' '#@manifest'>"
     end
 
-    def push(services = nil, appid = nil)
+    def push(services = nil, appid = nil, need_check = true)
       load_manifest(appid)
       check_framework(@manifest['framework'])
       check_runtime(@manifest['runtime'])
@@ -44,7 +44,7 @@ module BVT::Harness
         raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}"
       end
       services.each { |service| bind(service.name, false)} if services
-      start
+      start(need_check)
     end
 
     def delete
@@ -90,7 +90,7 @@ module BVT::Harness
       end
     end
 
-    def start
+    def start(need_check = true)
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
         raise RuntimeError, "Application: #{@app.name} does not exist!"
@@ -104,7 +104,7 @@ module BVT::Harness
           @log.error "Start App: #{@app.name} failed.\n#{e.to_s}"
           raise RuntimeError, "Start App: #{@app.name} failed.\n#{e.to_s}"
         end
-        check_application
+        check_application if need_check
       end
     end
 
@@ -348,7 +348,7 @@ module BVT::Harness
     private
 
     def check_framework(framework)
-      unless VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(framework)
+      unless VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(framework.to_sym)
         @log.error("Framework: #{framework} is not available " +
                        "on target: #{@session.TARGET}")
         raise RuntimeError, "Framework: #{framework} is not available " +
