@@ -1,4 +1,5 @@
 require 'progressbar'
+require 'harness'
 
 module BVT::Harness
   module ParallelHelper
@@ -61,7 +62,21 @@ module BVT::Harness
         break if i == thread_number
       }
       puts yellow("threads number: #{thread_number}\n")
+      @queue = Queue.new
       parse_case_list(options)
+
+      # if user set VCAP_BVT_SERVICES_VERSIONS=
+      # insert service versions cases in @queue
+      if ENV['VCAP_BVT_SERVICES_VERSIONS']
+        services = BVT::Spec::ServiceVersions.get_tested_services()
+        services.each do |m|
+          m[:versions].each do |v|
+            parse_case_list({"tags" => m[:vendor]},
+                            {:vendor => m[:vendor], :version => v})
+          end
+        end
+      end
+
       pbar = ProgressBar.new("0/#{@queue.size}", @queue.size, $stdout)
       pbar.format_arguments = [:title, :percentage, :bar, :stat]
       case_number = 0
@@ -82,7 +97,7 @@ module BVT::Harness
 
             if task_output =~ /Failures/
               failure_number += 1
-              failure_list << [task, parse_failure_log(task_output)]
+              failure_list << [task[:line], parse_failure_log(task_output), task[:envs]]
               @lock.synchronize do
                 $stdout.print "\e[K"
                 if failure_number == 1
@@ -129,7 +144,6 @@ module BVT::Harness
         $stdout.print yellow(", #{pending_number} pending") if pending_number > 0
       end
       $stdout.print "\n"
-
       unless failure_list.empty?
         $stdout.print "\nFailed examples:\n\n"
         failure_list.each_with_index do |log, i|
@@ -138,7 +152,14 @@ module BVT::Harness
              case_desc = line
              break
           }
-          rerun_cmd = 'rspec .' + log[0].match(/\/spec\/.*_spec\.rb:\d{1,4}/).to_s
+          env_vars = ""
+          if log[2]
+            BVT::Spec::ServiceVersions.set_environment_variables(log[2]).each do |k, v|
+              env_vars += " #{k}=\'#{v}\'"
+            end
+          end
+
+          rerun_cmd = "#{env_vars} " + 'rspec .' + log[0].match(/\/spec\/.*_spec\.rb:\d{1,4}/).to_s
           $stdout.print red(rerun_cmd)
           $stdout.print cyan(" # #{case_desc}")
         end
@@ -194,8 +215,7 @@ module BVT::Harness
       case_list
     end
 
-    def parse_case_list(options)
-      @queue = Queue.new
+    def parse_case_list(options, envs = nil)
       all_case_list = get_case_list
       pattern_filter_list = []
       tags_filter_list = []
@@ -247,8 +267,9 @@ module BVT::Harness
           swap(tags_filter_list, i * mod, rails_console_list[i])
         end
       end
+
       tags_filter_list.each { |t|
-        @queue << t["line"]
+        @queue << {:line => t["line"], :envs => envs}
       }
     end
 
@@ -265,9 +286,11 @@ module BVT::Harness
         "YETI_PARALLEL_USER" => user,
         "YETI_PARALLEL_USER_PASSWD" => password
       }
+      env_extras = env_extras.merge(
+          BVT::Spec::ServiceVersions.set_environment_variables(task[:envs])) if task[:envs]
 
       cmd << ENV.to_hash.merge(env_extras)
-      cmd += ["bundle", "exec", "rspec", "--color", task]
+      cmd += ["bundle", "exec", "rspec", "--color", task[:line]]
       cmd
 
       output = ""

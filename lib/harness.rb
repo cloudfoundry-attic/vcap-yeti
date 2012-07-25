@@ -46,3 +46,6 @@ require "harness/user"
 require "harness/http_response_code"
 require "harness/scripts_helper"
 require "harness/parallel_helper"
+require "harness/service_versions_helper"
+
+require "harness/cfoundry_monkey_patch" if ENV['VCAP_BVT_SERVICES_VERSIONS']

@@ -136,8 +136,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     response.body_str.should == 'org.hibernate.dialect.MySQLDialect'
   end
 
-  it "Start Spring Web Application with no service dependencies",
-    :mysql => true do
+  it "Start Spring Web Application with no service dependencies" do
     app = create_push_app("auto-reconfig-missing-deps-test-app")
 
     response = app.get_response(:get)

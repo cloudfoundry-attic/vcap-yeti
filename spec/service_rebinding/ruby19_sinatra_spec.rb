@@ -21,7 +21,7 @@ describe BVT::Spec::ServiceRebinding::Ruby19Sinatra do
                               :sequence  => "foobar_sequence"}
 
   def get_db_objs(service_manifest)
-    objs = case service_manifest['vendor']
+    objs = case service_manifest[:vendor]
              when 'mysql'       then   VCAP_BVT_MYSQL_OBJS
              when 'postgresql'  then   VCAP_BVT_POSTGRESQL_OBJS
              else
@@ -30,7 +30,7 @@ describe BVT::Spec::ServiceRebinding::Ruby19Sinatra do
 
   def create_db_obj(service_manifest, app)
     get_db_objs(service_manifest).each do |k, v|
-      res = app.get_response(:put, "/service/#{service_manifest['vendor']}" +
+      res = app.get_response(:put, "/service/#{service_manifest[:vendor]}" +
                                    "/#{k}/#{v}", "")
       res.response_code.should == OK
       res.close
@@ -39,7 +39,7 @@ describe BVT::Spec::ServiceRebinding::Ruby19Sinatra do
 
   def drop_db_obj(service_manifest, app)
     get_db_objs(service_manifest).each do |k, v|
-      res = app.get_response(:delete, "/service/#{service_manifest['vendor']}" +
+      res = app.get_response(:delete, "/service/#{service_manifest[:vendor]}" +
                                       "/#{k}/#{v}")
       res.response_code.should == OK
       res.close
@@ -47,19 +47,19 @@ describe BVT::Spec::ServiceRebinding::Ruby19Sinatra do
   end
 
   def verify_service(service_manifest, app, key)
-    data = "#{service_manifest['vendor']}#{key}"
-    url = SERVICE_URL_MAPPING[service_manifest['vendor']]
+    data = "#{service_manifest[:vendor]}#{key}"
+    url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
     app.get_response(:post, "/service/#{url}/#{key}", data)
     app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
   end
 
   def post_data(key, data, service_manifest, app)
-    url = SERVICE_URL_MAPPING[service_manifest['vendor']]
+    url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
     app.get_response(:post, "/service/#{url}/#{key}", data)
   end
 
   def get_data(key, data, service_manifest, app)
-    url = SERVICE_URL_MAPPING[service_manifest['vendor']]
+    url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
     res = app.get_response(:get, "/service/#{url}/#{key}")
     res.response_code.should == OK
     res.body_str.should == data
@@ -72,7 +72,7 @@ describe BVT::Spec::ServiceRebinding::Ruby19Sinatra do
 
     # post data
     key = "abc"
-    data = "#{service_manifest['vendor']}#{key}"
+    data = "#{service_manifest[:vendor]}#{key}"
     post_data(key, data, service_manifest, app)
 
     create_db_obj(service_manifest, app)
@@ -94,7 +94,7 @@ describe BVT::Spec::ServiceRebinding::Ruby19Sinatra do
 
     # post data
     key = "abc"
-    data = "#{service_manifest['vendor']}#{key}"
+    data = "#{service_manifest[:vendor]}#{key}"
     post_data(key, data, service_manifest, app1)
 
     create_db_obj(service_manifest, app1)

@@ -6,11 +6,13 @@ module BVT::Harness
 
     # Service
     def create_service(service_manifest, name=nil)
-      service_name = name || service_manifest['vendor']
+      service_name = name || service_manifest[:vendor]
       require_namespace = name.nil?
       service = @session.service(service_name, require_namespace)
       unless service.has_vendor?(service_manifest)
-        pending("Service: (#{service_manifest['vendor']} #{service_manifest['version']}) " +
+        @session.log.debug("Service: (#{service_manifest[:vendor]} #{service_manifest[:version]}) " +
+                           "is not available on target: #{@session.TARGET}")
+        pending("Service: (#{service_manifest[:vendor]} #{service_manifest[:version]}) " +
                     "is not available on target: #{@session.TARGET}")
       end
       service.create(service_manifest)
@@ -30,6 +32,8 @@ module BVT::Harness
       if VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(app.manifest['framework'].to_sym) &&
           VCAP_BVT_SYSTEM_RUNTIMES.has_key?(app.manifest['runtime'])
       else
+        @session.log.debug("Runtime/Framework: #{app.manifest['runtime']}/#{app.manifest['framework']} " +
+                         "is not available on target: #{@session.TARGET}")
         pending("Runtime/Framework: #{app.manifest['runtime']}/#{app.manifest['framework']} " +
                     "is not available on target: #{@session.TARGET}")
       end
