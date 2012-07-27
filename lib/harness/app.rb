@@ -285,8 +285,10 @@ module BVT::Harness
         raise RuntimeError, "REST method #{method} is not supported"
       end
 
+      path = relative_path.start_with?("/") ? relative_path : "/" + relative_path
+
       easy              = Curl::Easy.new
-      easy.url          = get_url(second_domain) + relative_path
+      easy.url          = get_url(second_domain) + path
       easy.resolve_mode = :ipv4
       begin
         case method

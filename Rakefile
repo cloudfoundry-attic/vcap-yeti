@@ -10,8 +10,11 @@ task :help do
   puts "Usage: rake [command]"
   puts "  admin\t\trun admin test cases"
   puts "  tests\t\trun core tests in parallel, e.g. rake test[5] (default to 10, max = 16)\n"
-  puts "       \t\tOptions: VCAP_BVT_LONGEVITY=N can loop this task (similiar to other tasks)\n"
-  puts "       \t\te.g. rake tests VCAP_BVT_LONGEVITY=10, rake ruby[4] VCAP_BVT_LONGEVITY=10"
+  puts "       \t\tOptions: VCAP_BVT_LONGEVITY=N can loop this task.\n"
+  puts "       \t\te.g. rake tests[8] VCAP_BVT_LONGEVITY=10"
+  puts "       \t\tVCAP_BVT_CONFIG_FILE=[path_to_config_file] to specify config file.\n"
+  puts "       \t\te.g. rake tests VCAP_BVT_CONFIG_FILE=/home/czhang/my_test.yml\n"
+  puts "       \t\tAbove options are also usable in other tasks."
   puts "  full\t\trun full tests in parallel, e.g. rake full[5] (default to 10, max = 16)"
   puts "  random\trun all bvts randomly, e.g. rake random[1023] to re-run seed 1023"
   puts "  java\t\trun java tests (spring, java_web) in parallel\n" +
