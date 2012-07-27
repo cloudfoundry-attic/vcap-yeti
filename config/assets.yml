@@ -654,3 +654,10 @@ elasticsearch_app:
   memory: 64
   runtime: ruby19
   path: "assets/sinatra/elasticsearch_app"
+
+app_quota_app:
+  framework: "sinatra"
+  instances: 1
+  memory: 256
+  runtime: ruby19
+  path: "assets/sinatra/app_quota_app"

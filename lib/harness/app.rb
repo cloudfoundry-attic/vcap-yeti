@@ -278,6 +278,11 @@ module BVT::Harness
       h
     end
 
+    # to do. return results similiar to vmc crashes %app%
+    def crashes
+      Time.now
+    end
+
     # method should be REST method, only [:get, :put, :post, :delete] is supported
     def get_response(method, relative_path = "/", data = nil, second_domain = nil)
       unless [:get, :put, :post, :delete].include?(method)

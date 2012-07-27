@@ -39,6 +39,10 @@ module BVT
       class Ruby19Sinatra; end
     end
 
+    module AppQuota
+      class Ruby19Sinatra; end
+    end
+
     module ImageMagicKSupport
       class Ruby19Sinatra; end
       class NodeNode; end
@@ -176,3 +180,4 @@ end
 require "autostaging/autostaging_helper"
 require "canonical/canonical_helper"
 require "service_lifecycle/service_lifecycle_helper"
+require "app_quota/app_quota_helper"
