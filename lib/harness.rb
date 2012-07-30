@@ -9,7 +9,7 @@ module BVT
       VCAP_BVT_HOME       = File.join(ENV['HOME'], '.bvt')
     end
 
-    VCAP_BVT_CONFIG_FILE  = File.join(VCAP_BVT_HOME, "config.yml")
+    VCAP_BVT_CONFIG_FILE  = ENV['VCAP_BVT_CONFIG_FILE'] || File.join(VCAP_BVT_HOME, "config.yml")
     VCAP_BVT_PROFILE_FILE = File.join(VCAP_BVT_HOME, "profile.yml")
     VCAP_BVT_ERROR_LOG    = File.join(VCAP_BVT_HOME, "error.log")
 
