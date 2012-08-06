@@ -658,6 +658,6 @@ elasticsearch_app:
 app_quota_app:
   framework: "sinatra"
   instances: 1
-  memory: 256
+  memory: 512
   runtime: ruby19
   path: "assets/sinatra/app_quota_app"

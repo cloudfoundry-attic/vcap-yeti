@@ -39,7 +39,7 @@ module BVT::Harness
         raise "Time out while running app quota tests"
       end
 
-      return app_stats[:"0"][:stats][:usage][type]
+      app_stats[:"0"][:stats][:usage][type]
     end
 
     # to tell if there is a new crash happened

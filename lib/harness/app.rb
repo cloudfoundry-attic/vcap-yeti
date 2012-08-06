@@ -151,8 +151,10 @@ module BVT::Harness
         raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
       begin
-        @log.info("Display application: #{@app.name} status")
-        @app.stats
+        sleep(1)   # wait for a while to collect right runtime usage
+        stats = @app.stats
+        @log.info("Display application: #{@app.name} status: #{stats}")
+        stats
       rescue
         @log.error("Fail to display application: #{@app.name} status!")
         raise RuntimeError, "Fail to display application: #{@app.name} status!"
@@ -214,14 +216,21 @@ module BVT::Harness
       begin
         @log.info("Update the instances/memory: #{instance}/#{memory} " +
                       "for Application: #{@app.name}")
-        @app.total_instances = instance.to_i
+        @app.total_instances = instance
         @app.memory = memory
         @app.update!
-      rescue
-        @log.error("Fail to Update the instances/memory limit for " +
-                   "Application: #{@app.name} !")
-        raise RuntimeError, "Fail to update the instances/memory limit for " +
-                   "Application: #{@app.name} !"
+
+        # application restart is required, if memory is changed
+        restart if @manifest['memory'] != memory
+
+        # sync information to @manifest
+        @manifest['memory'] = memory
+        @manifest['instances'] = instance
+      rescue Exception => e
+        @log.error("Fail to Update the instances/memory (#{instance}/#{memory}) for " +
+                   "Application: #{@app.name}!\n#{e.to_s}")
+        raise RuntimeError, "Fail to update the instances/memory (#{instance}/#{memory}) for " +
+                   "Application: #{@app.name}!\n#{e.to_s}"
       end
     end
 
@@ -260,6 +269,7 @@ module BVT::Harness
         raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
 
+      sleep(0.2) # wait for a while to generate log
       instance = @app.instances[0]
       body = ""
       instance.files("logs").each do |log|
@@ -278,9 +288,22 @@ module BVT::Harness
       h
     end
 
-    # to do. return results similiar to vmc crashes %app%
     def crashes
-      Time.now
+
+      ## FIXME: since cfoundry lib cannot support crashes API,
+      ## therefore, leverage vmc lib to get those information
+      ## It will be switch to cfoundry API, once it is ready
+
+      unless @vmcclient
+        require "vmc"
+        @vmcclient = VMC::Client.new(@session.TARGET)
+        @vmcclient.login(@session.email, @session.passwd)
+      end
+
+      sleep(1) # wait hm to retrieve crash information
+      crashes = @vmcclient.app_crashes(@name)[:crashes]
+      @log.info("Get Application #{@app.name}, crashes information: #{crashes}")
+      crashes
     end
 
     # method should be REST method, only [:get, :put, :post, :delete] is supported
