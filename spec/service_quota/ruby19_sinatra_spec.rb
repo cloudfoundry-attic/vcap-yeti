@@ -2,6 +2,7 @@ require "harness"
 require "spec_helper"
 require "rest_client"
 include BVT::Spec
+include BVT::Spec::ServiceQuotaHelper
 
 describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
   include BVT::Spec
@@ -13,6 +14,95 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
 
   after(:each) do
     @session.cleanup!
+  end
+
+  it "test mysql max query time", :mysql => true do
+    app = create_push_app("service_quota_app")
+    bind_service(MYSQL_MANIFEST, app)
+
+    max_long_query = SERVICE_QUOTA['mysql']['max_long_query']
+    content = app.get_response(:post, "/service/mysql/querytime/#{max_long_query-1}")
+    content.body_str.should == "OK"
+
+    content = app.get_response(:post, "/service/mysql/querytime/#{max_long_query+2}")
+    content.body_str.should == "query interrupted"
+  end
+
+  it "test postgresql max query time", :postgresql => true do
+    app = create_push_app("service_quota_app")
+    bind_service(POSTGRESQL_MANIFEST, app)
+
+    max_long_query = SERVICE_QUOTA['postgresql']['max_long_query']
+    content = app.get_response(:post, "/service/postgresql/querytime/#{max_long_query-1}")
+    content.body_str.should == "OK"
+
+    content = app.get_response(:post, "/service/postgresql/querytime/#{max_long_query+2}")
+    content.body_str.should == "query interrupted"
+  end
+
+  it "test mysql max transaction time", :mysql => true do
+    app = create_push_app("service_quota_app")
+    bind_service(MYSQL_MANIFEST, app)
+
+    max_long_tx = SERVICE_QUOTA['mysql']['max_long_tx']
+    content = app.get_response(:post, "/service/mysql/txtime/#{max_long_tx-1}")
+    content.body_str.should == "OK"
+
+    content = app.get_response(:post, "/service/mysql/txtime/#{max_long_tx+3}")
+    content.body_str.should == "transaction interrupted"
+  end
+
+  it "test postgresql max transaction time", :postgresql => true do
+    app = create_push_app("service_quota_app")
+    bind_service(POSTGRESQL_MANIFEST, app)
+
+    max_long_tx = SERVICE_QUOTA['postgresql']['max_long_tx']
+    content = app.get_response(:post, "/service/postgresql/txtime/#{max_long_tx-1}")
+    content.body_str.should == "OK"
+
+    content = app.get_response(:post, "/service/postgresql/txtime/#{max_long_tx+5}")
+    content.body_str.should == "transaction interrupted"
+  end
+
+
+  it "test mongodb quotafiles", :mongodb => true do
+    app = create_push_app("service_quota_app")
+    bind_service(MONGODB_MANIFEST, app)
+
+    quota_files = SERVICE_QUOTA['mongodb']['quota_files']
+    quota_size = 2**(quota_files+3)
+
+    content = app.get_response(:post, "/service/mongodb/collection?colname=testcol&size=#{quota_size}")
+    result = app.get_response(:get, '/service/mongodb/db/storagesize')
+    result.response_code.should == 200
+
+    storage_size = result.body_str.to_i/1024/1024
+
+    diff = storage_size - quota_size
+    if diff > 0
+      content = app.get_response(:post, "/service/mongodb/collection?colname=testcol&size=#{diff}")
+    end
+
+    response = app.get_response(:get, '/service/mongodb/collection?colname=testcol&index=1')
+    response.response_code.should == 200
+    response.body_str.should == "OK"
+
+    no_result = storage_size+10
+    response = app.get_response(:get, "/service/mongodb/collection?colname=testcol&index=#{no_result}")
+    response.response_code.should == 200
+    response.body_str.should == "index not found"
+
+    content = app.get_response(:post, "/service/mongodb/collection?colname=testcol&size=10")
+    content.body_str.should == "db disk space quota exceeded db"
+
+    content = app.get_response(:delete, "/service/mongodb/collection?colname=testcol&size=20")
+    content.body_str.should == "DELETE OK"
+
+    response = app.get_response(:get, '/service/mongodb/collection?colname=testcol&index=1')
+    response.body_str.should == "index not found"
+
+    content = app.get_response(:post, "/service/mongodb/collection?colname=testcol&size=10")
+    content.body_str.should == ""
   end
 
   it "deploy service quota application with postgresql service", :postgresql => true,
