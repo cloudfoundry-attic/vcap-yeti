@@ -90,8 +90,8 @@ module BVT::Harness
       services
     end
 
-    def app(name)
-      BVT::Harness::App.new(@client.app("#{@namespace}#{name}"), self)
+    def app(name, prefix = '')
+      BVT::Harness::App.new(@client.app("#{prefix}#{@namespace}#{name}"), self)
     end
 
     def apps
