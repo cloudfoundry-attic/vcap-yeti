@@ -43,7 +43,7 @@ module BVT::Harness
         @log.error("Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}")
         raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}"
       end
-      services.each { |service| bind(service.name, false)} if services
+      services.each { |service| bind(service, false)} if services
       start(need_check)
     end
 
@@ -62,9 +62,9 @@ module BVT::Harness
       begin
         @app.update!(what)
         restart
-      rescue
-        @log.error "Update App: #{@app.name} failed. "
-        raise RuntimeError, "Update App: #{@app.name} failed."
+      rescue Exception => e
+        @log.error "Update App: #{@app.name} failed.\n#{e.to_s}"
+        raise RuntimeError, "Update App: #{@app.name} failed.\n#{e.to_s}"
       end
     end
 
@@ -108,39 +108,39 @@ module BVT::Harness
       end
     end
 
-    def bind(service_name, restart_app = true)
-      unless @session.services.collect(&:name).include?(service_name)
-        @log.error("Fail to find service: #{service_name}")
-        raise RuntimeError, "Fail to find service: #{service_name}"
+    def bind(service, restart_app = true)
+      unless @session.services.collect(&:name).include?(service.name)
+        @log.error("Fail to find service: #{service.name}")
+        raise RuntimeError, "Fail to find service: #{service.name}"
       end
       begin
-        @log.info("Application: #{@app.name} bind Service: #{service_name}")
-        @app.bind(service_name)
+        @log.info("Application: #{@app.name} bind Service: #{service.name}")
+        @app.bind(service.instance)
       rescue Exception => e
-        @log.error("Fail to bind Service: #{service_name} to Application:" +
+        @log.error("Fail to bind Service: #{service.name} to Application:" +
                        " #{@app.name}\n#{e.to_s}")
-        raise RuntimeError, "Fail to bind Service: #{service_name} to " +
+        raise RuntimeError, "Fail to bind Service: #{service.name} to " +
             "Application: #{@app.name}\n#{e.to_s}"
       end
       restart if restart_app
     end
 
-    def unbind(service_name, restart_app = true)
-      unless @app.services.include?(service_name)
-        @log.error("Fail to find service: #{service_name} binding to " +
+    def unbind(service, restart_app = true)
+      unless @app.services.collect(&:name).include?(service.name)
+        @log.error("Fail to find service: #{service.name} binding to " +
                        "application: #{@app.name}")
-        raise RuntimeError, "Fail to find service: #{service_name} binding to " +
+        raise RuntimeError, "Fail to find service: #{service.name} binding to " +
             "application: #{@app.name}"
       end
 
       begin
-        @log.info("Application: #{@app.name} unbind Service: #{service_name}")
-        @app.unbind(service_name)
+        @log.info("Application: #{@app.name} unbind Service: #{service.name}")
+        @app.unbind(service.instance)
         restart if restart_app
       rescue
-        @log.error("Fail to unbind service: #{service_name} for " +
+        @log.error("Fail to unbind service: #{service.name} for " +
                        "application: #{@app.name}")
-        raise RuntimeError, "Fail to unbind service: #{service_name} for " +
+        raise RuntimeError, "Fail to unbind service: #{service.name} for " +
             "application: #{@app.name}"
       end
     end

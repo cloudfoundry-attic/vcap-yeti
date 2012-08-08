@@ -67,7 +67,7 @@ describe BVT::Spec::AutoStaging::Ruby19Rails3 do
 
     service_manifests.each {|manifest| verify_service_autostaging(manifest, app)}
     services = @session.services
-    services.each {|service| app.unbind(service.name) if service.name =~ /t.*-mysql$/}
+    services.each {|service| app.unbind(service) if service.name =~ /t.*-mysql$/ }
 
     service_manifests = [RABBITMQ_MANIFEST, POSTGRESQL_MANIFEST]
     service_manifests.each do |service_manifest|

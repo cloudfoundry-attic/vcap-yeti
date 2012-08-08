@@ -62,7 +62,7 @@ describe BVT::Spec::AutoStaging::JavaGrails do
     app.delete
 
     app2 = create_push_app("grails_app")
-    app2.bind(service.name)
+    app2.bind(service)
 
     verify_records(app2, records, 3, "/guest/list", "//tbody/tr")
   end

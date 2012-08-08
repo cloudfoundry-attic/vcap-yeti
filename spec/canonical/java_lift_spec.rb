@@ -69,7 +69,7 @@ describe BVT::Spec::Canonical::JavaLift do
     app.delete
 
     app2 = create_push_app("lift-db-app")
-    app2.bind(service.name)
+    app2.bind(service)
 
     uri = app2.manifest['uris'][0] + "/api/guests"
     response = RestClient.get uri, :accept => 'text/xml'

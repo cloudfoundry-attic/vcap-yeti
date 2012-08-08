@@ -69,7 +69,7 @@ describe BVT::Spec::AppPerformance::Ruby19Sinatra do
     reset_counter(app)
 
     manifest = {}
-    manifest['instances'] = 5
+    manifest[:total_instances] = 5
     app.update!(manifest)
     app.instances.length.should == 5
 
@@ -109,8 +109,7 @@ describe BVT::Spec::AppPerformance::Ruby19Sinatra do
 
         # then record for testing against the environment variables
         manifest['name'] = myname
-        service = create_service(manifest, myname)
-        app.bind(service.name)
+        bind_service(manifest, app, myname)
         should_be_there << manifest
       end
     end
