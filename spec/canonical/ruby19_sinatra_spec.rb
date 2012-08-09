@@ -19,14 +19,13 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
   end
 
   it "sinatra test setting RACK_ENV" do
-    pending "cf-release update"
     app = create_push_app("app_sinatra_service")
     add_env(app,'RACK_ENV','development')
     app.stop
     app.start
     app.get_response(:get,'/rack/env').body_str.should == "development"
 
-    logs = app.log
+    logs = app.logs
     logs.should include "development"
   end
 
@@ -75,10 +74,10 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     r2.close
   end
 
-  it "sinatra test vblob service", :vblob => true, :p1 => true do
-    vblob_service = create_service(VBLOB_MANIFEST)
-    app = create_push_app("vblob_app")
-    app.bind(vblob_service.name)
+  it "sinatra test blob service", :blob => true, :p1 => true do
+    blob_service = create_service(BLOB_MANIFEST)
+    app = create_push_app("blob_app")
+    app.bind(blob_service)
 
     r = app.get_response(:post, '/service/vblob/container1', 'dummy')
     r.response_code.should == 200

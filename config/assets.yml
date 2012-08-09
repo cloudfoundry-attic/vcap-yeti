@@ -419,7 +419,7 @@ rails_console_19_test_app:
   memory: 256
   path: "assets/rails3/hello_vcap"
 
-vblob_app:
+blob_app:
   framework: "sinatra"
   runtime: "ruby19"
   memory: 256

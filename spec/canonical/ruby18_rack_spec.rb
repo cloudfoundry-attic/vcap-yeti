@@ -22,7 +22,6 @@ describe BVT::Spec::Canonical::Ruby18Rack do
   end
 
   it "rack test setting RACK_ENV" do
-    pending "cf-release update"
     add_env(@app,'RACK_ENV','development')
     @app.stop
     @app.start

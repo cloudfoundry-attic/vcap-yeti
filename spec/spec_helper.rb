@@ -117,7 +117,7 @@ module BVT
     RABBITMQ_MANIFEST   = {"vendor"=>"rabbitmq", "version"=>"2.4"}
     POSTGRESQL_MANIFEST = {"vendor"=>"postgresql", "version"=>"9.0"}
     NEO4J_MANIFEST      = {"vendor"=>"neo4j", "version"=>"1.4"}
-    VBLOB_MANIFEST      = {"vendor"=>"vblob", "version"=>"1.0"}
+    BLOB_MANIFEST       = {"vendor"=>"blob", "version"=>"0.51"}
     MEMCACHED_MANIFEST  = {"vendor"=>"memcached","version"=>"1.4"}
     COUCHDB_MANIFEST    = {"vendor"=>"couchdb","version"=>"1.2"}
     ELASTICSSEARCH_MANIFEST   = {"vendor"=>"elasticsearch","version"=>"0.19"}
@@ -128,7 +128,7 @@ module BVT
                                "rabbitmq"   => "rabbitmq",
                                "postgresql" => "postgresql",
                                "neo4j"      => "neo4j",
-                               "vblob"      => "vblob"]
+                               "blob"       => "blob"]
 
     SERVICE_URL_MAPPING_UNSUPPORTED_VERSION = Hash["mysql"      => "mysql",
                                                    "redis"      => "redis",

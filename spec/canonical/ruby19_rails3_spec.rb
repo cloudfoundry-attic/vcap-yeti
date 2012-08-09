@@ -22,13 +22,12 @@ describe BVT::Spec::Canonical::Ruby19Rails3 do
   end
 
   it "rails test setting RAILS_ENV" do
-    pending "cf-release update"
     @app.stop
     add_env(@app,'RAILS_ENV','development')
     @app.start
 
     @app.get_response(:get).body_str.should == "hello from rails"
-    logs = @app.log
+    logs = @app.logs
     logs.should include "starting in development"
   end
 
