@@ -10,8 +10,11 @@ describe BVT::Spec::AppQuota::Ruby19Sinatra do
   VCAP_APP_QUOTA_TOLERANCE = 0.05
 
   # 2GB
-  VCAP_MEMORY_LIMIT = 2 * 1024
-  VCAP_INSTANCE_HARDDISK_LIMIT = 2 * 1024
+  VCAP_MEMORY_LIMIT             = 2 * 1024
+  VCAP_INSTANCE_HARDDISK_LIMIT  = 2 * 1024
+
+  VCAP_FILE_DESCRIPTOR_LIMIT    = 256
+  VCAP_PROCESSES_LIMIT          = 512
 
   before(:each) do
     @session = BVT::Harness::CFSession.new
@@ -127,4 +130,27 @@ describe BVT::Spec::AppQuota::Ruby19Sinatra do
     diff.should equal(1), "There are more than one instance crashed at the moment"
   end
 
+  it "file descriptor limit for 1 application with 1 instance" do
+    app = create_push_app("app_quota_app")
+    app.crashes.should be_empty, "There is application #{app.name} crashes" +
+        " information at beginning."
+
+    response = app.get_response(:get, "/allocate/fds?n=#{(VCAP_FILE_DESCRIPTOR_LIMIT + 1)}")
+    response.response_code.should == OK
+    app.crashes.should be_empty, "There is application #{app.name} crashes" +
+        " information after allocating too many file descriptors."
+    app.logs.should match(/Too many open files/)
+  end
+
+  it "file descriptor limit for 1 application with 1 instance" do
+    app = create_push_app("app_quota_app")
+    app.crashes.should be_empty, "There is application #{app.name} crashes" +
+        " information at beginning."
+
+    response = app.get_response(:get, "/allocate/process?n=#{(VCAP_PROCESSES_LIMIT + 1)}")
+    response.response_code.should == OK
+    app.crashes.should be_empty, "There is application #{app.name} crashes" +
+        " information after allocating too many threads"
+    app.logs.should match(/can't create Thread/)
+  end
 end
