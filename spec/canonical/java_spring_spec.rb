@@ -72,9 +72,7 @@ describe BVT::Spec::Canonical::JavaSpring do
                                           ".provider.url").body_str
     provider_url.should == @session.TARGET.gsub('http://api.', '')
 
-    service_manifest = REDIS_MANIFEST
-    redis_service = bind_service(service_manifest, app)
-
+    redis_service = bind_service(REDIS_MANIFEST, app)
     type = app.get_response(:get, "/properties/sources/property/cloud."+
                                   "services.#{redis_service.name}.type").body_str
     type.should satisfy {|arg| arg.start_with? 'redis'}

@@ -34,7 +34,7 @@ describe BVT::Spec::AutoStaging::Ruby18Standalone do
     service_manifest = REDIS_MANIFEST
     bind_service(service_manifest, app)
     data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
-    res = app.get_response(:get, "/service/#{service_manifest['vendor']}/connection")
+    res = app.get_response(:get, "/service/#{service_manifest[:vendor]}/connection")
     res.body_str.should == data
   end
 
@@ -46,7 +46,7 @@ describe BVT::Spec::AutoStaging::Ruby18Standalone do
     service_manifest = REDIS_MANIFEST
     bind_service(service_manifest, app)
     data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
-    res = app.get_response(:get, "/service/#{service_manifest['vendor']}/connection")
+    res = app.get_response(:get, "/service/#{service_manifest[:vendor]}/connection")
     res.body_str.should == data
   end
 

@@ -38,7 +38,7 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
     service_manifest = REDIS_MANIFEST
     bind_service(service_manifest, app)
     data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
-    url = "/service/#{service_manifest['vendor']}/connection"
+    url = "/service/#{service_manifest[:vendor]}/connection"
     app.get_response(:get, url).body_str.should == data
   end
 
@@ -50,7 +50,7 @@ describe BVT::Spec::AutoStaging::Ruby18Rack do
     service_manifest = REDIS_MANIFEST
     bind_service(service_manifest, app)
     data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
-    url = "/service/#{service_manifest['vendor']}/connection"
+    url = "/service/#{service_manifest[:vendor]}/connection"
     app.get_response(:get, url).body_str.should == data
   end
 end

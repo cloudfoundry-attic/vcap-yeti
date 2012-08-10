@@ -111,17 +111,6 @@ module BVT
       end
     end
 
-    MYSQL_MANIFEST      = {"vendor"=>"mysql", "version"=>"5.1"}
-    REDIS_MANIFEST      = {"vendor"=>"redis", "version"=>"2.2"}
-    MONGODB_MANIFEST    = {"vendor"=>"mongodb", "version"=>"1.8"}
-    RABBITMQ_MANIFEST   = {"vendor"=>"rabbitmq", "version"=>"2.4"}
-    POSTGRESQL_MANIFEST = {"vendor"=>"postgresql", "version"=>"9.0"}
-    NEO4J_MANIFEST      = {"vendor"=>"neo4j", "version"=>"1.4"}
-    BLOB_MANIFEST       = {"vendor"=>"blob", "version"=>"0.51"}
-    MEMCACHED_MANIFEST  = {"vendor"=>"memcached","version"=>"1.4"}
-    COUCHDB_MANIFEST    = {"vendor"=>"couchdb","version"=>"1.2"}
-    ELASTICSSEARCH_MANIFEST   = {"vendor"=>"elasticsearch","version"=>"0.19"}
-
     SERVICE_URL_MAPPING = Hash["mysql"      => "mysql",
                                "redis"      => "redis",
                                "mongodb"    => "mongo",

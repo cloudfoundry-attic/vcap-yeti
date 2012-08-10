@@ -94,25 +94,17 @@ describe BVT::Spec::AppPerformance::Ruby19Sinatra do
 
   it "deploy env_test app" do
     app = create_push_app("env_test_app")
-
     should_be_there = []
-    ["aurora", "redis"].each do |v|
-      if BVT::Harness::VCAP_BVT_SYSTEM_SERVICES.has_key?(v)
-        # create named service
-        myname = "#{v}my-#{v}"
-        if v == 'aurora'
-          manifest = {"vendor"=>"aurora"}
-        end
-        if v == 'redis'
-          manifest = REDIS_MANIFEST
-        end
 
-        # then record for testing against the environment variables
-        manifest['name'] = myname
-        bind_service(manifest, app, myname)
-        should_be_there << manifest
-      end
-    end
+    v = "redis"
+    myname = "#{v}my-#{v}"
+    manifest = REDIS_MANIFEST
+
+    # then record for testing against the environment variables
+    manifest[:name] = myname
+    service = create_service(manifest, myname)
+    app.bind(service)
+    should_be_there << manifest
 
     services = app.services
     services.should_not == nil
@@ -128,7 +120,7 @@ describe BVT::Spec::AppPerformance::Ruby19Sinatra do
     found = 0
     service_list['services'].each do |s|
       should_be_there.each do |v|
-        if v[:name] == s[:name] && v[:vendor] == s[:vendor]
+        if v[:name] == s['name'] && v[:vendor] == s['vendor']
           found += 1
           break
         end

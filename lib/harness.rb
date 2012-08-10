@@ -46,3 +46,7 @@ require "harness/user"
 require "harness/http_response_code"
 require "harness/scripts_helper"
 require "harness/parallel_helper"
+require "harness/service_versions_helper"
+
+## in order to support service versions, require this monkey patch
+require "harness/cfoundry_monkey_patch"

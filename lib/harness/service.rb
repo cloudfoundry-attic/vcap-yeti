@@ -15,13 +15,13 @@ module BVT::Harness
       "#<BVT::Harness::Service '#@name'>"
     end
     # service manifest example
-    #{"vendor"=>"mysql", "version"=>"5.1"}
+    #{:vendor=>"mysql", :version=>"5.1"}
     def create(service_manifest)
       unless has_vendor?(service_manifest)
-        @log.error("Service: #{service_manifest['vendor']} #{service_manifest['version']} " +
+        @log.error("Service: #{service_manifest[:vendor]} #{service_manifest[:version]} " +
                        "is not available on target: #{@session.TARGET}")
-        raise RuntimeError, "Service: #{service_manifest['vendor']}" +
-            " #{service_manifest['version']} is not available on target: #{@session.TARGET}"
+        raise RuntimeError, "Service: #{service_manifest[:vendor]}" +
+            " #{service_manifest[:version]} is not available on target: #{@session.TARGET}"
       end
 
       @log.info("Create Service (#{@instance.vendor} #{@instance.version}): #{@instance.name}")
@@ -54,10 +54,10 @@ module BVT::Harness
       match = false
 
       VCAP_BVT_SYSTEM_SERVICES.each do |vendor, meta|
-        next unless vendor =~ /#{service_manifest['vendor']}/
+        next unless vendor =~ /#{service_manifest[:vendor]}/
 
         version = meta[:versions].find { |v|
-          v =~ /#{service_manifest['version']}/
+          v =~ /#{service_manifest[:version]}/
         }
         next unless version
 

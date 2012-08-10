@@ -121,13 +121,13 @@ module BVT::Spec
   end
 
   def post_and_verify_service(service_manifest, app, key, data)
-      url = SERVICE_URL_MAPPING[service_manifest['vendor']]
+      url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
       app.get_response(:post, "/service/#{url}/#{key}", data)
       app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
   end
 
   def verify_service(service_manifest, app, key, data)
-      url = SERVICE_URL_MAPPING[service_manifest['vendor']]
+      url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
       app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
   end
 
