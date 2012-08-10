@@ -9,7 +9,6 @@ properties:
           max_db_size: 128
           max_long_query: 3
           max_long_tx: 10
-          kill_long_tx: true
           max_clients: 20
           lifecycle:
             enable: true
@@ -24,7 +23,6 @@ properties:
           max_db_size: 128
           max_long_query: 3
           max_long_tx: 10
-          kill_long_tx: true
           max_clients: 20
           lifecycle:
             enable: true
