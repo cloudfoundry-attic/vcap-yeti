@@ -4,65 +4,33 @@ properties:
     mysql:
       free:
         configuration:
-          allow_over_provisioning: true
-          capacity: 200
           max_db_size: 128
           max_long_query: 3
-          max_long_tx: 10
+          max_long_tx: 30
           max_clients: 20
-          lifecycle:
-            enable: true
-            worker_count: 2
-            snapshot:
-              quota: 5
-            serialization: enable
     postgresql:
       free:
         configuration:
-          capacity: 200
           max_db_size: 128
           max_long_query: 3
-          max_long_tx: 10
+          max_long_tx: 30
           max_clients: 20
-          lifecycle:
-            enable: true
-            worker_count: 2
-            snapshot:
-              quota: 5
-            serialization: enable
     mongodb:
       free:
         configuration:
-          allow_over_provisioning: true
-          capacity: 200
           quota_files: 4
           max_clients: 500
-          lifecycle:
-            enable: true
-            worker_count: 2
-            snapshot:
-              quota: 5
-            serialization: enable
     redis:
       free:
         configuration:
-          capacity: 200
           max_memory: 16
           max_swap: 32
           max_clients: 500
-          lifecycle:
-            enable: true
-            worker_count: 2
-            snapshot:
-              quota: 5
-            serialization: enable
     rabbit:
       free:
         configuration:
           max_memory_factor: 0.5
           max_clients: 512
-          capacity: 200
     vblob:
       free:
         configuration:
-          capacity: 200

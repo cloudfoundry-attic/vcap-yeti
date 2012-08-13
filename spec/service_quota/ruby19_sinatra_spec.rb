@@ -369,7 +369,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
       for i in 1..app_number
         app = @session.app("service_quota_app", i.to_s)
         app.push
-        app.bind(service.name)
+        app.bind(service)
         app_list << app
       end
 
@@ -393,10 +393,10 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
         end
       }
       expect_error.should be_true, "no expected error displayed"
-      success_number.should be_within(2).of(max_clients)
+      success_number.should be_within(5).of(max_clients)
     else
       app = create_push_app("service_quota_app")
-      app.bind(service.name)
+      app.bind(service)
 
       r = app.get_response(:post, "/service/#{service_url}/clients/#{max_clients-1}", "")
       r.response_code.should == 200
