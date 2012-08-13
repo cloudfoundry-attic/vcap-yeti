@@ -2,13 +2,13 @@ require "cfoundry"
 
 module BVT::Harness
   class Service
-    attr_reader :name
+    attr_reader :name, :instance
 
     def initialize(service, session)
-      @service = service
+      @instance = service
       @session = session
       @log = @session.log
-      @name = @service.name
+      @name = @instance.name
     end
 
     def inspect
@@ -24,28 +24,28 @@ module BVT::Harness
             " #{service_manifest['version']} is not available on target: #{@session.TARGET}"
       end
 
-      @log.info("Create Service (#{@service.vendor} #{@service.version}): #{@service.name}")
+      @log.info("Create Service (#{@instance.vendor} #{@instance.version}): #{@instance.name}")
       begin
-        @service.create!
+        @instance.create!
       rescue Exception => e
-        @log.error("Fail to create service (#{@service.vendor} " +
-                       "#{@service.version}): #{@service.name}\n#{e.to_s}")
-        raise RuntimeError, "Fail to create service (#{@service.vendor} " +
-            "#{@service.version}): #{@service.name}\n#{e.to_s}"
+        @log.error("Fail to create service (#{@instance.vendor} " +
+                       "#{@instance.version}): #{@instance.name}\n#{e.to_s}")
+        raise RuntimeError, "Fail to create service (#{@instance.vendor} " +
+            "#{@instance.version}): #{@instance.name}\n#{e.to_s}"
       end
     end
 
     def delete
-      if @service.exists?
-        @log.info("Delete Service (#{@service.vendor} " +
-                      "#{@service.version}): #{@service.name}")
+      if @instance.exists?
+        @log.info("Delete Service (#{@instance.vendor} " +
+                      "#{@instance.version}): #{@instance.name}")
         begin
-          @service.delete!
+          @instance.delete!
         rescue Exception => e
-          @log.error("Fail to delete service (#{@service.vendor} " +
-                         "#{@service.version}): #{@service.name}")
-          raise RuntimeError, "Fail to delete service (#{@service.vendor} " +
-              "#{@service.version}): #{@service.name}\n#{e.to_s}"
+          @log.error("Fail to delete service (#{@instance.vendor} " +
+                         "#{@instance.version}): #{@instance.name}")
+          raise RuntimeError, "Fail to delete service (#{@instance.vendor} " +
+              "#{@instance.version}): #{@instance.name}\n#{e.to_s}"
         end
       end
     end
@@ -61,11 +61,11 @@ module BVT::Harness
         }
         next unless version
 
-        @service.type = meta[:type]
-        @service.vendor = vendor
-        @service.version = version
+        @instance.type = meta[:type]
+        @instance.vendor = vendor
+        @instance.version = version
         # TODO: only free service plan is supported
-        @service.tier = "free"
+        @instance.tier = "free"
 
         match = true
         break

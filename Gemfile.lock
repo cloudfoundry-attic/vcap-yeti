@@ -16,7 +16,7 @@ GEM
       em-http-request (~> 0.3.0)
       em-websocket (~> 0.3.1)
       uuidtools (~> 2.1.2)
-    cfoundry (0.3.8)
+    cfoundry (0.3.19)
       json_pure (~> 1.6.5)
       rest-client (~> 1.6.1)
       rubyzip (~> 0.9.5)
@@ -102,7 +102,7 @@ PLATFORMS
 DEPENDENCIES
   bson_ext
   caldecott
-  cfoundry (~> 0.3.8)
+  cfoundry (~> 0.3.19)
   ci_reporter
   cli
   curb

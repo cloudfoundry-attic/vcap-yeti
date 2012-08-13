@@ -167,7 +167,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     app.delete
 
     app2 = create_push_app("jpa_app")
-    app2.bind(service.name)
+    app2.bind(service)
 
     verify_records(app2, records, 3)
   end
@@ -183,7 +183,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     app.delete
 
     app2 = create_push_app("hibernate_app")
-    app2.bind(service.name)
+    app2.bind(service)
 
     verify_records(app2, records, 3)
   end
@@ -201,7 +201,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     app.delete
 
     app2 = create_push_app("roo_app")
-    app2.bind(service.name)
+    app2.bind(service)
 
     # The Roo page returns an extra row for the footer in the table
     # hence the "+ 1"
@@ -220,7 +220,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
     app.delete
 
     app2 = create_push_app("hibernate_app")
-    app2.bind(service.name)
+    app2.bind(service)
 
     verify_records(app2, records, 3)
   end

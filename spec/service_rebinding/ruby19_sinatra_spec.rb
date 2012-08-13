@@ -77,8 +77,8 @@ describe BVT::Spec::ServiceRebinding::Ruby19Sinatra do
 
     create_db_obj(service_manifest, app)
 
-    app.unbind(service.name, false)
-    app.bind(service.name)
+    app.unbind(service, false)
+    app.bind(service)
 
     # Get data
     get_data(key, data, service_manifest, app)
@@ -99,7 +99,7 @@ describe BVT::Spec::ServiceRebinding::Ruby19Sinatra do
 
     create_db_obj(service_manifest, app1)
 
-    app2.bind(service.name)
+    app2.bind(service)
     # Get data
     get_data(key, data, service_manifest, app2)
     drop_db_obj(service_manifest, app2)

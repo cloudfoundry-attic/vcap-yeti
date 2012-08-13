@@ -19,7 +19,7 @@ module BVT::Harness
 
     def bind_service(service_manifest, app, name=nil)
       service = create_service(service_manifest, name)
-      app.bind(service.name)
+      app.bind(service)
       service
     end
 
