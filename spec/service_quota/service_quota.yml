@@ -1,0 +1,36 @@
+---
+properties:
+  service_plans:
+    mysql:
+      free:
+        configuration:
+          max_db_size: 128
+          max_long_query: 3
+          max_long_tx: 30
+          max_clients: 20
+    postgresql:
+      free:
+        configuration:
+          max_db_size: 128
+          max_long_query: 3
+          max_long_tx: 30
+          max_clients: 20
+    mongodb:
+      free:
+        configuration:
+          quota_files: 4
+          max_clients: 500
+    redis:
+      free:
+        configuration:
+          max_memory: 16
+          max_clients: 500
+    rabbit:
+      free:
+        configuration:
+          max_clients: 512
+    vblob:
+      free:
+        configuration:
+          max_db_size: 2048
+          max_obj_limit: 32768

@@ -9,7 +9,7 @@ module BVT::Spec
   REDIS_MANIFEST      = ENV['VCAP_BVT_REDIS_MANIFEST'] ? eval(ENV['VCAP_BVT_REDIS_MANIFEST']) :
                                                         {:vendor => "redis", :version=>"2.2"}
   MONGODB_MANIFEST    = ENV['VCAP_BVT_MONGODB_MANIFEST'] ? eval(ENV['VCAP_BVT_MONGODB_MANIFEST']) :
-                                                        {:vendor => "mongodb", :version=>"1.8"}
+                                                        {:vendor => "mongodb", :version=>"2.0"}
   RABBITMQ_MANIFEST   = ENV['VCAP_BVT_RABBITMQ_MANIFEST'] ? eval(ENV['VCAP_BVT_RABBITMQ_MANIFEST']) :
                                                         {:vendor => "rabbitmq", :version=>"2.4"}
   POSTGRESQL_MANIFEST = ENV['VCAP_BVT_POSTGRESQL_MANIFEST'] ? eval(ENV['VCAP_BVT_POSTGRESQL_MANIFEST']) :
