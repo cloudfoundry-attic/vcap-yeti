@@ -51,7 +51,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     content = app.get_response(:post, "/service/mysql/txtime/#{max_long_tx-1}")
     content.body_str.should == "OK"
 
-    content = app.get_response(:post, "/service/mysql/txtime/#{max_long_tx+5}")
+    content = app.get_response(:post, "/service/mysql/txtime/#{max_long_tx*1.5}")
     content.body_str.should == "transaction interrupted"
   end
 
@@ -65,13 +65,16 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     content = app.get_response(:post, "/service/postgresql/txtime/#{max_long_tx-1}")
     content.body_str.should == "OK"
 
-    content = app.get_response(:post, "/service/postgresql/txtime/#{max_long_tx+5}")
+    content = app.get_response(:post, "/service/postgresql/txtime/#{max_long_tx*1.5}")
     content.body_str.should == "transaction interrupted"
   end
 
   def is_kill_long_tx?(service_name)
     kill_long_tx = SERVICE_QUOTA[service_name]['kill_long_tx']
-    pending "it will not kill long transactions" unless kill_long_tx == true
+    if service_name == "mysql"
+      pending "it will not kill long transactions" unless kill_long_tx == true
+    end
+    pending "max_long_tx not enabled" if SERVICE_QUOTA[service_name]['max_long_tx'] == 0
   end
 
 
