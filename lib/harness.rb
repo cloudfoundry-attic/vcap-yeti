@@ -10,18 +10,10 @@ module BVT
     end
 
     VCAP_BVT_CONFIG_FILE  = ENV['VCAP_BVT_CONFIG_FILE'] || File.join(VCAP_BVT_HOME, "config.yml")
-    VCAP_BVT_PROFILE_FILE = File.join(VCAP_BVT_HOME, "profile.yml")
     VCAP_BVT_ERROR_LOG    = File.join(VCAP_BVT_HOME, "error.log")
 
     VCAP_BVT_APP_CONFIG   = File.join(File.dirname(__FILE__), "../config/assets.yml")
     VCAP_BVT_APP_ASSETS   = YAML.load_file(VCAP_BVT_APP_CONFIG)
-
-    # setup logger
-    VCAP_BVT_LOG_FILE     = File.join(VCAP_BVT_HOME, "bvt.log")
-    LOGGER_LEVEL          = :debug
-    config = {:level => LOGGER_LEVEL, :file => VCAP_BVT_LOG_FILE}
-    Dir.mkdir(VCAP_BVT_HOME) unless Dir.exist?(VCAP_BVT_HOME)
-    VCAP::Logging.setup_from_config(config)
 
     # Assets Data Store Config
     VCAP_BVT_ASSETS_DATASTORE_CONFIG  =  File.join(VCAP_BVT_HOME, "datastore.yml")
@@ -34,8 +26,14 @@ module BVT
     ## parallel
     VCAP_BVT_PARALLEL_MAX_USERS  = 16
     VCAP_BVT_PARALLEL_SYNC_FILE  = File.join(VCAP_BVT_HOME, "sync.yml")
+
+    ## multi-target config in memory
+    $target_config = {}
   end
 end
+
+require "harness/logger_helper"
+BVT::Harness::LoggerHelper::set_logger(ENV['VCAP_BVT_TARGET'])
 
 require "harness/color_helper"
 require "harness/rake_helper"

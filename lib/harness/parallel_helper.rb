@@ -27,7 +27,7 @@ module BVT::Harness
               "for parallel running"
         end
 
-        passwd = user_info['user']['passwd']
+        passwd = 'aZ_x13YcIa4nhl' # parallel user secret
         (1..VCAP_BVT_PARALLEL_MAX_USERS).to_a.each do |index|
           email = "#{index}-#{user_info['user']['email']}"
           user  = session.user(email)
@@ -38,7 +38,12 @@ module BVT::Harness
           puts "create user: #{yellow(config['email'])}"
           user_info['parallel'] << config
         end
-        File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(user_info) }
+        multi_target_config = YAML.load_file(VCAP_BVT_CONFIG_FILE)
+        target = user_info['target']
+        user_info['admin'].delete('passwd')
+        multi_target_config[target]['admin']    = user_info['admin']
+        multi_target_config[target]['parallel'] = user_info['parallel']
+        File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(multi_target_config) }
       end
       user_info['parallel']
     end

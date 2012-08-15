@@ -152,10 +152,20 @@ module BVT::Harness
         @config['user']['email']  = ENV['YETI_PARALLEL_USER']
         @config['user']['passwd'] = ENV['YETI_PARALLEL_USER_PASSWD']
       end
+
       expected_admin ? @config["admin"]["email"] : @config["user"]["email"]
     end
 
     def get_login_passwd(expected_admin = false)
+      ## since no password save, once Yeti user want to run single case
+      ## rake helper will launch prompter for password input
+      require "harness/rake_helper"
+      if expected_admin
+        @config["admin"]["passwd"] ||= BVT::Harness::RakeHelper.get_admin_user_passwd
+      else
+        @config["user"]["passwd"] ||= BVT::Harness::RakeHelper.get_user_passwd
+      end
+
       expected_admin ? @config["admin"]["passwd"] : @config["user"]["passwd"]
     end
 

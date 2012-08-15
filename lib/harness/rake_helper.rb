@@ -32,15 +32,17 @@ module BVT::Harness
 
     def check_environment
       check_network_connection
-      client = BVT::Harness::CFSession.new(:email => @config['user']['email'],
-                                           :passwd => @config['user']['passwd'],
-                                           :target => @config['target'])
+      client = BVT::Harness::CFSession.new(:email => $target_config['user']['email'],
+                                           :passwd => $target_config['user']['passwd'],
+                                           :target => $target_config['target'])
       profile = {}
       profile[:runtimes] = client.system_runtimes
       profile[:services] = client.system_services
       profile[:frameworks] = client.system_frameworks
       profile[:script_hash] = get_script_git_hash
-      File.open(VCAP_BVT_PROFILE_FILE, "w") { |f| f.write YAML.dump(profile) }
+      $vcap_bvt_profile_file ||= File.join(BVT::Harness::VCAP_BVT_HOME,
+                                           "profile.#{$target_config['target']}.yml")
+      File.open($vcap_bvt_profile_file, "w") { |f| f.write YAML.dump(profile) }
 
       # clear parallel env
       ENV.delete('YETI_PARALLEL_USER')
@@ -139,34 +141,53 @@ module BVT::Harness
 
     def get_config
       if File.exists?(VCAP_BVT_CONFIG_FILE)
-        @config = YAML.load_file(VCAP_BVT_CONFIG_FILE)
-        raise "Invalid config file format, #{VCAP_BVT_CONFIG_FILE}" unless @config.is_a?(Hash)
+        @multi_target_config = YAML.load_file(VCAP_BVT_CONFIG_FILE)
+        raise "Invalid config file format, #{VCAP_BVT_CONFIG_FILE}" unless @multi_target_config.is_a?(Hash)
       else
-        @config = {}
+        @multi_target_config = {}
       end
+
+      # since multi-target information is stored in one config file,
+      # so usually get_config method just initiate @config, and @multi_target_config
+      # however, once user set environment variable VCAP_BVT_TARGET,
+      # get_config method should return specific target information
+      if ENV['VCAP_BVT_TARGET'] &&
+          @multi_target_config.key?(format_target(ENV['VCAP_BVT_TARGET'])) &&
+          $target_config.empty?
+        $target_config = @multi_target_config[format_target(ENV['VCAP_BVT_TARGET'])]
+      end
+
+      @config = $target_config
       @config
     end
 
     def save_config(hash = nil)
       @config = hash || @config
-      File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(@config) }
+      $target_config = Marshal.load(Marshal.dump(@config))
+
+      ## remove password
+      @config['user'].delete('passwd') if @config['user']
+      @config['admin'].delete('passwd') if @config['admin']
+
+      File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(@multi_target_config) }
     end
 
-    private
-
     def get_target
+      return if !@config.nil? && @config['target']
+
       if ENV['VCAP_BVT_TARGET']
-        @config['target'] = format_target(ENV['VCAP_BVT_TARGET'])
-        puts "target read from ENV: \t\t#{yellow(@config['target'])}"
-      elsif @config['target'].nil?
-        input = ask_and_validate("VCAP Target",
-                                             '\A.*',
-                                             VCAP_BVT_DEFAULT_TARGET
-                                            )
-        @config['target'] = format_target(input)
+        target = format_target(ENV['VCAP_BVT_TARGET'])
+        puts "target read from ENV: \t\t#{yellow(target)}"
       else
-        puts "target read from #{VCAP_BVT_CONFIG_FILE}: \t\t#{yellow(@config['target'])}"
+        input = ask_and_validate("VCAP Target",
+                                 '\A.*',
+                                 VCAP_BVT_DEFAULT_TARGET)
+        target = format_target(input)
       end
+      @multi_target_config[target] = {} unless @multi_target_config.key?(target)
+      @config = @multi_target_config[target]
+      ENV['VCAP_BVT_TARGET'] = target
+      @config['target'] = target
     end
 
     def get_admin_user
@@ -189,12 +210,14 @@ module BVT::Harness
       if ENV['VCAP_BVT_ADMIN_USER_PASSWD']
         @config['admin']['passwd'] = ENV['VCAP_BVT_ADMIN_USER_PASSWD']
       elsif @config['admin']['passwd'].nil?
-        @config['admin']['passwd'] = ask_and_validate('Admin User Passwd',
+        @config['admin']['passwd'] = ask_and_validate("Admin User Passwd " +
+                                                          "(#{yellow(@config['admin']['email'])})",
                                                       '.*',
                                                       '*',
                                                       '*'
                                                      )
       end
+      @config['admin']['passwd']
     end
 
     def get_user
@@ -217,9 +240,16 @@ module BVT::Harness
       if ENV['VCAP_BVT_USER_PASSWD']
         @config['user']['passwd'] = ENV['VCAP_BVT_USER_PASSWD']
       elsif @config['user'].nil? || @config['user']['passwd'].nil?
-        @config['user']['passwd'] = ask_and_validate('User Passwd', '.*', '*', '*')
+        @config['user']['passwd'] = ask_and_validate("User Passwd " +
+                                                         "(#{yellow(@config['user']['email'])})",
+                                                     '.*',
+                                                     '*',
+                                                     '*')
       end
+      @config['user']['passwd']
     end
+
+    private
 
     def ask_and_validate(question, pattern, default = nil, echo = nil)
       res = ask(question, :default => default, :echo => echo)

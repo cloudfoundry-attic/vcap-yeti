@@ -146,9 +146,23 @@ def log_case_begin_end(flag)
 end
 
 RSpec.configure do |config|
+  include BVT::Harness::ColorHelpers
   config.before(:suite) do
+    unless ENV['VCAP_BVT_TARGET']
+      raise RuntimeError, "\nEnvironment variable #{yellow("VCAP_BVT_TARGET")} is not set.\n" +
+          "rspec process cannot know which target should be tested."
+    end
+
     BVT::Harness::VCAP_BVT_CONFIG = BVT::Harness::RakeHelper.get_config
-    profile = YAML.load_file(BVT::Harness::VCAP_BVT_PROFILE_FILE)
+    if BVT::Harness::VCAP_BVT_CONFIG.empty?
+      raise RuntimeError, "\nCannot find target #{yellow(ENV['VCAP_BVT_TARGET'])} information" +
+          " in config file #{BVT::Harness::VCAP_BVT_CONFIG_FILE}\n" +
+          "Please run #{yellow("bundle exec rake <TASK>")}, instead of rspec directly"
+    end
+
+    $vcap_bvt_profile_file ||= File.join(BVT::Harness::VCAP_BVT_HOME,
+                                         "profile.#{$target_config['target']}.yml")
+    profile = YAML.load_file($vcap_bvt_profile_file)
     BVT::Harness::VCAP_BVT_SYSTEM_FRAMEWORKS  =  profile[:frameworks]
     BVT::Harness::VCAP_BVT_SYSTEM_RUNTIMES    =  profile[:runtimes]
     BVT::Harness::VCAP_BVT_SYSTEM_SERVICES    =  profile[:services]
