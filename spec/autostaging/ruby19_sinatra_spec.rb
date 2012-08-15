@@ -13,14 +13,6 @@ describe BVT::Spec::AutoStaging::Ruby19Sinatra do
     @session.cleanup!
   end
 
-  def push_app_and_verify(app_name, relative_url, response_str)
-    app = create_app(app_name)
-    app.push
-    app.healthy?.should be_true, "Application #{app.name} is not running"
-    app.get_response(:get, relative_url).body_str.should =~ /#{response_str}/
-    app
-  end
-
   it "services autostaging", :mysql => true, :mongodb => true, :rabbitmq => true,
     :postgresql => true, :redis => true, :p1 => true do
     app = push_app_and_verify("app_sinatra_service_autoconfig",

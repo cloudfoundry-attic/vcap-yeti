@@ -18,6 +18,9 @@ module BVT
       class Ruby19Standalone; end
       class JavaSpring; end
       class JavaGrails; end
+      class Node04Node; end
+      class Node06Node; end
+      class Node08Node; end
     end
 
     module Canonical

@@ -67,6 +67,30 @@ broken_app:
   memory: 128
   path: "assets/sinatra/broken_app"
 
+git_gems_app_ruby18:
+  framework: "sinatra"
+  runtime: "ruby18"
+  memory: 256
+  path: "assets/sinatra/git_gems_app"
+
+git_gems_app_ruby19:
+  framework: "sinatra"
+  runtime: "ruby19"
+  memory: 256
+  path: "assets/sinatra/git_gems_app"
+
+sinatra_gem_groups:
+  framework: "sinatra"
+  runtime: "ruby18"
+  memory: 256
+  path: "assets/sinatra/gem_groups"
+
+sinatra_windows_gemfile:
+  framework: "sinatra"
+  runtime: "ruby18"
+  memory: 256
+  path: "assets/sinatra/windows_gemfile"
+
 broken_gem_app:
   framework: "sinatra"
   runtime: "ruby19"
@@ -316,6 +340,36 @@ app_node_version08:
   runtime: node08
   memory: 64
   path: "assets/node/app_node_version"
+
+node_autoconfig04:
+  framework: "node"
+  runtime: node
+  memory: 64
+  path: "assets/node/node_autoconfig"
+
+node_autoconfig06:
+  framework: "node"
+  runtime: node06
+  memory: 64
+  path: "assets/node/node_autoconfig"
+
+node_autoconfig08:
+  framework: "node"
+  runtime: node08
+  memory: 64
+  path: "assets/node/node_autoconfig"
+
+node_autoconfig_disabled_by_file:
+  framework: "node"
+  runtime: node
+  memory: 64
+  path:  "assets/node/node_autoconfig_disabled_by_file"
+
+node_autoconfig_disabled_by_module:
+  framework: "node"
+  runtime: node
+  memory: 64
+  path: "assets/node/node_autoconfig_disabled_by_module"
 
 app_spring_service:
   framework: "spring"
