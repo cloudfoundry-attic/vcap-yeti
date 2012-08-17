@@ -685,17 +685,29 @@ javaee-namespace-app:
   memory: 256
   path: ".assets-binaries/javaee-namespace-app.war"
 
-sinatra_rmagick:
+sinatra_imagemagick:
   framework: "sinatra"
   memory: 64
   runtime: ruby19
-  path: "assets/sinatra/sinatra_rmagick"
+  path: "assets/sinatra/sinatra_imagemagick"
 
 node_imagemagick:
   framework: "node"
   runtime: node
   memory: 64
   path: "assets/node/node_imagemagick"
+
+spring_imagemagick_java6:
+  framework: "spring"
+  memory: 256
+  runtime: "java"
+  path: ".assets-binaries/spring_imagemagick.war"
+
+spring_imagemagick_java7:
+  framework: "spring"
+  memory: 256
+  runtime: java7
+  path: ".assets-binaries/spring_imagemagick.war"
 
 couchdb_app:
   framework: "sinatra"

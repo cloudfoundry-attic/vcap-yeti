@@ -45,6 +45,7 @@ module BVT
     module ImageMagicKSupport
       class Ruby19Sinatra; end
       class NodeNode; end
+      class Java; end
     end
 
     module ServiceLifecycle
