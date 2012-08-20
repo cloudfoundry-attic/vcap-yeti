@@ -34,12 +34,7 @@ describe BVT::Spec::Simple::RailsConsole::Ruby19Rails3 do
     expected_results = ["irb():001:0> "]
     expected_results.should == @console_response
 
-    @console_response = @console_cmd.send_console_command("`rake routes`")
-    matched = false
-    @console_response.each do |response|
-      matched = true if response=~ /#{Regexp.escape(':action=>\"index\"')}/
-    end
-    matched.should == true
+    send_cmd_and_verify("`rake routes`", ':action=>\"index\"')
 
     @console_cmd.close_console if @console_cmd
   end
@@ -57,12 +52,61 @@ describe BVT::Spec::Simple::RailsConsole::Ruby19Rails3 do
     expected_results = ["irb():001:0> "]
     expected_results.should == @console_response
 
-    @console_response = @console_cmd.send_console_command("`ruby --version`")
-    matched = false
-    @console_response.each do |response|
-      matched = true if response=~ /#{Regexp.escape("ruby 1.9")}/
-    end
-    matched.should == true
+    send_cmd_and_verify("`ruby --version`", "ruby 1.9")
+
+    @console_cmd.close_console if @console_cmd
+  end
+
+  it "rails test console MySQL connection", :mysql=>true do
+    app = create_push_app("rails_console_19_test_app")
+    bind_service(MYSQL_MANIFEST, app)
+    manifest = {}
+    manifest["console"] = true
+    app.update!(manifest)
+
+    @console_cmd.restart(app.name)
+
+    run_console(app.name)
+
+    expected_results = ["irb():001:0> "]
+    expected_results.should == @console_response
+
+
+    send_cmd_and_verify("`ruby --version`", "ruby 1.9")
+
+    send_cmd_and_verify("User.all", "[]")
+
+    @console_cmd.send_console_command("user=User.new({:name=> 'Test', :email=>'test@test.com'})")
+
+    send_cmd_and_verify("user.save!", "true")
+
+    send_cmd_and_verify("User.all", "[#<User id: 1")
+    @console_cmd.close_console if @console_cmd
+  end
+
+  it "rails test console Postgres connection", :postgresql=>true do
+    app = create_push_app("rails_console_19_test_app")
+    bind_service(POSTGRESQL_MANIFEST, app)
+    manifest = {}
+    manifest["console"] = true
+    app.update!(manifest)
+
+    @console_cmd.restart(app.name)
+
+    run_console(app.name)
+
+    expected_results = ["irb():001:0> "]
+    expected_results.should == @console_response
+
+    send_cmd_and_verify("`ruby --version`", "ruby 1.9")
+
+    send_cmd_and_verify("User.all", "[]")
+
+    @console_cmd.send_console_command("user=User.new({:name=> 'Test', :email=>'test@test.com'})")
+
+    send_cmd_and_verify("user.save!", "true")
+
+    send_cmd_and_verify("User.all", "[#<User id: 1")
 
     @console_cmd.close_console if @console_cmd
   end

@@ -21,5 +21,15 @@ module BVT::Spec
       @console_response.should_not be_nil, "rails console connection " +
           "cannot be established in 3 times"
     end
+
+    def send_cmd_and_verify(cmd, expect)
+      @console_response = @console_cmd.send_console_command(cmd)
+      matched = false
+      @console_response.each do |response|
+        matched = true if response=~ /#{Regexp.escape(expect)}/
+      end
+      matched.should == true
+
+    end
   end
 end
