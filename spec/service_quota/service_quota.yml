@@ -1,4 +1,3 @@
----
 properties:
   service_plans:
     mysql:

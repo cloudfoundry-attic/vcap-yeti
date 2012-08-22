@@ -7,6 +7,7 @@ module BVT
       class AdminUser; end
       class NormalUser; end
       class UAA; end
+      class ACL; end
     end
 
     module AutoStaging

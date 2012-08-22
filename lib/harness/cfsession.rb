@@ -78,14 +78,24 @@ module BVT::Harness
     def system_services
       @log.debug "get system services, target: #{@TARGET}"
       services = {}
-      @client.services.each do |service|
+      @client.services.each do |service_info|
+        service = service_info[0]
         if services[service.label]
-          versions = services[service.label][:versions] || []
+          versions  = services[service.label][:versions] || []
+          plans     = services[service.label][:plans] || []
+          providers = services[service.label][:providers] || []
         else
-          versions = []
+          versions  = []
+          plans     = []
+          providers = []
         end
         versions << service.version.to_s unless versions.index(service.version.to_s)
-        services[service.label] = {:versions => versions}
+        service_info[1].each do |plan|
+          plans << plan unless plans.index(plan)
+        end
+        providers << service_info[2] unless providers.index(service_info[2])
+        services[service.label] = {:versions => versions, :plans => plans,
+          :providers => providers}
       end
       services
     end
@@ -151,6 +161,8 @@ module BVT::Harness
       if ENV['YETI_PARALLEL_USER']
         @config['user']['email']  = ENV['YETI_PARALLEL_USER']
         @config['user']['passwd'] = ENV['YETI_PARALLEL_USER_PASSWD']
+      elsif ENV['VCAP_BVT_USER']
+        @config['user']['email'] = ENV['VCAP_BVT_USER']
       end
 
       expected_admin ? @config["admin"]["email"] : @config["user"]["email"]
