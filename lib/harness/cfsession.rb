@@ -27,15 +27,15 @@ module BVT::Harness
     end
 
     def login
-      @log.debug("Login in, target: #{@TARGET}, email = #{@email}, pssswd = #{@passwd}")
+      @log.debug("Login in, target: #{@TARGET}, email = #{@email}")
       @client = CFoundry::Client.new(@TARGET)
       begin
         @token = @client.login({:username => @email, :password =>  @passwd})
       rescue Exception => e
         puts e.to_s
-        @log.error "Fail to login in, target: #{@TARGET}, user: #{@email}, passwd = #{@passwd}"
+        @log.error "Fail to login in, target: #{@TARGET}, user: #{@email}"
         raise "Cannot login target environment:\n" +
-              "target = '#{@TARGET}', user: '#{@email}', passwd: '#{@passwd}'.\n" +
+              "target = '#{@TARGET}', user: '#{@email}'.\n" +
               "Pleae check your ENV and #{VCAP_BVT_CONFIG_FILE}"
       end
       # TBD - ABS: This is a hack around the 1 sec granularity of our token time stamp
@@ -43,7 +43,7 @@ module BVT::Harness
     end
 
     def logout
-      @log.debug "logout, target: #{@TARGET}, email = #{@email}, pssswd = #{@passwd}"
+      @log.debug "logout, target: #{@TARGET}, email = #{@email}"
       @client = nil
     end
 
@@ -147,7 +147,7 @@ module BVT::Harness
     end
 
     def get_login_email(expected_admin = false)
-      @config = VCAP_BVT_CONFIG
+      @config ||= BVT::Harness::RakeHelper.get_config
       if ENV['YETI_PARALLEL_USER']
         @config['user']['email']  = ENV['YETI_PARALLEL_USER']
         @config['user']['passwd'] = ENV['YETI_PARALLEL_USER_PASSWD']
@@ -160,6 +160,7 @@ module BVT::Harness
       ## since no password save, once Yeti user want to run single case
       ## rake helper will launch prompter for password input
       require "harness/rake_helper"
+      @config ||= BVT::Harness::RakeHelper.get_config
       if expected_admin
         @config["admin"]["passwd"] ||= BVT::Harness::RakeHelper.get_admin_user_passwd
       else

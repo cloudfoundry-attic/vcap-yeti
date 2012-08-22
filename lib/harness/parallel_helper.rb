@@ -12,7 +12,9 @@ module BVT::Harness
       unless user_info['parallel']
         unless user_info['admin']
           puts "please input admin account to create concurrent users"
-          BVT::Harness::RakeHelper::generate_config_file(true)
+          BVT::Harness::RakeHelper::get_admin_user
+          BVT::Harness::RakeHelper::get_admin_user_passwd
+          BVT::Harness::RakeHelper::save_config
           user_info = RakeHelper.get_config
         end
 

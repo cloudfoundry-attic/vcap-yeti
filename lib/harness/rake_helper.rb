@@ -50,8 +50,6 @@ module BVT::Harness
     end
 
     def check_network_connection
-      get_config unless @config
-
       easy = Curl::Easy.new
       easy.url = "http://api.#{@config['target']}/info"
       easy.resolve_mode = :ipv4
@@ -71,9 +69,13 @@ module BVT::Harness
     end
 
     def cleanup!
+      get_config
+      get_target
+      get_user
+      get_user_passwd
+      save_config
       check_network_connection
       cleanup_services_apps
-      cleanup_test_accounts
     end
 
     def sync_assets
@@ -173,8 +175,6 @@ module BVT::Harness
     end
 
     def get_target
-      return if !@config.nil? && @config['target']
-
       if ENV['VCAP_BVT_TARGET']
         target = format_target(ENV['VCAP_BVT_TARGET'])
         puts "target read from ENV: \t\t#{yellow(target)}"
