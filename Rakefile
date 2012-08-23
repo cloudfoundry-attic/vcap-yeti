@@ -27,7 +27,7 @@ task :help do
           "\t\te.g. rake services[5] (default to 10, max = 16)"
   puts "  clean\t\tclean up test environment(only run this task after interruption).\n" +
            "\t\t  1, Remove all apps and services under test user\n" +
-           "\t\t  2, Remove all test users created in admin_user_spec.rb"
+           "\t\t  2, Remove all apps and services under parallel users"
   puts "  help\t\tlist help commands"
 end
 

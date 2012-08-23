@@ -75,7 +75,13 @@ module BVT::Harness
       get_user_passwd
       save_config
       check_network_connection
-      cleanup_services_apps
+      cleanup_services_apps(@config['user']['email'], @config['user']['passwd'])
+      user_info = get_config
+      if user_info['parallel']
+        user_info['parallel'].each do |puser|
+          cleanup_services_apps(puser['email'], puser['passwd'])
+        end
+      end
     end
 
     def sync_assets
@@ -274,9 +280,9 @@ module BVT::Harness
       `git log --pretty=oneline`.split("\n").first
     end
 
-    def cleanup_services_apps
-      session = BVT::Harness::CFSession.new(:email => @config['user']['email'],
-                                            :passwd => @config['user']['passwd'],
+    def cleanup_services_apps(email, passwd)
+      session = BVT::Harness::CFSession.new(:email => email,
+                                            :passwd => passwd,
                                             :target => @config['target'])
       puts yellow("Ready to clean up for test user: #{session.email}")
       apps = session.apps
@@ -284,6 +290,11 @@ module BVT::Harness
 
       if services.empty?
         puts "No service has been provisioned by test user: #{session.email}"
+      elsif session.email =~ /^t\w{6,7}-\d{1,2}-/ #parallel user, delete without asking
+        services.each { |service|
+          puts "deleting service: #{service.name}..."
+          service.delete
+        }
       else
         puts "List all services belong to test user: #{session.email}"
         services.each { |service| puts service.name }
@@ -297,6 +308,11 @@ module BVT::Harness
 
       if apps.empty?
         puts "No application has been created by test user: #{session.email}"
+      elsif session.email =~ /^t\w{6,7}-\d{1,2}-/ #parallel user, delete without asking
+        apps.each { |app|
+          puts "deleting app: #{app.name}..."
+          app.delete
+        }
       else
         puts "List all applications belong to test user: #{session.email}"
         apps.each { |app| puts app.name }
