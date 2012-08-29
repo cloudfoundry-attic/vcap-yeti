@@ -3,7 +3,7 @@ require "vcap/logging"
 
 module BVT::Harness
   class CFSession
-    attr_reader :log, :namespace, :TARGET, :email, :passwd, :is_admin, :token
+    attr_reader :log, :namespace, :TARGET, :email, :passwd, :is_admin, :token, :current_organization, :current_space
 
     def initialize(options = {})
       options = {:admin => false,
@@ -14,8 +14,8 @@ module BVT::Harness
       @email = options[:email] ? options[:email] : get_login_email(@is_admin)
       @passwd = options[:passwd] ? options[:passwd] : get_login_passwd(@is_admin)
       domain_url = options[:target] ? options[:target] : get_target
-      @TARGET = domain_url =~ /^http:\/\/api\./ ? domain_url : "http://api.#{domain_url}"
-
+      #hard code for ccng
+      @TARGET = domain_url =~ /^http[s]?:\/\/.*|^api.*|^ccng.*/ ? domain_url : "http://#{domain_url}"
       @log = get_logger
       @namespace = get_namespace
       login
@@ -32,14 +32,16 @@ module BVT::Harness
       begin
         @token = @client.login({:username => @email, :password =>  @passwd})
       rescue Exception => e
-        puts e.to_s
         @log.error "Fail to login in, target: #{@TARGET}, user: #{@email}"
         raise "Cannot login target environment:\n" +
               "target = '#{@TARGET}', user: '#{@email}'.\n" +
-              "Pleae check your ENV and #{VCAP_BVT_CONFIG_FILE}"
+              "Pleae check your ENV and #{VCAP_BVT_CONFIG_FILE}" + "\n#{e.to_s}"
       end
       # TBD - ABS: This is a hack around the 1 sec granularity of our token time stamp
       sleep(1)
+      if v2?
+        select_org_and_space
+      end
     end
 
     def logout
@@ -58,18 +60,38 @@ module BVT::Harness
     end
 
     def system_frameworks
+      system_frameworks = {}
       @log.debug "get system frameworks, target: #{@TARGET}"
-      @info ||= @client.info
-      @info[:frameworks] || {}
+      if v2?
+        frameworks = @client.frameworks
+        frameworks.each { |f|
+          system_frameworks[f.name] = {}
+          system_frameworks[f.name][:name] = f.name
+          system_frameworks[f.name][:description] = f.description
+        }
+      else
+        @info ||= @client.info
+        system_frameworks = @info[:frameworks]
+      end
+      system_frameworks
     end
 
     def system_runtimes
       @log.debug "get system runtimes, target: #{@TARGET}"
-      @info ||= @client.info
       runtimes = {}
-      @info[:frameworks].each do |_, f|
-        f[:runtimes].each do |r|
-          runtimes[r[:name]] = r
+      if v2?
+        system_runtimes = @client.runtimes
+        system_runtimes.each{ |r|
+          runtimes[r.name] = {}
+          runtimes[r.name][:name] = r.name
+          runtimes[r.name][:description] = r.description
+        }
+      else
+        @info ||= @client.info
+        @info[:frameworks].each do |_, f|
+          f[:runtimes].each do |r|
+            runtimes[r[:name]] = r
+          end
         end
       end
       runtimes
@@ -79,13 +101,17 @@ module BVT::Harness
       @log.debug "get system services, target: #{@TARGET}"
       services = {}
       @client.services.each do |service|
-        if services[service.label]
-          versions = services[service.label][:versions] || []
+        label = service.label
+        if services[label]
+          versions = services[label][:versions] || []
         else
           versions = []
         end
         versions << service.version.to_s unless versions.index(service.version.to_s)
-        services[service.label] = {:versions => versions}
+        services[label] = {:versions => versions}
+        if v2?
+          @log.error "needs to update, v2 support in progress."
+        end
       end
       services
     end
@@ -110,6 +136,61 @@ module BVT::Harness
       end
     end
 
+    def select_org_and_space(org_name = "", space_name = "")
+      orgs = @client.organizations
+      fail "no organizations." if orgs.empty?
+      org = orgs.first
+      unless org_name == ""
+        find = @client.organization_by_name(org_name)
+        org = find if find
+      end
+      @client.current_organization = org
+      @current_organization = org
+
+      spaces = @current_organization.spaces
+      if spaces.empty?
+        @current_space = self.space("space")
+        @current_space.create
+      else
+        spaces.each{ |s|
+          @current_space = s if s.name == space_name
+        } unless space_name == ""
+        @current_space = spaces.first if @current_space.nil?
+      end
+      @client.current_space = @current_space
+    end
+
+    def organizations
+      if v2?
+        @client.organizations
+      else
+        fail "not implemented in v1."
+      end
+    end
+
+    def spaces
+      if v2?
+        @client.spaces.collect {|space| BVT::Harness::Space.new(space, self)}
+      else
+        fail "not implemented in v1."
+      end
+    end
+
+    def space(name, require_namespace=true)
+      if require_namespace
+        name = "#{@namespace}#{name}"
+      end
+      begin
+        space = @client.space
+        space.name = name
+        BVT::Harness::Space.new( space, self)
+      rescue Exception => e
+        @log.error("Fail to get space: #{name}")
+        raise RuntimeError, "Fail to get space: " +
+            "\n#{e.to_s}"
+      end
+    end
+
     def users
       begin
         @log.debug("Get Users for target: #{@client.target}, login email: #{@email}")
@@ -129,8 +210,13 @@ module BVT::Harness
 
     # It will delete all services and apps belong to login token via client object
     def cleanup!
-      services.each { |service| service.delete }
-      apps.each { |app| app.delete }
+      if v2?
+        # will force to delete all spaces and app/service_instance in each space.
+        spaces.each { |space| space.delete(true) }
+      else
+        services.each { |service| service.delete }
+        apps.each { |app| app.delete }
+      end
     end
 
     private
@@ -190,8 +276,21 @@ module BVT::Harness
     end
 
     def admin?
-      user = @client.user(@email)
-      user.admin?
+      if v2?
+        #hard code for ccng
+        return false
+      else
+        user = @client.user(@email)
+        user.admin?
+      end
+    end
+
+    def no_v2
+      fail "not implemented for v2." if v2?
+    end
+
+    def v2?
+      @client.is_a?(CFoundry::V2::Client)
     end
   end
 

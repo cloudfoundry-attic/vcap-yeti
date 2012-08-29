@@ -115,6 +115,10 @@ module BVT
       end
     end
 
+    module OrgSpace
+      class Space; end
+    end
+
     SERVICE_URL_MAPPING = Hash["mysql"      => "mysql",
                                "redis"      => "redis",
                                "mongodb"    => "mongo",

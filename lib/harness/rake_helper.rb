@@ -51,7 +51,9 @@ module BVT::Harness
 
     def check_network_connection
       easy = Curl::Easy.new
-      easy.url = "http://api.#{@config['target']}/info"
+      #hard code for ccng
+      domain_url = @config['target'] =~ /^ccng.*/ ? @config['target'] : "api.#{@config['target']}"
+      easy.url = "http://#{domain_url}/info"
       easy.resolve_mode = :ipv4
       easy.timeout = 10
       begin
@@ -267,13 +269,11 @@ module BVT::Harness
     end
 
     def format_target(str)
-      if str.start_with? 'http://api.'
-        str.gsub('http://api.', '')
-      elsif str.start_with? 'api.'
-        str.gsub('api.', '')
-      else
-        str
-      end
+      prefix = ['http://','https://','api.']
+      prefix.each { |p|
+        str = str.gsub(p,'') if str.start_with?(p)
+      }
+      str
     end
 
     def get_script_git_hash

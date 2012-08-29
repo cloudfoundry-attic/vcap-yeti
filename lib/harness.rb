@@ -48,3 +48,6 @@ require "harness/service_versions_helper"
 
 ## in order to support service versions, require this monkey patch
 require "harness/cfoundry_monkey_patch"
+
+## support v2
+require "harness/space"
