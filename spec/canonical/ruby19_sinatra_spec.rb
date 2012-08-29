@@ -18,6 +18,12 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
   end
 
+  it "sinatra test modular app" do
+    app = create_push_app("app_sinatra_modular")
+    app.get_response(:get).body_str.should == "hello from sinatra"
+    app.get_response(:get,'/module').body_str.should == "hello from module"
+  end
+
   it "sinatra test setting RACK_ENV" do
     app = create_push_app("app_sinatra_service")
     add_env(app,'RACK_ENV','development')

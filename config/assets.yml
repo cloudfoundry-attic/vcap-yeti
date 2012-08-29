@@ -264,6 +264,12 @@ app_sinatra_service_autoconfig:
   memory: 64
   path: "assets/sinatra/app_sinatra_service_autoconfig"
 
+app_sinatra_modular:
+  framework: "sinatra"
+  runtime: "ruby19"
+  memory: 64
+  path: "assets/sinatra/app_sinatra_modular"
+
 service_quota_app:
   framework: "sinatra"
   runtime: "ruby19"
