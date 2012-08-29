@@ -403,7 +403,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
       r.body_str.should == 'ok'
       r.close
 
-      r = app.get_response(:post, "/service/#{service_url}/clients/2", "")
+      r = app.get_response(:post, "/service/#{service_url}/clients/#{max_clients+1}", "")
       r.response_code.should == 200
       r.body_str.should =~ /#{error_msg}/
       r.close
