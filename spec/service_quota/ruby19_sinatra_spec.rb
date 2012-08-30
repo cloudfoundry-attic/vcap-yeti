@@ -25,7 +25,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     content = app.get_response(:post, "/service/mysql/querytime/#{max_long_query-1}")
     content.body_str.should == "OK"
 
-    content = app.get_response(:post, "/service/mysql/querytime/#{max_long_query+1}")
+    content = app.get_response(:post, "/service/mysql/querytime/#{max_long_query+2}")
     content.body_str.should == "query interrupted"
   end
 
@@ -393,7 +393,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
         end
       }
       expect_error.should be_true, "no expected error displayed"
-      success_number.should be_within(2).of(max_clients-1)
+      success_number.should be_within(5).of(max_clients-1)
     else
       app = create_push_app("service_quota_app")
       app.bind(service)
