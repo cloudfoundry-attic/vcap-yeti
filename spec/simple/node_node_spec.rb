@@ -28,4 +28,12 @@ describe BVT::Spec::Simple::NodeNode do
     app.get_response(:get).body_str.should_not == nil
     app.get_response(:get).body_str.should == "hello from express"
   end
+
+  it "access my application root and see hello from git" do
+    app = create_push_app("node_git_modules")
+    app.stats.should_not == nil
+    app.get_response(:get).should_not == nil
+    app.get_response(:get).body_str.should_not == nil
+    app.get_response(:get).body_str.should == "hello from git"
+  end
 end

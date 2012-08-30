@@ -383,6 +383,12 @@ node_autoconfig_disabled_by_module:
   memory: 64
   path: "assets/node/node_autoconfig_disabled_by_module"
 
+node_git_modules:
+  framework: "node"
+  runtime: node
+  memory: 64
+  path: "assets/node/node_git"
+
 app_spring_service:
   framework: "spring"
   instances: 1
