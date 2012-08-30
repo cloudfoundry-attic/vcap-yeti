@@ -269,7 +269,7 @@ module BVT::Harness
     end
 
     def format_target(str)
-      prefix = ['http://','https://','api.']
+      prefix = %w(https:// http:// api.)
       prefix.each { |p|
         str = str.gsub(p,'') if str.start_with?(p)
       }

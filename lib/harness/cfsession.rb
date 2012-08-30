@@ -14,8 +14,17 @@ module BVT::Harness
       @email = options[:email] ? options[:email] : get_login_email(@is_admin)
       @passwd = options[:passwd] ? options[:passwd] : get_login_passwd(@is_admin)
       domain_url = options[:target] ? options[:target] : get_target
+
       #hard code for ccng
-      @TARGET = domain_url =~ /^http[s]?:\/\/.*|^api.*|^ccng.*/ ? domain_url : "http://#{domain_url}"
+      case domain_url
+        when /^ccng.*|^api.*/
+          @TARGET = "http://#{domain_url}"
+        when /^http[s]?:\/\/.*/
+          @TARGET = domain_url
+        else
+          @TARGET = "http://api.#{domain_url}"
+      end
+
       @log = get_logger
       @namespace = get_namespace
       login
@@ -101,17 +110,14 @@ module BVT::Harness
       @log.debug "get system services, target: #{@TARGET}"
       services = {}
       @client.services.each do |service|
-        label = service.label
-        if services[label]
-          versions = services[label][:versions] || []
-        else
-          versions = []
-        end
-        versions << service.version.to_s unless versions.index(service.version.to_s)
-        services[label] = {:versions => versions}
-        if v2?
-          @log.error "needs to update, v2 support in progress."
-        end
+        s = {}
+        s[:description]   = service.description
+        s[:versions]      ||= []
+        s[:versions]      << service.version
+        s[:provider]      = service.provider
+        s[:plans]         = service.service_plans.collect {|p| p.name } if v2?
+        services[service.label] ||= {}
+        services[service.label][service.provider] = s
       end
       services
     end
