@@ -13,6 +13,7 @@ module BVT
     module AutoStaging
       class Ruby18Rack; end
       class Ruby18Standalone; end
+      class Ruby18Rails3; end
       class Ruby19Sinatra; end
       class Ruby19Rack; end
       class Ruby19Rails3; end

@@ -195,6 +195,12 @@ app_rails_service_autoconfig:
   memory: 256
   path: "assets/rails3/app_rails_service_autoconfig"
 
+app_rails_service_autoconfig18:
+  framework: "rails3"
+  runtime: "ruby18"
+  memory: 256
+  path: "assets/rails3/app_rails_service_autoconfig"
+
 rails_autoconfig_disabled_by_file:
   framework: "rails3"
   runtime: "ruby19"
