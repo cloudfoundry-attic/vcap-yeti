@@ -64,8 +64,13 @@ module BVT::Harness
         @instance.type = meta[:type]
         @instance.vendor = vendor
         @instance.version = version
-        # TODO: only free service plan is supported
-        @instance.tier = "free"
+        if ENV['VCAP_BVT_SERVICE_PLAN']
+          @instance.tier = ENV['VCAP_BVT_SERVICE_PLAN']
+        elsif service_manifest[:plan]
+          @instance.tier = service_manifest[:plan]
+        else
+          @instance.tier = "free"
+        end
 
         match = true
         break
