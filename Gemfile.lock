@@ -16,8 +16,8 @@ GEM
       em-http-request (~> 0.3.0)
       em-websocket (~> 0.3.1)
       uuidtools (~> 2.1.2)
-    cfoundry (0.3.19)
-      json_pure (~> 1.6.5)
+    cfoundry (0.3.28)
+      multi_json (~> 1.3.6)
       rest-client (~> 1.6.1)
       rubyzip (~> 0.9.5)
     ci_reporter (1.6.4)
@@ -46,6 +46,7 @@ GEM
     mime-types (1.18)
     mongo (1.6.2)
       bson (~> 1.6.2)
+    multi_json (1.3.6)
     nokogiri (1.5.2)
     progressbar (0.11.0)
     rack (1.4.1)
@@ -102,7 +103,7 @@ PLATFORMS
 DEPENDENCIES
   bson_ext
   caldecott
-  cfoundry (~> 0.3.19)
+  cfoundry (~> 0.3.28)
   ci_reporter
   cli
   curb

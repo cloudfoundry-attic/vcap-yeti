@@ -3,7 +3,8 @@ require "vcap/logging"
 
 module BVT::Harness
   class CFSession
-    attr_reader :log, :namespace, :TARGET, :email, :passwd, :is_admin, :token, :current_organization, :current_space
+    attr_reader :log, :namespace, :TARGET, :email, :passwd, :is_admin, :token, :current_organization, :current_space,
+                :client
 
     def initialize(options = {})
       options = {:admin => false,
@@ -225,6 +226,10 @@ module BVT::Harness
       end
     end
 
+    def v2?
+      @client.is_a?(CFoundry::V2::Client)
+    end
+
     private
 
     def get_logger
@@ -293,10 +298,6 @@ module BVT::Harness
 
     def no_v2
       fail "not implemented for v2." if v2?
-    end
-
-    def v2?
-      @client.is_a?(CFoundry::V2::Client)
     end
   end
 

@@ -9,7 +9,7 @@ module BVT::Harness
       service_name = name || service_manifest[:vendor]
       require_namespace = name.nil?
       service = @session.service(service_name, require_namespace)
-      unless service.has_vendor?(service_manifest)
+      unless service.available?(service_manifest)
         @session.log.debug("Service: (#{service_manifest[:vendor]} #{service_manifest[:version]}) " +
                            "is not available on target: #{@session.TARGET}")
         pending("Service: (#{service_manifest[:vendor]} #{service_manifest[:version]}) " +
