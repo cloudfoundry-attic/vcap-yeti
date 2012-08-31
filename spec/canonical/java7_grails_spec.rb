@@ -1,9 +1,9 @@
 require "harness"
 require "spec_helper"
 include BVT::Spec
+include BVT::Spec::CanonicalHelper
 
 describe BVT::Spec::Canonical::Java7Grails do
-  include BVT::Spec::CanonicalHelper, BVT::Spec
 
   before(:each) do
     @session = BVT::Harness::CFSession.new

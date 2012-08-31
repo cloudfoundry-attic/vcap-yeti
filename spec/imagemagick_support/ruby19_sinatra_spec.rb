@@ -1,8 +1,8 @@
 require "harness"
 require "spec_helper"
+include BVT::Spec
 
 describe BVT::Spec::ImageMagicKSupport::Ruby19Sinatra do
-  include BVT::Spec
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

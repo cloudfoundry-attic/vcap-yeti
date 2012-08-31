@@ -1,3 +1,15 @@
+class Bignum
+  def to_json(options = nil)
+    to_s
+  end
+end
+
+class Fixnum
+  def to_json(options = nil)
+    to_s
+  end
+end
+
 
 module CFoundry::V1
   class Base < CFoundry::BaseClient

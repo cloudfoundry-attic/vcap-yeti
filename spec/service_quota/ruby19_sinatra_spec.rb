@@ -5,12 +5,17 @@ include BVT::Spec
 include BVT::Spec::ServiceQuotaHelper
 
 describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
-  include BVT::Spec
 
   SINGLE_APP_CLIENTS_LIMIT = 200
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
+  end
+
+  before(:each) do
+    if @session.TARGET =~ /\.vcap\.me$/
+      pending "service quota cases are not available in dev setup env"
+    end
   end
 
   after(:each) do

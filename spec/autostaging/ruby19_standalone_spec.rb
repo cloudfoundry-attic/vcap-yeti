@@ -1,9 +1,9 @@
 require "harness"
 require "spec_helper"
+include BVT::Spec
+include BVT::Spec::AutoStagingHelper
 
 describe BVT::Spec::AutoStaging::Ruby19Standalone do
-  include BVT::Spec
-  include BVT::Spec::AutoStagingHelper
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

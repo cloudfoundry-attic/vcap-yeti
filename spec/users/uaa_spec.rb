@@ -2,6 +2,7 @@ require "harness"
 require "spec_helper"
 require "cfoundry"
 require "restclient"
+include BVT::Spec
 
 class UaaHelper
   include Singleton
@@ -102,7 +103,6 @@ class UaaHelper
 end
 
 describe BVT::Spec::UsersManagement::UAA do
-  include BVT::Spec
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

@@ -193,7 +193,7 @@ module BVT::Spec
 end
 
 describe BVT::Spec::AcmManager::Acm do
-include BVT::Spec, BVT::Spec::AcmHelper
+  include BVT::Spec::AcmHelper
 
   before(:all) do
     new

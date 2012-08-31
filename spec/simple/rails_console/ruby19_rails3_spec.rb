@@ -2,12 +2,14 @@ require "harness"
 require "spec_helper"
 require "vmc"
 require "cli"
+include BVT::Spec
+include BVT::Harness
 
 $:.unshift(File.join(File.dirname(__FILE__)))
 require "rails_console_helper"
 
 describe BVT::Spec::Simple::RailsConsole::Ruby19Rails3 do
-  include BVT::Spec, BVT::Harness, BVT::Spec::RailsConsoleHelper
+  include BVT::Spec::RailsConsoleHelper
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

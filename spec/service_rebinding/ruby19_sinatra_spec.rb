@@ -1,9 +1,9 @@
 require "harness"
 require "spec_helper"
 include BVT::Spec
+include BVT::Harness::HTTP_RESPONSE_CODE
 
 describe BVT::Spec::ServiceRebinding::Ruby19Sinatra do
-  include BVT::Harness::HTTP_RESPONSE_CODE
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

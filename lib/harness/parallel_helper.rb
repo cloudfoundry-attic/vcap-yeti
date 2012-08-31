@@ -159,11 +159,11 @@ module BVT::Harness
           env_vars = ""
           if log[2]
             BVT::Spec::ServiceVersions.set_environment_variables(log[2]).each do |k, v|
-              env_vars += " #{k}=\'#{v}\'"
+              env_vars += "#{k}=\'#{v}\' "
             end
           end
 
-          rerun_cmd = "#{env_vars} " + 'rspec .' + log[0].match(/\/spec\/.*_spec\.rb:\d{1,4}/).to_s
+          rerun_cmd = "#{env_vars}" + 'rspec .' + log[0].match(/\/spec\/.*_spec\.rb:\d{1,4}/).to_s
           $stdout.print red(rerun_cmd)
           $stdout.print cyan(" # #{case_desc}")
         end

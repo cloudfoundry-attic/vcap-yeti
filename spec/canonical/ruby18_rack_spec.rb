@@ -1,8 +1,9 @@
 require "harness"
 require "spec_helper"
+include BVT::Spec
+include BVT::Spec::CanonicalHelper
 
 describe BVT::Spec::Canonical::Ruby18Rack do
-  include BVT::Spec::CanonicalHelper, BVT::Spec
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

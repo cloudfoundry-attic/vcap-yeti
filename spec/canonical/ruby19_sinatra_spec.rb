@@ -1,8 +1,10 @@
 require "harness"
 require "spec_helper"
+include BVT::Spec::CanonicalHelper
+include BVT::Spec
+include BVT::Harness
 
 describe BVT::Spec::Canonical::Ruby19Sinatra do
-  include BVT::Spec::CanonicalHelper, BVT::Spec, BVT::Harness
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

@@ -1,9 +1,9 @@
 require "harness"
 require "spec_helper"
 require "rest-client"
+include BVT::Spec
 
 describe BVT::Spec::Simple::FileRange::Ruby19Sinatra do
-  include BVT::Spec
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

@@ -1,9 +1,10 @@
 require "harness"
 require "spec_helper"
 require "nokogiri"
+include BVT::Spec::CanonicalHelper
+include BVT::Spec
 
 describe BVT::Spec::Canonical::JavaLift do
-  include BVT::Spec::CanonicalHelper, BVT::Spec
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

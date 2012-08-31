@@ -115,5 +115,5 @@ DEPENDENCIES
   rspec
   ruby-debug19
   vcap_logging (>= 1.0)
-  vmc
+  vmc (~> 0.3.18)
   yajl-ruby

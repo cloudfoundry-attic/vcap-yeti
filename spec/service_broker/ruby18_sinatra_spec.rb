@@ -138,7 +138,7 @@ module BVT::Spec
 end
 
 describe BVT::Spec::ServiceBroker::Ruby18Sinatra do
-include BVT::Spec, BVT::Spec::ServiceBrokerHelper
+  include BVT::Spec::ServiceBrokerHelper
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

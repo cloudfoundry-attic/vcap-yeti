@@ -1,8 +1,9 @@
 require "harness"
 require "spec_helper"
+include BVT::Spec::CanonicalHelper
+include BVT::Spec
 
 describe BVT::Spec::Canonical::NodeNode do
-  include BVT::Spec::CanonicalHelper, BVT::Spec
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

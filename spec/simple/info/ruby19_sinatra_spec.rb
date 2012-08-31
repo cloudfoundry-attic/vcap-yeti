@@ -1,9 +1,9 @@
 require "harness"
 require "spec_helper"
 require "vmc"
+include BVT::Spec
 
 describe BVT::Spec::Simple::Info::Ruby19Sinatra do
-  include BVT::Spec
 
   VAR_INSTANCE_COUNT = 4
   VAR_MEMORY         = 64
