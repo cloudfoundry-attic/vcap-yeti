@@ -75,25 +75,23 @@ describe BVT::Spec::Simple::Info::Ruby19Sinatra do
   it "get crash information for an application" do
     @client = VMC::Client.new(@session.TARGET)
     @client.login(@session.email, @session.passwd)
-    app = create_push_app("simple_app2")
-    files = @client.app_files(app.name, '/run.pid', '0')
 
+    app = create_push_app("simple_app2")
+
+    files = @client.app_files(app.name, '/run.pid', '0')
     files.should_not == nil
     pid = files.chomp
 
     contents = app.get_response(:get, "/crash/#{pid}")
     contents.close
 
-    sleep 0.5
-    @crash_info = @client.app_crashes(app.name)
-    @crash_info.should_not be_nil, "no crash for the app"
-    Time.at(@crash_info[:crashes][0][:since]).should_not == nil
+    crashes = get_crashes(app.name)
 
-    files = app.files('/')
-    files.should_not be_nil, "no files found under /"
+    crash = crashes.first
+    crash[:since].should_not be_nil
 
-    files = app.files('/app')
-    files.should_not be_nil, "no files found under /app"
+    verify_files(app.name, crash[:instance], "/")
+    verify_files(app.name, crash[:instance], "/app")
   end
 
   it "get crash information for a broken application" do
@@ -103,14 +101,36 @@ describe BVT::Spec::Simple::Info::Ruby19Sinatra do
     app = create_app("broken_app")
     app.push(nil, nil, false)
 
-    @crash_info = @client.app_crashes(app.name)
-    @crash_info.should_not be_nil, "no crash for the app"
+    crashes = get_crashes(app.name)
 
-    files = app.files('/')
-    files.should_not be_nil, "no files found under /"
+    crash = crashes.first
+    crash.should include(:instance)
 
-    files = app.files('/app')
-    files.should_not be_nil, "no files found under /app"
+    verify_files(app.name, crash[:instance], "/")
+    verify_files(app.name, crash[:instance], "/app")
   end
 
+  def get_crashes(application_name)
+    stop = Time.now + 5
+    crash_info = nil
+
+    while Time.now < stop
+      crash_info = @client.app_crashes(application_name)
+      if crash_info[:crashes].empty?
+        sleep 1
+      else
+        break
+      end
+    end
+
+    crashes = crash_info[:crashes]
+    crashes.should_not be_empty, "No crashes"
+
+    crashes
+  end
+
+  def verify_files(application_name, instance_id, path)
+    files = @client.app_files(application_name, path, instance_id)
+    files.should_not be_nil, "No files under #{path}"
+  end
 end
