@@ -9,6 +9,7 @@ module BVT::Harness
       @app      = app
       @name     = @app.name
       @session  = session
+      @client   = @session.client
       @log      = @session.log
     end
 
@@ -28,21 +29,32 @@ module BVT::Harness
         return
       end
 
+      #UPDATE framework & runtime
       @app.total_instances = @manifest['instances']
-      @app.urls            = @manifest['uris'] unless @manifest['no_url']
-      @app.framework       = @manifest['framework']
-      @app.runtime         = @manifest['runtime']
+      if @session.v2?
+        @app.space         = @client.current_space
+        @app.framework     = @client.framework_by_name(@manifest['framework'])
+        @app.runtime       = @client.runtime_by_name(@manifest['runtime'])
+      else
+        @app.framework     = @manifest['framework']
+        @app.runtime       = @manifest['runtime']
+        @app.urls            = @manifest['uris'] unless @manifest['no_url']
+        if @manifest['framework'] == "standalone"
+          @app.command         = @manifest['command']
+        end
+      end
       @app.memory          = @manifest['memory']
-      @app.command         = @manifest['command']
 
       @log.info "Push App: #{@app.name}"
       begin
         @app.create!
         @app.upload(@manifest['path'])
+        add_route if @session.v2?
       rescue Exception => e
         @log.error("Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}")
         raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}"
       end
+
       services.each { |service| bind(service, false)} if services
       start(need_check)
     end
@@ -146,6 +158,8 @@ module BVT::Harness
     end
 
     def stats
+      ###FIXME: should return app status.
+      return "not implemented in v2." if @session.v2?
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
         raise RuntimeError, "Application: #{@app.name} does not exist!"
@@ -260,6 +274,11 @@ module BVT::Harness
         raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
 
+      if @session.v2?
+        @log.error "app.files not implemented in v2"
+        raise "app.files not implemented in v2."
+        ###FIXME: should return logs of one app instance
+      end
       instance = @app.instances[0]
       body = ""
       instance.files("logs").each do |log|
@@ -344,7 +363,12 @@ module BVT::Harness
       # '_' is not a valid character for hostname according to RFC 822,
       # use '-' to replace it.
       second_domain = "-#{second_domain}" if second_domain
-      "#{@app.name}#{second_domain}.#{@session.TARGET.gsub("http://api.", "")}".gsub("_", "-")
+      str = @session.TARGET
+      prefix = %w(https:// http:// api. ccng.)
+      prefix.each { |p|
+        str = str.gsub(p,'')
+      }
+      "#{@app.name}#{second_domain}.#{str}".gsub("_","-")
     end
 
     private
@@ -368,6 +392,12 @@ module BVT::Harness
 
     def check_application
       seconds = 0
+      if @session.v2?
+        sleep 15
+        return
+        ###FIXME: should check app healthy.
+        #hard code for v2, for app.health not implemented in cfoundry v2 yet.
+      end
       until @app.healthy?
         sleep 1
         seconds += 1
@@ -382,5 +412,29 @@ module BVT::Harness
         end
       end
     end
+
+    def add_route
+      simple = @manifest["uris"].first.sub(/^https?:\/\/(.*)\/?/i, '\1')
+      host, domain_name = simple.split(".", 2)
+
+      route = @client.routes.find { |r|
+        r.host == host && r.domain.name == domain_name
+      }
+
+      unless route
+        domain = @client.domain_by_name(domain_name)
+        fail "Invalid domain '#{domain_name}'" unless domain
+
+        route = @client.route
+
+        route.host = host
+        route.domain = domain
+        route.organization = @client.current_organization
+        route.create!
+      end
+
+      @app.add_route(route)
+    end
+
   end
 end

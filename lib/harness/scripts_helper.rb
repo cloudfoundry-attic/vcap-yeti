@@ -46,7 +46,9 @@ module BVT::Harness
     def create_push_app(app_name)
       app = create_app(app_name)
       app.push
-      app.healthy?.should be_true, "Application #{app.name} is not running"
+      unless @session.v2?
+        app.healthy?.should be_true, "Application #{app.name} is not running"
+      end
       app
     end
   end

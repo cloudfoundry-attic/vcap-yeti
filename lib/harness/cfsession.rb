@@ -15,10 +15,11 @@ module BVT::Harness
       @email = options[:email] ? options[:email] : get_login_email(@is_admin)
       @passwd = options[:passwd] ? options[:passwd] : get_login_passwd(@is_admin)
       domain_url = options[:target] ? options[:target] : get_target
-
       #hard code for ccng
       case domain_url
-        when /^ccng.*|^api.*/
+        when /^ccng.*/
+          @TARGET = "https://#{domain_url}"
+        when /^api.*/
           @TARGET = "http://#{domain_url}"
         when /^http[s]?:\/\/.*/
           @TARGET = domain_url
@@ -75,9 +76,9 @@ module BVT::Harness
       if v2?
         frameworks = @client.frameworks
         frameworks.each { |f|
-          system_frameworks[f.name] = {}
-          system_frameworks[f.name][:name] = f.name
-          system_frameworks[f.name][:description] = f.description
+          system_frameworks[f.name.to_sym] = {}
+          system_frameworks[f.name.to_sym][:name] = f.name
+          system_frameworks[f.name.to_sym][:description] = f.description
         }
       else
         @info ||= @client.info
@@ -124,7 +125,9 @@ module BVT::Harness
     end
 
     def app(name)
-      BVT::Harness::App.new(@client.app("#{@namespace}#{name}"), self)
+      app = @client.app
+      app.name = "#{@namespace}#{name}"
+      BVT::Harness::App.new(app, self)
     end
 
     def apps
@@ -156,8 +159,12 @@ module BVT::Harness
 
       spaces = @current_organization.spaces
       if spaces.empty?
-        @current_space = self.space("space")
-        @current_space.create
+        space = @client.space
+        space.name = "#{@namespace}space"
+        space.organization = @current_organization
+        space.create!
+        space.add_developer @client.current_user
+        @current_space = space
       else
         spaces.each{ |s|
           @current_space = s if s.name == space_name
@@ -216,10 +223,19 @@ module BVT::Harness
     end
 
     # It will delete all services and apps belong to login token via client object
-    def cleanup!
+    # mode: current -> delete app/service_instance in current space.
+    # mode: all -> delete app/service_instance in each space
+    def cleanup!(mode = "current")
       if v2?
-        # will force to delete all spaces and app/service_instance in each space.
-        spaces.each { |space| space.delete(true) }
+        if (mode == "all")
+          @client.spaces.each{ |s|
+            s.service_instances.each {|service| service.delete!}
+            s.apps.each {|app| app.delete!}
+          }
+        elsif (mode == "current")
+          services.each {|service| service.delete}
+          apps.each {|app| app.delete}
+        end
       else
         services.each { |service| service.delete }
         apps.each { |app| app.delete }
@@ -299,6 +315,7 @@ module BVT::Harness
     def no_v2
       fail "not implemented for v2." if v2?
     end
+
   end
 
 end
