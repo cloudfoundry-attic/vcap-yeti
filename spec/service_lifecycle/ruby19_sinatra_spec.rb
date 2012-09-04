@@ -5,10 +5,11 @@ require 'curb'
 require 'tempfile'
 require 'base64'
 include BVT::Spec
-include BVT::Spec::ServiceLifecycleHelper
 
 
 describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
+
+  include BVT::Spec::ServiceLifecycleHelper
 
   before(:each) do
     @session = BVT::Harness::CFSession.new
