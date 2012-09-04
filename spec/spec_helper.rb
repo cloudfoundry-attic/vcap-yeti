@@ -1,5 +1,7 @@
 require "harness"
 require "json"
+require 'yaml'
+YAML::ENGINE.yamler = 'syck'
 
 module BVT
   module Spec

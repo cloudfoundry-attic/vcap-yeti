@@ -1,4 +1,6 @@
 require "harness"
+require 'yaml'
+YAML::ENGINE.yamler = 'syck'
 
 module BVT::Spec
   module ServiceQuotaHelper

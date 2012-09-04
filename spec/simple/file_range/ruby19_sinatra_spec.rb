@@ -34,13 +34,13 @@ describe BVT::Spec::Simple::FileRange::Ruby19Sinatra do
 
   end
 
-  it "should get back the final 222 bytes of the file" do
+  it "should get back the final 224 bytes of the file" do
 
     @app = create_push_app("simple_app")
     @app.stats.should_not == nil
 
     range = "10-"
-    num_bytes = 222
+    num_bytes = 224
     @file_contents = File.read("#{@app.manifest['path']}/#{FILE_NAME}")
     url = "#{@session.TARGET}/apps/#{@app.name}/instances/0/files/app/#{FILE_NAME}"
     hdrs = {"AUTHORIZATION" => @session.token, "Range" => "bytes=#{range}"}

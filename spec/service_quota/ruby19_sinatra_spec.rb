@@ -421,17 +421,17 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     app = create_push_app("service_quota_app")
     bind_service(BLOB_MANIFEST, app)
 
-    sinlge_app_megabytes = 200
+    single_app_megabytes = 200
 
     threads = []
-    number = vblob_max_db_size / sinlge_app_megabytes
-    left_quota = vblob_max_db_size % sinlge_app_megabytes
+    number = vblob_max_db_size / single_app_megabytes
+    left_quota = vblob_max_db_size % single_app_megabytes
 
     for i in 0..number - 1
       content = app.get_response(:post, "/service/vblob/bucket#{i}")
       content.body_str.should == "ok"
       content.close
-      content = app.get_response(:post, "/service/vblob/bucket#{i}/testobject/#{sinlge_app_megabytes}")
+      content = app.get_response(:post, "/service/vblob/bucket#{i}/testobject/#{single_app_megabytes}")
       content.body_str.should == "ok"
       content.close
     end
