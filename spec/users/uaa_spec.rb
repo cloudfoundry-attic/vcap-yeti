@@ -34,11 +34,17 @@ class UaaHelper
     begin
       response = JSON.parse(get_url "/oauth/clients/#{client_id}",
         "Authorization"=>"Bearer #{token}")
-      @webclient = {:client_id=>response["client_id"]}
+      client = response.clone
+      client["client_id"].should_not == nil
+      @webclient = {:client_id=>client["client_id"]}
+      if client["scope"].nil? || client["scope"].empty? || client["scope"]==["uaa.none"] then
+        client["scope"] = ["openid", "cloud_controller.read"]
+        update_client(client, token)
+      end
     rescue RestClient::ResourceNotFound
       @webclient = register_client({:client_id=>client_id,
         :client_secret=>"appsecret", :authorized_grant_types=>
-        ["authorization_code"]}, token)
+        ["authorization_code"], :scope=>["openid", "cloud_controller.read"]}, token)
     rescue RestClient::Unauthorized
       logger.error("Unauthorized admin client not able to create new client")
       raise RuntimeError, "Unauthorized admin client not able to create new client"
@@ -50,9 +56,9 @@ class UaaHelper
 
   def client_token(client_id, client_secret)
     url = @uaabase + "/oauth/token"
-    response = RestClient.post url, {:client_id=>client_id, :grant_type=>
-      "client_credentials", :scope=>"read write password"}, {"Accept"=>
-      "application/json", "Authorization"=>basic_auth(client_id, client_secret)}
+    response = RestClient.post url, {:client_id=>client_id, 
+      :grant_type=>"client_credentials"}, {"Accept"=>"application/json",
+      "Authorization"=>basic_auth(client_id, client_secret)}
     response.should_not == nil
     response.code.should == 200
     JSON.parse(response.body)["access_token"]
@@ -73,6 +79,13 @@ class UaaHelper
       "Bearer #{token}", "Content-Type"=>"application/json"}
     response.should_not == nil
     response.code.should == 201
+    client
+  end
+
+  def update_client(client, token)
+    url = @uaabase + "/oauth/clients/" + client["client_id"]
+    response = RestClient.put url, client.to_json, {"Authorization"=>"Bearer #{token}", "Content-Type"=>"application/json"}
+    response.code.should == 204
     client
   end
 
@@ -106,7 +119,7 @@ describe BVT::Spec::UsersManagement::UAA do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
-    @uaabase = @session.info["authorization_endpoint"]
+    @uaabase = ENV['VCAP_BVT_UAA_BASE'] || @session.info["authorization_endpoint"]
     @uaahelper = UaaHelper.instance
     @uaahelper.uaabase = @uaabase
 
