@@ -1,4 +1,5 @@
 require "harness"
+require "json"
 
 module BVT
   module Spec
