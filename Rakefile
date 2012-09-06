@@ -1,4 +1,5 @@
 $:.unshift(File.join(File.dirname(__FILE__), "lib"))
+require 'rspec/core/rake_task'
 require "harness"
 #require "harness/color_helper"
 include BVT::Harness::ColorHelpers
@@ -28,6 +29,12 @@ task :help do
   puts "  clean\t\tclean up test environment(only run this task after interruption).\n" +
            "\t\t  1, Remove all apps and services under test user\n" +
            "\t\t  2, Remove all apps and services under parallel users"
+
+  puts "  core\t\trun core tests for verifying that an installation meets\n" +
+       "\t\tminimal Cloud Foundry compatibility requirements"
+
+  puts "  mcf\t\trun Micro Cloud Foundry tests\n"
+
   puts "  help\t\tlist help commands"
 end
 
@@ -38,9 +45,9 @@ task :full, :thread_number do |t, args|
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
   if threads == 1
-    longevity('sh("rspec --format Fuubar --color spec/ --tag ~admin")')
+    longevity('sh("rspec --format Fuubar --color spec/ --tag ~admin --tag ~slow")')
   else
-    longevity("BVT::Harness::ParallelHelper.run_tests(#{threads}, {'tags' => '~admin'})")
+    longevity("BVT::Harness::ParallelHelper.run_tests(#{threads}, {'tags' => '~admin,~slow'})")
   end
 end
 
@@ -51,9 +58,9 @@ task :tests, :thread_number do |t, args|
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
   if threads == 1
-    longevity('sh("rspec --format Fuubar --color spec/ --tag ~admin --tag p1")')
+    longevity('sh("rspec --format Fuubar --color spec/ --tag ~admin --tag p1 --tag ~slow")')
   else
-    longevity("BVT::Harness::ParallelHelper.run_tests(#{threads}, {'tags' => 'p1,~admin'})")
+    longevity("BVT::Harness::ParallelHelper.run_tests(#{threads}, {'tags' => 'p1,~admin,~slow'})")
   end
 end
 
@@ -62,10 +69,10 @@ task :random, :seed do |t, args|
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
   if args[:seed] != nil
-    longevity("sh 'bundle exec rspec spec/ --tag ~admin --tag p1' +
+    longevity("sh 'bundle exec rspec spec/ --tag ~admin --tag p1 --tag ~slow' +
        ' --seed #{args[:seed]} --format d -c'")
   else
-    longevity('sh "bundle exec rspec spec/ --tag ~admin --tag p1" +
+    longevity('sh "bundle exec rspec spec/ --tag ~admin --tag p1 --tag ~slow" +
        " --order rand --format d -c"')
   end
 end
@@ -143,6 +150,16 @@ end
 desc "sync yeti assets binaries"
 task :sync_assets do
   BVT::Harness::RakeHelper.sync_assets
+end
+
+desc 'run core tests for verifying that an installation meets minimal Cloud Foundry compatibility requirements'
+RSpec::Core::RakeTask.new(:core) do |t|
+  t.rspec_opts = '--tag cfcore'
+end
+
+desc 'run Micro Cloud Foundry tests'
+RSpec::Core::RakeTask.new(:mcf) do |t|
+  t.rspec_opts = '--tag mcf'
 end
 
 def get_longevity_time

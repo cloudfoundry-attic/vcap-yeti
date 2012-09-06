@@ -732,3 +732,9 @@ elasticsearch_app:
   memory: 64
   runtime: ruby19
   path: "assets/sinatra/elasticsearch_app"
+
+sleeper:
+  framework: "sinatra"
+  runtime: "ruby19"
+  memory: 64
+  path: "assets/sinatra/sleeper"
