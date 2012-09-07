@@ -191,7 +191,7 @@ module BVT::Harness
         end
 
         # get cases of normal format: "it ... do"
-        cases = f.scan(/(it (["'])[\s\S]*?\2[\s\S]*? do)/)
+        cases = f.scan(/(it (["'])([\s\S]*?)\2[\s\S]*? do)/)
         line_number = 0
         if cases
           cases.each { |c1|
@@ -211,7 +211,7 @@ module BVT::Harness
               if i <= line_number && line_number > 0
                 next
               end
-              if c.start_with? line.strip
+              if line.include? c1[2]
                 if line.strip.end_with? " do"
                   case_hash = {"line" => "#{filename.strip}:#{i}", "tags" => tags}
                   case_list << case_hash
