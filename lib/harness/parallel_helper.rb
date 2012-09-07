@@ -179,42 +179,80 @@ module BVT::Harness
           next
         end
         f = File.read(filename.strip)
-        cases = f.scan(/it [\s\S]*? do/)
+
+        # try to get tags of describe level
+        describe_text = f.scan(/describe [\s\S]*? do/)[0]
+        describe_tags = []
+        temp = describe_text.scan(/[,\s]:(\w+)/)
+        unless temp == nil
+          temp.each do |t|
+            describe_tags << t[0]
+          end
+        end
+
+        # get cases of normal format: "it ... do"
+        cases = f.scan(/(it (["'])[\s\S]*?\2[\s\S]*? do)/)
         line_number = 0
-        cases.each { |c|
-          tags = []
-          draft_tags = c.scan(/:([a-zA-Z0-9_]+)/)
-          draft_tags.each { |tag|
-            tags << tag[0]
-          }
-          case_desc = c.scan(/it\s+['"](.*?)['"]/)[0][0]
-          i = 0
-          cross_line = false
-          f.each_line { |line|
-            i += 1
-            if i <= line_number && line_number > 0
-              next
-            end
-            if line.include? case_desc
-              if line.strip.end_with? " do"
+        if cases
+          cases.each { |c1|
+            c = c1[0]
+            tags = []
+            draft_tags = c.scan(/[,\s]:(\w+)/)
+            draft_tags.each { |tag|
+              tags << tag[0]
+            }
+            tags += describe_tags
+            tags.uniq
+
+            i = 0
+            cross_line = false
+            f.each_line { |line|
+              i += 1
+              if i <= line_number && line_number > 0
+                next
+              end
+              if c.start_with? line.strip
+                if line.strip.end_with? " do"
+                  case_hash = {"line" => "#{filename.strip}:#{i}", "tags" => tags}
+                  case_list << case_hash
+                  line_number = i
+                  cross_line = false
+                  break
+                else
+                  cross_line = true
+                end
+              end
+              if cross_line && (line.strip.end_with? " do")
                 case_hash = {"line" => "#{filename.strip}:#{i}", "tags" => tags}
                 case_list << case_hash
                 line_number = i
                 cross_line = false
                 break
-              else
-                cross_line = true
               end
-            end
-            if cross_line && (line.strip.end_with? " do")
-              case_hash = {"line" => "#{filename.strip}:#{i}", "tags" => tags}
-              case_list << case_hash
-              line_number = i
-              cross_line = false
-              break
-            end
+            }
           }
-        }
+        end
+
+        # get cases of another format: "it {...}"
+        cases = f.scan(/it {[\s\S]*?}/)
+        line_number = 0
+        if cases
+          cases.each { |c|
+            i = 0
+            f.each_line { |line|
+              i += 1
+              if i <= line_number && line_number > 0
+                next
+              end
+              if c.start_with? line
+                case_hash = {"line" => "#{filename.strip}:#{i}", "tags" => describe_tags}
+                case_list << case_hash
+                line_number = i
+                break
+              end
+            }
+          }
+        end
       }
       case_list
     end
