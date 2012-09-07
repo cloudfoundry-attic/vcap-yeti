@@ -139,11 +139,9 @@ module BVT::Harness
     end
 
     def service(name, require_namespace=true)
-      if require_namespace
-        BVT::Harness::Service.new(@client.service_instance("#{@namespace}#{name}"), self)
-      else
-        BVT::Harness::Service.new(@client.service_instance(name), self)
-      end
+      instance = @client.service_instance
+      instance.name = require_namespace ? "#{@namespace}#{name}" : name
+      BVT::Harness::Service.new(instance, self)
     end
 
     def select_org_and_space(org_name = "", space_name = "")
@@ -229,16 +227,18 @@ module BVT::Harness
       if v2?
         if (mode == "all")
           @client.spaces.each{ |s|
-            s.service_instances.each {|service| service.delete!}
             s.apps.each {|app| app.delete!}
+            s.service_instances.each {|service| service.delete!}
           }
         elsif (mode == "current")
-          services.each {|service| service.delete}
+          # CCNG cannot delete service which binded to application
+          # therefore, remove application first
           apps.each {|app| app.delete}
+          services.each {|service| service.delete}
         end
       else
-        services.each { |service| service.delete }
         apps.each { |app| app.delete }
+        services.each { |service| service.delete }
       end
     end
 

@@ -6,7 +6,6 @@ module BVT::Harness
 
     def initialize(service, session)
       @instance = service
-      @instance.name = @instance.inspect.scan(/'(.*)'/).first.first
       @session = session
       @log = @session.log
       @name = @instance.name
@@ -31,39 +30,50 @@ module BVT::Harness
       services.reject! { |s| s.version != service_manifest[:version] } if service_manifest[:version]
 
       service = services.first
-      @log.info("Create Service (#{service.label} #{service.version}): #{@instance.name}")
+      @log.debug("Prepare to create service: #{@instance.name}")
       begin
         if @session.v2?
           if service_manifest[:plan]
             plans = service.service_plans.select { |p| p.name == service_manifest[:plan]}
-            @instance.service_plan = plans.first
+            plan = plans.first
+            @instance.service_plan = plan
           end
           @instance.space = @session.client.current_space
+          instance_info = "#{service.label} #{service.version} " +
+              "#{plan.name} #{service.provider}"
         else
           @instance.type = service.type
           @instance.vendor = service.label
           @instance.version = service.version
           @instance.tier = "free"
+          instance_info = "#{service.label} #{service.version} #{@instance.tier}"
         end
+
+        @log.info("Create Service (#{instance_info}): #{@instance.name}")
         @instance.create!
       rescue Exception => e
-        @log.error("Fail to create service (#{service.label} " +
-                       "#{service.version}): #{@instance.name}\n#{e.to_s}")
-        raise RuntimeError, "Fail to create service (#{service.label} " +
-            "#{service.version}): #{@instance.name}\n#{e.to_s}"
+        @log.error("Fail to create service (#{instance_info}):" +
+                       " #{@instance.name}\n#{e.to_s}")
+        raise RuntimeError, "Fail to create service (#{instance_info}):" +
+            " #{@instance.name}\n#{e.to_s}"
       end
     end
 
     def delete
       if @instance.exists?
-        ## FIXME, CFoundry::V2::ServiceInstance did not support vendor, version attribute
-
-        @log.info("Delete Service (): #{@instance.name}")
+        if @session.v2?
+          plan = @instance.service_plan
+          service = plan.service
+          instance_info = "#{service.label} #{service.version} #{plan.name} #{service.provider}"
+        else
+          instance_info = "#{service.label} #{service.version} #{instance.tier}"
+        end
+        @log.info("Delete Service (#{instance_info}): #{@instance.name}")
         begin
           @instance.delete!
         rescue Exception => e
-          @log.error("Fail to delete service (): #{@instance.name}\n#{e.to_s}")
-          raise RuntimeError, "Fail to delete service (): #{@instance.name}\n#{e.to_s}"
+          @log.error("Fail to delete service (#{instance_info}): #{@instance.name}\n#{e.to_s}")
+          raise RuntimeError, "Fail to delete service (#{instance_info}): #{@instance.name}\n#{e.to_s}"
         end
       end
     end

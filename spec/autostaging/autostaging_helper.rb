@@ -1,13 +1,16 @@
-
+require "harness"
 
 module BVT::Spec
   module AutoStagingHelper
+    include BVT::Harness::HTTP_RESPONSE_CODE
 
     def verify_service_autostaging(service_manifest, app)
       key = "abc"
       data = "#{service_manifest[:vendor]}#{key}"
       url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
-      app.get_response(:post, "/service/#{url}/#{key}", data)
+      response = app.get_response(:post, "/service/#{url}/#{key}", data)
+      response.response_code.should equal(OK), "Response code should be #{OK}, " +
+          "however got #{response.response_code}, and body is \n#{response.body_str}"
       app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
     end
 
