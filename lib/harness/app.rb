@@ -363,12 +363,8 @@ module BVT::Harness
       # '_' is not a valid character for hostname according to RFC 822,
       # use '-' to replace it.
       second_domain = "-#{second_domain}" if second_domain
-      str = @session.TARGET
-      prefix = %w(https:// http:// api. ccng.)
-      prefix.each { |p|
-        str = str.gsub(p,'')
-      }
-      "#{@app.name}#{second_domain}.#{str}".gsub("_","-")
+      domain_name = @session.TARGET.split(".", 2).last
+      "#{@app.name}#{second_domain}.#{domain_name}".gsub("_", "-")
     end
 
     private

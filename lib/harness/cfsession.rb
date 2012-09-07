@@ -15,17 +15,7 @@ module BVT::Harness
       @email = options[:email] ? options[:email] : get_login_email(@is_admin)
       @passwd = options[:passwd] ? options[:passwd] : get_login_passwd(@is_admin)
       domain_url = options[:target] ? options[:target] : get_target
-      #hard code for ccng
-      case domain_url
-        when /^ccng.*/
-          @TARGET = "https://#{domain_url}"
-        when /^api.*/
-          @TARGET = "http://#{domain_url}"
-        when /^http[s]?:\/\/.*/
-          @TARGET = domain_url
-        else
-          @TARGET = "http://api.#{domain_url}"
-      end
+      @TARGET = "http://#{domain_url}"
 
       @log = get_logger
       @namespace = get_namespace
@@ -50,6 +40,7 @@ module BVT::Harness
       end
       # TBD - ABS: This is a hack around the 1 sec granularity of our token time stamp
       sleep(1)
+
       if v2?
         select_org_and_space
       end
@@ -303,21 +294,30 @@ module BVT::Harness
     end
 
     def admin?
-      if v2?
-        #hard code for ccng
+      begin
+        if v2?
+          #hard code for ccng
+          return false
+        else
+          user = @client.user(@email)
+          user.admin?
+        end
+      rescue CFoundry::NotFound => e
+        ## FIXME
+        ## CC in P02 cannot support /users/<email> endpoint
         return false
-      else
-        user = @client.user(@email)
-        user.admin?
+      rescue Exception => e
+        @log.error("Fail to check user's admin privilege. Target: #{@client.target},"+
+                       " login email: #{@email}\n#{e.to_s}")
+        raise RuntimeError, "Fail to check user's admin privilege. Target: #{@client.target},"+
+            " login email: #{@email}\n#{e.to_s}"
       end
     end
 
     def no_v2
       fail "not implemented for v2." if v2?
     end
-
   end
-
 end
 
 

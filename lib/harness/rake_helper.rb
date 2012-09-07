@@ -11,7 +11,7 @@ module BVT::Harness
   module RakeHelper
     include Interactive, ColorHelpers
 
-    VCAP_BVT_DEFAULT_TARGET =   "vcap.me"
+    VCAP_BVT_DEFAULT_TARGET =   "api.vcap.me"
     VCAP_BVT_DEFAULT_USER   =   "test@vcap.me"
     VCAP_BVT_DEFAULT_ADMIN  =   "admin@vcap.me"
 
@@ -51,9 +51,7 @@ module BVT::Harness
 
     def check_network_connection
       easy = Curl::Easy.new
-      #hard code for ccng
-      domain_url = @config['target'] =~ /^ccng.*/ ? @config['target'] : "api.#{@config['target']}"
-      easy.url = "http://#{domain_url}/info"
+      easy.url = "http://#{@config['target']}/info"
       easy.resolve_mode = :ipv4
       easy.timeout = 10
       begin
@@ -161,10 +159,11 @@ module BVT::Harness
       # so usually get_config method just initiate @config, and @multi_target_config
       # however, once user set environment variable VCAP_BVT_TARGET,
       # get_config method should return specific target information
-      if ENV['VCAP_BVT_TARGET'] &&
-          @multi_target_config.key?(format_target(ENV['VCAP_BVT_TARGET'])) &&
-          $target_config.empty?
-        $target_config = @multi_target_config[format_target(ENV['VCAP_BVT_TARGET'])]
+      if ENV['VCAP_BVT_TARGET']
+        domain_name = ENV['VCAP_BVT_TARGET'].split(".", 2).last
+        if @multi_target_config.key?(domain_name) && $target_config.empty?
+          $target_config = @multi_target_config[domain_name]
+        end
       end
 
       @config = $target_config
@@ -192,8 +191,9 @@ module BVT::Harness
                                  VCAP_BVT_DEFAULT_TARGET)
         target = format_target(input)
       end
-      @multi_target_config[target] = {} unless @multi_target_config.key?(target)
-      @config = @multi_target_config[target]
+      domain_name = target.split(".", 2).last
+      @multi_target_config[domain_name] = {} unless @multi_target_config.key?(domain_name)
+      @config = @multi_target_config[domain_name]
       ENV['VCAP_BVT_TARGET'] = target
       @config['target'] = target
     end
@@ -257,6 +257,14 @@ module BVT::Harness
       @config['user']['passwd']
     end
 
+    def format_target(str)
+      prefix = %w(https:// http://)
+      prefix.each { |p|
+        str = str.gsub(p,'') if str.start_with?(p)
+      }
+      str
+    end
+
     private
 
     def ask_and_validate(question, pattern, default = nil, echo = nil)
@@ -266,14 +274,6 @@ module BVT::Harness
         res = ask(question, :default => default, :echo => echo)
       end
       res
-    end
-
-    def format_target(str)
-      prefix = %w(https:// http:// api.)
-      prefix.each { |p|
-        str = str.gsub(p,'') if str.start_with?(p)
-      }
-      str
     end
 
     def get_script_git_hash

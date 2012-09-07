@@ -94,18 +94,14 @@ module BVT::Harness
         }
         next unless version
 
-        service_manifest[:plan] ||= "free"
-        plan = meta[:plans].find { |p|
-          p =~ /#{service_manifest[:plan]}/
-        }
-        next unless plan
+        if @session.v2?
+          service_manifest[:plan] ||= "free"
+          plan = meta[:plans].find { |p|
+            p =~ /#{service_manifest[:plan]}/
+          }
+          next unless plan
+        end
 
-        #
-        #@instance.type = meta[:type]
-        #@instance.vendor = vendor
-        #@instance.version = version
-        ## TODO: only free service plan is supported
-        #@instance.tier = "free"
         match = true
         break
       end
