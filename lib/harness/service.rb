@@ -46,7 +46,7 @@ module BVT::Harness
           @instance.vendor = service.label
           @instance.version = service.version
           @instance.tier = "free"
-          instance_info = "#{service.label} #{service.version} #{@instance.tier}"
+          instance_info = "#{@instance.vendor} #{@instance.version} #{@instance.tier}"
         end
 
         @log.info("Create Service (#{instance_info}): #{@instance.name}")
@@ -66,7 +66,7 @@ module BVT::Harness
           service = plan.service
           instance_info = "#{service.label} #{service.version} #{plan.name} #{service.provider}"
         else
-          instance_info = "#{service.label} #{service.version} #{instance.tier}"
+          instance_info = "#{@instance.vendor} #{@instance.version} #{@instance.tier}"
         end
         @log.info("Delete Service (#{instance_info}): #{@instance.name}")
         begin
