@@ -16,7 +16,7 @@ module BVT::Spec
     pending "service broker url or token is not provided" unless @service_broker_url && @service_broker_url
   end
 
-  BROKER_API_VERSION = "poc"
+  BROKER_API_VERSION = "v1"
 
   def broker_hdrs
     {
@@ -90,24 +90,38 @@ module BVT::Spec
 
   def bind_brokered_service(app)
     @client.create_service(@brokered_service_name.to_sym, @service_name)
-    #service_instance = bind_service(@service_manifest, app, @service_name)
-    #service_instance.should_not == nil
-    app.bind(@service_name)
+
+    attach_provisioned_service(app, @service_manifest, @token)
 
     health = get_health_status(app)
     health.should == "RUNNING"
 
   end
 
+  def attach_provisioned_service(app, service_manifest, token)
+    appname = app.name
+    app_manifest = app.stats
+    provisioned_service = app_manifest[:services]
+    provisioned_service = [] unless provisioned_service
+    svc_name = service_manifest['name']
+    provisioned_service << svc_name
+    app_manifest[:services] = provisioned_service
+    @client.update_app(appname, app_manifest)
+
+    app_manifest[:state] = 'STARTED'
+    @client.update_app(appname, app_manifest)
+    sleep 1
+  end
+
   def get_health_status(app)
-    timeout = 5
+    timeout = 30
     sleep_time = 1
     while timeout > 0
       sleep sleep_time
       timeout -= sleep_time
 
       status = app.stats
-      if status["0"]["state"] == 'RUNNING'
+      if status["0".to_sym][:state] == 'RUNNING'
         return "RUNNING"
       end
     end
