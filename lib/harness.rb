@@ -47,7 +47,7 @@ require "harness/parallel_helper"
 require "harness/service_versions_helper"
 
 ## in order to support service versions, require this monkey patch
-require "harness/cfoundry_monkey_patch" unless ENV['VCAP_BVT_CCNG_V1_TEST']
+require "harness/cfoundry_monkey_patch"
 
 ## support v2
 require "harness/space"
