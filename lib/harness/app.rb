@@ -167,9 +167,9 @@ module BVT::Harness
       begin
         @log.info("Display application: #{@app.name} status")
         @app.stats
-      rescue
-        @log.error("Fail to display application: #{@app.name} status!")
-        raise RuntimeError, "Fail to display application: #{@app.name} status!"
+      rescue Exception => e
+        @log.error("Fail to display application: #{@app.name} status!\n#{e.to_s}")
+        raise RuntimeError, "Fail to display application: #{@app.name} status!\n#{e.to_s}"
       end
     end
 
