@@ -3,6 +3,18 @@ require "json"
 require 'yaml'
 YAML::ENGINE.yamler = 'syck'
 
+class Bignum
+  def to_json(options = nil)
+    to_s
+  end
+end
+
+class Fixnum
+  def to_json(options = nil)
+    to_s
+  end
+end
+
 module BVT
   module Spec
 

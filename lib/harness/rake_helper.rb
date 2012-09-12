@@ -223,6 +223,7 @@ module BVT::Harness
                                                       '*'
                                                      )
       end
+      ENV['VCAP_BVT_ADMIN_USER_PASSWD'] = @config['admin']['passwd']
       @config['admin']['passwd']
     end
 
@@ -252,6 +253,7 @@ module BVT::Harness
                                                      '*',
                                                      '*')
       end
+      ENV['VCAP_BVT_USER_PASSWD'] = @config['user']['passwd']
       @config['user']['passwd']
     end
 

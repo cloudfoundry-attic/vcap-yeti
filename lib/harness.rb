@@ -15,6 +15,8 @@ module BVT
     VCAP_BVT_APP_CONFIG   = File.join(File.dirname(__FILE__), "../config/assets.yml")
     VCAP_BVT_APP_ASSETS   = YAML.load_file(VCAP_BVT_APP_CONFIG)
 
+    VCAP_BVT_RERUN_FILE   = File.join(File.dirname(__FILE__), "../rerun.sh")
+
     # Assets Data Store Config
     VCAP_BVT_ASSETS_DATASTORE_CONFIG  =  File.join(VCAP_BVT_HOME, "datastore.yml")
     VCAP_BVT_ASSETS_PACKAGES_HOME     =  File.join(File.dirname(__FILE__),

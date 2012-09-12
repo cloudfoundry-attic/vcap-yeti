@@ -8,7 +8,6 @@ include BVT::Spec
 
 
 describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
-
   include BVT::Spec::ServiceLifecycleHelper
 
   before(:each) do

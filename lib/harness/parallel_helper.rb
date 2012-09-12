@@ -149,6 +149,7 @@ module BVT::Harness
       end
       $stdout.print "\n"
       unless failure_list.empty?
+        rerun_file = File.new(VCAP_BVT_RERUN_FILE, 'w', 0777)
         $stdout.print "\nFailed examples:\n\n"
         failure_list.each_with_index do |log, i|
           case_desc = ''
@@ -164,9 +165,11 @@ module BVT::Harness
           end
 
           rerun_cmd = "#{env_vars}" + 'rspec .' + log[0].match(/\/spec\/.*_spec\.rb:\d{1,4}/).to_s
+          rerun_file.puts rerun_cmd
           $stdout.print red(rerun_cmd)
           $stdout.print cyan(" # #{case_desc}")
         end
+        rerun_file.close
         $stdout.print "\n"
       end
     end
