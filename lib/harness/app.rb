@@ -200,9 +200,9 @@ module BVT::Harness
       begin
         @log.info("Examine an application: #{@app.name} files")
         @app.files(path)
-      rescue
-        @log.error("Fail to examine an application: #{@app.name} files!")
-        raise RuntimeError, "Fail to examine an application: #{@app.name} files!"
+      rescue Exception => e
+        @log.error("Fail to examine an application: #{@app.name} files!\n#{e.to_s}")
+        raise RuntimeError, "Fail to examine an application: #{@app.name} files!\n#{e.to_s}"
       end
     end
 
@@ -214,9 +214,9 @@ module BVT::Harness
       begin
         @log.info("Examine an application: #{@app.name} file")
         @app.file(path)
-      rescue
-        @log.error("Fail to examine an application: #{@app.name} file!")
-        raise RuntimeError, "Fail to examine an application: #{@app.name} file!"
+      rescue Exception => e
+        @log.error("Fail to examine an application: #{@app.name} file!\n#{e.to_s}")
+        raise RuntimeError, "Fail to examine an application: #{@app.name} file!\n#{e.to_s}"
       end
     end
 
