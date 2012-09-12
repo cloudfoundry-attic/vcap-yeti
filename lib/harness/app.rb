@@ -274,11 +274,6 @@ module BVT::Harness
         raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
 
-      if @session.v2?
-        @log.error "app.files not implemented in v2"
-        raise "app.files not implemented in v2."
-        ###FIXME: should return logs of one app instance
-      end
       instance = @app.instances[0]
       body = ""
       instance.files("logs").each do |log|
