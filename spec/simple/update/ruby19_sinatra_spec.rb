@@ -4,7 +4,7 @@ require "spec_helper"
 describe BVT::Spec::Simple::Update::Ruby19Sinatra do
   include BVT::Spec
 
-  VAR_INC_INSTANCE    = 2
+  VAR_INC_INSTANCE    = 4
   VAR_REDUCE_INSTANCE = 3
   VAR_USE_MEMORY      = 64
 
@@ -26,12 +26,14 @@ describe BVT::Spec::Simple::Update::Ruby19Sinatra do
     @app.instances.length.should == added_instance_count
 
     reduced_instance_count = @app.instances.length - VAR_REDUCE_INSTANCE
-    pending("there is one bug about app.update! method.")
     @app.scale(reduced_instance_count, VAR_USE_MEMORY)
     @app.instances.length.should == reduced_instance_count
   end
 
   it "map and unmap a url for the application to respond to", :p1 => true do
+    response = @app.get_response(:get, "/")
+    response.body_str.should =~ /Hello from VCAP!/
+
     second_domain_name = "new-app-url"
     new_url = @app.get_url(second_domain_name)
     @app.map(new_url)
