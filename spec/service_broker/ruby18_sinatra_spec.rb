@@ -142,8 +142,9 @@ include BVT::Spec, BVT::Spec::ServiceBrokerHelper
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
-    @client = VMC::Client.new(@session.TARGET)
-    @token = @client.login(@session.email, @session.passwd)
+    cfoundry = CFoundry::Client.new(@session.TARGET)
+    @token = cfoundry.login(:username => @session.email, :password => @session.passwd)
+    @client = VMC::Client.new(@session.TARGET, @token)
     new
   end
 

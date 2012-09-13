@@ -73,8 +73,9 @@ describe BVT::Spec::Simple::Info::Ruby19Sinatra do
   end
 
   it "get crash information for an application" do
-    @client = VMC::Client.new(@session.TARGET)
-    @client.login(@session.email, @session.passwd)
+    cfoundry = CFoundry::Client.new(@session.TARGET)
+    @token = cfoundry.login(:username => @session.email, :password => @session.passwd)
+    @client = VMC::Client.new(@session.TARGET, @token)
     app = create_push_app("simple_app2")
     files = @client.app_files(app.name, '/run.pid', '0')
 
@@ -97,8 +98,9 @@ describe BVT::Spec::Simple::Info::Ruby19Sinatra do
   end
 
   it "get crash information for a broken application" do
-    @client = VMC::Client.new(@session.TARGET)
-    @client.login(@session.email, @session.passwd)
+    cfoundry = CFoundry::Client.new(@session.TARGET)
+    @token = cfoundry.login(:username => @session.email, :password => @session.passwd)
+    @client = VMC::Client.new(@session.TARGET, @token)
 
     app = create_app("broken_app")
     app.push(nil, nil, false)

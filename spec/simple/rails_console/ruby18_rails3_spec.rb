@@ -11,8 +11,9 @@ describe BVT::Spec::Simple::RailsConsole::Ruby18Rails3 do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
-    @client = VMC::Client.new(@session.TARGET)
-    @token = @client.login(@session.email, @session.passwd)
+    cfoundry = CFoundry::Client.new(@session.TARGET)
+    @token = cfoundry.login(:username => @session.email, :password => @session.passwd)
+    @client = VMC::Client.new(@session.TARGET, @token)
     @session.log.debug("client token: #{@token}")
     @console_cmd = VMC::Cli::Command::Apps.new
     @console_cmd.client(@client)
