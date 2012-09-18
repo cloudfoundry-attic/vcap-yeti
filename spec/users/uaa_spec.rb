@@ -25,7 +25,7 @@ class UaaHelper
     begin
       token = client_token(@admin_client, @admin_secret)
     rescue RestClient::Unauthorized
-      raise RuntimeError, "Unauthorized admin client (check your config or env vars)"
+      #raise RuntimeError, "Unauthorized admin client (check your config or env vars)"
     end
     return nil unless token
 
@@ -137,7 +137,7 @@ describe BVT::Spec::UsersManagement::UAA do
   :p1 => true do
     headers = @uaahelper.login
     @webclient = @uaahelper.webclient
-    pending("admin client is not valid, please input VCAP_BVT_ADMIN_CLIENT/VCAP_BVT_ADMIN_SECRET" +
+    pending("Unauthorized admin client, please set VCAP_BVT_ADMIN_CLIENT/VCAP_BVT_ADMIN_SECRET" +
                 " via ENV variable.") unless @webclient
     @cookie = headers[:set_cookie][0]
     headers[:location].should =~ /#{@loginbase}/
