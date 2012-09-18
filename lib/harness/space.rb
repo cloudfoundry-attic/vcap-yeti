@@ -23,6 +23,7 @@ module BVT::Harness
       @log.info("Create Space ( #{@space.name} ) in organization ( #{org.name} )")
       begin
         @space.create!
+        @space.add_developer @session.client.current_user
       rescue Exception => e
         @log.error("Fail to create space (#{@space.name} " +
                        "\n#{e.to_s}")
