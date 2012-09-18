@@ -20,7 +20,7 @@ describe BVT::Spec::Simple::JavaStandalone do
 
     response = app.logs
     response.should include 'Hello from the cloud.  Java opts:  -Xms64m -Xmx64m'+
-    ' -Djava.io.tmpdir=appdir/temp'
+    ' -Djava.io.tmpdir=appdir/tmp'
   end
 
   it "Deploy Standalone App with Java 6 runtime" do

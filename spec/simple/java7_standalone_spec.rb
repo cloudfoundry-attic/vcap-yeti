@@ -23,7 +23,7 @@ describe BVT::Spec::Simple::Java7Standalone do
 
     log = app.logs
     log.should include "Java version: 1.7"
-    log.should include "Hello from the cloud.  Java opts:  -Xms256m -Xmx256m -Djava.io.tmpdir=appdir/temp"
+    log.should include "Hello from the cloud.  Java opts:  -Xms256m -Xmx256m -Djava.io.tmpdir=appdir/tmp"
   end
 
 end
