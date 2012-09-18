@@ -21,7 +21,7 @@ describe BVT::Spec::Simple::RailsConsole::Ruby18Rails3 do
   end
 
   after(:each) do
-    #@session.cleanup!
+    @session.cleanup!
   end
 
   it "rails test console", :p1 => true do
