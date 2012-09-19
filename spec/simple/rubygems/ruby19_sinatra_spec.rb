@@ -20,7 +20,7 @@ describe BVT::Spec::Simple::RubyGems::Ruby19Sinatra do
   end
 
   def add_env(app,key,value)
-     env = ["#{key}=#{value}"]
+     env = {"#{key}"=>"#{value}"}
      manifest = {}
      manifest['env'] = env
      manifest['state'] = 'STARTED'

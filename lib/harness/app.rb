@@ -72,7 +72,13 @@ module BVT::Harness
     def update!(what = {})
       @log.info("Update App: #{@app.name}, what = #{what}")
       begin
-        @app.update!(what)
+        if @session.v2?
+          env = what['env'] || {}
+          @app.env = env
+          @app.update!
+        else
+          @app.update!(what)
+        end
         restart
       rescue Exception => e
         @log.error "Update App: #{@app.name} failed.\n#{e.to_s}"
