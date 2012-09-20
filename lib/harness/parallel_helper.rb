@@ -101,13 +101,19 @@ module BVT::Harness
 
             if task_output =~ /Failures/
               failure_number += 1
-              failure_list << [task[:line], parse_failure_log(task_output), task[:envs]]
+              failure_log = parse_failure_log(task_output)
+              failure_list << [task[:line], failure_log, task[:envs]]
               @lock.synchronize do
+                session = BVT::Harness::CFSession.new(:admin => false,
+                                                :email => user['email'],
+                                                :passwd => user['passwd'],
+                                                :target => ENV['VCAP_BVT_TARGET'])
+                session.log.error failure_log
                 $stdout.print "\e[K"
                 if failure_number == 1
                   puts "Failures:"
                 end
-                puts "  #{failure_number}) #{parse_failure_log(task_output)}\n"
+                puts "  #{failure_number}) #{failure_log}\n"
                 puts red("     (Failure time: #{Time.now})\n\n")
               end
             elsif task_output =~ /Pending/
@@ -237,7 +243,7 @@ module BVT::Harness
         end
 
         # get cases of another format: "it {...}"
-        cases = f.scan(/it {[\s\S]*?}/)
+        cases = f.scan(/it \{[\s\S]*?\}/)
         line_number = 0
         if cases
           cases.each { |c|
@@ -247,7 +253,7 @@ module BVT::Harness
               if i <= line_number && line_number > 0
                 next
               end
-              if c.start_with? line
+              if line.include? c
                 case_hash = {"line" => "#{filename.strip}:#{i}", "tags" => describe_tags}
                 case_list << case_hash
                 line_number = i
