@@ -95,11 +95,12 @@ module BVT::Spec
   def parse_service_id(content, srv_name)
     service_id = nil
     services = JSON.parse content.body_str
-    services.each do |srv|
-      if srv["name"] =~ /#{srv_name}/
-        srv_id = srv["options"]["name"]
-        service_id = srv_id
-        break
+    services.each do |_, instances|
+      instances.each do |inst|
+        if inst["label"] =~ /#{srv_name}/
+          service_id = inst["credentials"]["name"]
+          break
+        end
       end
     end
     service_id

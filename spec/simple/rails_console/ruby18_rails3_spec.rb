@@ -28,13 +28,10 @@ describe BVT::Spec::Simple::RailsConsole::Ruby18Rails3 do
     manifest = {}
     manifest["console"] = true
     app.update!(manifest)
-
     @console_cmd.restart(app.name)
 
     run_console(app.name)
-
     expected_results = ["irb():001:0> "]
-
     expected_results.should == @console_response
 
     2.times do
