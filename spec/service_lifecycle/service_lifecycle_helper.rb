@@ -10,7 +10,6 @@ module BVT::Spec
     easy.headers = auth_headers
     easy.resolve_mode =:ipv4
     easy.http_get
-
     if easy.response_code == 501
       pending "Snapshot extension is disabled, return code=501"
     elsif easy.response_code != 200
@@ -65,7 +64,7 @@ module BVT::Spec
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
-    job.should_not == nil
+    job.should_not be_nil, "The job cannot be completed in 8 seconds"
     snapshot_id = job["result"]["snapshot_id"]
     snapshot_id.should_not == nil
     snapshot_id
@@ -81,12 +80,11 @@ module BVT::Spec
     easy.headers = {"AUTHORIZATION" => @session.token}
     easy.resolve_mode =:ipv4
     easy.http_post(post_data)
-
     resp = easy.body_str
-    resp.should_not == nil
+    resp.should_not be_nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
-    job.should_not == nil
+    job.should_not be_nil, "The job cannot be completed in 8 seconds"
     snapshot_id = job["result"]["snapshot_id"]
     snapshot_id.should_not == nil
     snapshot_id
@@ -173,7 +171,7 @@ module BVT::Spec
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id,job["job_id"])
-    job.should_not == nil
+    job.should_not be_nil, "The job cannot be completed in 8 seconds"
     job["result"]["result"].should == "ok"
   end
 
@@ -188,7 +186,7 @@ module BVT::Spec
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
-    job.should_not == nil
+    job.should_not be_nil, "The job cannot be completed in 8 seconds"
     job["result"]["result"].should == "ok"
 
   end
