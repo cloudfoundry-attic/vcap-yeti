@@ -29,6 +29,9 @@ module BVT::Spec
                        POSTGRESQL_MANIFEST, NEO4J_MANIFEST, BLOB_MANIFEST, MEMCACHED_MANIFEST,
                        COUCHDB_MANIFEST, ELASTICSSEARCH_MANIFEST]
 
+  MPGW_TESTSERVICE_MANIFEST = ENV['VCAP_BVT_MPGW_TESTSERVICE_MANIFEST'] ? eval(ENV['VCAP_BVT_MPGW_TESTSERVICE_MANIFEST']) :
+                                                        {:vendor => "testservice", :version=>"1.0", :provider => "TestProvider"}
+
   module ServiceVersions
     module_function
 

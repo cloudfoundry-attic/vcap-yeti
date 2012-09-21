@@ -13,7 +13,7 @@ module BVT::Spec
   def new
     @service_broker_token = ENV['SERVICE_BROKER_TOKEN']
     @service_broker_url = ENV['SERVICE_BROKER_URL']
-    pending "service broker url or token is not provided" unless @service_broker_url && @service_broker_url
+    pending "service broker url or token is not provided" unless @service_broker_url && @service_broker_token
   end
 
   BROKER_API_VERSION = "v1"

@@ -58,6 +58,14 @@ Notes:
 |VCAP_BVT_CONFIG_FILE         |specify config file  |VCAP_BVT_CONFIG_FILE=***/config.yml      |
 ```
 
+To test marketplace gateway, specify the following environment variables:
+```
+||Environment Variables       ||Function            ||Example                                ||
+|MPGW_TOKEN                   |specify mpgw token   |MPGW_TOKEN=testmarketplacetoken          |
+|MPGW_URL                     |specify mpgw url     |MPGW_URL=http://test-mpgw....            |
+
+```
+
 2. In order to support parallel running, and administrative test cases, Yeti will ask administrative
    account information.
    <br>However, yeti will not abuse administrative privileges, just list users, create users,
