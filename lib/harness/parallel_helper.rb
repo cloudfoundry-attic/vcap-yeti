@@ -108,7 +108,7 @@ module BVT::Harness
                                                 :email => user['email'],
                                                 :passwd => user['passwd'],
                                                 :target => ENV['VCAP_BVT_TARGET'])
-                session.log.error failure_log
+                session.log.error task_output
                 $stdout.print "\e[K"
                 if failure_number == 1
                   puts "Failures:"
