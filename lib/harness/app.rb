@@ -389,12 +389,6 @@ module BVT::Harness
 
     def check_application
       seconds = 0
-      if @session.v2?
-        sleep 15
-        return
-        ###FIXME: should check app healthy.
-        #hard code for v2, for app.health not implemented in cfoundry v2 yet.
-      end
       until @app.healthy?
         sleep 1
         seconds += 1
