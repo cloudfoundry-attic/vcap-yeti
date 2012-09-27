@@ -30,6 +30,7 @@ module BVT::Harness
     def login
       @log.debug("Login in, target: #{@TARGET}, email = #{@email}")
       @client = CFoundry::Client.new(@TARGET)
+      @client.trace = true if ENV['VCAP_BVT_TRACE']
       begin
         @token = @client.login({:username => @email, :password =>  @passwd})
       rescue Exception => e
