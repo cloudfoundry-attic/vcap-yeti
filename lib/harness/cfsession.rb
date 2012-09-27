@@ -303,10 +303,6 @@ module BVT::Harness
           user = @client.user(@email)
           user.admin?
         end
-      rescue CFoundry::NotFound => e
-        ## FIXME
-        ## CC in P02 cannot support /users/<email> endpoint
-        return false
       rescue Exception => e
         @log.error("Fail to check user's admin privilege. Target: #{@client.target},"+
                        " login email: #{@email}\n#{e.to_s}")
