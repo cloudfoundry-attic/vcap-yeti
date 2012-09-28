@@ -1,6 +1,7 @@
 
 module BVT::Harness
   module LoggerHelper
+    attr_reader :logfile
 
     def set_logger(target)
       # setup logger
@@ -10,7 +11,7 @@ module BVT::Harness
       else
         filename    = "bvt.log"
       end
-      logfile     = File.join(VCAP_BVT_HOME, filename)
+      @logfile     = File.join(VCAP_BVT_HOME, filename)
       loglevel    = :debug
       config = {:level => loglevel, :file => logfile}
       Dir.mkdir(VCAP_BVT_HOME) unless Dir.exist?(VCAP_BVT_HOME)
