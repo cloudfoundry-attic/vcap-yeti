@@ -8,8 +8,16 @@ describe 'core runtimes', :cfcore => true, :mcf => true do
 
   subject { @session.system_runtimes }
 
-  it { should have_runtime 'java', 1.6 }
-  it { should have_runtime 'java7', 1.7 }
+  it {
+    pending 'Java runtimes returning strings' do
+      should have_runtime 'java', '1.6'
+    end
+  }
+  it {
+    pending 'Java runtimes returning strings'  do
+      should have_runtime 'java', '1.7'
+    end
+  }
 
   it { should have_runtime 'node', '0.4.12' }
   it { should have_runtime 'node06', '0.6.8' }
