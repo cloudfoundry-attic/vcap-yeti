@@ -164,8 +164,6 @@ module BVT::Harness
     end
 
     def stats
-      ###FIXME: should return app status.
-      return "not implemented in v2." if @session.v2?
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
         raise RuntimeError, "Application: #{@app.name} does not exist!"

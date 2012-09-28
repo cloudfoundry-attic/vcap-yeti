@@ -78,7 +78,11 @@ describe BVT::Spec::Canonical::JavaSpring do
     type.should satisfy {|arg| arg.start_with? 'redis'}
     plan = app.get_response(:get, "/properties/sources/property/cloud."+
                                   "services.#{redis_service.name}.plan").body_str
-    plan.should == 'free'
+    if @session.client.info[:version] > 1
+      plan.should == 'D100'
+    else
+      plan.should == 'free'
+    end
     password = app.get_response(:get, "/properties/sources/property/cloud.services"+
                              ".#{redis_service.name}.connection.password").body_str
     aliased_password = app.get_response(:get, "/properties/sources/property/cloud."+
