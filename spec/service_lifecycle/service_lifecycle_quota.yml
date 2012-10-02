@@ -1,0 +1,26 @@
+properties:
+  service_plans:
+    mysql:
+      free:
+        configuration:
+          lifecycle:
+            snapshot:
+              quota: 0
+    postgresql:
+      free:
+        configuration:
+          lifecycle:
+            snapshot:
+              quota: 0
+    mongodb:
+      free:
+        configuration:
+          lifecycle:
+            snapshot:
+              quota: 0
+    redis:
+      free:
+        configuration:
+          lifecycle:
+            snapshot:
+              quota: 0

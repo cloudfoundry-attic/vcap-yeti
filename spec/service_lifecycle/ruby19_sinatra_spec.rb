@@ -18,8 +18,10 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
     @session.cleanup!
   end
 
-
   it "Take mysql snapshot and rollback to a certain snapshot", :mysql => true do
+    quota = snapshot_quota('mysql')
+    pending('This test requires quota > 0') unless quota > 0
+
     app = create_push_app('app_sinatra_service2')
     bind_service(MYSQL_MANIFEST, app)
 
@@ -52,7 +54,6 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
     snapshot = snapshots["snapshots"].find {|s| s["snapshot_id"] == snapshot_id}
     snapshot.should == nil
 
-    quota = ENV['SERVICE_SNAPSHOT_QUOTA'] || 5
     (1..quota).each do |i|
       create_snapshot(service_id)
     end
@@ -64,6 +65,9 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
   end
 
   it "Import and export serialized data for mysql service", :mysql => true do
+    quota = snapshot_quota('mysql')
+    pending('This test requires quota > 2') unless quota > 2 # FIXME
+
     app = create_push_app('app_sinatra_service2')
     bind_service(MYSQL_MANIFEST, app)
     post_and_verify_service(MYSQL_MANIFEST,app,'abc','mysqlabc')
@@ -100,7 +104,6 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
     snapshot = snapshots["snapshots"].find {|s| s["snapshot_id"] == snapshot_id}
     snapshot.should == nil
 
-    quota = ENV['SERVICE_SNAPSHOT_QUOTA'] || 5
     (1..quota).each do |i|
       create_snapshot(service_id)
     end
@@ -112,6 +115,9 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
   end
 
   it "Take redis snapshot and rollback to a certain snapshot", :redis => true do
+    quota = snapshot_quota('redis')
+    pending('This test requires quota > 0') unless quota > 0
+
     app = create_push_app('app_sinatra_service2')
     bind_service(REDIS_MANIFEST, app)
 
@@ -144,7 +150,6 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
     snapshot = snapshots["snapshots"].find {|s| s["snapshot_id"] == snapshot_id}
     snapshot.should == nil
 
-    quota = ENV['SERVICE_SNAPSHOT_QUOTA'] || 5
     (1..quota).each do |i|
       create_snapshot(service_id)
     end
@@ -156,6 +161,9 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
   end
 
   it "Import and export serialized data for redis service", :redis => true do
+    quota = snapshot_quota('redis')
+    pending('This test requires quota > 2') unless quota > 2 # FIXME
+
     app = create_push_app('app_sinatra_service2')
     bind_service(REDIS_MANIFEST, app)
     post_and_verify_service(REDIS_MANIFEST,app,'abc','redisabc')
@@ -192,7 +200,6 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
     snapshot = snapshots["snapshots"].find {|s| s["snapshot_id"] == snapshot_id}
     snapshot.should == nil
 
-    quota = ENV['SERVICE_SNAPSHOT_QUOTA'] || 5
     (1..quota).each do |i|
       create_snapshot(service_id)
     end
@@ -204,6 +211,9 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
   end
 
   it "Take mongodb snapshot and rollback to a certain snapshot", :mongodb => true do
+    quota = snapshot_quota('mongodb')
+    pending('This test requires quota > 0') unless quota > 0
+
     app = create_push_app('app_sinatra_service2')
     bind_service(MONGODB_MANIFEST, app)
 
@@ -236,7 +246,6 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
     snapshot = snapshots["snapshots"].find {|s| s["snapshot_id"] == snapshot_id}
     snapshot.should == nil
 
-    quota = ENV['SERVICE_SNAPSHOT_QUOTA'] || 5
     (1..quota).each do |i|
       create_snapshot(service_id)
     end
@@ -248,6 +257,9 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
   end
 
   it "Import and export serialized data for mongodb service", :mongodb => true do
+    quota = snapshot_quota('mongodb')
+    pending('This test requires quota > 2') unless quota > 2 # FIXME
+
     app = create_push_app('app_sinatra_service2')
     bind_service(MONGODB_MANIFEST, app)
     post_and_verify_service(MONGODB_MANIFEST,app,'abc','mongodbabc')
@@ -284,7 +296,6 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
     snapshot = snapshots["snapshots"].find {|s| s["snapshot_id"] == snapshot_id}
     snapshot.should == nil
 
-    quota = ENV['SERVICE_SNAPSHOT_QUOTA'] || 5
     (1..quota).each do |i|
       create_snapshot(service_id)
     end
@@ -296,6 +307,9 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
   end
 
   it "Take postgresql snapshot and rollback to a certain snapshot", :postgresql => true do
+    quota = snapshot_quota('postgresql')
+    pending('This test requires quota > 0') unless quota > 0
+
     app = create_push_app('app_sinatra_service2')
     bind_service(POSTGRESQL_MANIFEST, app)
 
@@ -328,7 +342,6 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
     snapshot = snapshots["snapshots"].find {|s| s["snapshot_id"] == snapshot_id}
     snapshot.should == nil
 
-    quota = ENV['SERVICE_SNAPSHOT_QUOTA'] || 5
     (1..quota).each do |i|
       create_snapshot(service_id)
     end
@@ -340,6 +353,9 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
   end
 
   it "Import and export serialized data for postgresql service", :postgresql => true do
+    quota = snapshot_quota('postgresql')
+    pending('This test requires quota > 2') unless quota > 2 # FIXME
+
     app = create_push_app('app_sinatra_service2')
     bind_service(POSTGRESQL_MANIFEST, app)
     post_and_verify_service(POSTGRESQL_MANIFEST,app,'abc','postgresqlabc')
@@ -376,7 +392,6 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
     snapshot = snapshots["snapshots"].find {|s| s["snapshot_id"] == snapshot_id}
     snapshot.should == nil
 
-    quota = ENV['SERVICE_SNAPSHOT_QUOTA'] || 5
     (1..quota).each do |i|
       create_snapshot(service_id)
     end
@@ -388,4 +403,3 @@ describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
   end
 
 end
-
