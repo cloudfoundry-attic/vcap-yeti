@@ -51,7 +51,7 @@ describe BVT::Spec::Simple::Info::Ruby19Sinatra do
   #should get app_name & status
   it "get resource usage information for an application" do
     app = create_push_app("simple_app2")
-    hash_all = app.stats[:"0"]
+    hash_all = app.stats["0"]
     hash_all[:state].should == "RUNNING"
     hash_stats = hash_all[:stats]
     arr_name = hash_stats[:name].split("-")
