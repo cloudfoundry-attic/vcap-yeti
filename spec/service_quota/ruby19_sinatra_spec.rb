@@ -416,16 +416,26 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
   end
 
   it "max_db_size of vblob service", :vblob => true do
-    vblob_max_db_size = SERVICE_QUOTA['vblob']['max_db_size']
+    config = SERVICE_QUOTA['vblob']
+    if config['vblobd_quota']
+      # non-wardenized blob service (bytes --> MB)
+      blob_disk_quota = config['vblobd_quota']/(1024*1024)
+    elsif config['max_disk']
+      # non-wardenized blob service (MB)
+      blob_disk_quota = config['max_disk']
+    else
+      # non-wardenized: https://github.com/cloudfoundry/cf-release/blob/master/jobs/vblob_node/templates/vblob_node.yml.erb#L37
+      # wardenized: https://github.com/cloudfoundry/cf-release/blob/warden/jobs/vblob_node_ng/templates/vblob_node.yml.erb#L46
+      blob_disk_quota = 2048
+    end
 
     app = create_push_app("service_quota_app")
     bind_service(BLOB_MANIFEST, app)
 
     single_app_megabytes = 200
 
-    threads = []
-    number = vblob_max_db_size / single_app_megabytes
-    left_quota = vblob_max_db_size % single_app_megabytes
+    number = blob_disk_quota / single_app_megabytes
+    left_quota = blob_disk_quota % single_app_megabytes
 
     for i in 0..number - 1
       content = app.get_response(:post, "/service/vblob/bucket#{i}")
@@ -481,7 +491,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
 
   it "max_obj_limit of vblob service", :vblob => true do
     pending "it needs about 18 minutes to finish, please remove pending manually if you want to run it"
-    vblob_max_obj_limit = SERVICE_QUOTA['vblob']['max_obj_limit']
+    vblob_max_obj_limit = SERVICE_QUOTA['vblob']['max_obj_limit'] || 32768 # https://github.com/cloudfoundry/cf-release/blob/warden/jobs/vblob_node/templates/vblob_node.yml.erb#L38
 
     app = create_push_app("service_quota_app")
     bind_service(BLOB_MANIFEST, app)
