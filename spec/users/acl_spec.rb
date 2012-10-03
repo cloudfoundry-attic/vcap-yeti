@@ -28,7 +28,6 @@ describe BVT::Spec::UsersManagement::ACL do
     SERVICE_MANIFEST_LIST.each do |manifest|
       service_name = manifest[:vendor]
       plans = sys_services[service_name][:plans]
-      plans.include?("free").should == true
       service_gateway = manifest[:vendor].gsub('rabbitmq', 'rabbit') + "_gateway"
       plan_list = DEPLOY_MANIFEST[service_gateway]['acls']['plans'].keys
       plan_list.each do |plan|
