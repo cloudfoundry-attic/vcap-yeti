@@ -179,15 +179,62 @@ module BVT::Harness
 
     def map(url)
       @log.info("Map URL: #{url} to Application: #{@app.name}.")
-      @app.urls <<  url
-      @app.update!
+      simple = url.sub(/^https?:\/\/(.*)\/?/i, '\1')
+      if @session.v2?
+        host, domain_name = simple.split(".", 2)
+
+        domain =
+            @session.client.current_space.domains(0, :name => domain_name).first
+
+        unless domain
+          @log.error("Invalid domain '#{domain_name}, please check your input url: #{url}")
+          raise RuntimeError, "Invalid domain '#{domain_name}, please check your input url: #{url}"
+        end
+
+        route = @session.client.routes(0, :host => host).find do |r|
+          r.domain == domain
+        end
+
+        unless route
+          route = @session.client.route
+          route.host = host
+          route.domain = domain
+          route.organization = @session.client.current_organization
+          route.create!
+        end
+
+        @log.debug("Binding #{simple} to application: #{@app.name}")
+        @app.add_route(route)
+      else
+        @app.urls <<  url
+        @app.update!
+      end
       @log.debug("Application: #{@app.name}, URLs: #{@app.urls}")
+
     end
 
     def unmap(url)
       @log.info("Unmap URL: #{url} to Application: #{@app.name}")
-      @app.urls.delete(url)
-      @app.update!
+      simple = url.sub(/^https?:\/\/(.*)\/?/i, '\1')
+
+      if @session.v2?
+        host, domain_name = simple.split(".", 2)
+
+        route = @app.routes.find do |r|
+          r.host == host && r.domain.name == domain_name
+        end
+
+        unless route
+          @log.error("Invalid route '#{simple}', please check your input url: #{url}")
+          raise RuntimeError, "Invalid route '#{simple}', please check your input url: #{url}"
+        end
+
+        @log.debug("Removing route #{simple}")
+        @app.remove_route(route)
+      else
+        @app.urls.delete(simple)
+        @app.update!
+      end
       @log.debug("Application: #{@app.name}, URLs: #{@app.urls}")
     end
 
