@@ -6,8 +6,8 @@ describe BVT::Spec::UsersManagement::ACL do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
-    SERVICE_MANIFEST_LIST = [MYSQL_MANIFEST, REDIS_MANIFEST, MONGODB_MANIFEST,
-                             MONGODB_MANIFEST, RABBITMQ_MANIFEST]
+    SERVICE_MANIFEST_LIST = [MYSQL_MANIFEST, REDIS_MANIFEST, POSTGRESQL_MANIFEST,
+        MONGODB_MANIFEST, RABBITMQ_MANIFEST, BLOB_MANIFEST]
     if ENV['VCAP_BVT_DEPLOY_MANIFEST']
       DEPLOY_MANIFEST = YAML.load_file(ENV['VCAP_BVT_DEPLOY_MANIFEST'])['properties']
     end
@@ -23,47 +23,26 @@ describe BVT::Spec::UsersManagement::ACL do
     @session.cleanup!
   end
 
-  def verify_get_service_plan
-    sys_services = @session.system_services
+  def verify_service_plan_acl
     SERVICE_MANIFEST_LIST.each do |manifest|
       service_name = manifest[:vendor]
-      plans = sys_services[service_name][:plans]
-      service_gateway = manifest[:vendor].gsub('rabbitmq', 'rabbit') + "_gateway"
+      service_gateway = manifest[:vendor].gsub('rabbitmq',
+                        'rabbit').gsub('blob', 'vblob') + "_gateway"
       acls = DEPLOY_MANIFEST[service_gateway]['acls']
       if acls && acls['plans']
         acls['plans'].each do |plan,plan_acls|
-          acl_wildcards = plan_acls['wildcards']
-          if acl_wildcards
-            acl_email = get_acl_email(acl_wildcards)
-            if @session.email.match(/@(#{acl_email})\.com$/)
-              plans.include?(plan).should == true
-            else
-              plans.include?(plan).should == false
-            end
-          end
-        end
-      end
-    end
-  end
-
-  def verify_create_service
-    SERVICE_MANIFEST_LIST.each do |manifest|
-      service_name = manifest[:vendor]
-      service_gateway = manifest[:vendor].gsub('rabbitmq', 'rabbit') + "_gateway"
-      acls = DEPLOY_MANIFEST[service_gateway]['acls']
-      if acls && acls['plans']
-        acls['plans'].each do |plan,plan_acls|
-          acl_wildcards = plan_acls['wildcards']
-          acl_email = get_acl_email(acl_wildcards)
+          acl_users = []
+          acl_wildcards = []
+          acl_users = plan_acls['users'] if plan_acls['users']
+          acl_wildcards = plan_acls['wildcards'] if plan_acls['wildcards']
           ENV['VCAP_BVT_SERVICE_PLAN'] = plan
-          service = @session.service(service_name, false)
           e1 = nil
           begin
-            service.create(manifest)
+            create_service(manifest)
           rescue => e
             e1 = e.to_s
           end
-          if @session.email.match(/@(#{acl_email})\.com$/)
+          if email_match(acl_users, acl_wildcards, @session.email)
             e1.should == nil
           else
             e1.should =~ /404: entity not found or inaccessible/
@@ -73,43 +52,49 @@ describe BVT::Spec::UsersManagement::ACL do
     end
   end
 
-  def get_acl_email(email_list)
-    str = ''
-    email_list.each do |email|
-      str += email.split('@')[1].gsub('.com', '') + '|'
-    end
-    if str.length > 1
-      str = str.slice(0..-2)
-    end
-    str
-  end
-
-  it "acl: get service plan list" do
-    pending('bug in /services/v1/offerings')
-    verify_get_service_plan
-  end
-
-  it "acl: create service with a plan" do
-    verify_create_service
-  end
-
-  it "acl: blob service visibility" do
-    vblob_service = @session.system_services['blob']
-    acls = DEPLOY_MANIFEST['vblob_gateway']['acls']
-    if acls && acls['plans']
-      acls['plans'].each do |plan,plan_acls|
-        acl_wildcards = plan_acls['wildcards']
-        if acl_wildcards
-          acl_email = get_acl_email(acl_wildcards)
-          if @session.email.match(/@(#{acl_email})\.com$/)
-            vblob_service.should_not == nil
-            vblob_service[:versions].should_not == nil
-          else
-            vblob_service.should == nil
-          end
+  def verify_service_visibility
+    sys_services = @session.system_services
+    SERVICE_MANIFEST_LIST.each do |manifest|
+      service_name = manifest[:vendor]
+      service_jason = sys_services[service_name]
+      service_gateway = manifest[:vendor].gsub('rabbitmq',
+                        'rabbit').gsub('blob', 'vblob') + "_gateway"
+      acls = DEPLOY_MANIFEST[service_gateway]['acls']
+      if acls
+        acl_users = []
+        acl_wildcards = []
+        acl_users = acls['users'] if acls['users']
+        acl_wildcards = acls['wildcards'] if acls['wildcards']
+        if email_match(acl_users, acl_wildcards, @session.email)
+          service_jason.should_not == nil
+        else
+          service_jason.should == nil
         end
       end
     end
+  end
+
+  def email_match(acl_users, acl_wildcards, user_email)
+    acl_users.each do |user|
+      if user_email == user
+        return true
+      end
+    end
+    acl_wildcards.each do |wildcard|
+      if user_email.match(/.#{wildcard}$/)
+        return true
+      end
+    end
+    return true if acl_users == [] && acl_wildcards == []
+    return false
+  end
+
+  it "service plan acl" do
+    verify_service_plan_acl
+  end
+
+  it "service visibility" do
+    verify_service_visibility
   end
 
 end
