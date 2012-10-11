@@ -84,6 +84,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
 
 
   it "test mongodb quotafiles", :mongodb => true do
+    pending "pending until mongo proxy is ready"
     app = create_push_app("service_quota_app")
     bind_service(MONGODB_MANIFEST, app)
 
