@@ -171,7 +171,8 @@ module BVT::Harness
           end
 
           rerun_cmd = "#{env_vars}" + 'rspec .' + log[0].match(/\/spec\/.*_spec\.rb:\d{1,4}/).to_s
-          rerun_file.puts rerun_cmd
+          rerun_file.puts "echo ----#{case_desc}"
+          rerun_file.puts rerun_cmd + " # #{case_desc}"
           $stdout.print red(rerun_cmd)
           $stdout.print cyan(" # #{case_desc}")
         end
