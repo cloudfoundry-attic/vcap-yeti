@@ -1,5 +1,6 @@
 require "harness"
 require "spec_helper"
+require "json"
 
 describe BVT::Spec::Canonical::Ruby19Sinatra do
   include BVT::Spec::CanonicalHelper, BVT::Spec, BVT::Harness

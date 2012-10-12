@@ -1,5 +1,6 @@
 require "harness"
 require "spec_helper"
+require "json"
 
 describe BVT::Spec::AutoStaging::Ruby19Rails3 do
   include BVT::Spec::AutoStagingHelper, BVT::Spec

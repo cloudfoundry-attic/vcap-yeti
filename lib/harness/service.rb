@@ -33,14 +33,16 @@ module BVT::Harness
       @log.debug("Prepare to create service: #{@instance.name}")
       begin
         if @session.v2?
+          ###FIXME: hard code plan
+          service_manifest[:plan] = "D100"
           if service_manifest[:plan]
             plans = service.service_plans.select { |p| p.name == service_manifest[:plan]}
             plan = plans.first
             @instance.service_plan = plan
           end
-          @instance.space = @session.client.current_space
+          @instance.space = @session.current_space
           instance_info = "#{service.label} #{service.version} " +
-              "#{plan.name} #{service.provider}"
+              "#{service.provider}"
         else
           @instance.type = service.type
           @instance.vendor = service.label
@@ -94,13 +96,14 @@ module BVT::Harness
         }
         next unless version
 
-        if @session.v2?
-          service_manifest[:plan] ||= "free"
-          plan = meta[:plans].find { |p|
-            p =~ /#{service_manifest[:plan]}/
-          }
-          next unless plan
-        end
+        ###FIXME: no plan info in meta.
+        #if @session.v2?
+        #  service_manifest[:plan] ||= "free"
+        #  plan = meta[:plans].find { |p|
+        #    p =~ /#{service_manifest[:plan]}/
+        #  }
+        #  next unless plan
+        #end
 
         match = true
         break

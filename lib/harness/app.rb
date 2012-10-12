@@ -21,43 +21,55 @@ module BVT::Harness
       load_manifest(appid)
       check_framework(@manifest['framework'])
       check_runtime(@manifest['runtime'])
-      @manifest['uris'] = [get_url,]
 
-      if @app.exists?
-        @app.upload(@manifest['path'])
-        restart
-        return
-      end
-
-      #UPDATE framework & runtime
-      @app.total_instances = @manifest['instances']
-      if @session.v2?
-        @app.space         = @client.current_space
-        @app.framework     = @client.framework_by_name(@manifest['framework'])
-        @app.runtime       = @client.runtime_by_name(@manifest['runtime'])
+      @app = @session.client.app_by_name(@name)
+      if @app
+        sync_app(@app, @manifest['path'])
       else
-        @app.framework     = @manifest['framework']
-        @app.runtime       = @manifest['runtime']
-        @app.urls            = @manifest['uris'] unless @manifest['no_url']
-        if @manifest['framework'] == "standalone"
-          @app.command         = @manifest['command']
-        end
+        create_app(@name, @manifest['path'], services, need_check)
       end
-      @app.memory          = @manifest['memory']
-
-      @log.info "Push App: #{@app.name}"
-      begin
-        @app.create!
-        @app.upload(@manifest['path'])
-        add_route if @session.v2?
-      rescue Exception => e
-        @log.error("Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}")
-        raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}\n#{@session.print_client_logs}"
-      end
-
-      services.each { |service| bind(service, false)} if services
-      start(need_check)
     end
+    #def push(services = nil, appid = nil, need_check = true)
+    #  load_manifest(appid)
+    #  check_framework(@manifest['framework'])
+    #  check_runtime(@manifest['runtime'])
+    #  @manifest['uris'] = [get_url,]
+    #
+    #  if @app.exists?
+    #    @app.upload(@manifest['path'])
+    #    restart
+    #    return
+    #  end
+    #
+    #  #UPDATE framework & runtime
+    #  @app.total_instances = @manifest['instances']
+    #  if @session.v2?
+    #    @app.space         = @client.current_space
+    #    @app.framework     = @client.framework_by_name(@manifest['framework'])
+    #    @app.runtime       = @client.runtime_by_name(@manifest['runtime'])
+    #  else
+    #    @app.framework     = @manifest['framework']
+    #    @app.runtime       = @manifest['runtime']
+    #    @app.urls            = @manifest['uris'] unless @manifest['no_url']
+    #    if @manifest['framework'] == "standalone"
+    #      @app.command         = @manifest['command']
+    #    end
+    #  end
+    #  @app.memory          = @manifest['memory']
+    #
+    #  @log.info "Push App: #{@app.name}"
+    #  begin
+    #    @app.create!
+    #    @app.upload(@manifest['path'])
+    #    add_route if @session.v2?
+    #  rescue Exception => e
+    #    @log.error("Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}")
+    #    raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}"
+    #  end
+    #
+    #  services.each { |service| bind(service, false)} if services
+    #  start(need_check)
+    #end
 
     def delete
       @log.info("Delete App: #{@app.name}")
@@ -123,7 +135,9 @@ module BVT::Harness
           @log.error "Start App: #{@app.name} failed.\n#{e.to_s}"
           raise RuntimeError, "Start App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
         end
-        check_application if need_check
+        sleep 60
+        ###FIXME: 404 CFoundry NOTFOUND
+        #check_application if need_check
       end
     end
 
@@ -186,7 +200,7 @@ module BVT::Harness
           host, domain_name = simple.split(".", 2)
 
           domain =
-              @session.client.current_space.domains(0, :name => domain_name).first
+            @session.current_space.domains(0, :name => domain_name).first
 
           unless domain
             @log.error("Invalid domain '#{domain_name}, please check your input url: #{url}")
@@ -201,7 +215,7 @@ module BVT::Harness
             route = @session.client.route
             route.host = host
             route.domain = domain
-            route.organization = @session.client.current_organization
+            route.organization = @session.current_organization
             route.create!
           end
 
@@ -427,7 +441,7 @@ module BVT::Harness
       # use '-' to replace it.
       second_domain = "-#{second_domain}" if second_domain
       domain_name = @session.TARGET.split(".", 2).last
-      "#{@app.name}#{second_domain}.#{domain_name}".gsub("_", "-")
+      "#{@name}#{second_domain}.#{domain_name}".gsub("_", "-")
     end
 
     private
@@ -451,6 +465,7 @@ module BVT::Harness
 
     def check_application
       seconds = 0
+      sleep 20
       until @app.healthy?
         sleep 1
         seconds += 1
@@ -482,11 +497,137 @@ module BVT::Harness
 
         route.host = host
         route.domain = domain
-        route.organization = @client.current_organization
+        route.organization = @session.current_organization
         route.create!
       end
 
       @app.add_route(route)
+    end
+
+    def sync_app(app, path)
+      upload_app(app, path)
+
+      diff = {}
+
+      mem = @manifest['memory']
+      if mem != app.memory
+        diff[:memory] = [app.memory, mem]
+        app.memory = mem
+      end
+
+      instances = @manifest['instances']
+      if instances != app.total_instances
+        diff[:instances] = [app.total_instances, instances]
+        app.total_instances = instances
+      end
+
+      framework =  @manifest['framework']
+      if @session.v2?
+        if framework != app.framework.name
+          diff[:framework] = [app.framework.name, framework]
+          app.framework = @session.client.framework_by_name(framework)
+        end
+      else
+        if framework != app.framework
+          diff[:framework] = [app.framework, framework]
+          app.framework = app.framework
+        end
+      end
+
+      runtime = @manifest['runtime']
+      if @session.v2?
+        if runtime != app.runtime.name
+          diff[:runtime] = [app.runtime.name, runtime]
+          app.runtime = @session.client.runtime_by_name(runtime)
+        end
+      else
+        if runtime != app.runtime
+          diff[:runtime] = [app.runtime, runtime]
+          app.runtime = runtime
+        end
+      end
+
+      if @manifest['framework'] == "standalone"
+        command = @manifest['command']
+        if command != app.command
+          diff[:command] = [app.command, command]
+          app.command = command
+        end
+      end
+
+      if @session.v2?
+        production = @manifest['plan'] if @manifest['plan']
+
+        if production != app.production
+          diff[:production] = [bool(app.production), bool(production)]
+          app.production = production
+        end
+      end
+
+      unless diff.empty?
+        diff.each do |name, change|
+          old, new = change
+          @log.debug("Application: #{app.name}, Change: #{old} -> #{new}")
+        end
+        begin
+          app.update!
+        rescue Exception => e
+          @log.error("Fail to update Application: #{app.name}\n#{e.inspect}")
+          raise RuntimeError, "Fail to update Application: #{app.name}\n#{e.inspect}"
+        end
+      end
+      restart
+    end
+
+    def create_app(name, path, services, need_check)
+      app = @session.client.app
+      app.name = name
+      app.space = @session.current_space if @session.current_space
+      app.total_instances = @manifest['instances']
+      app.production = @manifest['plan'] if @session.v2? && @manifest['plan']
+
+      if @session.v2?
+        all_frameworks = @session.client.frameworks
+        framework = all_frameworks.find { |f| f.name == @manifest['framework']}
+
+        all_runtimes = @session.client.runtimes
+        runtime = all_runtimes.find { |r| r.name == @manifest['runtime']}
+      end
+
+      app.framework = framework || @manifest['framework']
+      app.runtime = runtime || @manifest['runtime']
+
+      app.command = @manifest['command'] if @manifest['framework'] == "standalone"
+
+      url = get_url
+      @manifest['uris'] = [url,]
+      app.urls = @manifest['uris'] unless @manifest['no_url'] || @session.v2?
+
+
+      app.memory = @manifest['memory']
+      begin
+        app.create!
+      rescue Exception => e
+        @log.error("Fail to create Application: #{app.name}\n#{e.inspect}")
+        raise RuntimeError, "Fail to create Application: #{app.name}\n#{e.inspect}"
+      end
+
+      @app = app
+      map(url) if url && @session.v2?
+
+      services.each { |service| bind(service, false)} if services
+      upload_app(app, path)
+
+      start(need_check)
+    end
+
+    def upload_app(app, path)
+      begin
+        app.upload(path)
+      rescue Exception => e
+        @log.error("Fail to push/upload file path: #{path} for Application: #{app.name}\n#{e.inspect}")
+        raise RuntimeError, "Fail to push/upload file path: #{path} for Application: #{app.name}\n#{e.inspect}"
+      end
     end
 
   end

@@ -145,7 +145,6 @@ module BVT::Harness
         find = @client.organization_by_name(org_name)
         org = find if find
       end
-      @client.current_organization = org
       @current_organization = org
 
       spaces = @current_organization.spaces
@@ -226,7 +225,8 @@ module BVT::Harness
         elsif (mode == "current")
           # CCNG cannot delete service which binded to application
           # therefore, remove application first
-          @client.routes.each(&:delete!)
+          @client.current_organization = @current_organization
+          @client.current_space = @current_space
           apps.each {|app| app.delete}
           services.each {|service| service.delete}
         end
