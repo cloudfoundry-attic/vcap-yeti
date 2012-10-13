@@ -105,7 +105,7 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
   it "memcached services", :p1 => true, :memcached => true do
     memcached_service = create_service(MEMCACHED_MANIFEST)
     app = create_push_app("memcached_app")
-    app.bind(memcached_service.name)
+    app.bind(memcached_service)
 
     r1 = app.get_response(:post,"/storeincache",{:key => 'foo', :value => 'bar'}.to_json)
     r1.response_code.should == 200
