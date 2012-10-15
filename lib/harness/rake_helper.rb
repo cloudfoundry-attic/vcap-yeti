@@ -15,14 +15,15 @@ module BVT::Harness
     VCAP_BVT_DEFAULT_USER   =   "test@vcap.me"
     VCAP_BVT_DEFAULT_ADMIN  =   "admin@vcap.me"
 
-    def generate_config_file(admin=false)
+    def generate_config_file(user='normal')
       Dir.mkdir(VCAP_BVT_HOME) unless Dir.exists?(VCAP_BVT_HOME)
       get_config
 
       get_target
-      get_user
-      get_user_passwd
-      if admin
+      if user == 'normal'
+        get_user
+        get_user_passwd
+      elsif user == 'admin'
         get_admin_user
         get_admin_user_passwd
       end

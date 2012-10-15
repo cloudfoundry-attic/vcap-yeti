@@ -100,7 +100,9 @@ module BVT::Harness
             task_output = run_task(task, user['email'], user['passwd'])
 
             if task_output =~ /Failures/
-              failure_number += 1
+              @lock.synchronize do
+                failure_number += 1
+              end
               failure_log = parse_failure_log(task_output)
               failure_list << [task[:line], failure_log, task[:envs]]
               @lock.synchronize do
