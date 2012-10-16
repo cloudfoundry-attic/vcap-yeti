@@ -17,4 +17,10 @@ describe BVT::Spec::Simple::Node08Node do
     app.stats.should_not == nil
     app.get_response(:get).body_str.should == "running version v0.8.2"
   end
+
+  it "access my application root and see hello from node-gyp", :p1 => true do
+    app = create_push_app("app_node_dependencies08")
+    app.stats.should_not == nil
+    app.get_response(:get).body_str.should == "hello from node-gyp"
+  end
 end

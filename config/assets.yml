@@ -335,6 +335,12 @@ app_node_dependencies06:
   memory: 64
   path: "assets/node/node_dependencies06"
 
+app_node_dependencies08:
+  framework: "node"
+  runtime: node08
+  memory: 64
+  path: "assets/node/node_dependencies08"
+
 app_node_version04:
   framework: "node"
   runtime: node
