@@ -198,6 +198,12 @@ rails_autoconfig_disabled_by_gem:
   memory: 256
   path: "assets/rails3/autoconfig_disabled_by_gem"
 
+rails_3_2_app:
+  framework: "rails3"
+  category: "ruby"
+  memory: 256
+  path: "assets/rails3/rails_3_2_app"
+
 app_rack_service:
   framework: "rack"
   runtime: "ruby18"

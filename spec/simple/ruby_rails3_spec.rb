@@ -22,4 +22,14 @@ describe BVT::Spec::Simple::RubyRails3 do
     @app.get_response(:get).body_str.should_not == nil
     @app.get_response(:get).body_str.should == "running version "+version
   end
+
+  it "precompiles assets" do
+    @app = create_push_app("rails_3_2_app")
+    @app.stats.should_not == nil
+    res = @app.get_response(:get, "/assets/manifest.yml")
+    res.should_not == nil
+    res.body_str.should match /application.js: application-\w/
+    res = @app.get_response(:get, "/assets/application.js")
+    res.body_str.should match /alert\(\"Hello from CoffeeScript!\"\)/
+  end
 end
