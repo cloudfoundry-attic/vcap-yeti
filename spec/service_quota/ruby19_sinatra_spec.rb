@@ -130,33 +130,8 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     app = create_push_app("service_quota_app")
     bind_service(POSTGRESQL_MANIFEST, app)
 
-    # create a table
-    r = app.get_response(:post, '/service/postgresql/tables/quota_table', '')
-    r.response_code.should == 200
-    r.body_str.should == 'quota_table'
-    r.close
-
-    # insert data under quota
-    mega = pg_max_db_size - 1
-    r = app.get_response(:post, "/service/postgresql/tables/quota_table/#{mega}", '')
-    r.response_code.should == 200
-    r.body_str.should == 'ok'
-    r.close
-    sleep 2
-
-    # read data
-    r = app.get_response(:get, "/service/postgresql/tables/quota_table")
-    r.response_code.should == 200
-    r.body_str.should == 'ok'
-    r.close
-
-    sleep 2
-
-    # can not insert data any more
-    r = app.get_response(:post, '/service/postgresql/tables/quota_table/2', '')
-    r.response_code.should == 200
-    r.body_str.should == "ERROR:  permission denied for relation quota_table\n"
-    r.close
+    verify_max_db_size(pg_max_db_size, app, '/service/postgresql/tables/quota_table',
+                       'ERROR:  permission denied for relation quota_table')
 
     # can not create objects any more
     r = app.get_response(:post, '/service/postgresql/tables/test_table', '')
@@ -213,37 +188,9 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     app = create_push_app("service_quota_app")
     bind_service(MYSQL_MANIFEST, app)
 
-    # create a table
-    r = app.get_response(:post, '/service/mysql/tables/quota_table', '')
-    r.response_code.should == 200
-    r.body_str.should == 'quota_table'
-    r.close
+    verify_max_db_size(mysql_max_db_size, app, '/service/mysql/tables/quota_table',
+                       'INSERT command denied to user')
 
-    # insert data under quota
-    mega = mysql_max_db_size - 1
-    r = app.get_response(:post, "/service/mysql/tables/quota_table/#{mega}", '')
-    r.response_code.should == 200
-    r.body_str.should == 'ok'
-    r.close
-
-    # read data
-    r = app.get_response(:get, "/service/mysql/tables/quota_table")
-    r.response_code.should == 200
-    r.body_str.should == 'ok'
-    r.close
-
-    # insert more data to be over quota
-    r = app.get_response(:post, '/service/mysql/tables/quota_table/1', '')
-    r.response_code.should == 200
-    r.body_str.should == 'ok'
-    r.close
-    sleep 2
-
-    # can not insert data any more
-    r = app.get_response(:post, '/service/mysql/tables/quota_table/1', '')
-    r.response_code.should == 200
-    r.body_str.should =~ /INSERT command denied to user/
-    r.close
 
     # can not create objects any more
     r = app.get_response(:post, '/service/mysql/tables/test_table', '')
@@ -389,16 +336,16 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
       end
 
       success_number = 0
-      expect_error = false
+      expect_error = 0
       body_str_list.each {|s|
         temp = s.split('-')[0].to_i
         temp = SINGLE_APP_CLIENTS_LIMIT if temp == 0
         success_number += temp
         if s =~ /#{error_msg}/
-          expect_error = true
+          expect_error += 1
         end
       }
-      expect_error.should be_true, "no expected error displayed"
+      expect_error.should eql(1), "1 error expected, actual errors: #{expect_error}"
       success_number.should be_within(5).of(max_clients-1)
     else
       app = create_push_app("service_quota_app")
@@ -409,11 +356,56 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
       r.body_str.should == 'ok'
       r.close
 
+      app.unbind(service)
+      service.delete
+      service2 = create_service(manifest)
+      app.bind(service2)
+
       r = app.get_response(:post, "/service/#{service_url}/clients/#{max_clients+1}", "")
       r.response_code.should == 200
       r.body_str.should =~ /#{error_msg}/
       r.close
     end
+  end
+
+  def verify_max_db_size(max_db_size, app, service_url, error_msg)
+    single_app_megabytes = 200
+    table_name = service_url.split('/')[-1]
+
+    number = max_db_size / single_app_megabytes
+    left_quota = max_db_size % single_app_megabytes - 1
+
+    r = app.get_response(:post, service_url, "")
+    r.body_str.should == table_name
+    r.close
+
+    if number > 0
+      for i in 0..number - 1
+        r = app.get_response(:post, "#{service_url}/#{single_app_megabytes}")
+        r.body_str.should == "ok"
+        r.close
+      end
+
+      r = app.get_response(:post, "#{service_url}/#{left_quota}")
+      r.body_str.should == "ok"
+      r.close
+    else
+      mega = max_db_size - 1
+      r = app.get_response(:post, "#{service_url}/#{mega}", "")
+      r.response_code.should == 200
+      r.body_str.should == 'ok'
+      r.close
+    end
+
+    r = app.get_response(:post, "#{service_url}/1", "")
+    r.response_code.should == 200
+    r.close
+    sleep 2
+
+    r = app.get_response(:post, "#{service_url}/1", "")
+    r.response_code.should == 200
+    r.body_str.should =~ /#{error_msg}/
+    r.close
   end
 
   it "max_db_size of vblob service", :vblob => true do
@@ -442,7 +434,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
       content = app.get_response(:post, "/service/vblob/bucket#{i}")
       content.body_str.should == "ok"
       content.close
-      content = app.get_response(:post, "/service/vblob/bucket#{i}/testobject/#{single_app_megabytes}")
+      content = app.get_response(:post, "/service/vblob/bucket#{i}/#{single_app_megabytes}")
       content.body_str.should == "ok"
       content.close
     end
@@ -450,7 +442,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     content = app.get_response(:post, "/service/vblob/bucket#{number}")
     content.body_str.should == "ok"
     content.close
-    content = app.get_response(:post, "/service/vblob/bucket#{number}/testobject/#{left_quota}")
+    content = app.get_response(:post, "/service/vblob/bucket#{number}/#{left_quota}")
     content.body_str.should == "ok"
     content.close
 
@@ -463,7 +455,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     content = app.get_response(:post, "/service/vblob/bucket#{number + 1}")
     content.body_str.should == "ok"
     content.close
-    content = app.get_response(:post, "/service/vblob/bucket#{number + 1}/testobject/2")
+    content = app.get_response(:post, "/service/vblob/bucket#{number + 1}/2")
     content.body_str.should == "Connection reset by peer"
     content.close
 
@@ -473,7 +465,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     content.close
 
     #delete
-    content = app.get_response(:delete, "/service/vblob/bucket1/testobject/5")
+    content = app.get_response(:delete, "/service/vblob/bucket1/5")
     content.close
     sleep 2
 
@@ -485,7 +477,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     content = app.get_response(:post, "/service/vblob/bucket1")
     content.body_str.should == "ok"
     content.close
-    content = app.get_response(:post, "/service/vblob/obj_limit/bucket1/testobject/2")
+    content = app.get_response(:post, "/service/vblob/obj_limit/bucket1/2")
     content.body_str.should == "ok"
     content.close
   end
@@ -506,7 +498,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
       content = app.get_response(:post, "/service/vblob/bucket#{i}")
       content.body_str.should == "ok"
       content.close
-      content = app.get_response(:post, "/service/vblob/obj_limit/bucket#{i}/testobject/#{single_app_objs}")
+      content = app.get_response(:post, "/service/vblob/obj_limit/bucket#{i}/#{single_app_objs}")
       content.body_str.should == "ok"
       content.close
     end
@@ -514,7 +506,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     content = app.get_response(:post, "/service/vblob/bucket#{number}")
     content.body_str.should == "ok"
     content.close
-    content = app.get_response(:post, "/service/vblob/obj_limit/bucket#{number}/testobject/#{left_obj}")
+    content = app.get_response(:post, "/service/vblob/obj_limit/bucket#{number}/#{left_obj}")
     content.body_str.should == "ok"
     content.close
 
@@ -527,7 +519,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     content = app.get_response(:post, "/service/vblob/bucket#{number + 1}")
     content.body_str.should == "ok"
     content.close
-    content = app.get_response(:post, "/service/vblob/obj_limit/bucket#{number + 1}/testobject/2")
+    content = app.get_response(:post, "/service/vblob/obj_limit/bucket#{number + 1}/2")
     content.body_str.should == "Usage will exceed the quota"
     content.close
 
@@ -537,7 +529,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     content.close
 
     #delete
-    content = app.get_response(:delete, "/service/vblob/bucket1/testobject/5")
+    content = app.get_response(:delete, "/service/vblob/bucket1/5")
     content.close
     sleep 2
 
@@ -549,7 +541,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     content = app.get_response(:post, "/service/vblob/bucket1")
     content.body_str.should == "ok"
     content.close
-    content = app.get_response(:post, "/service/vblob/obj_limit/bucket1/testobject/2")
+    content = app.get_response(:post, "/service/vblob/obj_limit/bucket1/2")
     content.body_str.should == "ok"
     content.close
   end
