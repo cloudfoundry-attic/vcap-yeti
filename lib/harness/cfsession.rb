@@ -31,14 +31,14 @@ module BVT::Harness
       @log.debug("Login in, target: #{@TARGET}, email = #{@email}")
       @client = CFoundry::Client.new(@TARGET)
       @client.trace = true if ENV['VCAP_BVT_TRACE']
-      @client.log = LoggerHelper::logfile
+      @client.log = []
       begin
         @token = @client.login({:username => @email, :password =>  @passwd})
       rescue Exception => e
         @log.error "Fail to login in, target: #{@TARGET}, user: #{@email}\n#{e.to_s}"
         raise "Cannot login target environment:\n" +
               "target = '#{@TARGET}', user: '#{@email}'.\n" +
-              "Pleae check your ENV and #{VCAP_BVT_CONFIG_FILE}" + "\n#{e.to_s}"
+              "Pleae check your ENV and #{VCAP_BVT_CONFIG_FILE}" + "\n#{e.to_s}\n#{print_client_logs}"
       end
       # TBD - ABS: This is a hack around the 1 sec granularity of our token time stamp
       sleep(1)
@@ -192,7 +192,7 @@ module BVT::Harness
       rescue Exception => e
         @log.error("Fail to get space: #{name}")
         raise RuntimeError, "Fail to get space: " +
-            "\n#{e.to_s}"
+            "\n#{e.to_s}\n#{print_client_logs}"
       end
     end
 
@@ -226,6 +226,7 @@ module BVT::Harness
         elsif (mode == "current")
           # CCNG cannot delete service which binded to application
           # therefore, remove application first
+          @client.routes.each(&:delete!)
           apps.each {|app| app.delete}
           services.each {|service| service.delete}
         end
@@ -237,6 +238,18 @@ module BVT::Harness
 
     def v2?
       @client.is_a?(CFoundry::V2::Client)
+    end
+
+    def print_client_logs
+      lines = ""
+      unless @client.log.empty?
+        @client.log.reverse.each do |item|
+          lines += "\n#{parse_log_line(item)}"
+        end
+      end
+
+      @client.log = []
+      lines
     end
 
     private
@@ -308,12 +321,28 @@ module BVT::Harness
         @log.error("Fail to check user's admin privilege. Target: #{@client.target},"+
                        " login email: #{@email}\n#{e.to_s}")
         raise RuntimeError, "Fail to check user's admin privilege. Target: #{@client.target},"+
-            " login email: #{@email}\n#{e.to_s}"
+            " login email: #{@email}\n#{e.to_s}\n#{print_client_logs}"
       end
     end
 
     def no_v2
       fail "not implemented for v2." if v2?
+    end
+
+    def parse_log_line(item)
+      date        = item[:response][:headers][:date]
+      time        = item[:time]
+      rest_method = item[:request][:method].upcase
+      code        = item[:response][:code]
+      url         = item[:request][:url]
+
+      if item[:response][:headers][:x_vcap_request_id]
+        request_id  = item[:response][:headers][:x_vcap_request_id]
+      else
+        request_id  = ""
+      end
+
+      "[#{date}]  #{time}\t#{request_id}  #{rest_method}\t-> #{code}\t#{url}"
     end
   end
 end

@@ -55,7 +55,7 @@ module BVT::Harness
         @log.error("Fail to create service (#{instance_info}):" +
                        " #{@instance.name}\n#{e.to_s}")
         raise RuntimeError, "Fail to create service (#{instance_info}):" +
-            " #{@instance.name}\n#{e.to_s}"
+            " #{@instance.name}\n#{e.to_s}\n#{@session.print_client_logs}"
       end
     end
 
@@ -73,7 +73,7 @@ module BVT::Harness
           @instance.delete!
         rescue Exception => e
           @log.error("Fail to delete service (#{instance_info}): #{@instance.name}\n#{e.to_s}")
-          raise RuntimeError, "Fail to delete service (#{instance_info}): #{@instance.name}\n#{e.to_s}"
+          raise RuntimeError, "Fail to delete service (#{instance_info}): #{@instance.name}\n#{e.to_s}\n#{@session.print_client_logs}"
         end
       end
     end

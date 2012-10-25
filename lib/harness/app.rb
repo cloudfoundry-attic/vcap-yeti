@@ -52,7 +52,7 @@ module BVT::Harness
         add_route if @session.v2?
       rescue Exception => e
         @log.error("Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}")
-        raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}"
+        raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}\n#{@session.print_client_logs}"
       end
 
       services.each { |service| bind(service, false)} if services
@@ -62,10 +62,11 @@ module BVT::Harness
     def delete
       @log.info("Delete App: #{@app.name}")
       begin
+        @app.routes.each(&:delete!) if @session.v2?
         @app.delete!
       rescue
         @log.error "Delete App: #{@app.name} failed. "
-        raise RuntimeError, "Delete App: #{@app.name} failed."
+        raise RuntimeError, "Delete App: #{@app.name} failed.\n#{@session.print_client_logs}"
       end
     end
 
@@ -82,7 +83,7 @@ module BVT::Harness
         restart
       rescue Exception => e
         @log.error "Update App: #{@app.name} failed.\n#{e.to_s}"
-        raise RuntimeError, "Update App: #{@app.name} failed.\n#{e.to_s}"
+        raise RuntimeError, "Update App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
       end
     end
 
@@ -103,7 +104,7 @@ module BVT::Harness
           @app.stop!
         rescue
           @log.error "Stop App: #{@app.name} failed. "
-          raise RuntimeError, "Stop App: #{@app.name} failed."
+          raise RuntimeError, "Stop App: #{@app.name} failed.\n#{@session.print_client_logs}"
         end
       end
     end
@@ -120,7 +121,7 @@ module BVT::Harness
           @app.start!
         rescue Exception => e
           @log.error "Start App: #{@app.name} failed.\n#{e.to_s}"
-          raise RuntimeError, "Start App: #{@app.name} failed.\n#{e.to_s}"
+          raise RuntimeError, "Start App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
         end
         check_application if need_check
       end
@@ -138,7 +139,7 @@ module BVT::Harness
         @log.error("Fail to bind Service: #{service.name} to Application:" +
                        " #{@app.name}\n#{e.to_s}")
         raise RuntimeError, "Fail to bind Service: #{service.name} to " +
-            "Application: #{@app.name}\n#{e.to_s}"
+            "Application: #{@app.name}\n#{e.to_s}\n#{@session.print_client_logs}"
       end
       restart if restart_app
     end
@@ -159,7 +160,7 @@ module BVT::Harness
         @log.error("Fail to unbind service: #{service.name} for " +
                        "application: #{@app.name}")
         raise RuntimeError, "Fail to unbind service: #{service.name} for " +
-            "application: #{@app.name}"
+            "application: #{@app.name}\n#{@session.print_client_logs}"
       end
     end
 
@@ -173,42 +174,48 @@ module BVT::Harness
         @app.stats
       rescue Exception => e
         @log.error("Fail to display application: #{@app.name} status!\n#{e.to_s}")
-        raise RuntimeError, "Fail to display application: #{@app.name} status!\n#{e.to_s}"
+        raise RuntimeError, "Fail to display application: #{@app.name} status!\n#{e.to_s}\n#{@session.print_client_logs}"
       end
     end
 
     def map(url)
       @log.info("Map URL: #{url} to Application: #{@app.name}.")
       simple = url.sub(/^https?:\/\/(.*)\/?/i, '\1')
-      if @session.v2?
-        host, domain_name = simple.split(".", 2)
+      begin
+        if @session.v2?
+          host, domain_name = simple.split(".", 2)
 
-        domain =
-            @session.client.current_space.domains(0, :name => domain_name).first
+          domain =
+              @session.client.current_space.domains(0, :name => domain_name).first
 
-        unless domain
-          @log.error("Invalid domain '#{domain_name}, please check your input url: #{url}")
-          raise RuntimeError, "Invalid domain '#{domain_name}, please check your input url: #{url}"
+          unless domain
+            @log.error("Invalid domain '#{domain_name}, please check your input url: #{url}")
+            raise RuntimeError, "Invalid domain '#{domain_name}, please check your input url: #{url}"
+          end
+
+          route = @session.client.routes(0, :host => host).find do |r|
+            r.domain == domain
+          end
+
+          unless route
+            route = @session.client.route
+            route.host = host
+            route.domain = domain
+            route.organization = @session.client.current_organization
+            route.create!
+          end
+
+          @log.debug("Binding #{simple} to application: #{@app.name}")
+          @app.add_route(route)
+        else
+          @app.urls <<  url
+          @app.update!
         end
-
-        route = @session.client.routes(0, :host => host).find do |r|
-          r.domain == domain
-        end
-
-        unless route
-          route = @session.client.route
-          route.host = host
-          route.domain = domain
-          route.organization = @session.client.current_organization
-          route.create!
-        end
-
-        @log.debug("Binding #{simple} to application: #{@app.name}")
-        @app.add_route(route)
-      else
-        @app.urls <<  url
-        @app.update!
+      rescue Exception => e
+        @log.error("Fail to map url: #{simple} to application: #{@app.name}!\n#{e.to_s}")
+        raise RuntimeError, "Fail to map url: #{simple} to application: #{@app.name}!\n#{e.to_s}\n#{@session.print_client_logs}"
       end
+
       @log.debug("Application: #{@app.name}, URLs: #{@app.urls}")
 
     end
@@ -216,24 +223,28 @@ module BVT::Harness
     def unmap(url)
       @log.info("Unmap URL: #{url} to Application: #{@app.name}")
       simple = url.sub(/^https?:\/\/(.*)\/?/i, '\1')
+      begin
+        if @session.v2?
+          host, domain_name = simple.split(".", 2)
 
-      if @session.v2?
-        host, domain_name = simple.split(".", 2)
+          route = @app.routes.find do |r|
+            r.host == host && r.domain.name == domain_name
+          end
 
-        route = @app.routes.find do |r|
-          r.host == host && r.domain.name == domain_name
+          unless route
+            @log.error("Invalid route '#{simple}', please check your input url: #{url}")
+            raise RuntimeError, "Invalid route '#{simple}', please check your input url: #{url}"
+          end
+
+          @log.debug("Removing route #{simple}")
+          @app.remove_route(route)
+        else
+          @app.urls.delete(simple)
+          @app.update!
         end
-
-        unless route
-          @log.error("Invalid route '#{simple}', please check your input url: #{url}")
-          raise RuntimeError, "Invalid route '#{simple}', please check your input url: #{url}"
-        end
-
-        @log.debug("Removing route #{simple}")
-        @app.remove_route(route)
-      else
-        @app.urls.delete(simple)
-        @app.update!
+      rescue Exception => e
+        @log.error("Fail to unmap url: #{simple} to application: #{@app.name}!\n#{e.to_s}")
+        raise RuntimeError, "Fail to unmap url: #{simple} to application: #{@app.name}!\n#{e.to_s}\n#{@session.print_client_logs}"
       end
       @log.debug("Application: #{@app.name}, URLs: #{@app.urls}")
     end
@@ -253,7 +264,7 @@ module BVT::Harness
         @app.files(path)
       rescue Exception => e
         @log.error("Fail to examine an application: #{@app.name} files!\n#{e.to_s}")
-        raise RuntimeError, "Fail to examine an application: #{@app.name} files!\n#{e.to_s}"
+        raise RuntimeError, "Fail to examine an application: #{@app.name} files!\n#{e.to_s}\n#{@session.print_client_logs}"
       end
     end
 
@@ -267,7 +278,7 @@ module BVT::Harness
         @app.file(path)
       rescue Exception => e
         @log.error("Fail to examine an application: #{@app.name} file!\n#{e.to_s}")
-        raise RuntimeError, "Fail to examine an application: #{@app.name} file!\n#{e.to_s}"
+        raise RuntimeError, "Fail to examine an application: #{@app.name} file!\n#{e.to_s}\n#{@session.print_client_logs}"
       end
     end
 
@@ -284,9 +295,9 @@ module BVT::Harness
         @app.update!
       rescue
         @log.error("Fail to Update the instances/memory limit for " +
-                   "Application: #{@app.name} !")
+                   "Application: #{@app.name}!")
         raise RuntimeError, "Fail to update the instances/memory limit for " +
-                   "Application: #{@app.name} !"
+                   "Application: #{@app.name}!\n#{@session.print_client_logs}"
       end
     end
 
@@ -299,8 +310,8 @@ module BVT::Harness
         @log.debug("Get application: #{@app.name} instances list")
         @app.instances
       rescue
-        @log.error("Fail to list the instances for Application: #{@app.name} !")
-        raise RuntimeError, "Fail to list the instances for Application: #{@app.name} !"
+        @log.error("Fail to list the instances for Application: #{@app.name}!")
+        raise RuntimeError, "Fail to list the instances for Application: #{@app.name}!\n#{@session.print_client_logs}"
       end
     end
 
@@ -313,8 +324,8 @@ module BVT::Harness
         @log.debug("Get application: #{@app.name} services list")
         @app.services
       rescue
-        @log.error("Fail to list the services for Application: #{@app.name} !")
-        raise RuntimeError, "Fail to list the services for Application: #{@app.name} !"
+        @log.error("Fail to list the services for Application: #{@app.name}!")
+        raise RuntimeError, "Fail to list the services for Application: #{@app.name}!\n#{@session.print_client_logs}"
       end
     end
 
@@ -325,10 +336,16 @@ module BVT::Harness
         raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
 
-      instance = @app.instances[0]
-      body = ""
-      instance.files("logs").each do |log|
-        body += instance.file(*log)
+      begin
+        instance = @app.instances[0]
+        body = ""
+        instance.files("logs").each do |log|
+          body += instance.file(*log)
+        end
+      rescue Exception => e
+        @log.error("Fail to get logs for Application: #{@app.name}!")
+        raise RuntimeError, "Fail to get logs for Application: #{@app.name}!" +
+            "\n#{e.to_s}\n#{@session.print_client_logs}"
       end
       @log.debug("Get Application #{@app.name}, logs contents: #{body}")
       body
@@ -377,7 +394,7 @@ module BVT::Harness
         return easy
       rescue Exception => e
         @log.error("Cannot #{method} response from/to #{easy.url}\n#{e.to_s}")
-        raise RuntimeError, "Cannot #{method} response from/to #{easy.url}\n#{e.to_s}"
+        raise RuntimeError, "Cannot #{method} response from/to #{easy.url}\n#{e.to_s}\n#{@session.print_client_logs}"
       end
     end
 
