@@ -56,6 +56,7 @@ Notes:
 |SERVICE_BROKER_URL           |service broker url   |SERVICE_BROKER_URL=http://...            |
 |VCAP_BVT_LONGEVITY           |run testing N times  |VCAP_BVT_LONGEVITY=100                   |
 |VCAP_BVT_CONFIG_FILE         |specify config file  |VCAP_BVT_CONFIG_FILE=***/config.yml      |
+
 ```
 
 To test marketplace gateway, specify the following environment variables:
