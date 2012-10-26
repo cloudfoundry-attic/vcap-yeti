@@ -460,7 +460,7 @@ module BVT::Harness
             @log.error "Application: #{@app.name} cannot be started " +
                          " in #{VCAP_BVT_APP_ASSETS['timeout_secs']} seconds"
             raise RuntimeError, "Application: #{@app.name} cannot be started " +
-              "in #{VCAP_BVT_APP_ASSETS['timeout_secs']} seconds"
+              "in #{VCAP_BVT_APP_ASSETS['timeout_secs']} seconds.\n#{@session.print_client_logs}"
           end
         end
       end
