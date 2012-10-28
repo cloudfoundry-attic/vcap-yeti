@@ -20,10 +20,9 @@ module BVT::Harness
       get_config
 
       get_target
-      if user == 'normal'
-        get_user
-        get_user_passwd
-      elsif user == 'admin'
+      get_user
+      get_user_passwd
+      if user == 'admin'
         get_admin_user
         get_admin_user_passwd
       end
