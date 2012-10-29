@@ -38,6 +38,7 @@ How to run it
 Notes:
 -----
 1. To be compatible with BVT, some environment variables are preserved in Yeti:
+
 ```
 ||Environment Variables       ||Function            ||Example                                ||
 |VCAP_BVT_TARGET              |target environment   |VCAP_BVT_TARGET=cloudfoundry.com         |
@@ -56,7 +57,6 @@ Notes:
 |SERVICE_BROKER_URL           |service broker url   |SERVICE_BROKER_URL=http://...            |
 |VCAP_BVT_LONGEVITY           |run testing N times  |VCAP_BVT_LONGEVITY=100                   |
 |VCAP_BVT_CONFIG_FILE         |specify config file  |VCAP_BVT_CONFIG_FILE=***/config.yml      |
-
 ```
 
 To test marketplace gateway, specify the following environment variables:
@@ -64,7 +64,6 @@ To test marketplace gateway, specify the following environment variables:
 ||Environment Variables       ||Function            ||Example                                ||
 |MPGW_TOKEN                   |specify mpgw token   |MPGW_TOKEN=testmarketplacetoken          |
 |MPGW_URL                     |specify mpgw url     |MPGW_URL=http://test-mpgw....            |
-
 ```
 
 2. In order to support parallel running, and administrative test cases, Yeti will ask administrative
