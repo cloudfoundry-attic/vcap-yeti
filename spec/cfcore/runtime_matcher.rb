@@ -2,7 +2,7 @@
 # system_runtimes.
 RSpec::Matchers.define :have_runtime do |name, version|
   match do |system_runtimes|
-    system_runtimes.fetch(name, {})[:version] == version
+    system_runtimes.fetch(name, {})[:version] =~ /\A#{Regexp.escape(version)}/
   end
 
   failure_message_for_should do

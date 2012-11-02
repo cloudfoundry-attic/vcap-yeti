@@ -3,7 +3,7 @@
 RSpec::Matchers.define :have_framework do |name, rt_name, rt_version|
   match do |system_frameworks|
     system_frameworks.fetch(name, {}).fetch(:runtimes, []).find do |rt|
-      rt[:name] == rt_name && rt[:version] == rt_version
+      rt[:name] == rt_name && rt[:version] =~ /\A#{Regexp.escape(rt_version)}/
     end
   end
 
