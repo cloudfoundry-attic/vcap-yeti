@@ -131,7 +131,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     bind_service(POSTGRESQL_MANIFEST, app)
 
     verify_max_db_size(pg_max_db_size, app, '/service/postgresql/tables/quota_table',
-                       'ERROR:  permission denied for relation quota_table')
+                       'ERROR:  permission denied for relation quota_table', ['connection not open','server closed the connection unexpectedly','terminating connection due to administrator command'])
 
     # can not create objects any more
     r = app.get_response(:post, '/service/postgresql/tables/test_table', '')
@@ -378,9 +378,12 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     end
   end
 
-  def verify_max_db_size(max_db_size, app, service_url, error_msg)
+  def verify_max_db_size(max_db_size, app, service_url, error_msg, error_msg2 = [])
     single_app_megabytes = 200
     table_name = service_url.split('/')[-1]
+    data_percent = 0.8
+    data_percent = ENV['SERVICE_QUOTA_DB_SIZE_PERCENT'] if ENV['SERVICE_QUOTA_DB_SIZE_PERCENT']
+    error_msg2 << error_msg
 
     number = max_db_size / single_app_megabytes
     left_quota = max_db_size % single_app_megabytes - 1
@@ -388,22 +391,27 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     r = app.get_response(:post, service_url, "")
     r.body_str.should == table_name
     r.close
+    success_size = 0
 
-    if number > 0
-      for i in 0..number - 1
-        r = app.get_response(:post, "#{service_url}/#{single_app_megabytes}")
+    sizes = []
+    number.times { sizes << single_app_megabytes } if number > 0
+    sizes << left_quota if left_quota > 0
+
+    sizes.each do |size|
+      r = app.get_response(:post, "#{service_url}/#{size}")
+      if error_msg2.any? { |err| r.body_str =~ /#{err}/ }
+        success_size += r.body_str.split('-')[0].to_i
+        # confirm the write permission is revoked.
+        r2 = app.get_response(:post, "#{service_url}/1", "")
+        r2.body_str.should =~ /#{error_msg}/
+        r2.close
+        # confirm we insert enough data to trigger quota enforcement
+        (success_size.to_f / max_db_size.to_f).should > data_percent
+        return
+      else
         r.body_str.should == "ok"
-        r.close
       end
-
-      r = app.get_response(:post, "#{service_url}/#{left_quota}")
-      r.body_str.should == "ok"
-      r.close
-    else
-      mega = max_db_size - 1
-      r = app.get_response(:post, "#{service_url}/#{mega}", "")
-      r.response_code.should == 200
-      r.body_str.should == 'ok'
+      success_size += size
       r.close
     end
 
@@ -412,6 +420,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     r.close
     sleep 2
 
+    # if no data explicit expansion, we should see permisison error
     r = app.get_response(:post, "#{service_url}/1", "")
     r.response_code.should == 200
     r.body_str.should =~ /#{error_msg}/
