@@ -230,31 +230,41 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
   end
 
   it "max_memory of redis service", :redis => true do
-    redis_max_memory = SERVICE_QUOTA['redis']['max_memory']
+    redis_max_memory = SERVICE_QUOTA['redis']['max_memory'].to_f
 
     app = create_push_app("service_quota_app")
     bind_service(REDIS_MANIFEST, app)
 
-    r = app.get_response(:post, '/service/redis/set/1', '')
-    r.response_code.should == 200
-    r.body_str.should == 'ok'
-    r.close
+    # since redis uses up more memory than the actual size of data
+    # we'll do a best fill upto redis_max_memory
+    memory = 1
+    used_memory = 0
+    diff = 0
+    while (redis_max_memory - used_memory > diff)
+      r = app.get_response(:post, "/service/redis/set/#{memory}", "")
+      r.response_code.should == 200
+      r.body_str.should == 'ok'
+      r.close
 
-    r = app.get_response(:get, '/service/redis/memory')
-    r.response_code.should == 200
-    used_memory = r.body_str.to_f
-    r.close
+      r = app.get_response(:get, '/service/redis/memory')
+      r.response_code.should == 200
+      used_memory = r.body_str.to_f
+      r.close
 
-    incr_memory = (redis_max_memory - used_memory + 1).to_i
+      diff = used_memory.ceil+1 if diff == 0 # Set threshold for best fill
+      memory += 1
+    end
 
-    r = app.get_response(:post, "/service/redis/set/#{incr_memory}", "")
-    r.response_code.should == 200
-    r.body_str.should == "ok"
-    r.close
+    # Try adding 2xDIFF_THRESHOLD memory to redis. This is enough to exceed the quota
+    # usage beyond redis_max_memory
+    memory += 2*diff
 
-    r = app.get_response(:post, "/service/redis/set/#{incr_memory + 1}", "")
+    r = app.get_response(:post, "/service/redis/set/#{memory}", "")
     r.response_code.should == 200
-    r.body_str.should =~ /ERR command not allowed when used memory > 'maxmemory'/
+
+    # Redis 2.6 return OOM, while earlier versions return ERR, so compare only with tail
+    # end of the response string
+    r.body_str.should =~ /command not allowed when used memory > 'maxmemory'/
     r.close
 
     r = app.get_response(:get, "/service/redis/data")

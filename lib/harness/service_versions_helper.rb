@@ -1,7 +1,10 @@
 
 module BVT::Spec
 
-  TESTED_SERVICES = [{:vendor => 'mongodb', :versions => %w(1.8 2.0)}]
+  TESTED_SERVICES = [
+    {:vendor => 'mongodb', :versions => %w(1.8 2.0)},
+    {:vendor => 'redis'  , :versions => %w(2.2 2.4 2.6)},
+  ]
 
 
   MYSQL_MANIFEST      = ENV['VCAP_BVT_MYSQL_MANIFEST'] ? eval(ENV['VCAP_BVT_MYSQL_MANIFEST']) :
