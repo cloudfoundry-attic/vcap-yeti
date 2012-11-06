@@ -1,7 +1,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), "lib"))
 require 'rspec/core/rake_task'
 require "harness"
-#require "harness/color_helper"
+include BVT::Harness
 include BVT::Harness::ColorHelpers
 
 task :default => [:help]
@@ -44,11 +44,8 @@ task :full, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  if threads == 1
-    longevity('sh("rspec --format Fuubar --color spec/ --tag ~admin --tag ~slow")')
-  else
-    longevity("BVT::Harness::ParallelHelper.run_tests(#{threads}, {'tags' => '~admin,~slow'})")
-  end
+  create_reports_folder
+  longevity("ParallelHelper.run_tests(#{threads}, {'tags' => '~admin,~slow'})")
 end
 
 desc "run tests subset"
@@ -57,11 +54,8 @@ task :tests, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  if threads == 1
-    longevity('sh("rspec --format Fuubar --color spec/ --tag ~admin --tag p1 --tag ~slow")')
-  else
-    longevity("BVT::Harness::ParallelHelper.run_tests(#{threads}, {'tags' => 'p1,~admin,~slow'})")
-  end
+  create_reports_folder
+  longevity("ParallelHelper.run_tests(#{threads}, {'tags' => 'p1,~admin,~slow'})")
 end
 
 desc "Run all bvts randomly, add [N] to specify a seed"
@@ -81,7 +75,8 @@ desc "Run admin test cases"
 task :admin do
   BVT::Harness::RakeHelper.generate_config_file('admin')
   BVT::Harness::RakeHelper.check_environment
-  sh "bundle exec rspec --format Fuubar --color spec/users/ --tag admin"
+  create_reports_folder
+  longevity("ParallelHelper.run_tests(1, {'tags' => 'admin'})")
 end
 
 desc "Run java tests (spring, java_web)"
@@ -90,12 +85,8 @@ task :java, :thread_number, :longevity, :fail_fast do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  if threads == 1
-    longevity('sh "bundle exec rspec --format Fuubar --color -P spec/**/*_spring_spec.rb," +
-     "spec/**/*_java_web_spec.rb"')
-  else
-    longevity("BVT::Harness::ParallelHelper.run_tests(#{threads}, {'pattern' => /_(spring|java_web)_spec\.rb/})")
-  end
+  create_reports_folder
+  longevity("ParallelHelper.run_tests(#{threads}, {'pattern' => /_(spring|java_web)_spec\.rb/})")
 end
 
 desc "Run jvm tests (spring, java_web, grails, lift)"
@@ -104,13 +95,8 @@ task :jvm, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  if threads == 1
-    longevity('sh "bundle exec rspec --format Fuubar --color -P spec/**/*_spring_spec.rb,spec" +
-     "/**/*_java_web_spec.rb,spec/**/*_grails_spec.rb,spec/**/*_lift_spec.rb"')
-  else
-    longevity("BVT::Harness::ParallelHelper.run_tests(#{threads},
-      {'pattern' => /_(spring|java_web|grails|lift)_spec\.rb/})")
-  end
+  create_reports_folder
+  longevity("ParallelHelper.run_test(#{threads}, {'pattern' => /_(spring|java_web|grails|lift)_spec\.rb/})")
 end
 
 desc "Run ruby tests (rails3, sinatra, rack)"
@@ -119,12 +105,8 @@ task :ruby, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  if threads == 1
-    longevity('sh "bundle exec rspec --format Fuubar --color -P spec/**/ruby18_*_spec.rb," +
-     "spec/**/ruby19_*_spec.rb"')
-  else
-    longevity("BVT::Harness::ParallelHelper.run_tests(#{threads}, {'pattern' => /ruby1[89]_.+_spec\.rb/})")
-  end
+  create_reports_folder
+  longevity("ParallelHelper.run_tests(#{threads}, {'pattern' => /ruby1[89]_.+_spec\.rb/})")
 end
 
 desc "Run service tests (mongodb, redis, mysql, postgres, rabbitmq, neo4j, vblob)"
@@ -133,13 +115,8 @@ task :services, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   BVT::Harness::RakeHelper.generate_config_file
   BVT::Harness::RakeHelper.check_environment
-  if threads == 1
-    longevity('sh "bundle exec rspec --format Fuubar --color spec/ --tag mongodb --tag rabbitmq " +
-     "--tag mysql --tag redis --tag postgresql --tag neo4j --tag vblob"')
-  else
-    longevity("BVT::Harness::ParallelHelper.run_tests(#{threads}, {'tags' =>
-      '~admin,mongodb,rabbitmq,mysql,redis,postgresql,neo4j,vblob'})")
-  end
+  create_reports_folder
+  longevity("ParallelHelper.run_tests(#{threads}, {'tags' => '~admin,mongodb,rabbitmq,mysql,redis,postgresql,neo4j,vblob'})")
 end
 
 desc "Clean up test environment"
@@ -160,6 +137,15 @@ end
 desc 'run Micro Cloud Foundry tests'
 RSpec::Core::RakeTask.new(:mcf) do |t|
   t.rspec_opts = '--tag mcf'
+end
+
+def create_reports_folder
+  output = `ls .`
+  if output.include? 'reports'
+    `rm -f reports/*`
+  else
+    `mkdir reports`
+  end
 end
 
 def get_longevity_time
