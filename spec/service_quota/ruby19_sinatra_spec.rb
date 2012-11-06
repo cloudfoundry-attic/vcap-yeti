@@ -189,7 +189,7 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     bind_service(MYSQL_MANIFEST, app)
 
     verify_max_db_size(mysql_max_db_size, app, '/service/mysql/tables/quota_table',
-                       'INSERT command denied to user')
+                       'INSERT command denied to user', ['Query execution was interrupted'])
 
 
     # can not create objects any more
