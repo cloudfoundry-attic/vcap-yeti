@@ -118,7 +118,7 @@ module BVT::Harness
             if case_info['status'] == 'fail'
               @lock.synchronize do
                 failure_number += 1
-                failure_list << [case_info, task[:envs]]
+                failure_list << [case_info, case_info['envs']]
                 session = BVT::Harness::CFSession.new(:admin => false,
                                                 :email => user['email'],
                                                 :passwd => user['passwd'],
@@ -131,14 +131,15 @@ module BVT::Harness
                   $stdout.print "Failures:\n\n"
                 end
                 puts "  #{failure_number}) #{case_info['test_name']}"
-                $stdout.print "#{red(case_info['error_message'])}"
-                $stdout.print "#{cyan(case_info['error_stack_trace'])}"
+                $stdout.print red(case_info['error_message'])
+                $stdout.print cyan(case_info['error_stack_trace'])
+                $stdout.print red("     (Envs: #{case_info['envs']})\n") if case_info['envs'] != ''
                 $stdout.print red("     (Failure time: #{Time.now})\n\n")
               end
             elsif case_info['status'] == 'pending'
               @lock.synchronize do
                 pending_number += 1
-                pending_list << [case_info, task[:envs]]
+                pending_list << [case_info, case_info['envs']]
               end
             end
             case_number += 1
@@ -159,8 +160,10 @@ module BVT::Harness
         puts "Pending:"
         pending_list.each {|pl|
           case_info = pl[0]
+          envs = pl[1]
           puts "  #{yellow(case_info['test_name'])}\n"
-          $stdout.print cyan("#{case_info['pending_info']}")
+          $stdout.print cyan(case_info['pending_info'])
+          $stdout.print cyan("    (Envs: #{envs})\n") if envs != ''
         }
         $stdout.print "\n"
       end
@@ -184,13 +187,7 @@ module BVT::Harness
         $stdout.print "\nFailed examples:\n\n"
         failure_list.each do |fl|
           case_info = fl[0]
-          env_vars = ""
-          if fl[1]
-            BVT::Spec::ServiceVersions.set_environment_variables(fl[1]).each do |k, v|
-              env_vars += "#{k}=\'#{v}\' "
-            end
-          end
-
+          env_vars = fl[1]
           rerun_file.puts "echo ----#{case_info['test_name']}"
           rerun_file.puts env_vars + case_info['rerun_cmd']
           $stdout.print red(env_vars + case_info['rerun_cmd'].split(' # ')[0])
@@ -398,6 +395,7 @@ module BVT::Harness
         BVT::Spec::ServiceVersions.set_environment_variables(envs).each do |k, v|
           env_vars += "#{k}=\'#{v}\' "
         end
+        env_vars = env_vars.strip
       end
       result['envs'] = env_vars
       logs = []
@@ -532,7 +530,7 @@ module BVT::Harness
         temp_list = case_desc_with_env.split('@(')
         case_desc = temp_list[0]
         envs = temp_list.length == 1 ? '' : temp_list[1]
-        i = case_info_list.index {|c| c['test_desc'] == case_desc}
+        i = case_info_list.index {|c| c['test_desc'] == case_desc && c['envs'] == envs}
         case_info = case_info_list[i]
         test_name = case_info['test_name'].encode({:xml => :attr})
         test_name += " (PENDING)" if case_info['status'] == 'pending'
@@ -542,9 +540,11 @@ module BVT::Harness
         @fr.puts "<className>#{case_info['class_name']}</className>"
         @fr.puts "<testName>#{test_name}</testName>"
         @fr.puts "<skipped>#{case_info['status'] == 'pending'}</skipped>"
+        @fr.puts "<envs>#{envs}</envs>"
 
         ff.puts "<testcase name=#{test_name.encode({:xml => :attr})} time=\"#{case_info['duration']}\">"
         ff.puts "<skipped/>" if case_info['status'] == 'pending'
+        ff.puts "<envs>#{envs}</envs>"
 
         if case_info['status'] == 'fail'
           @fr.puts "<errorStackTrace>"
