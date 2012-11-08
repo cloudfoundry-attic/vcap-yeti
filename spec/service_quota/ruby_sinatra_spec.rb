@@ -188,8 +188,12 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     app = create_push_app("service_quota_app")
     bind_service(MYSQL_MANIFEST, app)
 
+    #when will we receive the following errors?
+    #Query execution was interrupted: connection closed during a query
+    #MySQL server has gone away: connection closed before a query
+    #Lost connection to MySQL server during query: client side error. connection closed during a query
     verify_max_db_size(mysql_max_db_size, app, '/service/mysql/tables/quota_table',
-                       'INSERT command denied to user', ['Query execution was interrupted'])
+                       'INSERT command denied to user', ['Query execution was interrupted', 'MySQL server has gone away', 'Lost connection to MySQL server during query'])
 
 
     # can not create objects any more
