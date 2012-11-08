@@ -96,8 +96,8 @@ module BVT::Harness
 
         ###default service plan
         #in v1, use 'free'; in v2, use 'D100' as default
-        DEFAULT_SERVICE_PLAN = @session.v2? ? "D100" : "free"
-        service_manifest[:plan] ||= DEFAULT_SERVICE_PLAN
+        default_service_plan = @session.v2? ? "D100" : "free"
+        service_manifest[:plan] ||= default_service_plan
         plan = meta[:plans].find { |p|
           p =~ /#{service_manifest[:plan]}/
         }

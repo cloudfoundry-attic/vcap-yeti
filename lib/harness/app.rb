@@ -135,9 +135,7 @@ module BVT::Harness
           @log.error "Start App: #{@app.name} failed.\n#{e.to_s}"
           raise RuntimeError, "Start App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
         end
-        sleep 60
-        ###FIXME: 404 CFoundry NOTFOUND
-        #check_application if need_check
+        check_application if need_check
       end
     end
 
@@ -215,7 +213,7 @@ module BVT::Harness
             route = @session.client.route
             route.host = host
             route.domain = domain
-            route.organization = @session.current_organization
+            route.space = @session.current_space
             route.create!
           end
 
