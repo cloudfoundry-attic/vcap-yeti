@@ -366,10 +366,8 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
       r.body_str.should == 'ok'
       r.close
 
-      app.unbind(service)
-      service.delete
-      service2 = create_service(manifest)
-      app.bind(service2)
+      #clean up all service connection
+      app.restart
 
       r = app.get_response(:post, "/service/#{service_url}/clients/#{max_clients+1}", "")
       r.response_code.should == 200
