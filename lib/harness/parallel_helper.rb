@@ -1,11 +1,14 @@
 require 'progressbar'
 require 'harness'
+require 'rexml/document'
+include REXML
 
 module BVT::Harness
   module ParallelHelper
     include Interactive, ColorHelpers
 
     SPEC_PATH = File.join(File.dirname(__FILE__), "../../spec/")
+    YETI_HOME_PATH = File.join(File.dirname(__FILE__), "../../")
 
     def create_parallel_users
       user_info = RakeHelper.get_config
@@ -50,7 +53,7 @@ module BVT::Harness
       user_info['parallel']
     end
 
-    def run_tests(thread_number, options = {"tags" => "~admin"})
+    def run_tests(thread_number, options = {"tags" => "~admin"}, rerun=false)
       if thread_number > VCAP_BVT_PARALLEL_MAX_USERS
         puts red("threads_number can't be greater than #{VCAP_BVT_PARALLEL_MAX_USERS}")
         return
@@ -60,13 +63,10 @@ module BVT::Harness
       end
 
       @case_info_list = []
-      @fr = File.new('./reports/junitResult.xml', 'w')
-      @fr.puts "<?xml version='1.0' encoding='UTF-8'?>"
-      @fr.puts "<result>"
-      @fr.puts "<suites>"
+      @report_file_path = YETI_HOME_PATH + 'reports/junitResult.xml'
 
       @lock = Mutex.new
-      start_time = Time.now
+      @start_time = Time.now
       all_users = create_parallel_users
       parallel_users = []
       i = 0
@@ -77,16 +77,32 @@ module BVT::Harness
       }
       puts yellow("threads number: #{thread_number}\n")
       @queue = Queue.new
-      parse_case_list(options)
+      if rerun
+        get_failed_cases
+      else
+        parse_case_list(options)
 
-      # insert service versions cases in @queue
-      services = BVT::Spec::ServiceVersions.get_tested_services()
-      services.each do |m|
-        m[:versions].each do |v|
-          parse_case_list({"tags" => m[:vendor]},
-                          {:vendor => m[:vendor], :version => v})
+        # insert service versions cases in @queue
+        services = BVT::Spec::ServiceVersions.get_tested_services()
+        services.each do |m|
+          m[:versions].each do |v|
+            service_version_env = BVT::Spec::ServiceVersions.set_environment_variables(
+                                  {:vendor => m[:vendor], :version => v})
+            parse_case_list({"tags" => m[:vendor]}, service_version_env)
+          end
         end
       end
+
+      if @queue.empty?
+        close_summary_report
+        puts yellow("no cases to run, exit.")
+        return
+      end
+
+      @fr = File.new(@report_file_path, 'w')
+      @fr.puts "<?xml version='1.0' encoding='UTF-8'?>"
+      @fr.puts "<result>"
+      @fr.puts "<suites>"
 
       pbar = ProgressBar.new("0/#{@queue.size}", @queue.size, $stdout)
       pbar.format_arguments = [:title, :percentage, :bar, :stat]
@@ -169,8 +185,9 @@ module BVT::Harness
       end
 
       # print total time and summary result
-      end_time = Time.now
-      puts "Finished in #{format_time(end_time-start_time)}\n"
+      @end_time = Time.now
+      puts ""
+      puts "Finished in #{format_time(@end_time - @start_time)}\n"
       if failure_number > 0
         $stdout.print red("#{case_number} examples, #{failure_number} failures")
         $stdout.print red(", #{pending_number} pending") if pending_number > 0
@@ -181,26 +198,27 @@ module BVT::Harness
       end
       $stdout.print "\n"
 
-      # record failed rspec examples to rerun.sh
+      # print rerun command of failed examples
       unless failure_list.empty?
-        rerun_file = File.new(VCAP_BVT_RERUN_FILE, 'w', 0777)
         $stdout.print "\nFailed examples:\n\n"
         failure_list.each do |fl|
           case_info = fl[0]
-          env_vars = fl[1]
-          rerun_file.puts "echo ----#{case_info['test_name']}"
-          rerun_file.puts env_vars + case_info['rerun_cmd']
+          env_vars = fl[1] == '' ? '' : fl[1].gsub('|', ' ') + ' '
           $stdout.print red(env_vars + case_info['rerun_cmd'].split(' # ')[0])
           $stdout.print cyan(" # #{case_info['test_name']}")
           $stdout.print "\n"
         end
-        rerun_file.close
       end
 
       generate_ci_report
 
+      close_summary_report
+    end
+
+    def close_summary_report
+      @end_time = Time.now unless @end_time
       @fr.puts "</suites>"
-      @fr.puts "<duration>#{end_time - start_time}</duration>"
+      @fr.puts "<duration>#{@end_time - @start_time}</duration>"
       @fr.puts "<keepLongStdio>false</keepLongStdio>"
       @fr.puts "</result>"
       @fr.close
@@ -350,6 +368,32 @@ module BVT::Harness
       }
     end
 
+    def get_failed_cases
+      return unless File.exists? @report_file_path
+      report_file = File.new(@report_file_path)
+      doc = REXML::Document.new report_file
+
+      doc.elements.each("result/suites/suite/cases/case") do |c|
+        if c.get_elements("errorDetails")[0]
+          env_vars = c.get_elements("envs")[0].text
+          envs = format_env_string(env_vars)
+          rerun_cmd = c.get_elements("rerunCommand")[0].text
+          line = rerun_cmd.split('#')[0].gsub('rspec ./', YETI_HOME_PATH).strip
+          @queue << {:line => line, :envs => envs}
+        end
+      end
+    end
+
+    def format_env_string(str)
+      return nil if str == nil || str == ''
+      result = {}
+      str.split('|').each do |ss|
+        temp_arr = ss.scan(/([^=]*)='(.*)'/)
+        result[temp_arr[0][0]] = eval(temp_arr[0][1])
+      end
+      result
+    end
+
     def swap(a, i1, i2)
       temp = a[i1]
       a[i1] = a[i2]
@@ -363,8 +407,6 @@ module BVT::Harness
         "YETI_PARALLEL_USER" => user,
         "YETI_PARALLEL_USER_PASSWD" => password
       }
-      env_extras = env_extras.merge(
-          BVT::Spec::ServiceVersions.set_environment_variables(task[:envs])) if task[:envs]
 
       cmd << ENV.to_hash.merge(env_extras)
       cmd += ["bundle", "exec", "rspec", "-f", "d", "--color", task[:line]]
@@ -392,10 +434,10 @@ module BVT::Harness
       result = {}
       env_vars = ""
       if envs
-        BVT::Spec::ServiceVersions.set_environment_variables(envs).each do |k, v|
-          env_vars += "#{k}=\'#{v}\' "
+        envs.each do |k, v|
+          env_vars += "#{k}=\'#{v}\'|"
         end
-        env_vars = env_vars.strip
+        env_vars = env_vars.slice(0..-2)
       end
       result['envs'] = env_vars
       logs = []
@@ -484,7 +526,7 @@ module BVT::Harness
     def generate_single_file_report(case_info_list)
       return if case_info_list == []
       class_name = case_info_list[0]['class_name']
-      file_name = "./reports/#{class_name.gsub(/:+/, '-')}.xml"
+      file_name = "#{YETI_HOME_PATH}reports/#{class_name.gsub(/:+/, '-')}.xml"
       name = class_name.gsub(':', '_')
 
       suite_duration = 0.0
@@ -540,11 +582,11 @@ module BVT::Harness
         @fr.puts "<className>#{case_info['class_name']}</className>"
         @fr.puts "<testName>#{test_name}</testName>"
         @fr.puts "<skipped>#{case_info['status'] == 'pending'}</skipped>"
-        @fr.puts "<envs>#{envs}</envs>"
+        @fr.puts "<envs>#{envs.encode({:xml => :text})}</envs>"
 
         ff.puts "<testcase name=#{test_name.encode({:xml => :attr})} time=\"#{case_info['duration']}\">"
         ff.puts "<skipped/>" if case_info['status'] == 'pending'
-        ff.puts "<envs>#{envs}</envs>"
+        ff.puts "<envs>#{envs.encode({:xml => :text})}</envs>"
 
         if case_info['status'] == 'fail'
           @fr.puts "<errorStackTrace>"
@@ -554,6 +596,7 @@ module BVT::Harness
           @fr.puts "<errorDetails>"
           @fr.puts case_info['error_details'].encode({:xml => :text})
           @fr.puts "</errorDetails>"
+          @fr.puts "<rerunCommand>#{case_info['rerun_cmd'].encode({:xml => :text})}</rerunCommand>"
 
           if case_info['error_message'].include? "expected"
             type = "RSpec::Expectations::ExpectationNotMetError"
@@ -566,6 +609,7 @@ module BVT::Harness
           ff.puts case_info['error_message'].encode({:xml => :text}).gsub('Failure/Error: ', '')
           ff.puts case_info['error_stack_trace'].encode({:xml => :text}).gsub('# ', '')
           ff.puts "</failure>"
+          ff.puts "<rerunCommand>#{case_info['rerun_cmd'].encode({:xml => :text})}</rerunCommand>"
         end
         @fr.puts "<failedSince>0</failedSince>"
         @fr.puts "</case>"
@@ -583,40 +627,6 @@ module BVT::Harness
       ff.puts "</system-err>"
       ff.puts "</testsuite>"
       ff.close
-    end
-
-    def parse_failure_log(str)
-      index1 = str.index('1) ')
-      index2 = str.index('Finished in')
-      output = ""
-      temp = str.slice(index1+3..index2-1).strip
-      temp.each_line { |line|
-        if line.strip.start_with? "BVT::Spec::"
-          output += line
-        elsif line.strip.start_with? "# "
-          output += cyan(line)
-        else
-          output += red(line)
-        end
-      }
-      output
-    end
-
-    def parse_pending_log(str)
-      index1 = str.index('Pending:')
-      index2 = str.index('Finished in')
-      output = ""
-      temp = str.slice(index1+8..index2-1).strip
-      temp.each_line { |line|
-        if line.strip.start_with? "BVT::Spec::"
-          output += yellow(line)
-        elsif line.strip.start_with? "# "
-          output += cyan(line)
-        else
-          output += line
-        end
-      }
-      output
     end
 
     extend self

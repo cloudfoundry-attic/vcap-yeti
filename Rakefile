@@ -26,15 +26,13 @@ task :help do
           "\t\te.g. rake ruby[5] (default to 10, max = 16)"
   puts "  services\trun service tests (mongodb/redis/mysql/postgres/rabbitmq/neo4j/vblob) in parallel\n" +
           "\t\te.g. rake services[5] (default to 10, max = 16)"
+  puts "  core\t\trun core tests for verifying that an installation meets\n" +
+       "\t\tminimal Cloud Foundry compatibility requirements"
+  puts "  mcf\t\trun Micro Cloud Foundry tests\n"
   puts "  clean\t\tclean up test environment(only run this task after interruption).\n" +
            "\t\t  1, Remove all apps and services under test user\n" +
            "\t\t  2, Remove all apps and services under parallel users"
-
-  puts "  core\t\trun core tests for verifying that an installation meets\n" +
-       "\t\tminimal Cloud Foundry compatibility requirements"
-
-  puts "  mcf\t\trun Micro Cloud Foundry tests\n"
-
+  puts "  rerun_failure\trerun failed cases of the previous run\n"
   puts "  help\t\tlist help commands"
 end
 
@@ -122,6 +120,19 @@ end
 desc "Clean up test environment"
 task :clean do
   BVT::Harness::RakeHelper.cleanup!
+end
+
+desc "rerun failed cases of the previous run"
+task :rerun_failure, :thread_number do |t, args|
+  threads = 10
+  threads = args[:thread_number].to_i if args[:thread_number]
+  BVT::Harness::RakeHelper.generate_config_file
+  BVT::Harness::RakeHelper.check_environment
+  if File.directory?("./reports")
+    longevity("ParallelHelper.run_tests(#{threads}, nil, true)")
+  else
+    puts yellow('no reports folder found')
+  end
 end
 
 desc "sync yeti assets binaries"

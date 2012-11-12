@@ -5,5 +5,4 @@ vendor/
 !vendor/cache/vcap_logging-1.0.0.gem
 .bundle/
 .gitreview
-rerun.sh
 reports/
