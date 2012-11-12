@@ -1,6 +1,5 @@
 require "cfoundry"
 
-
 module BVT::Harness
   class App
     attr_reader :name, :manifest
@@ -333,6 +332,19 @@ module BVT::Harness
         app_manifest['instances'] = 1 unless app_manifest['instances']
         app_manifest['path']      =
             File.join(File.dirname(__FILE__), "../..", app_manifest['path'])
+
+        #set ENV like this:
+        #export VCAP_BVT_RUNTIME='{:ruby=>"ruby19", :java=>"java6"}'
+        category = app_manifest['category']
+
+        if category.nil? || category == ""
+          @log.debug("Cannot find category option for #{appid} in #{VCAP_BVT_APP_CONFIG}")
+        else
+          runtime = eval(ENV['VCAP_BVT_RUNTIME'])[category.to_sym] unless ENV['VCAP_BVT_RUNTIME'].nil?
+          runtime ||= VCAP_BVT_INFO_RUNTIME[category.to_sym].first
+          app_manifest['runtime'] = runtime
+        end
+
         @manifest = app_manifest
       end
     end
