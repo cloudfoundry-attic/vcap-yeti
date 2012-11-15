@@ -747,6 +747,12 @@ elasticsearch_app:
   category: "ruby"
   path: "assets/sinatra/elasticsearch_app"
 
+oauth2_app:
+  framework: "sinatra"
+  memory: 128
+  runtime: "ruby19"
+  path: "assets/sinatra/oauth2_app"
+
 sleeper:
   framework: "sinatra"
   category: "ruby"

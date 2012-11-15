@@ -148,4 +148,13 @@ describe BVT::Spec::Canonical::Ruby19Sinatra do
     res.response_code.should == HTTP_RESPONSE_CODE::OK
     res.body_str.should include('"exists":true')
   end
+
+  it "sinatra test oauth2 service", :oauth2 => true do
+    app = create_push_app("oauth2_app")
+    service = bind_service(OAUTH2_MANIFEST, app)
+    res = app.get_response(:get, "/auth/cloudfoundry")
+    res.response_code.should == HTTP_RESPONSE_CODE::FOUND
+    res.header_str.should match "Location: http.*://(login|uaa).*"
+  end
+
 end

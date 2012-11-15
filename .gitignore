@@ -1,4 +1,7 @@
 .assets-binaries/
+\#*\#
+.#*
+*~
 tools/.build
 tools/play-2.0.1
 vendor/

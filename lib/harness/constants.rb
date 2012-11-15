@@ -31,4 +31,6 @@ module BVT::Spec
                               {:vendor  =>  "elasticsearch", :version=>"0.19"}
   MPGW_TESTSERVICE_MANIFEST = ENV['VCAP_BVT_MPGW_TESTSERVICE_MANIFEST'] ? eval(ENV['VCAP_BVT_MPGW_TESTSERVICE_MANIFEST']) :
                               {:vendor => "testservice", :version=>"1.0", :provider => "TestProvider"}
+  OAUTH2_MANIFEST      = ENV['VCAP_BVT_OAUTH2_MANIFEST'] ? eval(ENV['VCAP_BVT_OAUTH2_MANIFEST']) :
+                              {:vendor=>"oauth2", :version=>"1.0"}
 end
