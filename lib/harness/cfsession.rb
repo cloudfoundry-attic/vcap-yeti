@@ -1,5 +1,6 @@
 require "cfoundry"
 require "vcap/logging"
+require "harness/rake_helper"
 
 module BVT::Harness
   class CFSession
@@ -13,8 +14,11 @@ module BVT::Harness
       @is_admin = options[:admin]
       @email = options[:email] ? options[:email] : get_login_email(@is_admin)
       @passwd = options[:passwd] ? options[:passwd] : get_login_passwd(@is_admin)
-      domain_url = options[:target] ? options[:target] : get_target
-      @TARGET = domain_url =~ /^http:\/\/api\./ ? domain_url : "http://api.#{domain_url}"
+      if options[:target]
+        @TARGET = RakeHelper.format_target(options[:target])
+      else
+        @TARGET = RakeHelper.get_target
+      end
 
       @log = get_logger
       @namespace = get_namespace
@@ -54,7 +58,7 @@ module BVT::Harness
 
     def register(email, password)
       @log.debug("Register user: #{email}")
-      BVT::Harness::User.new(@client.register(email, password), self)
+      User.new(@client.register(email, password), self)
     end
 
     def system_frameworks
@@ -101,29 +105,29 @@ module BVT::Harness
     end
 
     def app(name, prefix = '')
-      BVT::Harness::App.new(@client.app("#{prefix}#{@namespace}#{name}"), self)
+      App.new(@client.app("#{prefix}#{@namespace}#{name}"), self)
     end
 
     def apps
-      @client.apps.collect {|app| BVT::Harness::App.new(app, self)}
+      @client.apps.collect {|app| App.new(app, self)}
     end
 
     def services
-      @client.service_instances.collect {|service| BVT::Harness::Service.new(service, self)}
+      @client.service_instances.collect {|service| Service.new(service, self)}
     end
 
     def service(name, require_namespace=true)
       if require_namespace
-        BVT::Harness::Service.new(@client.service_instance("#{@namespace}#{name}"), self)
+        Service.new(@client.service_instance("#{@namespace}#{name}"), self)
       else
-        BVT::Harness::Service.new(@client.service_instance(name), self)
+        Service.new(@client.service_instance(name), self)
       end
     end
 
     def users
       begin
         @log.debug("Get Users for target: #{@client.target}, login email: #{@email}")
-        users = @client.users.collect {|user| BVT::Harness::User.new(user, self)}
+        users = @client.users.collect {|user| User.new(user, self)}
       rescue Exception => e
         @log.error("Fail to list users for target: #{@client.target}, login email: #{@email}")
         raise RuntimeError, "Fail to list users for target: " +
@@ -134,7 +138,7 @@ module BVT::Harness
     def user(email, options={})
       options = {:require_namespace => true}.merge(options)
       email = "#{@namespace}#{email}" if options[:require_namespace]
-      BVT::Harness::User.new(@client.user(email), self)
+      User.new(@client.user(email), self)
     end
 
     # It will delete all services and apps belong to login token via client object
@@ -157,33 +161,23 @@ module BVT::Harness
     end
 
     def get_login_email(expected_admin = false)
-      @config ||= BVT::Harness::RakeHelper.get_config
-      if ENV['YETI_PARALLEL_USER']
-        @config['user']['email']  = ENV['YETI_PARALLEL_USER']
-        @config['user']['passwd'] = ENV['YETI_PARALLEL_USER_PASSWD']
-      elsif ENV['VCAP_BVT_USER']
-        @config['user']['email'] = ENV['VCAP_BVT_USER']
+      if expected_admin
+        return RakeHelper.get_admin_user
+      elsif ENV['YETI_PARALLEL_USER']
+        return ENV['YETI_PARALLEL_USER']
+      else
+        return RakeHelper.get_user
       end
-
-      expected_admin ? @config["admin"]["email"] : @config["user"]["email"]
     end
 
     def get_login_passwd(expected_admin = false)
-      ## since no password save, once Yeti user want to run single case
-      ## rake helper will launch prompter for password input
-      require "harness/rake_helper"
-      @config ||= BVT::Harness::RakeHelper.get_config
       if expected_admin
-        @config["admin"]["passwd"] ||= BVT::Harness::RakeHelper.get_admin_user_passwd
+        return RakeHelper.get_admin_user_passwd
+      elsif ENV['YETI_PARALLEL_USER_PASSWD']
+        return ENV['YETI_PARALLEL_USER_PASSWD']
       else
-        @config["user"]["passwd"] ||= BVT::Harness::RakeHelper.get_user_passwd
+        return RakeHelper.get_user_passwd
       end
-
-      expected_admin ? @config["admin"]["passwd"] : @config["user"]["passwd"]
-    end
-
-    def get_target
-      @config["target"]
     end
 
     def check_privilege(expect_admin = false)

@@ -40,8 +40,7 @@ desc "run full tests (not include admin cases)"
 task :full, :thread_number do |t, args|
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
-  BVT::Harness::RakeHelper.generate_config_file
-  BVT::Harness::RakeHelper.check_environment
+  RakeHelper.prepare_all(threads)
   create_reports_folder
   longevity("ParallelHelper.run_tests(#{threads}, {'tags' => '~admin,~slow'})")
 end
@@ -50,16 +49,14 @@ desc "run tests subset"
 task :tests, :thread_number do |t, args|
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
-  BVT::Harness::RakeHelper.generate_config_file
-  BVT::Harness::RakeHelper.check_environment
+  RakeHelper.prepare_all(threads)
   create_reports_folder
   longevity("ParallelHelper.run_tests(#{threads}, {'tags' => 'p1,~admin,~slow'})")
 end
 
 desc "Run all bvts randomly, add [N] to specify a seed"
 task :random, :seed do |t, args|
-  BVT::Harness::RakeHelper.generate_config_file
-  BVT::Harness::RakeHelper.check_environment
+  RakeHelper.prepare_all(1)
   if args[:seed] != nil
     longevity("sh 'bundle exec rspec spec/ --tag ~admin --tag ~slow' +
        ' --seed #{args[:seed]} --format d -c'")
@@ -71,8 +68,7 @@ end
 
 desc "Run admin test cases"
 task :admin do
-  BVT::Harness::RakeHelper.generate_config_file('admin')
-  BVT::Harness::RakeHelper.check_environment
+  RakeHelper.prepare_all
   create_reports_folder
   longevity("ParallelHelper.run_tests(1, {'tags' => 'admin'})")
 end
@@ -81,8 +77,7 @@ desc "Run java tests (spring, java_web)"
 task :java, :thread_number, :longevity, :fail_fast do |t, args|
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
-  BVT::Harness::RakeHelper.generate_config_file
-  BVT::Harness::RakeHelper.check_environment
+  RakeHelper.prepare_all(threads)
   create_reports_folder
   longevity("ParallelHelper.run_tests(#{threads}, {'pattern' => /_(spring|java_web)_spec\.rb/})")
 end
@@ -91,8 +86,7 @@ desc "Run jvm tests (spring, java_web, grails, lift)"
 task :jvm, :thread_number do |t, args|
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
-  BVT::Harness::RakeHelper.generate_config_file
-  BVT::Harness::RakeHelper.check_environment
+  RakeHelper.prepare_all(threads)
   create_reports_folder
   longevity("ParallelHelper.run_test(#{threads}, {'pattern' => /_(spring|java_web|grails|lift)_spec\.rb/})")
 end
@@ -101,8 +95,7 @@ desc "Run ruby tests (rails3, sinatra, rack)"
 task :ruby, :thread_number do |t, args|
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
-  BVT::Harness::RakeHelper.generate_config_file
-  BVT::Harness::RakeHelper.check_environment
+  RakeHelper.prepare_all(threads)
   create_reports_folder
   longevity("ParallelHelper.run_tests(#{threads}, {'pattern' => /ruby1[89]_.+_spec\.rb/})")
 end
@@ -111,23 +104,21 @@ desc "Run service tests (mongodb, redis, mysql, postgres, rabbitmq, neo4j, vblob
 task :services, :thread_number do |t, args|
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
-  BVT::Harness::RakeHelper.generate_config_file
-  BVT::Harness::RakeHelper.check_environment
+  RakeHelper.prepare_all(threads)
   create_reports_folder
   longevity("ParallelHelper.run_tests(#{threads}, {'tags' => '~admin,mongodb,rabbitmq,mysql,redis,postgresql,neo4j,vblob'})")
 end
 
 desc "Clean up test environment"
 task :clean do
-  BVT::Harness::RakeHelper.cleanup!
+  RakeHelper.cleanup!
 end
 
 desc "rerun failed cases of the previous run"
 task :rerun_failure, :thread_number do |t, args|
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
-  BVT::Harness::RakeHelper.generate_config_file
-  BVT::Harness::RakeHelper.check_environment
+  RakeHelper.prepare_all(threads)
   if File.directory?("./reports")
     longevity("ParallelHelper.run_tests(#{threads}, nil, true)")
   else
@@ -137,7 +128,7 @@ end
 
 desc "sync yeti assets binaries"
 task :sync_assets do
-  BVT::Harness::RakeHelper.sync_assets
+  RakeHelper.sync_assets
 end
 
 desc 'run core tests for verifying that an installation meets minimal Cloud Foundry compatibility requirements'

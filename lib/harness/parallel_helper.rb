@@ -2,6 +2,7 @@ require 'progressbar'
 require 'harness'
 require 'rexml/document'
 include REXML
+include BVT::Harness
 
 module BVT::Harness
   module ParallelHelper
@@ -9,49 +10,6 @@ module BVT::Harness
 
     SPEC_PATH = File.join(File.dirname(__FILE__), "../../spec/")
     YETI_HOME_PATH = File.join(File.dirname(__FILE__), "../../")
-
-    def create_parallel_users
-      user_info = RakeHelper.get_config
-      unless user_info['parallel']
-        unless user_info['admin']
-          puts "please input admin account to create concurrent users"
-          BVT::Harness::RakeHelper::get_admin_user
-          BVT::Harness::RakeHelper::get_admin_user_passwd
-          BVT::Harness::RakeHelper::save_config
-          user_info = RakeHelper.get_config
-        end
-
-        user_info['parallel'] = []
-        begin
-          session = BVT::Harness::CFSession.new(:admin => true,
-                                                :email => user_info['admin']['email'],
-                                                :passwd => user_info['admin']['passwd'],
-                                                :target => user_info['target'])
-        rescue Exception => e
-          raise RuntimeError, "#{e.to_s}\nPlease input valid admin credential " +
-              "for parallel running"
-        end
-
-        passwd = 'aZ_x13YcIa4nhl' # parallel user secret
-        (1..VCAP_BVT_PARALLEL_MAX_USERS).to_a.each do |index|
-          email = "#{index}-#{user_info['user']['email']}"
-          user  = session.user(email)
-          user.create(passwd)
-          config = {}
-          config['email']   = user.email
-          config['passwd']  = passwd
-          puts "create user: #{yellow(config['email'])}"
-          user_info['parallel'] << config
-        end
-        multi_target_config = YAML.load_file(VCAP_BVT_CONFIG_FILE)
-        target = user_info['target']
-        user_info['admin'].delete('passwd')
-        multi_target_config[target]['admin']    = user_info['admin']
-        multi_target_config[target]['parallel'] = user_info['parallel']
-        File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(multi_target_config) }
-      end
-      user_info['parallel']
-    end
 
     def run_tests(thread_number, options = {"tags" => "~admin"}, rerun=false)
       if thread_number > VCAP_BVT_PARALLEL_MAX_USERS
@@ -66,8 +24,12 @@ module BVT::Harness
       @report_file_path = YETI_HOME_PATH + 'reports/junitResult.xml'
 
       @lock = Mutex.new
-      @start_time = Time.now
-      all_users = create_parallel_users
+      start_time = Time.now
+      all_users = RakeHelper.get_parallel_users
+      if thread_number == 1
+        one_user = RakeHelper.get_check_env_user(all_users)
+        all_users = [one_user]
+      end
       parallel_users = []
       i = 0
       all_users.each {|user|
@@ -75,7 +37,7 @@ module BVT::Harness
         i += 1
         break if i == thread_number
       }
-      puts yellow("threads number: #{thread_number}\n")
+      puts yellow("threads number: #{i}\n")
       @queue = Queue.new
       if rerun
         get_failed_cases
@@ -94,7 +56,6 @@ module BVT::Harness
       end
 
       if @queue.empty?
-        close_summary_report
         puts yellow("no cases to run, exit.")
         return
       end
@@ -135,7 +96,7 @@ module BVT::Harness
               @lock.synchronize do
                 failure_number += 1
                 failure_list << [case_info, case_info['envs']]
-                session = BVT::Harness::CFSession.new(:admin => false,
+                session = CFSession.new(:admin => false,
                                                 :email => user['email'],
                                                 :passwd => user['passwd'],
                                                 :target => ENV['VCAP_BVT_TARGET'])
@@ -185,9 +146,9 @@ module BVT::Harness
       end
 
       # print total time and summary result
-      @end_time = Time.now
+      end_time = Time.now
       puts ""
-      puts "Finished in #{format_time(@end_time - @start_time)}\n"
+      puts "Finished in #{format_time(end_time - start_time)}\n"
       if failure_number > 0
         $stdout.print red("#{case_number} examples, #{failure_number} failures")
         $stdout.print red(", #{pending_number} pending") if pending_number > 0
@@ -212,13 +173,8 @@ module BVT::Harness
 
       generate_ci_report
 
-      close_summary_report
-    end
-
-    def close_summary_report
-      @end_time = Time.now unless @end_time
       @fr.puts "</suites>"
-      @fr.puts "<duration>#{@end_time - @start_time}</duration>"
+      @fr.puts "<duration>#{end_time - start_time}</duration>"
       @fr.puts "<keepLongStdio>false</keepLongStdio>"
       @fr.puts "</result>"
       @fr.close
