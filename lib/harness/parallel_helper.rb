@@ -43,16 +43,6 @@ module BVT::Harness
         get_failed_cases
       else
         parse_case_list(options)
-
-        # insert service versions cases in @queue
-        services = BVT::Spec::ServiceVersions.get_tested_services()
-        services.each do |m|
-          m[:versions].each do |v|
-            service_version_env = BVT::Spec::ServiceVersions.set_environment_variables(
-                                  {:vendor => m[:vendor], :version => v})
-            parse_case_list({"tags" => m[:vendor]}, service_version_env)
-          end
-        end
       end
 
       if @queue.empty?
@@ -399,7 +389,7 @@ module BVT::Harness
       logs = []
       str.each_line {|l| logs << l}
 
-      stdout = ''
+      stderr = ''
       unless logs[0].start_with? 'Run options:'
         clear_logs = []
         logs_start = false
@@ -408,6 +398,26 @@ module BVT::Harness
             logs_start = true
           end
           if logs_start
+            clear_logs << logs[i]
+          else
+            stderr += logs[i]
+          end
+        end
+        logs = clear_logs
+      end
+      result['stderr'] = stderr
+
+      stdout = ''
+      if logs[4].strip != ''
+        clear_logs = []
+        stdout_start = true
+        for i in 0..logs.length-1
+          if i < 3
+            clear_logs << logs[i]
+          elsif stdout_start && logs[i+1].strip == ''
+            clear_logs << logs[i]
+            stdout_start = false
+          elsif !stdout_start
             clear_logs << logs[i]
           else
             stdout += logs[i]
@@ -490,11 +500,14 @@ module BVT::Harness
       error_num = 0
       pending_num = 0
       stdout = ''
+      stderr = ''
       stdout_list = []
+      stderr_list = []
       case_desc_list = []
       case_info_list.each do |case_info|
         suite_duration += case_info['duration']
         stdout_list << case_info['stdout']
+        stderr_list << case_info['stderr']
         case_desc_list << case_info['test_desc'] + "@(" + case_info['envs']
         if case_info['status'] == 'fail'
           if case_info['error_message'].include? "expect"
@@ -507,8 +520,10 @@ module BVT::Harness
         end
       end
       stdout_list.uniq!
+      stderr_list.uniq!
       case_desc_list.sort!
       stdout_list.each {|s| stdout += s}
+      stderr_list.each {|s| stderr += s}
 
       @fr.puts "<suite>"
       @fr.puts "<file>#{file_name}</file>"
@@ -516,7 +531,9 @@ module BVT::Harness
       @fr.puts "<stdout>"
       @fr.puts stdout.encode({:xml => :text}) if stdout.length > 0
       @fr.puts "</stdout>"
-      @fr.puts "<stderr></stderr>"
+      @fr.puts "<stderr>"
+      @fr.puts stderr.encode({:xml => :text}) if stderr.length > 0
+      @fr.puts "</stderr>"
       @fr.puts "<duration>#{suite_duration}</duration>"
       @fr.puts "<cases>"
 
@@ -580,6 +597,7 @@ module BVT::Harness
       ff.puts stdout.encode({:xml => :text}) if stdout.length > 0
       ff.puts "</system-out>"
       ff.puts "<system-err>"
+      ff.puts stderr.encode({:xml => :text}) if stderr.length > 0
       ff.puts "</system-err>"
       ff.puts "</testsuite>"
       ff.close
