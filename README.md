@@ -32,47 +32,72 @@ How to run it
     - target
     - test user/test password
     - admin user/admin password
-   <br>This information is saved to ~/.bvt/config.yml file.
+   <br>target should be a complete url which starts with 'api.' or 'ccng.'.
+   <br>This information except password is saved to ~/.bvt/config.yml file.
    <br>When run the second time around, Yeti will not prompt for the information again.
+
+Environment variables:
+-----
+Yeti basic:
+```
+||Environment Variables       ||Function            ||Example                                             ||
+|VCAP_BVT_TARGET              |target environment   |api.cloudfoundry.com                                  |
+|VCAP_BVT_USER                |test user            |pxie@vmware.com                                       |
+|VCAP_BVT_USER_PASSWD         |test user password   |<MY-PASSWORD>                                         |
+|VCAP_BVT_ADMIN_USER          |admin user           |admin@admin.com                                       |
+|VCAP_BVT_ADMIN_USER_PASSWD   |admin user password  |<ADMIN-PASSWD>                                        |
+```
+
+Yeti advance:
+```
+||Environment Variables       ||Function            ||Example                                             ||
+|VCAP_BVT_SHOW_PENDING        |show pending cases   |true                                                  |
+|VCAP_BVT_LONGEVITY           |run testing N times  |100                                                   |
+|VCAP_BVT_CONFIG_FILE         |specify config file  |***/config.yml                                        |
+```
+
+Service/App related:
+```
+||Environment Variables       ||Function            ||Example                                             ||
+|VCAP_BVT_SERVICE_PG_MAXDBSIZE|service quota(MB)    |128                                                   |
+|SERVICE_BROKER_TOKEN         |service broker token |<token>                                               |
+|SERVICE_BROKER_URL           |service broker url   |http://...                                            |
+|VCAP_BVT_SERVICE_PLAN        |service plan         |P100                                                  |
+|VCAP_BVT_REDIS_MANIFEST      |service manifest     |{:vendor=>"redis", :version=>"2.2", :provider=>"core"}|
+|VCAP_BVT_RUNTIME             |app runtime          |{:ruby=>"ruby19", :java=>"java6", :node=>"node"}      |
+```
+
+ACL related:
+```
+||Environment Variables       ||Function            ||Example                                             ||
+|ACM_URL                      |acm base url         |<URL>                                                 |
+|ACM_USER                     |acm user             |<user>                                                |
+|ACM_PASSWORD                 |acm user password    |<***>                                                 |
+```
+
+UAA related:
+```
+||Environment Variables       ||Function            ||Example                                             ||
+|VCAP_BVT_ADMIN_CLIENT        |admin client of uaa  |admin                                                 |
+|VCAP_BVT_ADMIN_SECRET        |admin secret of uaa  |adminsecret                                           |
+```
+
+Marketplace gateway related:
+```
+||Environment Variables       ||Function            ||Example                                             ||
+|MPGW_TOKEN                   |specify mpgw token   |MPGW_TOKEN=testmarketplacetoken                       |
+|MPGW_URL                     |specify mpgw url     |MPGW_URL=http://test-mpgw....                         |
+```
 
 Notes:
 -----
-1. To be compatible with BVT, some environment variables are preserved in Yeti:
-
-```
-||Environment Variables       ||Function            ||Example                                ||
-|VCAP_BVT_TARGET              |target environment   |VCAP_BVT_TARGET=cloudfoundry.com         |
-|VCAP_BVT_USER                |test user            |VCAP_BVT_USER=pxie@vmware.com            |
-|VCAP_BVT_USER_PASSWD         |test user password   |VCAP_BVT_USER_PASSWD=<MY-PASSWORD>       |
-|VCAP_BVT_ADMIN_USER          |admin user           |VCAP_BVT_ADMIN_USER=admin@admin.com      |
-|VCAP_BVT_ADMIN_USER_PASSWD   |admin user password  |VCAP_BVT_ADMIN_USER_PASSWD=<ADMIN-PASSWD>|
-|VCAP_BVT_SHOW_PENDING        |show pending cases   |VCAP_BVT_SHOW_PENDING=true               |
-|VCAP_BVT_SERVICE_PG_MAXDBSIZE|service quota(MB)    |VCAP_BVT_SERVICE_PG_MAXDBSIZE=128        |
-|VCAP_BVT_ADMIN_CLIENT        |admin client of uaa  |VCAP_BVT_ADMIN_CLIENT=admin              |
-|VCAP_BVT_ADMIN_SECRET        |admin secret of uaa  |VCAP_BVT_ADMIN_SECRET=adminsecret        |
-|ACM_URL                      |acm base url         |ACM_URL=<URL>                            |
-|ACM_USER                     |acm user             |ACM_USER=<user>                          |
-|ACM_PASSWORD                 |acm user password    |ACM_PASSWORD=<***>                       |
-|SERVICE_BROKER_TOKEN         |service broker token |SERVICE_BROKER_TOKEN=<token>             |
-|SERVICE_BROKER_URL           |service broker url   |SERVICE_BROKER_URL=http://...            |
-|VCAP_BVT_LONGEVITY           |run testing N times  |VCAP_BVT_LONGEVITY=100                   |
-|VCAP_BVT_CONFIG_FILE         |specify config file  |VCAP_BVT_CONFIG_FILE=***/config.yml      |
-```
-
-To test marketplace gateway, specify the following environment variables:
-```
-||Environment Variables       ||Function            ||Example                                ||
-|MPGW_TOKEN                   |specify mpgw token   |MPGW_TOKEN=testmarketplacetoken          |
-|MPGW_URL                     |specify mpgw url     |MPGW_URL=http://test-mpgw....            |
-```
-
-2. In order to support parallel running, and administrative test cases, Yeti will ask administrative
+1. In order to support parallel running, and administrative test cases, Yeti will ask administrative
    account information.
    <br>However, yeti will not abuse administrative privileges, just list users, create users,
    <br>delete users created by the test script.
-3. rake tests/full use parallel by default, you could run in serial by specifying thread number=1:
+2. rake full use parallel by default, you could run in serial by specifying thread number=1:
    ```bundle exec rake full[1]```
-4. As dev setup has limited resources, we strongly recommend running 1-4 threads against dev_setup.
+3. As dev setup has limited resources, we strongly recommend running 1-4 threads against dev_setup.
 
 FAQ:
 ----
@@ -105,8 +130,9 @@ FAQ:
    blobs.cloudfoundry.com.
 
 6. Where is the log file stored?
-   <br>A: There two log files, runtime and error logs
-      - Runtime log is stored in ~/.bvt/bvt.log
+   <br>A: There are runtime log and junit-format report.
+      - Runtime log is stored in ~/.bvt/bvt.[target].log
+      - Junit-format report is under [yeti_home]/reports. The junitResult.xml is the summary.
 
 7. What runtimes/frameworks/services should my environment have?
    <br>Dev setup:
@@ -167,6 +193,16 @@ Rake Tasks:
 - services
 <br>run service tests (mongodb/redis/mysql/postgres/rabbitmq/neo4j/vblob) in parallel
 <br>e.g. rake services\[5\] (default to 10, max = 16)
+- core
+<br>run core tests for verifying that an installation meets minimal Cloud Foundry
+ compatibility requirements
+<br>e.g. rake core\[5\] (default to 10, max = 16)
+- mcf
+<br>run Micro Cloud Foundry tests
+<br>e.g. rake mcf\[5\] (default to 10, max = 16)
+- rerun_failure
+<br>rerun failed cases of the last run
+<br>e.g. rake rerun_failure\[5\] (default to 10, max = 16)
 - clean
 <br>clean up test environment(only run this task after interruption).
 <br>1, Remove all apps and services under test user
