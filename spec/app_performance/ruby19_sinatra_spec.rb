@@ -22,6 +22,7 @@ describe BVT::Spec::AppPerformance::Ruby19Sinatra do
 
   def incr_counter(app, number)
     number.times do
+      sleep 0.02
       response = app.get_response(:get, '/incr')
       response.should_not == nil
       response.body_str.should =~ /^OK:/
@@ -63,9 +64,7 @@ describe BVT::Spec::AppPerformance::Ruby19Sinatra do
     bind_service(REDIS_MANIFEST, app)
     health_check(app)
 
-    reset_counter(app)
-    incr_counter(app, 10)
-    check_sum_instances(app, 10)
+    incr_counter(app, 5)
     reset_counter(app)
 
     manifest = {}
@@ -73,9 +72,11 @@ describe BVT::Spec::AppPerformance::Ruby19Sinatra do
     app.update!(manifest)
     app.instances.length.should == 5
 
-    sleep 2
-    incr_counter(app, 10)
+    sleep 1
+    incr_counter(app, 5)
     reset_counter(app)
+    app.restart
+    sleep 1
 
     incr_counter(app, 150)
     check_sum_instances(app, 150)

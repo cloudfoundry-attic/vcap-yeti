@@ -122,7 +122,8 @@ describe BVT::Spec::UsersManagement::UAA do
 
   before(:all) do
     yeti_config = BVT::Harness::RakeHelper.get_config
-    @uaabase = ENV['VCAP_BVT_UAA_BASE'] || "uaa.#{yeti_config['target']}"
+    target_domain = yeti_config['target'].split(".", 2).last
+    @uaabase = ENV['VCAP_BVT_UAA_BASE'] || "uaa.#{target_domain}"
     @loginbase = ENV['VCAP_BVT_LOGIN_BASE'] || @uaabase
     @uaahelper = UaaHelper.instance
     @uaahelper.uaabase = @uaabase
