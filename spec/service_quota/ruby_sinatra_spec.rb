@@ -83,44 +83,42 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
 
-  it "test mongodb quotafiles", :mongodb => true do
-    pending "pending until mongo proxy is ready"
+  it "test mongodb quota enforcement", :mongodb => true do
     app = create_push_app("service_quota_app")
     bind_service(MONGODB_MANIFEST, app)
 
-    quota_files = SERVICE_QUOTA['mongodb']['quota_files']
-    quota_size = 2**(quota_files+3)
+    quota_size = SERVICE_QUOTA['mongodb']['quota_data_size']
 
-    content = app.get_response(:post, "/service/mongodb/collection?colname=testcol&size=#{quota_size}")
+    # a minor record
+    response = app.get_response(:post, '/service/mongodb/collection?colname=testcolA&size=1')
+    response.response_code.should == 200
+    response.body_str.should == ""
+
+    # fill up the quota data size
+    content = app.get_response(:post, "/service/mongodb/collection?colname=testcolB&size=#{quota_size}")
     result = app.get_response(:get, '/service/mongodb/db/storagesize')
     result.response_code.should == 200
 
     storage_size = result.body_str.to_i/1024/1024
 
-    diff = storage_size - quota_size
-    if diff > 0
-      content = app.get_response(:post, "/service/mongodb/collection?colname=testcol&size=#{diff}")
-    end
+    # Quota Exceed, proxy will drop the connection with clients
+    content = app.get_response(:post, "/service/mongodb/collection?colname=testcolB&size=1")
+    content.body_str.should =~ /Connection reset by peer/
 
-    response = app.get_response(:get, '/service/mongodb/collection?colname=testcol&index=1')
-    response.response_code.should == 200
-    response.body_str.should == "OK"
-
-    no_result = storage_size+10
-    response = app.get_response(:get, "/service/mongodb/collection?colname=testcol&index=#{no_result}")
-    response.response_code.should == 200
-    response.body_str.should == "index not found"
-
-    content = app.get_response(:post, "/service/mongodb/collection?colname=testcol&size=1")
-    content.body_str.should =~ /quota exceeded/
-
-    content = app.get_response(:delete, "/service/mongodb/collection?colname=testcol&size=2")
+    # drop whole testcolB collection
+    content = app.get_response(:delete, "/service/mongodb/collection?colname=testcolB")
     content.body_str.should == "DELETE OK"
 
-    response = app.get_response(:get, '/service/mongodb/collection?colname=testcol&index=1')
-    response.body_str.should == "index not found"
+    # repair will shrink disk files
+    content = app.get_response(:post, "/service/mongodb/maintain")
+    content.body_str.should == "REPAIR OK"
 
-    content = app.get_response(:post, "/service/mongodb/collection?colname=testcol&size=1")
+    # record in testcolA collection should still be there
+    response = app.get_response(:get, '/service/mongodb/collection?colname=testcolA&index=1')
+    response.body_str.should == "OK"
+
+    # the write permission is back after the disk usage drop down
+    content = app.get_response(:post, "/service/mongodb/collection?colname=testcolB&size=1")
     content.body_str.should == ""
   end
 
