@@ -235,24 +235,48 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     app = create_push_app("service_quota_app")
     bind_service(REDIS_MANIFEST, app)
 
-    # since redis uses up more memory than the actual size of data
+    # Since redis uses up more memory than the actual size of data,
     # we'll do a best fill upto redis_max_memory
-    memory = 1
+
+    # Write 1MB data to get the memory overhead
+    data_memory = 1
+    r = app.get_response(:post, "/service/redis/set/#{data_memory}", "")
+    r.response_code.should == 200
+    r.body_str.should == 'ok'
+    r.close
+    r = app.get_response(:get, '/service/redis/memory')
+    r.response_code.should == 200
+    real_memory = r.body_str.to_f
+    r.close
+
+    # Calculate the overhead
+    diff = (real_memory - data_memory).ceil
+
+    # Use binary search to try best to fill upto redis_max_memory
     used_memory = 0
-    diff = 0
-    while (redis_max_memory - used_memory > diff)
+    left = 0
+    right = redis_max_memory.to_i
+    while left <= right
+      memory = (left + right) / 2
       r = app.get_response(:post, "/service/redis/set/#{memory}", "")
       r.response_code.should == 200
-      r.body_str.should == 'ok'
+      r.body_str.should =~ /ok|command not allowed when used memory > 'maxmemory'/
+      is_oom = (r.body_str != "ok")
       r.close
-
-      r = app.get_response(:get, '/service/redis/memory')
-      r.response_code.should == 200
-      used_memory = r.body_str.to_f
-      r.close
-
-      diff = used_memory.ceil+1 if diff == 0 # Set threshold for best fill
-      memory += 1
+      if is_oom
+        r = app.get_response(:post, "/service/redis/clear/#{memory}", "")
+        r.response_code.should == 200
+        r.body_str.should == "ok"
+        r.close
+        right = memory - 1
+      else
+        r = app.get_response(:get, '/service/redis/memory')
+        r.response_code.should == 200
+        used_memory = r.body_str.to_f
+        r.close
+        break if (redis_max_memory * 1024 * 1024) / 1000000.0 - used_memory < diff
+        left = memory + 1
+      end
     end
 
     # Try adding 2xDIFF_THRESHOLD memory to redis. This is enough to exceed the quota
