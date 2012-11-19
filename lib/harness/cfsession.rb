@@ -330,14 +330,14 @@ module BVT::Harness
     end
 
     def parse_log_line(item)
-      date        = item[:response][:headers][:date]
+      date        = item[:response][:headers]["date"]
       time        = item[:time]
       rest_method = item[:request][:method].upcase
       code        = item[:response][:code]
       url         = item[:request][:url]
 
-      if item[:response][:headers][:x_vcap_request_id]
-        request_id  = item[:response][:headers][:x_vcap_request_id]
+      if item[:response][:headers]["x-vcap-request-id"]
+        request_id  = item[:response][:headers]["x-vcap-request-id"]
       else
         request_id  = ""
       end
