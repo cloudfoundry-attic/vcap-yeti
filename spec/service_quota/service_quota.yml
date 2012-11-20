@@ -28,6 +28,9 @@ properties:
       free:
         configuration:
           max_clients: 512
+          bandwidth_quotas:
+            per_day: 2
+            per_second: 0.1
     vblob:
       free:
         configuration:

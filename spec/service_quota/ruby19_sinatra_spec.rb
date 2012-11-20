@@ -563,4 +563,22 @@ describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
     content.close
   end
 
+  # Bandwidth test only for rabbitmq now
+  it "bandwidth rate for rabbit service", :rabbitmq => true do
+    pending("no configuration for bandwidth rate") unless SERVICE_QUOTA['rabbit']['bandwidth_quotas'] && SERVICE_QUOTA['rabbit']['bandwidth_quotas']['per_second']
+    service = create_service(RABBITMQ_MANIFEST)
+    app = create_push_app("service_quota_app")
+    app.bind(service)
+
+    rabbit_bandwidth_rate = SERVICE_QUOTA['rabbit']['bandwidth_quotas']['per_second'].to_f
+    result_reg = /ok-([0-9]+)/
+    send_size_mb = rabbit_bandwidth_rate * 30 # Set throughput size to 30 times of rate
+    r = app.get_response(:post, "/service/rabbitmq/bandwidth/#{send_size_mb}")
+    r.response_code.should == 200
+    r.body_str.should match(result_reg)
+    cost = result_reg.match(r.body_str)[1].to_i
+    cost.should be_within(10).of(30)
+    r.close
+  end
+
 end
