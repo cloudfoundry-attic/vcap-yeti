@@ -8,8 +8,9 @@ module BVT::Harness
   module ParallelHelper
     include Interactive, ColorHelpers
 
-    SPEC_PATH = File.join(File.dirname(__FILE__), "../../spec/")
     YETI_HOME_PATH = File.join(File.dirname(__FILE__), "../../")
+    SPEC_PATH = File.join(YETI_HOME_PATH, "spec/")
+    MAX_RERUN_TIMES = 10
 
     def run_tests(thread_number, options = {"tags" => "~admin"}, rerun=false)
       if thread_number > VCAP_BVT_PARALLEL_MAX_USERS
@@ -21,7 +22,16 @@ module BVT::Harness
       end
 
       @case_info_list = []
-      @report_file_path = YETI_HOME_PATH + 'reports/junitResult.xml'
+      if rerun && ENV['VCAP_BVT_CI_SINGLE_REPORT'] == nil
+        @report_folder = get_rerun_folder(true)
+        if @report_folder.include? "rerun#{MAX_RERUN_TIMES + 1}"
+          puts yellow("rerun task has been executed for #{MAX_RERUN_TIMES}" +
+                      " times, maybe you should start a new run")
+          return
+        end
+      else
+        @report_folder = File.join(YETI_HOME_PATH, 'reports')
+      end
 
       @lock = Mutex.new
       start_time = Time.now
@@ -50,10 +60,11 @@ module BVT::Harness
         return
       end
 
-      @fr = File.new(@report_file_path, 'w')
-      @fr.puts "<?xml version='1.0' encoding='UTF-8'?>"
-      @fr.puts "<result>"
-      @fr.puts "<suites>"
+      %x[mkdir #{@report_folder}] unless File.exists? @report_folder
+      @summary_report = ""
+      @summary_report += "<?xml version='1.0' encoding='UTF-8'?>\n"
+      @summary_report += "<result>\n"
+      @summary_report += "<suites>\n"
 
       pbar = ProgressBar.new("0/#{@queue.size}", @queue.size, $stdout)
       pbar.format_arguments = [:title, :percentage, :bar, :stat]
@@ -74,7 +85,7 @@ module BVT::Harness
             t1 = Time.now
             task_output = run_task(task, user['email'], user['passwd'])
             t2 = Time.now
-            case_info = parse_case_log(task_output, task[:envs])
+            case_info = parse_case_log(task_output)
             unless case_info
               puts task_output
               next
@@ -85,7 +96,7 @@ module BVT::Harness
             if case_info['status'] == 'fail'
               @lock.synchronize do
                 failure_number += 1
-                failure_list << [case_info, case_info['envs']]
+                failure_list << case_info
                 session = CFSession.new(:admin => false,
                                                 :email => user['email'],
                                                 :passwd => user['passwd'],
@@ -100,13 +111,12 @@ module BVT::Harness
                 puts "  #{failure_number}) #{case_info['test_name']}"
                 $stdout.print red(case_info['error_message'])
                 $stdout.print cyan(case_info['error_stack_trace'])
-                $stdout.print red("     (Envs: #{case_info['envs']})\n") if case_info['envs'] != ''
                 $stdout.print red("     (Failure time: #{Time.now})\n\n")
               end
             elsif case_info['status'] == 'pending'
               @lock.synchronize do
                 pending_number += 1
-                pending_list << [case_info, case_info['envs']]
+                pending_list << case_info
               end
             end
             case_number += 1
@@ -125,12 +135,9 @@ module BVT::Harness
       if ENV['VCAP_BVT_SHOW_PENDING'] == 'true' && pending_number > 0
         $stdout.print "\n"
         puts "Pending:"
-        pending_list.each {|pl|
-          case_info = pl[0]
-          envs = pl[1]
+        pending_list.each {|case_info|
           puts "  #{yellow(case_info['test_name'])}\n"
           $stdout.print cyan(case_info['pending_info'])
-          $stdout.print cyan("    (Envs: #{envs})\n") if envs != ''
         }
         $stdout.print "\n"
       end
@@ -152,22 +159,27 @@ module BVT::Harness
       # print rerun command of failed examples
       unless failure_list.empty?
         $stdout.print "\nFailed examples:\n\n"
-        failure_list.each do |fl|
-          case_info = fl[0]
-          env_vars = fl[1] == '' ? '' : fl[1].gsub('|', ' ') + ' '
-          $stdout.print red(env_vars + case_info['rerun_cmd'].split(' # ')[0])
-          $stdout.print cyan(" # #{case_info['test_name']}")
-          $stdout.print "\n"
+        failure_list.each do |case_info|
+          $stdout.print red(case_info['rerun_cmd'].split(' # ')[0])
+          $stdout.print cyan(" # #{case_info['test_name']}\n")
         end
       end
 
-      generate_ci_report
+      generate_ci_report(rerun)
 
-      @fr.puts "</suites>"
-      @fr.puts "<duration>#{end_time - start_time}</duration>"
-      @fr.puts "<keepLongStdio>false</keepLongStdio>"
-      @fr.puts "</result>"
-      @fr.close
+      @summary_report += "</suites>\n"
+      @summary_report += "<duration>#{end_time - start_time}</duration>\n"
+      @summary_report += "<keepLongStdio>false</keepLongStdio>\n"
+      @summary_report += "</result>\n"
+
+      report_file_path = File.join(@report_folder, 'junitResult.xml')
+      fr = File.new(report_file_path, 'w')
+      if rerun && ENV['VCAP_BVT_CI_SINGLE_REPORT']
+        fr.puts @doc
+      else
+        fr.puts @summary_report
+      end
+      fr.close
     end
 
     def get_case_list
@@ -256,7 +268,7 @@ module BVT::Harness
       case_list
     end
 
-    def parse_case_list(options, envs = nil)
+    def parse_case_list(options)
       all_case_list = get_case_list
       pattern_filter_list = []
       tags_filter_list = []
@@ -310,34 +322,56 @@ module BVT::Harness
       end
 
       tags_filter_list.each { |t|
-        @queue << {:line => t["line"], :envs => envs}
+        @queue << t["line"]
       }
     end
 
-    def get_failed_cases
-      return unless File.exists? @report_file_path
-      report_file = File.new(@report_file_path)
-      doc = REXML::Document.new report_file
-
-      doc.elements.each("result/suites/suite/cases/case") do |c|
-        if c.get_elements("errorDetails")[0]
-          env_vars = c.get_elements("envs")[0].text
-          envs = format_env_string(env_vars)
-          rerun_cmd = c.get_elements("rerunCommand")[0].text
-          line = rerun_cmd.split('#')[0].gsub('rspec ./', YETI_HOME_PATH).strip
-          @queue << {:line => line, :envs => envs}
+    def get_rerun_folder(get_next=false)
+      rerun_folder = File.join(YETI_HOME_PATH, 'reports/')
+      i = MAX_RERUN_TIMES
+      while(i > 0)
+        if File.exists? File.join(YETI_HOME_PATH, "reports/rerun#{i}")
+          if get_next
+            rerun_folder = File.join(YETI_HOME_PATH, "reports/rerun#{i + 1}")
+          else
+            rerun_folder = File.join(YETI_HOME_PATH, "reports/rerun#{i}")
+          end
+          break
         end
+        i -= 1
       end
+      if get_next && (rerun_folder.include? "rerun") == false
+        rerun_folder = File.join(YETI_HOME_PATH, 'reports/rerun1')
+      end
+      rerun_folder
     end
 
-    def format_env_string(str)
-      return nil if str == nil || str == ''
-      result = {}
-      str.split('|').each do |ss|
-        temp_arr = ss.scan(/([^=]*)='(.*)'/)
-        result[temp_arr[0][0]] = eval(temp_arr[0][1])
+    def get_failed_cases
+      if ENV['VCAP_BVT_CI_SINGLE_REPORT']
+        last_report_file_path = File.join(@report_folder, "junitResult.xml")
+      else
+        last_report_folder = get_rerun_folder
+        last_report_file_path = File.join(last_report_folder, "junitResult.xml")
       end
-      result
+      unless File.exists? last_report_file_path
+        puts yellow("can't find result of last run")
+        exit(1)
+      end
+      report_file = File.new(last_report_file_path)
+      begin
+        @doc = REXML::Document.new report_file
+      rescue
+        puts red("invalid format of report xml")
+        exit(1)
+      end
+
+      @doc.elements.each("result/suites/suite/cases/case") do |c|
+        if c.get_elements("errorDetails")[0]
+          rerun_cmd = c.get_elements("rerunCommand")[0].text
+          line = rerun_cmd.split('#')[0].gsub('rspec ./', YETI_HOME_PATH).strip
+          @queue << line
+        end
+      end
     end
 
     def swap(a, i1, i2)
@@ -355,7 +389,7 @@ module BVT::Harness
       }
 
       cmd << ENV.to_hash.merge(env_extras)
-      cmd += ["bundle", "exec", "rspec", "-f", "d", "--color", task[:line]]
+      cmd += ["bundle", "exec", "rspec", "-f", "d", "--color", task]
       cmd
 
       output = ""
@@ -375,19 +409,12 @@ module BVT::Harness
       time_str
     end
 
-   def parse_case_log(str, envs)
+   def parse_case_log(str)
       return nil if str =~ /0 examples/
       result = {}
-      env_vars = ""
-      if envs
-        envs.each do |k, v|
-          env_vars += "#{k}=\'#{v}\'|"
-        end
-        env_vars = env_vars.slice(0..-2)
-      end
-      result['envs'] = env_vars
       logs = []
       str.each_line {|l| logs << l}
+      return nil if logs == []
 
       stderr = ''
       unless logs[0].start_with? 'Run options:'
@@ -471,7 +498,7 @@ module BVT::Harness
       result
     end
 
-    def generate_ci_report
+    def generate_ci_report(rerun=false)
       class_name_list = []
       @case_info_list.each do |case_info|
         class_name_list << case_info['class_name']
@@ -487,12 +514,40 @@ module BVT::Harness
         end
         generate_single_file_report(temp_case_info_list)
       end
+      if rerun && ENV['VCAP_BVT_CI_SINGLE_REPORT']
+        update_ci_report
+      end
+    end
+
+    def update_ci_report
+      @doc.elements.each("result/suites/suite/cases/case") do |c1|
+        if c1.get_elements("errorDetails")[0]
+          test_name = c1.get_elements("testName")[0].text
+          @case_info_list.each do |c2|
+            if test_name == c2['test_name'].encode({:xml => :attr})
+              c1.get_elements("duration")[0].text = c2['duration']
+              if c2['status'] == 'fail'
+                text = c2['error_message'].gsub('Failure/Error: ', '') + "\n"
+                text += c2['error_stack_trace'].gsub('# ', '')
+                c1.get_elements("errorStackTrace")[0].text = text
+                c1.get_elements("errorDetails")[0].text = c2['error_details']
+                c1.get_elements("rerunCommand")[0].text = c2['rerun_cmd']
+              else
+                c1.delete c1.get_elements("errorDetails")[0]
+                c1.delete c1.get_elements("errorStackTrace")[0]
+                c1.delete c1.get_elements("rerunCommand")[0]
+              end
+              break
+            end
+          end
+        end
+      end
     end
 
     def generate_single_file_report(case_info_list)
       return if case_info_list == []
       class_name = case_info_list[0]['class_name']
-      file_name = "#{YETI_HOME_PATH}reports/#{class_name.gsub(/:+/, '-')}.xml"
+      file_name = File.join(@report_folder, "#{class_name.gsub(/:+/, '-')}.xml")
       name = class_name.gsub(':', '_')
 
       suite_duration = 0.0
@@ -508,7 +563,7 @@ module BVT::Harness
         suite_duration += case_info['duration']
         stdout_list << case_info['stdout']
         stderr_list << case_info['stderr']
-        case_desc_list << case_info['test_desc'] + "@(" + case_info['envs']
+        case_desc_list << case_info['test_desc']
         if case_info['status'] == 'fail'
           if case_info['error_message'].include? "expect"
             fail_num += 1
@@ -525,51 +580,45 @@ module BVT::Harness
       stdout_list.each {|s| stdout += s}
       stderr_list.each {|s| stderr += s}
 
-      @fr.puts "<suite>"
-      @fr.puts "<file>#{file_name}</file>"
-      @fr.puts "<name>#{name}</name>"
-      @fr.puts "<stdout>"
-      @fr.puts stdout.encode({:xml => :text}) if stdout.length > 0
-      @fr.puts "</stdout>"
-      @fr.puts "<stderr>"
-      @fr.puts stderr.encode({:xml => :text}) if stderr.length > 0
-      @fr.puts "</stderr>"
-      @fr.puts "<duration>#{suite_duration}</duration>"
-      @fr.puts "<cases>"
+      @summary_report += "<suite>\n"
+      @summary_report += "<file>#{file_name}</file>\n"
+      @summary_report += "<name>#{name}</name>\n"
+      @summary_report += "<stdout>\n"
+      @summary_report += stdout.encode({:xml => :text}) if stdout.length > 0
+      @summary_report += "</stdout>\n"
+      @summary_report += "<stderr>\n"
+      @summary_report += stderr.encode({:xml => :text}) if stderr.length > 0
+      @summary_report += "</stderr>\n"
+      @summary_report += "<duration>#{suite_duration}</duration>\n"
+      @summary_report += "<cases>\n"
 
       ff = File.new(file_name, 'w')
       ff.puts '<?xml version="1.0" encoding="UTF-8"?>'
       ff.puts "<testsuite name=\"#{class_name}\" tests=\"#{case_info_list.size}\" time=\"#{suite_duration}\" failures=\"#{fail_num}\" errors=\"#{error_num}\" skipped=\"#{pending_num}\">"
 
-      case_desc_list.each do |case_desc_with_env|
-        temp_list = case_desc_with_env.split('@(')
-        case_desc = temp_list[0]
-        envs = temp_list.length == 1 ? '' : temp_list[1]
-        i = case_info_list.index {|c| c['test_desc'] == case_desc && c['envs'] == envs}
+      case_desc_list.each do |case_desc|
+        i = case_info_list.index {|c| c['test_desc'] == case_desc}
         case_info = case_info_list[i]
         test_name = case_info['test_name'].encode({:xml => :attr})
         test_name += " (PENDING)" if case_info['status'] == 'pending'
-        test_name = envs + " - " + test_name if envs != ''
-        @fr.puts "<case>"
-        @fr.puts "<duration>#{case_info['duration']}</duration>"
-        @fr.puts "<className>#{case_info['class_name']}</className>"
-        @fr.puts "<testName>#{test_name}</testName>"
-        @fr.puts "<skipped>#{case_info['status'] == 'pending'}</skipped>"
-        @fr.puts "<envs>#{envs.encode({:xml => :text})}</envs>"
+        @summary_report += "<case>\n"
+        @summary_report += "<duration>#{case_info['duration']}</duration>\n"
+        @summary_report += "<className>#{case_info['class_name']}</className>\n"
+        @summary_report += "<testName>#{test_name}</testName>\n"
+        @summary_report += "<skipped>#{case_info['status'] == 'pending'}</skipped>\n"
 
-        ff.puts "<testcase name=#{test_name.encode({:xml => :attr})} time=\"#{case_info['duration']}\">"
+        ff.puts "<testcase name=#{test_name} time=\"#{case_info['duration']}\">"
         ff.puts "<skipped/>" if case_info['status'] == 'pending'
-        ff.puts "<envs>#{envs.encode({:xml => :text})}</envs>"
 
         if case_info['status'] == 'fail'
-          @fr.puts "<errorStackTrace>"
-          @fr.puts case_info['error_message'].encode({:xml => :text}).gsub('Failure/Error: ', '')
-          @fr.puts case_info['error_stack_trace'].encode({:xml => :text}).gsub('# ', '')
-          @fr.puts "</errorStackTrace>"
-          @fr.puts "<errorDetails>"
-          @fr.puts case_info['error_details'].encode({:xml => :text})
-          @fr.puts "</errorDetails>"
-          @fr.puts "<rerunCommand>#{case_info['rerun_cmd'].encode({:xml => :text})}</rerunCommand>"
+          @summary_report += "<errorStackTrace>\n"
+          @summary_report += case_info['error_message'].encode({:xml => :text}).gsub('Failure/Error: ', '')
+          @summary_report += case_info['error_stack_trace'].encode({:xml => :text}).gsub('# ', '')
+          @summary_report += "</errorStackTrace>\n"
+          @summary_report += "<errorDetails>\n"
+          @summary_report += case_info['error_details'].encode({:xml => :text})
+          @summary_report += "</errorDetails>\n"
+          @summary_report += "<rerunCommand>#{case_info['rerun_cmd'].encode({:xml => :text})}</rerunCommand>\n"
 
           if case_info['error_message'].include? "expected"
             type = "RSpec::Expectations::ExpectationNotMetError"
@@ -584,14 +633,14 @@ module BVT::Harness
           ff.puts "</failure>"
           ff.puts "<rerunCommand>#{case_info['rerun_cmd'].encode({:xml => :text})}</rerunCommand>"
         end
-        @fr.puts "<failedSince>0</failedSince>"
-        @fr.puts "</case>"
+        @summary_report += "<failedSince>0</failedSince>\n"
+        @summary_report += "</case>\n"
 
         ff.puts "</testcase>"
       end
 
-      @fr.puts "</cases>"
-      @fr.puts "</suite>"
+      @summary_report += "</cases>\n"
+      @summary_report += "</suite>"
 
       ff.puts "<system-out>"
       ff.puts stdout.encode({:xml => :text}) if stdout.length > 0

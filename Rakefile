@@ -144,7 +144,7 @@ end
 def create_reports_folder
   output = `ls .`
   if output.include? 'reports'
-    `rm -f reports/*`
+    `rm -rf reports/*`
   else
     `mkdir reports`
   end

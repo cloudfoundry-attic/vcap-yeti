@@ -38,14 +38,15 @@ describe BVT::Spec::UsersManagement::ACL do
           ENV['VCAP_BVT_SERVICE_PLAN'] = plan
           e1 = nil
           begin
-            create_service(manifest)
+            service = @session.service(service_name, true)
+            service.create(manifest)
           rescue => e
             e1 = e.to_s
           end
           if email_match(acl_users, acl_wildcards, @session.email)
             e1.should == nil
           else
-            e1.should =~ /404: entity not found or inaccessible/
+            e1.should match(/(404: entity not found or inaccessible|is not available on target)/)
           end
         end
       end
