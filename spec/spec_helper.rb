@@ -1,6 +1,7 @@
 require "harness"
 require "json"
 require 'yaml'
+require 'syck'
 YAML::ENGINE.yamler = 'syck'
 
 class Bignum
