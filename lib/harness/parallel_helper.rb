@@ -139,7 +139,6 @@ module BVT::Harness
           puts "  #{yellow(case_info['test_name'])}\n"
           $stdout.print cyan(case_info['pending_info'])
         }
-        $stdout.print "\n"
       end
 
       # print total time and summary result
@@ -599,8 +598,9 @@ module BVT::Harness
       case_desc_list.each do |case_desc|
         i = case_info_list.index {|c| c['test_desc'] == case_desc}
         case_info = case_info_list[i]
-        test_name = case_info['test_name'].encode({:xml => :attr})
+        test_name = case_info['test_name']
         test_name += " (PENDING)" if case_info['status'] == 'pending'
+        test_name = test_name.encode({:xml => :attr})
         @summary_report += "<case>\n"
         @summary_report += "<duration>#{case_info['duration']}</duration>\n"
         @summary_report += "<className>#{case_info['class_name']}</className>\n"
