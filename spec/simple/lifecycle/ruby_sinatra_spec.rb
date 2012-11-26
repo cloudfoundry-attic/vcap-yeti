@@ -2,7 +2,7 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe BVT::Spec::Simple::Lifecycle::Ruby19Sinatra do
+describe BVT::Spec::Simple::Lifecycle::RubySinatra do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

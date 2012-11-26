@@ -2,7 +2,7 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe BVT::Spec::MarketplaceGateway::Ruby19Sinatra do
+describe BVT::Spec::MarketplaceGateway::RubySinatra do
 
   # Temporary function until yeti has support for provider
   def create_service_using_v1_api(manifest)

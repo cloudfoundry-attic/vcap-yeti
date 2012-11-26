@@ -3,7 +3,7 @@ require "spec_helper"
 include BVT::Spec::AutoStagingHelper
 include BVT::Spec
 
-describe BVT::Spec::AutoStaging::Ruby19Rails3 do
+describe BVT::Spec::AutoStaging::RubyRails3 do
 
   before(:each) do
     @session = BVT::Harness::CFSession.new

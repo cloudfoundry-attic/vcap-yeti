@@ -97,7 +97,7 @@ task :ruby, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
   create_reports_folder
-  longevity("ParallelHelper.run_tests(#{threads}, {'pattern' => /ruby1[89]_.+_spec\.rb/})")
+  longevity("ParallelHelper.run_tests(#{threads}, {'pattern' => /ruby_.+_spec\.rb/})")
 end
 
 desc "Run service tests (mongodb, redis, mysql, postgres, rabbitmq, neo4j, vblob)"

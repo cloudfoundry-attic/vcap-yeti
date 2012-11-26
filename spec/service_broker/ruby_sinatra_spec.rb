@@ -151,7 +151,7 @@ module BVT::Spec
   end
 end
 
-describe BVT::Spec::ServiceBroker::Ruby18Sinatra do
+describe BVT::Spec::ServiceBroker::RubySinatra do
   include BVT::Spec::ServiceBrokerHelper
 
   before(:all) do

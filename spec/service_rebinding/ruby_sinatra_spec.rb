@@ -3,7 +3,7 @@ require "spec_helper"
 include BVT::Spec
 include BVT::Harness::HTTP_RESPONSE_CODE
 
-describe BVT::Spec::ServiceRebinding::Ruby19Sinatra do
+describe BVT::Spec::ServiceRebinding::RubySinatra do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

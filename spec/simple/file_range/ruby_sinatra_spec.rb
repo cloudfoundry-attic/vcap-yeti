@@ -3,7 +3,7 @@ require "spec_helper"
 require "rest-client"
 include BVT::Spec
 
-describe BVT::Spec::Simple::FileRange::Ruby19Sinatra do
+describe BVT::Spec::Simple::FileRange::RubySinatra do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

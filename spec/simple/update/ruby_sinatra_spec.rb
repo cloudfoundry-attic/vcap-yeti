@@ -2,7 +2,7 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe BVT::Spec::Simple::Update::Ruby19Sinatra do
+describe BVT::Spec::Simple::Update::RubySinatra do
 
   VAR_INC_INSTANCE    = 2
   VAR_REDUCE_INSTANCE = 3

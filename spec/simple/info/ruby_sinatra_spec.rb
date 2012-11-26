@@ -3,7 +3,7 @@ require "spec_helper"
 require "vmc"
 include BVT::Spec
 
-describe BVT::Spec::Simple::Info::Ruby19Sinatra do
+describe BVT::Spec::Simple::Info::RubySinatra do
 
   VAR_INSTANCE_COUNT = 4
   VAR_MEMORY         = 64

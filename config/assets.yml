@@ -71,19 +71,20 @@ broken_app:
 
 git_gems_app_ruby18:
   framework: "sinatra"
-  runtime: "ruby18"
+  category: "ruby"
   memory: 256
   path: "assets/sinatra/git_gems_app"
 
 git_gems_app_ruby19:
   framework: "sinatra"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 256
   path: "assets/sinatra/git_gems_app"
 
 sinatra_gem_groups:
   framework: "sinatra"
   runtime: "ruby18"
+  #just runtime
   memory: 256
   path: "assets/sinatra/gem_groups"
 
@@ -131,14 +132,8 @@ dbrails_broken_app:
   path: "assets/rails3/dbrails_broken_app"
 
 grails_app:
-  runtime: "java"
+  category: "java"
   framework: "grails"
-  memory: 512
-  path: ".assets-binaries/guestbook.war"
-
-grails_app_7:
-  framework: "grails"
-  runtime: "java7"
   memory: 512
   path: ".assets-binaries/guestbook.war"
 
@@ -173,15 +168,9 @@ tomcat-version-check-app:
   tomcat_version: "6.0.35"
   path: ".assets-binaries/tomcat-version-check-app.war"
 
-app_rails_version18:
+app_rails_version:
   framework: "rails3"
-  runtime: "ruby18"
-  memory: 256
-  path: "assets/rails3/app_rails_version"
-
-app_rails_version19:
-  framework: "rails3"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 256
   path: "assets/rails3/app_rails_version"
 
@@ -193,13 +182,7 @@ app_rails_service:
 
 app_rails_service_autoconfig:
   framework: "rails3"
-  runtime: "ruby19"
-  memory: 256
-  path: "assets/rails3/app_rails_service_autoconfig"
-
-app_rails_service_autoconfig18:
-  framework: "rails3"
-  runtime: "ruby18"
+  category: "ruby"
   memory: 256
   path: "assets/rails3/app_rails_service_autoconfig"
 
@@ -218,6 +201,7 @@ rails_autoconfig_disabled_by_gem:
 app_rack_service:
   framework: "rack"
   runtime: "ruby18"
+  #ruby18
   memory: 256
   path: "assets/rack/app_rack_service"
 
@@ -225,6 +209,7 @@ app_rack_service_autoconfig:
   framework: "rack"
   instances: 1
   runtime: "ruby18"
+  #runtime ruby18
   startup: "ruby app.rb"
   memory: 64
   path: "assets/rack/app_rack_service_autoconfig"
@@ -232,7 +217,7 @@ app_rack_service_autoconfig:
 rack_autoconfig_ruby19:
   framework: "rack"
   instances: 1
-  runtime: "ruby19"
+  category: "ruby"
   startup: "ruby app.rb"
   memory: 64
   path: "assets/rack/autoconfig_ruby19"
@@ -345,25 +330,14 @@ app_node_dependencies08:
 
 app_node_version04:
   framework: "node"
-  runtime: "node"
+  category: "node"
   memory: 64
   path: "assets/node/app_node_version"
 
-app_node_version06:
-  framework: "node"
-  runtime: "node06"
-  memory: 64
-  path: "assets/node/app_node_version"
-
-app_node_version08:
-  framework: "node"
-  runtime: "node08"
-  memory: 64
-  path: "assets/node/app_node_version"
 
 node_autoconfig04:
   framework: "node"
-  runtime: "node"
+  category: "node"
   memory: 64
   path: "assets/node/node_autoconfig"
 
@@ -400,7 +374,7 @@ node_git_modules:
 app_spring_service:
   framework: "spring"
   instances: 1
-  runtime: "java"
+  category: "java"
   memory: 256
   path: ".assets-binaries/app_spring_service.war"
 
@@ -489,7 +463,7 @@ java_app_with_startup_delay:
 
 rails_console_test_app:
   framework: "rails3"
-  runtime: "ruby18"
+  category: "ruby"
   memory: 256
   path: "assets/rails3/app_rails_service"
 
@@ -505,33 +479,26 @@ blob_app:
   memory: 256
   path: "assets/sinatra/app_sinatra_service"
 
-standalone_ruby18_app:
+standalone_ruby_app:
   framework: "standalone"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
   memory: 64
-  runtime: "ruby18"
+  category: "ruby"
   path: "assets/standalone/ruby_app"
 
-standalone_ruby19_app:
-  framework: "standalone"
-  command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
-  memory: 64
-  runtime: "ruby19"
-  path: "assets/standalone/ruby_app"
-
-standalone_simple_ruby18_app:
+standalone_simple_ruby_app:
   framework: "standalone"
   command: "ruby simple.rb"
   memory: 64
-  runtime: "ruby18"
+  category: "ruby"
   path: "assets/standalone/simple_ruby_app"
   no_url: true
 
-standalone_simple_ruby18_quotes_app:
+standalone_simple_ruby_quotes_app:
   framework: "standalone"
   command: "ruby \"simple.rb\""
   memory: 64
-  runtime: "ruby18"
+  category: "ruby"
   path: "assets/standalone/simple_ruby_app"
   no_url: true
 
@@ -546,16 +513,8 @@ standalone_simple_ruby19_app:
 standalone_java_app:
   framework: "standalone"
   command: "bin/hello-cloud"
-  runtime: "java"
+  category: "java"
   memory: 64
-  path: ".assets-binaries/java_app.zip"
-  no_url: true
-
-standalone_java_app_7:
-  framework: "standalone"
-  command: "bin/hello-cloud"
-  runtime: "java7"
-  memory: 256
   path: ".assets-binaries/java_app.zip"
   no_url: true
 
@@ -563,30 +522,17 @@ standalone_java_app_7:
 standalone_node_app:
   framework: "standalone"
   command: "node app.js"
-  runtime: "node"
-  memory: 64
-  path: "assets/standalone/node_app"
-
-standalone_node06_app:
-  framework: "standalone"
-  command: "node app.js"
-  runtime: "node06"
+  category: "node"
   memory: 64
   path: "assets/standalone/node_app"
 
 standalone_ruby18_autoconfig:
   framework: "standalone"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
-  runtime: "ruby18"
+  category: "ruby"
   memory: 64
   path: "assets/standalone/ruby_autoconfig"
 
-standalone_ruby19_autoconfig:
-  framework: "standalone"
-  command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
-  runtime: "ruby19"
-  memory: 64
-  path: "assets/standalone/ruby_autoconfig"
 
 standalone_ruby_autoconfig_disabled_by_file:
   framework: "standalone"
@@ -629,7 +575,7 @@ standalone_erlang_app:
 play_computer_database_autoconfig_disabled_app:
   framework: "play"
   memory: 128
-  category: "java"
+  runtime: "java"
   path: ".assets-binaries/computer_database_autoconfig_disabled.zip"
 
 play_computer_database_cf_by_name_app:
@@ -671,13 +617,7 @@ play_computer_database_scala_app:
 play_todolist_app:
   framework: "play"
   memory: 128
-  runtime: "java"
-  path: ".assets-binaries/todolist.zip"
-
-play_todolist_app_7:
-  framework: "play"
-  runtime: java7
-  memory: 256
+  category: "java"
   path: ".assets-binaries/todolist.zip"
 
 play_todolist_with_cfruntime_app:
@@ -726,13 +666,7 @@ node_imagemagick:
 spring_imagemagick_java6:
   framework: "spring"
   memory: 256
-  runtime: "java"
-  path: ".assets-binaries/spring_imagemagick.war"
-
-spring_imagemagick_java7:
-  framework: "spring"
-  memory: 256
-  runtime: "java7"
+  category: "java"
   path: ".assets-binaries/spring_imagemagick.war"
 
 couchdb_app:

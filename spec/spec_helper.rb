@@ -27,63 +27,55 @@ module BVT
     end
 
     module AutoStaging
-      class Ruby18Rack; end
-      class Ruby18Standalone; end
-      class Ruby18Rails3; end
-      class Ruby19Sinatra; end
-      class Ruby19Rack; end
-      class Ruby19Rails3; end
-      class Ruby19Standalone; end
+      class RubyRack; end
+      class RubyStandalone; end
+      class RubyRails3; end
+      class RubySinatra; end
       class JavaSpring; end
       class JavaGrails; end
-      class Node04Node; end
-      class Node06Node; end
-      class Node08Node; end
+      class NodeNode; end
     end
 
     module Canonical
       class JavaPlay; end
-      class Java7Play; end
       class JavaSpring; end
-      class Java7Spring; end
       class JavaGrails; end
-      class Java7Grails; end
       class JavaLift; end
-      class Ruby19Sinatra; end
-      class Ruby18Rack; end
+      class RubySinatra; end
+      class RubyRack; end
       class NodeNode; end
-      class Ruby19Rails3; end
+      class RubyRails3; end
       class ScalaPlay; end
     end
 
     module ServiceQuota
-      class Ruby19Sinatra; end
+      class RubySinatra; end
     end
 
     module ImageMagicKSupport
-      class Ruby19Sinatra; end
+      class RubySinatra; end
       class NodeNode; end
       class Java; end
     end
 
     module ServiceLifecycle
-      class Ruby19Sinatra; end
+      class RubySinatra; end
     end
 
     module ServiceBroker
-      class Ruby18Sinatra; end
+      class RubySinatra; end
     end
 
     module MarketplaceGateway
-      class Ruby19Sinatra; end
+      class RubySinatra; end
     end
 
     module ServiceRebinding
-      class Ruby19Sinatra; end
+      class RubySinatra; end
     end
 
     module AppPerformance
-      class Ruby19Sinatra; end
+      class RubySinatra; end
     end
 
     module AcmManager
@@ -92,17 +84,11 @@ module BVT
     module Simple
       class JavaJavaWeb; end
       class JavaStandalone; end
-      class Java7Standalone; end
       class NodeNode; end
       class NodeStandalone; end
-      class Node06Node; end
-      class Node08Node; end
-      class Node06Standalone; end
-      class Ruby18Rails3; end
-      class Ruby18Standalone; end
-      class Ruby19Rails3; end
-      class Ruby19Sinatra; end
-      class Ruby19Standalone; end
+      class RubyStandalone; end
+      class RubyRails3; end
+      class RubySinatra; end
       class ErlangStandalone; end
       class PhpStandalone; end
       class Python2Standalone; end
@@ -112,28 +98,27 @@ module BVT
       class Python2Django; end
 
       module Info
-        class Ruby19Sinatra; end
+        class RubySinatra; end
       end
 
       module Lifecycle
-        class Ruby19Sinatra; end
+        class RubySinatra; end
       end
 
       module Update
-        class Ruby19Sinatra; end
+        class RubySinatra; end
       end
 
       module RubyGems
-        class Ruby19Sinatra; end
+        class RubySinatra; end
       end
 
       module FileRange
-        class Ruby19Sinatra; end
+        class RubySinatra; end
       end
 
       module RailsConsole
-        class Ruby18Rails3; end
-        class Ruby19Rails3; end
+        class RubyRails3; end
       end
     end
 

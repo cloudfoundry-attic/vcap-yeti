@@ -8,7 +8,7 @@ include BVT::Harness
 $:.unshift(File.join(File.dirname(__FILE__)))
 require "rails_console_helper"
 
-describe BVT::Spec::Simple::RailsConsole::Ruby19Rails3 do
+describe BVT::Spec::Simple::RailsConsole::RubyRails3 do
   include BVT::Spec::RailsConsoleHelper
 
   before(:all) do
@@ -21,6 +21,76 @@ describe BVT::Spec::Simple::RailsConsole::Ruby19Rails3 do
 
   after(:each) do
     @session.cleanup!
+  end
+
+  it "rails test console", :p1 => true do
+    app = create_push_app("rails_console_test_app")
+    manifest = {}
+    manifest["console"] = true
+    app.update!(manifest)
+
+    @console_cmd.restart(app.name)
+
+    run_console(app.name)
+
+    expected_results = ["irb():001:0> "]
+
+    expected_results.should == @console_response
+
+    2.times do
+      begin
+        @console_response = @console_cmd.send_console_command("app.class")
+        break
+      rescue EOFError => e
+        @session.log.debug("Fail to connect rails console, retrying. #{e.to_s}")
+      end
+    end
+
+    expected_results = ("app.class,=> ActionDispatch::Integration::Session,irb" +
+                      "():002:0> ").split(",")
+    expected_results.should == @console_response
+    @console_cmd.close_console if @console_cmd
+  end
+
+  it "rails test console tab completion" do
+    app = create_push_app("rails_console_test_app")
+    manifest = {}
+    manifest["console"] = true
+    app.update!(manifest)
+
+    @console_cmd.restart(app.name)
+
+    run_console(app.name)
+
+    expected_results = ["irb():001:0> "]
+    expected_results.should == @console_response
+
+    @console_cmd.console_tab_completion_data("puts")
+    @console_tab_response = @console_cmd.console_tab_completion_data("puts")
+    expected_results = ["puts"]
+    expected_results.should == @console_tab_response
+
+    @console_cmd.close_console if @console_cmd
+  end
+
+  it "rails test console stdout redirect" do
+    app = create_push_app("rails_console_test_app")
+    manifest = {}
+    manifest["console"] = true
+    app.update!(manifest)
+
+    @console_cmd.restart(app.name)
+
+    run_console(app.name)
+
+    expected_results = ["irb():001:0> "]
+    expected_results.should == @console_response
+
+    @console_response = @console_cmd.send_console_command("puts 'hi'")
+    expected_results = ("puts 'hi',hi,=> nil,irb():002:0> ").split(",")
+    expected_results.should == @console_response
+
+    @console_cmd.close_console if @console_cmd
   end
 
   it "rails test console rake tasks with ruby 1.9" do
@@ -54,7 +124,10 @@ describe BVT::Spec::Simple::RailsConsole::Ruby19Rails3 do
     expected_results = ["irb():001:0> "]
     expected_results.should == @console_response
 
-    send_cmd_and_verify("`ruby --version`", "ruby 1.9")
+    runtime = app.manifest['runtime']
+    version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version].split("p",2).first
+
+    send_cmd_and_verify("`ruby --version`", "ruby #{version}")
 
     @console_cmd.close_console if @console_cmd
   end
@@ -73,8 +146,11 @@ describe BVT::Spec::Simple::RailsConsole::Ruby19Rails3 do
     expected_results = ["irb():001:0> "]
     expected_results.should == @console_response
 
+    runtime = app.manifest['runtime']
+    version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version].split("p",2).first
 
-    send_cmd_and_verify("`ruby --version`", "ruby 1.9")
+
+    send_cmd_and_verify("`ruby --version`", "ruby #{version}")
 
     send_cmd_and_verify("User.all", "[]")
 
@@ -100,7 +176,10 @@ describe BVT::Spec::Simple::RailsConsole::Ruby19Rails3 do
     expected_results = ["irb():001:0> "]
     expected_results.should == @console_response
 
-    send_cmd_and_verify("`ruby --version`", "ruby 1.9")
+    runtime = app.manifest['runtime']
+    version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version].split("p",2).first
+
+    send_cmd_and_verify("`ruby --version`", "ruby #{version}")
 
     send_cmd_and_verify("User.all", "[]")
 

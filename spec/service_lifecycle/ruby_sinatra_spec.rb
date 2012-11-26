@@ -7,7 +7,7 @@ require 'base64'
 include BVT::Spec
 
 
-describe BVT::Spec::ServiceLifecycle::Ruby19Sinatra do
+describe BVT::Spec::ServiceLifecycle::RubySinatra do
   include BVT::Spec::ServiceLifecycleHelper
 
   before(:each) do

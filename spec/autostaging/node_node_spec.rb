@@ -3,7 +3,7 @@ require "spec_helper"
 include BVT::Spec
 include BVT::Spec::AutoStagingHelper
 
-describe BVT::Spec::AutoStaging::Node04Node do
+describe BVT::Spec::AutoStaging::NodeNode do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

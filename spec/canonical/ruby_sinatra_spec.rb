@@ -4,7 +4,7 @@ include BVT::Spec::CanonicalHelper
 include BVT::Spec
 include BVT::Harness
 
-describe BVT::Spec::Canonical::Ruby19Sinatra do
+describe BVT::Spec::Canonical::RubySinatra do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

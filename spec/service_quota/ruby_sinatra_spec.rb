@@ -4,7 +4,7 @@ require "rest_client"
 include BVT::Spec
 include BVT::Spec::ServiceQuotaHelper
 
-describe BVT::Spec::ServiceQuota::Ruby19Sinatra do
+describe BVT::Spec::ServiceQuota::RubySinatra do
 
   SINGLE_APP_CLIENTS_LIMIT = 200
 

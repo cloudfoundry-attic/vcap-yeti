@@ -3,7 +3,7 @@ require "spec_helper"
 include BVT::Spec
 include BVT::Spec::AutoStagingHelper
 
-describe BVT::Spec::AutoStaging::Ruby19Sinatra do
+describe BVT::Spec::AutoStaging::RubySinatra do
 
   before(:each) do
     @session = BVT::Harness::CFSession.new
