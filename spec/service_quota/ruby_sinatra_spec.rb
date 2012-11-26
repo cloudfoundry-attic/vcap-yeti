@@ -605,4 +605,34 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     r.close
   end
 
+  # Daylimit test only for rabbitmq now
+  it "daylimit for rabbit service", :rabbitmq => true do
+    pending("no configuration for bandwidth rate") unless SERVICE_QUOTA['rabbit']['bandwidth_quotas'] && SERVICE_QUOTA['rabbit']['bandwidth_quotas']['time_window'] && SERVICE_QUOTA['rabbit']['bandwidth_quotas']['per_day']
+    time_window = SERVICE_QUOTA['rabbit']['bandwidth_quotas']['time_window'].to_i
+    per_day = SERVICE_QUOTA['rabbit']['bandwidth_quotas']['per_day'].to_f
+    pending("take too much time, please set a small time_window value") unless time_window < 600
+    service = create_service(RABBITMQ_MANIFEST)
+    app = create_push_app("service_quota_app")
+    app.bind(service)
+
+    result_reg = /ok-([0-9]+)/
+    send_size_mb = per_day * 0.1 # Set throughput size to 30 times of rate
+    [{"ok" => true, "sleep" => 0, "times" => 10},
+     {"ok" => false, "sleep" => time_window, "times" => 1},
+     {"ok" => true, "sleep" => 0, "times" => 1},
+    ].each do |v|
+      v["times"].times do
+        r = app.get_response(:post, "/service/rabbitmq/bandwidth/#{send_size_mb}")
+        r.response_code.should == 200
+        if v["ok"]
+          r.body_str.should match(result_reg)
+        else
+          r.body_str.should_not match(result_reg)
+        end
+        r.close
+      end
+      sleep v["sleep"] if v["sleep"] > 0
+    end
+  end
+
 end
