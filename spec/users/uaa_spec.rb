@@ -121,8 +121,7 @@ end
 describe BVT::Spec::UsersManagement::UAA do
 
   before(:all) do
-    yeti_config = BVT::Harness::RakeHelper.get_config
-    target_domain = yeti_config['target'].split(".", 2).last
+    target_domain = BVT::Harness::RakeHelper.get_target.split(".", 2).last
     @uaabase = ENV['VCAP_BVT_UAA_BASE'] || "uaa.#{target_domain}"
     @loginbase = ENV['VCAP_BVT_LOGIN_BASE'] || @uaabase
     @uaahelper = UaaHelper.instance
@@ -130,8 +129,8 @@ describe BVT::Spec::UsersManagement::UAA do
     @uaahelper.loginbase = @loginbase
 
     # get user/password from ENV || config.yml
-    @uaahelper.username = ENV['VCAP_BVT_USER'] || yeti_config["user"]["email"]
-    @uaahelper.password = ENV['VCAP_BVT_USER_PASSWD'] || yeti_config["user"]["passwd"]
+    @uaahelper.username = BVT::Harness::RakeHelper.get_user
+    @uaahelper.password = BVT::Harness::RakeHelper.get_user_passwd
   end
 
   it "get approval prompts and the content should contain correct paths",
