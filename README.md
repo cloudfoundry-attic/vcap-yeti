@@ -26,7 +26,7 @@ How to run it
 -------------
 1. ```git clone git://github.com/cloudfoundry/vcap-yeti.git```
 2. ```cd vcap-yeti```
-3. ```./update.sh      ## this is not required for running administrative test cases```
+3. ```./update      ## this is not required for running administrative test cases```
 4. ```bundle exec rake full```
 5. During the first time, Yeti will prompt you for information about your environment:
     - target
