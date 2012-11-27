@@ -38,6 +38,7 @@ end
 
 desc "run full tests (not include admin cases)"
 task :full, :thread_number do |t, args|
+  RakeHelper.sync_assets
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
@@ -47,6 +48,7 @@ end
 
 desc "run tests subset"
 task :tests, :thread_number do |t, args|
+  RakeHelper.sync_assets
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
@@ -56,6 +58,7 @@ end
 
 desc "Run all bvts randomly, add [N] to specify a seed"
 task :random, :seed do |t, args|
+  RakeHelper.sync_assets
   RakeHelper.prepare_all(1)
   if args[:seed] != nil
     longevity("sh 'bundle exec rspec spec/ --tag ~admin --tag ~slow' +
@@ -75,6 +78,7 @@ end
 
 desc "Run java tests (spring, java_web)"
 task :java, :thread_number, :longevity, :fail_fast do |t, args|
+  RakeHelper.sync_assets
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
@@ -84,6 +88,7 @@ end
 
 desc "Run jvm tests (spring, java_web, grails, lift)"
 task :jvm, :thread_number do |t, args|
+  RakeHelper.sync_assets
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
@@ -102,6 +107,7 @@ end
 
 desc "Run service tests (mongodb, redis, mysql, postgres, rabbitmq, neo4j, vblob)"
 task :services, :thread_number do |t, args|
+  RakeHelper.sync_assets
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
