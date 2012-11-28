@@ -29,47 +29,6 @@ module BVT::Harness
         create_app(@name, @manifest['path'], services, need_check)
       end
     end
-    #def push(services = nil, appid = nil, need_check = true)
-    #  load_manifest(appid)
-    #  check_framework(@manifest['framework'])
-    #  check_runtime(@manifest['runtime'])
-    #  @manifest['uris'] = [get_url,]
-    #
-    #  if @app.exists?
-    #    @app.upload(@manifest['path'])
-    #    restart
-    #    return
-    #  end
-    #
-    #  #UPDATE framework & runtime
-    #  @app.total_instances = @manifest['instances']
-    #  if @session.v2?
-    #    @app.space         = @client.current_space
-    #    @app.framework     = @client.framework_by_name(@manifest['framework'])
-    #    @app.runtime       = @client.runtime_by_name(@manifest['runtime'])
-    #  else
-    #    @app.framework     = @manifest['framework']
-    #    @app.runtime       = @manifest['runtime']
-    #    @app.urls            = @manifest['uris'] unless @manifest['no_url']
-    #    if @manifest['framework'] == "standalone"
-    #      @app.command         = @manifest['command']
-    #    end
-    #  end
-    #  @app.memory          = @manifest['memory']
-    #
-    #  @log.info "Push App: #{@app.name}"
-    #  begin
-    #    @app.create!
-    #    @app.upload(@manifest['path'])
-    #    add_route if @session.v2?
-    #  rescue Exception => e
-    #    @log.error("Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}")
-    #    raise RuntimeError, "Push App: #{@app.name} failed. Manifest: #{@manifest}\n#{e.to_s}"
-    #  end
-    #
-    #  services.each { |service| bind(service, false)} if services
-    #  start(need_check)
-    #end
 
     def delete
       @log.info("Delete App: #{@app.name}")
@@ -198,14 +157,14 @@ module BVT::Harness
           host, domain_name = simple.split(".", 2)
 
           domain =
-            @session.current_space.domains(0, :name => domain_name).first
+            @session.current_space.domain_by_name(domain_name, :depth => 0)
 
           unless domain
             @log.error("Invalid domain '#{domain_name}, please check your input url: #{url}")
             raise RuntimeError, "Invalid domain '#{domain_name}, please check your input url: #{url}"
           end
 
-          route = @session.client.routes(0, :host => host).find do |r|
+          route = @session.client.routes_by_host(host, :depth => 0).find do |r|
             r.domain == domain
           end
 
@@ -220,7 +179,7 @@ module BVT::Harness
           @log.debug("Binding #{simple} to application: #{@app.name}")
           @app.add_route(route)
         else
-          @app.urls <<  url
+          @app.urls << simple
           @app.update!
         end
       rescue Exception => e
@@ -479,29 +438,6 @@ module BVT::Harness
       end
     end
 
-    def add_route
-      simple = @manifest["uris"].first.sub(/^https?:\/\/(.*)\/?/i, '\1')
-      host, domain_name = simple.split(".", 2)
-
-      route = @client.routes.find { |r|
-        r.host == host && r.domain.name == domain_name
-      }
-
-      unless route
-        domain = @client.domain_by_name(domain_name)
-        fail "Invalid domain '#{domain_name}'" unless domain
-
-        route = @client.route
-
-        route.host = host
-        route.domain = domain
-        route.organization = @session.current_organization
-        route.create!
-      end
-
-      @app.add_route(route)
-    end
-
     def sync_app(app, path)
       upload_app(app, path)
 
@@ -599,8 +535,6 @@ module BVT::Harness
 
       url = get_url
       @manifest['uris'] = [url,]
-      app.urls = @manifest['uris'] unless @manifest['no_url'] || @session.v2?
-
 
       app.memory = @manifest['memory']
       begin
@@ -611,7 +545,7 @@ module BVT::Harness
       end
 
       @app = app
-      map(url) if url && @session.v2?
+      map(url) if !@manifest['no_url']
 
       services.each { |service| bind(service, false)} if services
       upload_app(app, path)

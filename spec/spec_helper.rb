@@ -110,8 +110,7 @@ module BVT
       end
 
       module RailsConsole
-        class Ruby18Rails3; end
-        class Ruby19Rails3; end
+        class Console; end
       end
     end
 

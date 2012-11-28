@@ -45,8 +45,8 @@ require "harness/http_response_code"
 require "harness/scripts_helper"
 require "harness/parallel_helper"
 require "harness/service_versions_helper"
-
-
+require "harness/console_helper"
+require "harness/cfconsole_monkey_patch"
 ## support v2
 require "harness/space"
 
