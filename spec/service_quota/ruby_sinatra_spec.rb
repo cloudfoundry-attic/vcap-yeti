@@ -84,6 +84,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
 
 
   it "test mongodb quota enforcement", :mongodb => true do
+    pending "mongodb free plan does not have storage quota enforcement" if SERVICE_PLAN == "free"
     app = create_push_app("service_quota_app")
     bind_service(MONGODB_MANIFEST, app)
 
