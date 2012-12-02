@@ -161,6 +161,18 @@ def get_longevity_time
   return 1
 end
 
+def case_number
+  eval("ParallelHelper::case_number")
+end
+
+def failure_number
+  eval("ParallelHelper::failure_number")
+end
+
+def pending_number
+  eval("ParallelHelper::pending_number")
+end
+
 def longevity(cmd)
   loop_times = get_longevity_time
   if loop_times == 1
@@ -170,16 +182,33 @@ def longevity(cmd)
     puts red("longevity input error")
     return
   end
+  total_case_number = 0
+  total_failure_number = 0
+  total_pending_number = 0
   time_start = Time.now
-  puts yellow("loop times: #{loop_times}")
-  $stdout.flush
-  loop_times.times {|i|
-    puts yellow("This is #{i} run.")
-    eval(cmd)
-  }
+  begin
+    puts yellow("loop times: #{loop_times}")
+    $stdout.flush
+    loop_times.times {|i|
+      puts yellow("This is #{i} run.")
+      eval(cmd)
+      total_case_number += case_number
+      total_failure_number += failure_number
+      total_pending_number += pending_number
+    }
+  rescue Interrupt
+    puts red("Catch CTRL+C, Ending")
+    total_case_number += case_number
+    total_failure_number += failure_number
+    total_pending_number += pending_number
+  end
   puts yellow("longevity finished!")
   puts yellow("loop times:    #{loop_times}")
   t1 = Time.now
   running_time = (t1 - time_start).to_i
   puts yellow("total running time: #{running_time} seconds")
+  puts "total case number: #{total_case_number}"
+  puts red("total failure number: #{total_failure_number}")
+  puts yellow("total pending number: #{total_pending_number}")
 end
+

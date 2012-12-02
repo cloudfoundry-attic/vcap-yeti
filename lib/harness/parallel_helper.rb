@@ -12,6 +12,18 @@ module BVT::Harness
     SPEC_PATH = File.join(YETI_HOME_PATH, "spec/")
     MAX_RERUN_TIMES = 10
 
+    def case_number
+      @@case_number
+    end
+
+    def failure_number
+      @@failure_number
+    end
+
+    def pending_number
+      @@pending_number
+    end
+
     def run_tests(thread_number, options = {"tags" => "~admin"}, rerun=false)
       if thread_number > VCAP_BVT_PARALLEL_MAX_USERS
         puts red("threads_number can't be greater than #{VCAP_BVT_PARALLEL_MAX_USERS}")
@@ -68,13 +80,14 @@ module BVT::Harness
 
       pbar = ProgressBar.new("0/#{@queue.size}", @queue.size, $stdout)
       pbar.format_arguments = [:title, :percentage, :bar, :stat]
-      case_number = 0
-      failure_number = 0
-      pending_number = 0
+      @@case_number = 0
+      @@failure_number = 0
+      @@pending_number = 0
       failure_list = []
       pending_list = []
+      interrupted = false
 
-      Thread.abort_on_exception = false
+      Thread.abort_on_exception = true
       threads = []
 
       parallel_users.each do |user|
@@ -95,7 +108,8 @@ module BVT::Harness
 
             if case_info['status'] == 'fail'
               @lock.synchronize do
-                failure_number += 1
+                @@failure_number += 1
+
                 failure_list << case_info
                 session = CFSession.new(:admin => false,
                                                 :email => user['email'],
@@ -105,7 +119,7 @@ module BVT::Harness
 
                 # print failure immediately during the execution
                 $stdout.print "\e[K"
-                if failure_number == 1
+                if @@failure_number == 1
                   $stdout.print "Failures:\n\n"
                 end
                 puts "  #{failure_number}) #{case_info['test_name']}"
@@ -115,24 +129,29 @@ module BVT::Harness
               end
             elsif case_info['status'] == 'pending'
               @lock.synchronize do
-                pending_number += 1
+                @@pending_number += 1
                 pending_list << case_info
               end
             end
-            case_number += 1
+            @@case_number += 1
             pbar.inc
             pbar.instance_variable_set("@title", "#{pbar.current}/#{pbar.total}")
           end
         end
         # ramp up user threads one by one
         sleep 0.1
+
       end
 
-      threads.each { |t| t.join }
+      begin
+        threads.each { |t| t.join }
+      rescue Interrupt
+        interrupted = true
+      end
       pbar.finish
 
       # print pending cases if configured
-      if ENV['VCAP_BVT_SHOW_PENDING'] == 'true' && pending_number > 0
+      if ENV['VCAP_BVT_SHOW_PENDING'] == 'true' && @@pending_number > 0
         $stdout.print "\n"
         puts "Pending:"
         pending_list.each {|case_info|
@@ -145,13 +164,13 @@ module BVT::Harness
       end_time = Time.now
       puts ""
       puts "Finished in #{format_time(end_time - start_time)}\n"
-      if failure_number > 0
-        $stdout.print red("#{case_number} examples, #{failure_number} failures")
-        $stdout.print red(", #{pending_number} pending") if pending_number > 0
-      elsif pending_number > 0
-        $stdout.print yellow("#{case_number} examples, #{failure_number} failures, #{pending_number} pending")
+      if @@failure_number > 0
+        $stdout.print red("#{@@case_number} examples, #{@@failure_number} failures")
+        $stdout.print red(", #{@@pending_number} pending") if @@pending_number > 0
+      elsif @@pending_number > 0
+        $stdout.print yellow("#{@@case_number} examples, #{@@failure_number} failures, #{@@pending_number} pending")
       else
-        $stdout.print green("#{case_number} examples, 0 failures")
+        $stdout.print green("#{@@case_number} examples, 0 failures")
       end
       $stdout.print "\n"
 
@@ -179,6 +198,9 @@ module BVT::Harness
         fr.puts @summary_report
       end
       fr.close
+      if interrupted
+        raise Interrupt
+      end
     end
 
     def get_case_list
