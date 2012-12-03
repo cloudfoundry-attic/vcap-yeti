@@ -7,10 +7,11 @@ module BVT::Spec
     SERVICE_CONFIG = YAML.load_file(SERVICE_QUOTA_CONFIG)
     SERVICE_PLAN = ENV['VCAP_BVT_SERVICE_PLAN'] || "free"
     SERVICE_QUOTA = {}
+    SERVICE_LIST=[]
 
     SERVICE_CONFIG['properties']['service_plans'].each do |service,configure|
-      plan_config = configure[SERVICE_PLAN]["configuration"]
-      SERVICE_QUOTA[service] = plan_config
+      SERVICE_LIST << service
+      SERVICE_QUOTA[service] = configure[SERVICE_PLAN]["configuration"] if configure[SERVICE_PLAN]
     end
 
   end

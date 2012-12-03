@@ -13,6 +13,14 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   before(:each) do
+    service = nil
+    example.metadata.each do |k, v|
+      if v == true && SERVICE_LIST.index(k.to_s)
+        service = k.to_s
+        break
+      end
+    end
+    pending "service doesn't has this plan for quota testing" unless service && SERVICE_QUOTA[service]
     if @session.TARGET =~ /\.vcap\.me$/
       pending "service quota cases are not available in dev setup env"
     end
