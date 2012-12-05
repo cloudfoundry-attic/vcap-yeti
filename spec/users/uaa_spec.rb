@@ -129,8 +129,9 @@ describe BVT::Spec::UsersManagement::UAA do
     @uaahelper.loginbase = @loginbase
 
     # get user/password from ENV || config.yml
-    @uaahelper.username = BVT::Harness::RakeHelper.get_user
-    @uaahelper.password = BVT::Harness::RakeHelper.get_user_passwd
+    @session = BVT::Harness::CFSession.new
+    @uaahelper.username = @session.email
+    @uaahelper.password = @session.passwd
   end
 
   it "get approval prompts and the content should contain correct paths",
