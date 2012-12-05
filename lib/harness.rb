@@ -49,5 +49,8 @@ require "harness/http_response_code"
 require "harness/scripts_helper"
 require "harness/parallel_helper"
 
+## to arrange rails console cases in parallel
+require "harness/parallel_monkey_patch"
+
 ## in order to support service versions, require this monkey patch
 require "harness/cfoundry_monkey_patch"
