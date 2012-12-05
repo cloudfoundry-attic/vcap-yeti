@@ -1,4 +1,20 @@
 require "harness"
+require "json"
+require 'yaml'
+require 'syck'
+YAML::ENGINE.yamler = 'syck'
+
+class Bignum
+  def to_json(options = nil)
+    to_s
+  end
+end
+
+class Fixnum
+  def to_json(options = nil)
+    to_s
+  end
+end
 
 module BVT
   module Spec
@@ -7,61 +23,59 @@ module BVT
       class AdminUser; end
       class NormalUser; end
       class UAA; end
+      class ACL; end
     end
 
     module AutoStaging
-      class Ruby18Rack; end
-      class Ruby18Standalone; end
-      class Ruby19Sinatra; end
-      class Ruby19Rack; end
-      class Ruby19Rails3; end
-      class Ruby19Standalone; end
+      class RubyRack; end
+      class RubyStandalone; end
+      class RubyRails3; end
+      class RubySinatra; end
       class JavaSpring; end
       class JavaGrails; end
-      class Node04Node; end
-      class Node06Node; end
-      class Node08Node; end
+      class NodeNode; end
     end
 
     module Canonical
       class JavaPlay; end
-      class Java7Play; end
       class JavaSpring; end
-      class Java7Spring; end
       class JavaGrails; end
-      class Java7Grails; end
       class JavaLift; end
-      class Ruby19Sinatra; end
-      class Ruby18Rack; end
+      class RubySinatra; end
+      class RubyRack; end
       class NodeNode; end
-      class Ruby19Rails3; end
+      class RubyRails3; end
       class ScalaPlay; end
     end
 
     module ServiceQuota
-      class Ruby19Sinatra; end
+      class RubySinatra; end
     end
 
     module ImageMagicKSupport
-      class Ruby19Sinatra; end
+      class RubySinatra; end
       class NodeNode; end
       class Java; end
     end
 
     module ServiceLifecycle
-      class Ruby19Sinatra; end
+      class RubySinatra; end
     end
 
     module ServiceBroker
-      class Ruby18Sinatra; end
+      class RubySinatra; end
+    end
+
+    module MarketplaceGateway
+      class RubySinatra; end
     end
 
     module ServiceRebinding
-      class Ruby19Sinatra; end
+      class RubySinatra; end
     end
 
     module AppPerformance
-      class Ruby19Sinatra; end
+      class RubySinatra; end
     end
 
     module AcmManager
@@ -70,17 +84,11 @@ module BVT
     module Simple
       class JavaJavaWeb; end
       class JavaStandalone; end
-      class Java7Standalone; end
       class NodeNode; end
       class NodeStandalone; end
-      class Node06Node; end
-      class Node08Node; end
-      class Node06Standalone; end
-      class Ruby18Rails3; end
-      class Ruby18Standalone; end
-      class Ruby19Rails3; end
-      class Ruby19Sinatra; end
-      class Ruby19Standalone; end
+      class RubyStandalone; end
+      class RubyRails3; end
+      class RubySinatra; end
       class ErlangStandalone; end
       class PhpStandalone; end
       class Python2Standalone; end
@@ -90,23 +98,23 @@ module BVT
       class Python2Django; end
 
       module Info
-        class Ruby19Sinatra; end
+        class RubySinatra; end
       end
 
       module Lifecycle
-        class Ruby19Sinatra; end
+        class RubySinatra; end
       end
 
       module Update
-        class Ruby19Sinatra; end
+        class RubySinatra; end
       end
 
       module RubyGems
-        class Ruby19Sinatra; end
+        class RubySinatra; end
       end
 
       module FileRange
-        class Ruby19Sinatra; end
+        class RubySinatra; end
       end
 
       module RailsConsole
@@ -152,11 +160,7 @@ end
 RSpec.configure do |config|
   include BVT::Harness::ColorHelpers
   config.before(:suite) do
-    unless ENV['VCAP_BVT_TARGET']
-      raise RuntimeError, "\nEnvironment variable #{yellow("VCAP_BVT_TARGET")} is not set.\n" +
-          "rspec process cannot know which target should be tested."
-    end
-
+    BVT::Harness::RakeHelper.get_target
     BVT::Harness::VCAP_BVT_CONFIG = BVT::Harness::RakeHelper.get_config
     if BVT::Harness::VCAP_BVT_CONFIG.empty?
       raise RuntimeError, "\nCannot find target #{yellow(ENV['VCAP_BVT_TARGET'])} information" +
@@ -164,8 +168,9 @@ RSpec.configure do |config|
           "Please run #{yellow("bundle exec rake <TASK>")}, instead of rspec directly"
     end
 
+    target = BVT::Harness::RakeHelper.get_target
     $vcap_bvt_profile_file ||= File.join(BVT::Harness::VCAP_BVT_HOME,
-                                         "profile.#{$target_config['target']}.yml")
+                                         "profile.#{target}.yml")
     profile = YAML.load_file($vcap_bvt_profile_file)
     BVT::Harness::VCAP_BVT_SYSTEM_FRAMEWORKS  =  profile[:frameworks]
     BVT::Harness::VCAP_BVT_SYSTEM_RUNTIMES    =  profile[:runtimes]
@@ -186,3 +191,4 @@ end
 require "autostaging/autostaging_helper"
 require "canonical/canonical_helper"
 require "service_lifecycle/service_lifecycle_helper"
+require "service_quota/service_quota_helper"

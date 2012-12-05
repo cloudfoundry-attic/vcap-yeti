@@ -15,6 +15,8 @@ module BVT
     VCAP_BVT_APP_CONFIG   = File.join(File.dirname(__FILE__), "../config/assets.yml")
     VCAP_BVT_APP_ASSETS   = YAML.load_file(VCAP_BVT_APP_CONFIG)
 
+    VCAP_BVT_RERUN_FILE   = File.join(File.dirname(__FILE__), "../rerun.sh")
+
     # Assets Data Store Config
     VCAP_BVT_ASSETS_DATASTORE_CONFIG  =  File.join(VCAP_BVT_HOME, "datastore.yml")
     VCAP_BVT_ASSETS_PACKAGES_HOME     =  File.join(File.dirname(__FILE__),
@@ -29,12 +31,14 @@ module BVT
 
     ## multi-target config in memory
     $target_config = {}
+
   end
 end
 
 require "harness/logger_helper"
 BVT::Harness::LoggerHelper::set_logger(ENV['VCAP_BVT_TARGET'])
 
+require "harness/constants"
 require "harness/color_helper"
 require "harness/rake_helper"
 require "harness/cfsession"
@@ -44,7 +48,7 @@ require "harness/user"
 require "harness/http_response_code"
 require "harness/scripts_helper"
 require "harness/parallel_helper"
-require "harness/service_versions_helper"
+
 require "harness/console_helper"
 require "harness/cfconsole_monkey_patch"
 ## support v2

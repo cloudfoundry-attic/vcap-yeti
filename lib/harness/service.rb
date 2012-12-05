@@ -32,12 +32,17 @@ module BVT::Harness
       service = services.first
       @log.debug("Prepare to create service: #{@instance.name}")
       begin
+        if ENV['VCAP_BVT_SERVICE_PLAN']
+          plan = ENV['VCAP_BVT_SERVICE_PLAN']
+        elsif service_manifest[:plan]
+          plan = service_manifest[:plan]
+        else
+          plan = @session.v2? ? "D100" : "free"
+        end
         if @session.v2?
-          if service_manifest[:plan]
-            plans = service.service_plans.select { |p| p.name == service_manifest[:plan]}
-            plan = plans.first
-            @instance.service_plan = plan
-          end
+          plans = service.service_plans.select { |p| p.name == plan}
+          plan = plans.first
+          @instance.service_plan = plan
           @instance.space = @session.current_space
           instance_info = "#{service.label} #{service.version} " +
               "#{service.provider}"
@@ -45,7 +50,7 @@ module BVT::Harness
           @instance.type = service.type
           @instance.vendor = service.label
           @instance.version = service.version
-          @instance.tier = "free"
+          @instance.tier = plan
           instance_info = "#{@instance.vendor} #{@instance.version} #{@instance.tier}"
         end
 

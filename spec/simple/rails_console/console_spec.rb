@@ -80,8 +80,9 @@ describe BVT::Spec::Simple::RailsConsole::Console do
 
     sleep 1
 
-    @console = init_console(@client, app)
-    version = "1.8.7"
+    version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version]
+
+    init_console(@client, app)
 
     response = @console.send_console_command("`ruby --version`")
     match = false

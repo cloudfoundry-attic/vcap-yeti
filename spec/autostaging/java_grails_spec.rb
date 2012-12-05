@@ -2,9 +2,9 @@ require "harness"
 require "spec_helper"
 require "nokogiri"
 include BVT::Spec
+include BVT::Spec::AutoStagingHelper
 
 describe BVT::Spec::AutoStaging::JavaGrails do
-  include BVT::Spec::AutoStagingHelper
 
   before(:each) do
     @session = BVT::Harness::CFSession.new

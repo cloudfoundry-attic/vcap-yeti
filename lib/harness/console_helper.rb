@@ -12,8 +12,8 @@ module BVT::Harness
           @console.wait_for_start
           prompt = @console.login
           @console
+          break
         rescue => e
-#          puts e.backtrace
           sleep 1
         end
       end

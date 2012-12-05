@@ -15,38 +15,49 @@ module BVT::Harness
     VCAP_BVT_DEFAULT_USER   =   "test@vcap.me"
     VCAP_BVT_DEFAULT_ADMIN  =   "admin@vcap.me"
 
-    def generate_config_file(admin=false)
+    def prepare_all(threads=nil)
       Dir.mkdir(VCAP_BVT_HOME) unless Dir.exists?(VCAP_BVT_HOME)
-      get_config
-
+      @print_config = []
       get_target
-      get_user
-      get_user_passwd
-      if admin
+      check_network_connection
+
+      if threads == nil
         get_admin_user
         get_admin_user_passwd
+        admin_user = {'email' => @config['admin']['email'],
+                      'passwd' => @config['admin']['passwd']}
+      elsif threads < 1 || threads > VCAP_BVT_PARALLEL_MAX_USERS
+        puts red("threads number must be within 1~#{VCAP_BVT_PARALLEL_MAX_USERS}")
+        exit(0)
+      else
+        parallel_users = get_parallel_users(true)
+        if threads > 1
+          if parallel_users.size == 0
+            parallel_users = create_parallel_users(VCAP_BVT_PARALLEL_MAX_USERS)
+          elsif parallel_users.size < threads
+            puts yellow("no enough parallel users, yeti will use all of the #{parallel_users.size} users")
+          end
+        end
+        check_env_user = get_check_env_user(parallel_users)
+        check_environment(check_env_user)
       end
 
       save_config
+      print_test_config
     end
 
-    def check_environment
-      check_network_connection
-      client = BVT::Harness::CFSession.new(:email => $target_config['user']['email'],
-                                           :passwd => $target_config['user']['passwd'],
-                                           :target => $target_config['target'])
+    def check_environment(user)
+      client = BVT::Harness::CFSession.new(:email => user['email'],
+                                           :passwd => user['passwd'],
+                                           :target => @config['target'])
       profile = {}
       profile[:runtimes] = client.system_runtimes
       profile[:services] = client.system_services
       profile[:frameworks] = client.system_frameworks
       profile[:script_hash] = get_script_git_hash
       $vcap_bvt_profile_file ||= File.join(BVT::Harness::VCAP_BVT_HOME,
-                                           "profile.#{$target_config['target']}.yml")
+                                           "profile.#{@config['target']}.yml")
       File.open($vcap_bvt_profile_file, "w") { |f| f.write YAML.dump(profile) }
-
-      # clear parallel env
-      ENV.delete('YETI_PARALLEL_USER')
-      ENV.delete('YETI_PARALLEL_USER_PASSWD')
     end
 
     def check_network_connection
@@ -68,20 +79,33 @@ module BVT::Harness
       end
     end
 
+    def check_user_availability(user)
+      begin
+        client = BVT::Harness::CFSession.new(:email => user['email'],
+                                             :passwd => user['passwd'],
+                                             :target => @config['target'])
+      rescue => e
+        puts e.message
+        return false
+      end
+      return true
+    end
+
     def cleanup!
-      get_config
       get_target
       get_user
       get_user_passwd
       save_config
       check_network_connection
       cleanup_services_apps(@config['user']['email'], @config['user']['passwd'])
-      user_info = get_config
-      if user_info['parallel']
-        user_info['parallel'].each do |puser|
+      if @config['parallel']
+        @config['parallel'].each do |puser|
           cleanup_services_apps(puser['email'], puser['passwd'])
         end
       end
+      # clear parallel env
+      ENV.delete('YETI_PARALLEL_USER')
+      ENV.delete('YETI_PARALLEL_USER_PASSWD')
     end
 
     def sync_assets
@@ -141,10 +165,9 @@ module BVT::Harness
     end
 
     def print_test_config
-      puts yellow("\n\nBVT is starting...")
-      puts "target: \t#{yellow(@config['target'])}"
-      puts "admin user: \t#{yellow(@config['admin']['email'])}" if @config['admin']
-      puts "normal user: \t#{yellow(@config['user']['email'])}"
+      @print_config.each do |line|
+        puts line
+      end
     end
 
     def get_config
@@ -152,27 +175,34 @@ module BVT::Harness
         @multi_target_config = YAML.load_file(VCAP_BVT_CONFIG_FILE)
         raise "Invalid config file format, #{VCAP_BVT_CONFIG_FILE}" unless @multi_target_config.is_a?(Hash)
       else
-        @multi_target_config = {}
+        @multi_target_config = {} unless @multi_target_config
       end
+      @config = {} unless @config
 
       # since multi-target information is stored in one config file,
       # so usually get_config method just initiate @config, and @multi_target_config
       # however, once user set environment variable VCAP_BVT_TARGET,
       # get_config method should return specific target information
       if ENV['VCAP_BVT_TARGET']
-        domain_name = ENV['VCAP_BVT_TARGET'].split(".", 2).last
-        if @multi_target_config.key?(domain_name) && $target_config.empty?
-          $target_config = @multi_target_config[domain_name]
+        target = format_target(ENV['VCAP_BVT_TARGET'])
+        @multi_target_config.keys.each do |key|
+          if target.include? key
+            unless key.include? target
+              value = @multi_target_config[key]
+              @multi_target_config.delete(key)
+              @multi_target_config[target] = value
+            end
+            @config = @multi_target_config[target]
+            break
+          end
         end
       end
 
-      @config = $target_config
       @config
     end
 
     def save_config(hash = nil)
       @config = hash || @config
-      $target_config = Marshal.load(Marshal.dump(@config))
 
       ## remove password
       @config['user'].delete('passwd') if @config['user']
@@ -184,37 +214,42 @@ module BVT::Harness
     def get_target
       if ENV['VCAP_BVT_TARGET']
         target = format_target(ENV['VCAP_BVT_TARGET'])
-        puts "target read from ENV: \t\t#{yellow(target)}"
+        @print_config << "target read from ENV: \t\t#{yellow(target)}" if @print_config
       else
         input = ask_and_validate("VCAP Target",
                                  '\A.*',
                                  VCAP_BVT_DEFAULT_TARGET)
         target = format_target(input)
       end
-      domain_name = target.split(".", 2).last
-      @multi_target_config[domain_name] = {} unless @multi_target_config.key?(domain_name)
-      @config = @multi_target_config[domain_name]
+      @multi_target_config = {} unless @multi_target_config
+      @multi_target_config[target] = {} unless @multi_target_config.key?(target)
+      @config = @multi_target_config[target]
       ENV['VCAP_BVT_TARGET'] = target
+      get_config
       @config['target'] = target
+      @config['target']
     end
 
     def get_admin_user
+      get_config unless @config
       @config['admin'] = {} if @config['admin'].nil?
       if ENV['VCAP_BVT_ADMIN_USER']
         @config['admin']['email'] = ENV['VCAP_BVT_ADMIN_USER']
-        puts "admin user read from ENV: \t#{yellow(@config['admin']['email'])}"
+        @print_config << "admin user read from ENV: \t#{yellow(@config['admin']['email'])}" if @print_config
       elsif @config['admin']['email'].nil?
         @config['admin']['email'] = ask_and_validate('Admin User',
                                                      '\A.*\@',
                                                      VCAP_BVT_DEFAULT_ADMIN
                                                     )
       else
-        puts "admin user read from #{VCAP_BVT_CONFIG_FILE}: " +
-             "\t#{yellow(@config['admin']['email'])}"
+        @print_config << "admin user read from #{VCAP_BVT_CONFIG_FILE}: " +
+             "\t#{yellow(@config['admin']['email'])}" if @print_config
       end
+      @config['admin']['email']
     end
 
     def get_admin_user_passwd
+      get_config unless @config
       if ENV['VCAP_BVT_ADMIN_USER_PASSWD']
         @config['admin']['passwd'] = ENV['VCAP_BVT_ADMIN_USER_PASSWD']
       elsif @config['admin']['passwd'].nil?
@@ -225,26 +260,31 @@ module BVT::Harness
                                                       '*'
                                                      )
       end
+      ENV['VCAP_BVT_ADMIN_USER_PASSWD'] = @config['admin']['passwd'].to_s
+      @config['admin']['passwd'] = @config['admin']['passwd'].to_s
       @config['admin']['passwd']
     end
 
     def get_user
+      get_config unless @config
       @config['user'] = {} if @config['user'].nil?
       if ENV['VCAP_BVT_USER']
         @config['user']['email'] = ENV['VCAP_BVT_USER']
-        puts "normal user read from ENV: \t#{yellow(@config['user']['email'])}"
+        @print_config << "normal user read from ENV: \t#{yellow(@config['user']['email'])}" if @print_config
       elsif @config['user']['email'].nil?
         @config['user']['email'] = ask_and_validate('Non-admin User',
                                                     '\A.*\@',
                                                     VCAP_BVT_DEFAULT_USER
                                                    )
       else
-        puts "normal user read from #{VCAP_BVT_CONFIG_FILE}: " +
-             "\t#{yellow(@config['user']['email'])}"
+        @print_config << "normal user read from #{VCAP_BVT_CONFIG_FILE}: " +
+             "\t#{yellow(@config['user']['email'])}" if @print_config
       end
+      @config['user']['email']
     end
 
     def get_user_passwd
+      get_config unless @config
       if ENV['VCAP_BVT_USER_PASSWD']
         @config['user']['passwd'] = ENV['VCAP_BVT_USER_PASSWD']
       elsif @config['user'].nil? || @config['user']['passwd'].nil?
@@ -254,7 +294,67 @@ module BVT::Harness
                                                      '*',
                                                      '*')
       end
+      ENV['VCAP_BVT_USER_PASSWD'] = @config['user']['passwd'].to_s
+      @config['user']['passwd']   = @config['user']['passwd'].to_s
       @config['user']['passwd']
+    end
+
+    def create_parallel_users(user_number)
+      puts "need admin account to create parallel users"
+      get_admin_user
+      get_admin_user_passwd
+      puts @config
+      @config['parallel'] = []
+      begin
+        session = BVT::Harness::CFSession.new(:admin => true,
+                                              :email => @config['admin']['email'],
+                                              :passwd => @config['admin']['passwd'],
+                                              :target => @config['target'])
+      rescue Exception => e
+        raise RuntimeError, "#{e.to_s}\nPlease input valid admin credential " +
+                            "for parallel running"
+      end
+
+      passwd = 'aZ_x13YcIa4nhl'  #parallel user secret
+      (1..user_number).to_a.each do |index|
+        email = "#{index}-test_user@yeti_parallel.com"
+        user  = session.user(email)
+        user.create(passwd)
+        config = {}
+        config['email']  = user.email
+        config['passwd'] = passwd
+        puts "create user: #{yellow(config['email'])}"
+        @config['parallel'] << config
+      end
+      @config['admin'].delete('passwd')
+      @config['parallel']
+    end
+
+    def get_parallel_users(check_user=false)
+      parallel_users = []
+      parallel_users = @config['parallel'] if @config && @config['parallel']
+      if parallel_users.size > 0
+        parallel_users.each do |puser|
+          puser['passwd'] = puser['passwd'].to_s
+        end
+        if check_user
+          if check_user_availability(parallel_users[0]) == false
+            puts red("can't login target env using parallel user: #{parallel_users[0]}")
+            exit(0)
+          end
+        end
+      end
+      parallel_users
+    end
+
+    def get_check_env_user(parallel_users)
+      if parallel_users.size > 0
+        return parallel_users[0]
+      else
+        get_user
+        get_user_passwd
+      end
+      {'email' => @config['user']['email'], 'passwd' => @config['user']['passwd']}
     end
 
     def format_target(str)

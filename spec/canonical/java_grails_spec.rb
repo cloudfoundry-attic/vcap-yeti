@@ -1,9 +1,9 @@
 require "harness"
 require "spec_helper"
 include BVT::Spec
+include BVT::Spec::CanonicalHelper
 
 describe BVT::Spec::Canonical::JavaGrails do
-  include BVT::Spec::CanonicalHelper, BVT::Spec
 
   before(:each) do
     @session = BVT::Harness::CFSession.new
@@ -18,11 +18,14 @@ describe BVT::Spec::Canonical::JavaGrails do
     app = create_push_app("grails_app")
     service = bind_service(MYSQL_MANIFEST, app)
 
+    runtime = app.manifest['runtime']
+    version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version]
+
     contents = app.get_response(:get)
     contents.should_not == nil
     contents.body_str.should_not == nil
     contents.response_code.should == 200
-    contents.body_str.should =~ /JVM version: 1\.6/
+    contents.body_str.should =~ /JVM version: #{version}/
     contents.close
 
   end

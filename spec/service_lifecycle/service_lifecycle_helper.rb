@@ -1,6 +1,22 @@
 module BVT::Spec
   module ServiceLifecycleHelper
 
+  SERVICE_LIFECYCLE_CONFIG = ENV['VCAP_BVT_DEPLOY_MANIFEST'] || File.join(File.dirname(__FILE__), "service_lifecycle.yml")
+  SERVICE_CONFIG = (YAML.load_file(SERVICE_LIFECYCLE_CONFIG) rescue {"properties"=>{"service_plans"=>{}}})
+  SERVICE_PLAN = ENV['VCAP_BVT_SERVICE_PLAN'] || "free"
+  SERVICE_SNAPSHOT_QUOTA = {}
+  SERVICE_CONFIG['properties']['service_plans'].each do |service,config|
+    SERVICE_SNAPSHOT_QUOTA[service] = config[SERVICE_PLAN]["configuration"] if config.include?(SERVICE_PLAN)
+  end
+  DEFAULT_SNAPSHOT_QUOTA = 5
+
+  def snapshot_quota(service)
+    q = SERVICE_SNAPSHOT_QUOTA[service] || {}
+    q = q["lifecycle"] || {}
+    q = q["snapshot"] || {}
+    q["quota"] || DEFAULT_SNAPSHOT_QUOTA
+  end
+
   def auth_headers
     {"content-type"=>"application/json", "AUTHORIZATION" => @session.token}
   end
@@ -72,14 +88,14 @@ module BVT::Spec
 
   def import_service_from_data(service_id, serialized_data)
     post_data = []
-    post_data << Curl::PostField.content("_method", "put")
+    post_data << Curl::PostField.content("_method", "PUT")
     post_data << Curl::PostField.file("data_file", serialized_data.path)
 
     easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/data")
     easy.multipart_form_post = true
     easy.headers = {"AUTHORIZATION" => @session.token}
     easy.resolve_mode =:ipv4
-    easy.http_post(post_data)
+    easy.http_put(post_data)
     resp = easy.body_str
     resp.should_not be_nil
     job = JSON.parse(resp)
@@ -93,10 +109,10 @@ module BVT::Spec
   def parse_service_id(content, srv_name)
     service_id = nil
     services = JSON.parse content.body_str
-    services.each do |_, instances|
-      instances.each do |inst|
-        if inst["label"] =~ /#{srv_name}/
-          service_id = inst["credentials"]["name"]
+    services.each do |k, v|
+      v.each do |srv|
+        if srv["name"] =~ /#{srv_name}/
+          service_id = srv["credentials"]["name"]
           break
         end
       end

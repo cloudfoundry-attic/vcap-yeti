@@ -9,134 +9,131 @@ sleep_secs: 1
 simple_app:
   framework: "sinatra"
   memory: 128
-  runtime: "ruby19"
+  category: "ruby"
   path: "assets/sinatra/hello_vcap"
 
 simple_app2:
   framework: "sinatra"
   instances: 1
-  runtime: "ruby19"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/hello_vcap"
 
 modified_simple_app2:
   framework: "sinatra"
   instances: 2
-  runtime: "ruby19"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/modified_simple_app"
 
 simple_app3:
   framework: "sinatra"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/hello_vcap"
 
 memcached_app:
   framework: "sinatra"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 128
   path: "assets/sinatra/memcached_app"
 
 tiny_java_app:
   framework: "java_web"
+  category: "java"
   instances: 1
-  runtime: "java"
   memory: 64
   path: ".assets-binaries/java_tiny_app.war"
 
 simple_db_app:
   framework: "sinatra"
+  category: "ruby"
   memory: 128
   path: "assets/sinatra/simple_db_app"
 
 redis_lb_app:
   framework: "sinatra"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 128
   path: "assets/sinatra/redis_lb_app"
 
 env_test_app:
   framework: "sinatra"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/env_test_app"
 
 broken_app:
   framework: "sinatra"
-  runtime: "ruby18"
+  category: "ruby"
   memory: 128
   path: "assets/sinatra/broken_app"
 
 git_gems_app_ruby18:
   framework: "sinatra"
-  runtime: "ruby18"
+  category: "ruby"
   memory: 256
   path: "assets/sinatra/git_gems_app"
 
 git_gems_app_ruby19:
   framework: "sinatra"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 256
   path: "assets/sinatra/git_gems_app"
 
 sinatra_gem_groups:
   framework: "sinatra"
   runtime: "ruby18"
+  #just runtime
   memory: 256
   path: "assets/sinatra/gem_groups"
 
 sinatra_windows_gemfile:
   framework: "sinatra"
-  runtime: "ruby18"
+  category: "ruby"
   memory: 256
   path: "assets/sinatra/windows_gemfile"
 
 broken_gem_app:
   framework: "sinatra"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/broken_gem_app"
 
 rails3_app:
   framework: "rails3"
+  category: "ruby"
   memory: 128
-  runtime: "ruby19"
   path: "assets/rails3/rails3_app"
 
 jpa_app:
   framework: "spring"
-  runtime: java
+  category: "java"
   memory: 512
   path: ".assets-binaries/jpa-guestbook.war"
 
 hibernate_app:
   framework: "spring"
   instances: 1
-  runtime: "java"
+  category: "java"
   memory: 320
   path: ".assets-binaries/hibernate-guestbook.war"
 
 dbrails_app:
   framework: "rails3"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 128
   path: "assets/rails3/dbrails_app"
 
 dbrails_broken_app:
   framework: "rails3"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 128
   path: "assets/rails3/dbrails_broken_app"
 
 grails_app:
-  runtime: "java"
+  category: "java"
   framework: "grails"
-  memory: 512
-  path: ".assets-binaries/guestbook.war"
-
-grails_app_7:
-  framework: "grails"
-  runtime: java7
   memory: 512
   path: ".assets-binaries/guestbook.war"
 
@@ -155,61 +152,56 @@ mochiweb_test:
 simple-lift-app:
   framework: "lift"
   memory: 256
-  runtime: "java"
+  category: "java"
   path: ".assets-binaries/hello_lift.war"
 
 lift-db-app:
   framework: "lift"
   memory: 256
-  runtime: "java"
+  category: "java"
   path: ".assets-binaries/lift-db-app.war"
 
 tomcat-version-check-app:
   framework: "spring"
   memory: 128
-  runtime: "java"
+  category: "java"
   tomcat_version: "6.0.35"
   path: ".assets-binaries/tomcat-version-check-app.war"
 
-app_rails_version18:
+app_rails_version:
   framework: "rails3"
-  runtime: ruby18
-  memory: 256
-  path: "assets/rails3/app_rails_version"
-
-app_rails_version19:
-  framework: "rails3"
-  runtime: ruby19
+  category: "ruby"
   memory: 256
   path: "assets/rails3/app_rails_version"
 
 app_rails_service:
   framework: "rails3"
-  runtime: ruby19
+  category: "ruby"
   memory: 256
   path: "assets/rails3/app_rails_service"
 
 app_rails_service_autoconfig:
   framework: "rails3"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 256
   path: "assets/rails3/app_rails_service_autoconfig"
 
 rails_autoconfig_disabled_by_file:
   framework: "rails3"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 256
   path: "assets/rails3/autoconfig_disabled_by_file"
 
 rails_autoconfig_disabled_by_gem:
   framework: "rails3"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 256
   path: "assets/rails3/autoconfig_disabled_by_gem"
 
 app_rack_service:
   framework: "rack"
   runtime: "ruby18"
+  #ruby18
   memory: 256
   path: "assets/rack/app_rack_service"
 
@@ -217,6 +209,7 @@ app_rack_service_autoconfig:
   framework: "rack"
   instances: 1
   runtime: "ruby18"
+  #runtime ruby18
   startup: "ruby app.rb"
   memory: 64
   path: "assets/rack/app_rack_service_autoconfig"
@@ -224,7 +217,7 @@ app_rack_service_autoconfig:
 rack_autoconfig_ruby19:
   framework: "rack"
   instances: 1
-  runtime: "ruby19"
+  category: "ruby"
   startup: "ruby app.rb"
   memory: 64
   path: "assets/rack/autoconfig_ruby19"
@@ -247,140 +240,147 @@ rack_autoconfig_disabled_by_gem:
 
 app_sinatra_service:
   framework: "sinatra"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/app_sinatra_service"
 
 app_sinatra_service2:
   framework: "sinatra"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 128
   path: "assets/sinatra/app_sinatra_service"
 
 app_sinatra_service_autoconfig:
   framework: "sinatra"
   instances: 1
-  runtime: "ruby19"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/app_sinatra_service_autoconfig"
 
+app_sinatra_modular:
+  framework: "sinatra"
+  category: "ruby"
+  memory: 64
+  path: "assets/sinatra/app_sinatra_modular"
+
 service_quota_app:
   framework: "sinatra"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 512
   path: "assets/sinatra/app_sinatra_service_quota/"
 
 amqp_autoconfig:
   framework: "sinatra"
   instances: 1
-  runtime: "ruby19"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/amqp_autoconfig"
 
 autoconfig_unsupported_versions:
   framework: "sinatra"
   instances: 1
-  runtime: "ruby19"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/autoconfig_unsupported_versions"
 
 autoconfig_unsupported_carrot_version:
   framework: "sinatra"
   instances: 1
-  runtime: "ruby19"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/autoconfig_unsupported_carrot_version"
 
 sinatra_autoconfig_disabled_by_file:
   framework: "sinatra"
   instances: 1
-  runtime: "ruby19"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/autoconfig_disabled_by_file"
 
 sinatra_autoconfig_disabled_by_gem:
   framework: "sinatra"
   instances: 1
-  runtime: "ruby19"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/autoconfig_disabled_by_gem"
 
 app_node_service:
   framework: "node"
-  runtime: node
+  category: "node"
   memory: 64
   path: "assets/node/app_node_service"
 
 app_node_dependencies04:
   framework: "node"
-  runtime: node
+  runtime: "node"
   memory: 64
   path: "assets/node/node_dependencies04"
 
 app_node_dependencies06:
   framework: "node"
-  runtime: node06
+  runtime: "node06"
   memory: 64
   path: "assets/node/node_dependencies06"
 
+app_node_dependencies08:
+  framework: "node"
+  runtime: "node08"
+  memory: 64
+  path: "assets/node/node_dependencies08"
+
 app_node_version04:
   framework: "node"
-  runtime: node
+  category: "node"
   memory: 64
   path: "assets/node/app_node_version"
 
-app_node_version06:
-  framework: "node"
-  runtime: node06
-  memory: 64
-  path: "assets/node/app_node_version"
-
-app_node_version08:
-  framework: "node"
-  runtime: node08
-  memory: 64
-  path: "assets/node/app_node_version"
 
 node_autoconfig04:
   framework: "node"
-  runtime: node
+  category: "node"
   memory: 64
   path: "assets/node/node_autoconfig"
 
 node_autoconfig06:
   framework: "node"
-  runtime: node06
+  runtime: "node06"
   memory: 64
   path: "assets/node/node_autoconfig"
 
 node_autoconfig08:
   framework: "node"
-  runtime: node08
+  runtime: "node08"
   memory: 64
   path: "assets/node/node_autoconfig"
 
 node_autoconfig_disabled_by_file:
   framework: "node"
-  runtime: node
+  category: "node"
   memory: 64
   path:  "assets/node/node_autoconfig_disabled_by_file"
 
 node_autoconfig_disabled_by_module:
   framework: "node"
-  runtime: node
+  category: "node"
   memory: 64
   path: "assets/node/node_autoconfig_disabled_by_module"
+
+node_git_modules:
+  framework: "node"
+  category: "node"
+  memory: 64
+  path: "assets/node/node_git"
 
 app_spring_service:
   framework: "spring"
   instances: 1
-  runtime: "java"
+  category: "java"
   memory: 256
   path: ".assets-binaries/app_spring_service.war"
 
 app_spring_service_7:
   framework: "spring"
-  runtime: java7
+  runtime: "java7"
   memory: 512
   path: ".assets-binaries/app_spring_service.war"
 
@@ -391,7 +391,7 @@ my_test_app_env_test_app:
 
 neo4j_app:
   framework: "sinatra"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 128
   path: "assets/sinatra/neo4j_app"
 
@@ -422,19 +422,19 @@ simple_php_app:
 spring-env-app:
   framework: "spring"
   memory: 256
-  runtime: "java"
+  category: "java"
   path: ".assets-binaries/spring-env.war"
 
 auto-reconfig-test-app:
   framework: "spring"
-  runtime: "java"
+  category: "java"
   memory: 256
   path: ".assets-binaries/auto-reconfig-test-app.war"
 
 auto-reconfig-missing-deps-test-app:
   framework: "spring"
   memory: 256
-  runtime: "java"
+  category: "java"
   path: ".assets-binaries/auto-reconfig-missing-deps-test-app.war"
 
 atmos_app:
@@ -444,26 +444,26 @@ atmos_app:
 
 simple_kv_app:
   framework: "sinatra"
-  runtime: "ruby18"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/simple_kv_app"
 
 brokered_service_app:
   framework: "sinatra"
-  runtime: "ruby18"
+  category: "ruby"
   memory: 64
   path: "assets/sinatra/brokered_service_app"
 
 java_app_with_startup_delay:
   framework: "java_web"
   instances: 1
-  runtime: "java"
+  category: "java"
   memory: 128
   path: ".assets-binaries/app_with_startup_delay.war"
 
 rails_console_test_app:
   framework: "rails3"
-  runtime: "ruby18"
+  category: "ruby"
   memory: 256
   path: "assets/rails3/app_rails_service"
 
@@ -475,37 +475,30 @@ rails_console_19_test_app:
 
 blob_app:
   framework: "sinatra"
-  runtime: "ruby19"
+  category: "ruby"
   memory: 256
   path: "assets/sinatra/app_sinatra_service"
 
-standalone_ruby18_app:
+standalone_ruby_app:
   framework: "standalone"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
   memory: 64
-  runtime: ruby18
+  category: "ruby"
   path: "assets/standalone/ruby_app"
 
-standalone_ruby19_app:
-  framework: "standalone"
-  command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
-  memory: 64
-  runtime: ruby19
-  path: "assets/standalone/ruby_app"
-
-standalone_simple_ruby18_app:
+standalone_simple_ruby_app:
   framework: "standalone"
   command: "ruby simple.rb"
   memory: 64
-  runtime: ruby18
+  category: "ruby"
   path: "assets/standalone/simple_ruby_app"
   no_url: true
 
-standalone_simple_ruby18_quotes_app:
+standalone_simple_ruby_quotes_app:
   framework: "standalone"
   command: "ruby \"simple.rb\""
   memory: 64
-  runtime: ruby18
+  category: "ruby"
   path: "assets/standalone/simple_ruby_app"
   no_url: true
 
@@ -513,23 +506,15 @@ standalone_simple_ruby19_app:
   framework: "standalone"
   command: "ruby simple.rb"
   memory: 64
-  runtime: ruby19
+  runtime: "ruby19"
   path: "assets/standalone/simple_ruby_app"
   no_url: true
 
 standalone_java_app:
   framework: "standalone"
   command: "bin/hello-cloud"
-  runtime: "java"
+  category: "java"
   memory: 64
-  path: ".assets-binaries/java_app.zip"
-  no_url: true
-
-standalone_java_app_7:
-  framework: "standalone"
-  command: "bin/hello-cloud"
-  runtime: java7
-  memory: 256
   path: ".assets-binaries/java_app.zip"
   no_url: true
 
@@ -537,42 +522,29 @@ standalone_java_app_7:
 standalone_node_app:
   framework: "standalone"
   command: "node app.js"
-  runtime: node
-  memory: 64
-  path: "assets/standalone/node_app"
-
-standalone_node06_app:
-  framework: "standalone"
-  command: "node app.js"
-  runtime: node06
+  category: "node"
   memory: 64
   path: "assets/standalone/node_app"
 
 standalone_ruby18_autoconfig:
   framework: "standalone"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
-  runtime: ruby18
+  category: "ruby"
   memory: 64
   path: "assets/standalone/ruby_autoconfig"
 
-standalone_ruby19_autoconfig:
-  framework: "standalone"
-  command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
-  runtime: ruby19
-  memory: 64
-  path: "assets/standalone/ruby_autoconfig"
 
 standalone_ruby_autoconfig_disabled_by_file:
   framework: "standalone"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
-  runtime: ruby18
+  category: "ruby"
   memory: 64
   path: "assets/standalone/ruby_autoconfig_disabled_by_file"
 
 standalone_ruby_autoconfig_disabled_by_gem:
   framework: "standalone"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
-  runtime: ruby18
+  category: "ruby"
   memory: 64
   path: "assets/standalone/ruby_autoconfig_disabled_by_gem"
 
@@ -603,84 +575,78 @@ standalone_erlang_app:
 play_computer_database_autoconfig_disabled_app:
   framework: "play"
   memory: 128
-  runtime: java
+  runtime: "java"
   path: ".assets-binaries/computer_database_autoconfig_disabled.zip"
 
 play_computer_database_cf_by_name_app:
   framework: "play"
   memory: 128
-  runtime: java
+  runtime: "java"
   path: ".assets-binaries/computer_database_cf_by_name.zip"
 
 play_computer_database_cf_by_type_app:
   framework: "play"
   memory: 128
-  runtime: java
+  runtime: "java"
   path: ".assets-binaries/computer_database_cf_by_type.zip"
 
 play_computer_database_jpa_mysql_app:
   framework: "play"
   memory: 128
-  runtime: java
+  category: "java"
   path: ".assets-binaries/computer_database_jpa_mysql.zip"
 
 play_computer_database_jpa_app:
   framework: "play"
   memory: 128
-  runtime: java
+  category: "java"
   path: ".assets-binaries/computer_database_jpa.zip"
 
 play_computer_database_multi_dbs_app:
   framework: "play"
   memory: 128
-  runtime: java
+  runtime: "java"
   path: ".assets-binaries/computer_database_multi_dbs.zip"
 
 play_computer_database_scala_app:
   framework: "play"
   memory: 128
-  runtime: java
+  category: "java"
   path: ".assets-binaries/computer_database_scala.zip"
 
 play_todolist_app:
   framework: "play"
   memory: 128
-  runtime: java
-  path: ".assets-binaries/todolist.zip"
-
-play_todolist_app_7:
-  framework: "play"
-  runtime: java7
-  memory: 256
+  category: "java"
   path: ".assets-binaries/todolist.zip"
 
 play_todolist_with_cfruntime_app:
   framework: "play"
   memory: 128
-  runtime: java
+  category: "java"
   path: ".assets-binaries/todolist_with_cfruntime.zip"
 
 play_zentasks_cf_by_name_app:
   framework: "play"
   memory: 256
-  runtime: java
+  category: "java"
   path: ".assets-binaries/zentasks_cf_by_name.zip"
 
 play_zentasks_cf_by_type_app:
   framework: "play"
   memory: 128
-  runtime: java
+  runtime: "java"
   path: ".assets-binaries/zentasks_cf_by_type.zip"
 
 auto-reconfig-annotation-app:
   framework: "spring"
-  runtime: java
+  category: "java"
   memory: 512
   path: ".assets-binaries/auto-reconfig-annotation-app.war"
 
 javaee-namespace-app:
   framework: "spring"
-  runtime: java
+  category: "java"
   startup: "thin start"
   memory: 256
   path: ".assets-binaries/javaee-namespace-app.war"
@@ -688,35 +654,41 @@ javaee-namespace-app:
 sinatra_imagemagick:
   framework: "sinatra"
   memory: 64
-  runtime: ruby19
+  category: "ruby"
   path: "assets/sinatra/sinatra_imagemagick"
 
 node_imagemagick:
   framework: "node"
-  runtime: node
+  category: "node"
   memory: 64
   path: "assets/node/node_imagemagick"
 
 spring_imagemagick_java6:
   framework: "spring"
   memory: 256
-  runtime: "java"
-  path: ".assets-binaries/spring_imagemagick.war"
-
-spring_imagemagick_java7:
-  framework: "spring"
-  memory: 256
-  runtime: java7
+  category: "java"
   path: ".assets-binaries/spring_imagemagick.war"
 
 couchdb_app:
   framework: "sinatra"
   memory: 64
-  runtime: ruby19
+  category: "ruby"
   path: "assets/sinatra/couchdb_app"
 
 elasticsearch_app:
   framework: "sinatra"
   memory: 64
-  runtime: ruby19
+  category: "ruby"
   path: "assets/sinatra/elasticsearch_app"
+
+oauth2_app:
+  framework: "sinatra"
+  memory: 128
+  runtime: "ruby19"
+  path: "assets/sinatra/oauth2_app"
+
+sleeper:
+  framework: "sinatra"
+  category: "ruby"
+  memory: 64
+  path: "assets/sinatra/sleeper"

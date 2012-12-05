@@ -1,6 +1,5 @@
 require "cfoundry"
 
-
 module BVT::Harness
   class App
     attr_reader :name, :manifest
@@ -143,9 +142,8 @@ module BVT::Harness
       begin
         @log.info("Display application: #{@app.name} status")
         @app.stats
-      rescue Exception => e
-        @log.error("Fail to display application: #{@app.name} status!\n#{e.to_s}")
-        raise RuntimeError, "Fail to display application: #{@app.name} status!\n#{e.to_s}\n#{@session.print_client_logs}"
+      rescue CFoundry::StatsError
+	      "Application #{@app.name} is not running."
       end
     end
 
@@ -386,6 +384,19 @@ module BVT::Harness
         app_manifest['instances'] = 1 unless app_manifest['instances']
         app_manifest['path']      =
             File.join(File.dirname(__FILE__), "../..", app_manifest['path'])
+
+        #set ENV like this:
+        #export VCAP_BVT_RUNTIME='{:ruby=>"ruby19", :java=>"java6"}'
+        category = app_manifest['category']
+
+        if category.nil? || category == ""
+          @log.debug("Cannot find category option for #{appid} in #{VCAP_BVT_APP_CONFIG}")
+        else
+          runtime = eval(ENV['VCAP_BVT_RUNTIME'])[category.to_sym] unless ENV['VCAP_BVT_RUNTIME'].nil?
+          runtime ||= VCAP_BVT_INFO_RUNTIME[category.to_sym].first
+          app_manifest['runtime'] = runtime
+        end
+
         @manifest = app_manifest
       end
     end
