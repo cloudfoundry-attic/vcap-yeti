@@ -68,7 +68,7 @@ describe BVT::Spec::Canonical::JavaSpring do
     app_name.should == app.name
     provider_url = app.get_response(:get, "/properties/sources/property/cloud"+
                                           ".provider.url").to_str
-    provider_url.should == @session.TARGET.gsub('http://api.', '')
+    provider_url.should == @session.TARGET.split('.', 2)[-1]
 
     redis_service = bind_service(REDIS_MANIFEST, app)
     type = app.get_response(:get, "/properties/sources/property/cloud."+

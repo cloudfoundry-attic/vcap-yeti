@@ -307,9 +307,13 @@ module BVT::Harness
         # Some app's post is async. Sleep to ensure the operation is done.
         sleep 0.1
         return r
-      rescue Exception => e
-        @log.error("Cannot #{method} response from/to #{url}\n#{e.to_s}")
-        raise RuntimeError, "Cannot #{method} response from/to #{url}\n#{e.to_s}"
+      rescue RestClient::Exception => e
+        begin
+          RestResult.new(e.http_code, e.http_body)
+        rescue
+          @log.error("Cannot #{method} response from/to #{url}\n#{e.to_s}")
+          raise RuntimeError, "Cannot #{method} response from/to #{url}\n#{e.to_s}"
+        end
       end
     end
 
@@ -354,7 +358,7 @@ module BVT::Harness
       # '_' is not a valid character for hostname according to RFC 822,
       # use '-' to replace it.
       second_domain = "-#{second_domain}" if second_domain
-      "#{@app.name}#{second_domain}.#{@session.TARGET.gsub("http://api.", "")}".gsub("_", "-")
+      "#{@app.name}#{second_domain}.#{@session.TARGET.gsub(/http[s]?:\/\/\w+\./, "")}".gsub("_", "-")
     end
 
     private
@@ -391,6 +395,16 @@ module BVT::Harness
           end
         end
       end
+    end
+  end
+
+  class RestResult
+    attr_reader :code
+    attr_reader :to_str
+
+    def initialize(code, to_str)
+      @code = code
+      @to_str = to_str
     end
   end
 end

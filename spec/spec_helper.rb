@@ -165,8 +165,9 @@ RSpec.configure do |config|
     end
 
     target = BVT::Harness::RakeHelper.get_target
+    target_without_http = target.split('//')[-1]
     $vcap_bvt_profile_file ||= File.join(BVT::Harness::VCAP_BVT_HOME,
-                                         "profile.#{target}.yml")
+                                         "profile.#{target_without_http}.yml")
     profile = YAML.load_file($vcap_bvt_profile_file)
     BVT::Harness::VCAP_BVT_SYSTEM_FRAMEWORKS  =  profile[:frameworks]
     BVT::Harness::VCAP_BVT_SYSTEM_RUNTIMES    =  profile[:runtimes]

@@ -54,8 +54,9 @@ module BVT::Harness
       profile[:services] = client.system_services
       profile[:frameworks] = client.system_frameworks
       profile[:script_hash] = get_script_git_hash
+      target_without_http = @config['target'].split('//')[-1]
       $vcap_bvt_profile_file ||= File.join(BVT::Harness::VCAP_BVT_HOME,
-                                           "profile.#{@config['target']}.yml")
+                                           "profile.#{target_without_http}.yml")
       File.open($vcap_bvt_profile_file, "w") { |f| f.write YAML.dump(profile) }
     end
 
@@ -183,12 +184,7 @@ module BVT::Harness
         target = format_target(ENV['VCAP_BVT_TARGET'])
         @multi_target_config.keys.each do |key|
           if target.include? key
-            unless key.include? target
-              value = @multi_target_config[key]
-              @multi_target_config.delete(key)
-              @multi_target_config[target] = value
-            end
-            @config = @multi_target_config[target]
+            @config = @multi_target_config[key]
             break
           end
         end
@@ -203,6 +199,9 @@ module BVT::Harness
       ## remove password
       @config['user'].delete('passwd') if @config['user']
       @config['admin'].delete('passwd') if @config['admin']
+
+      ## remove http(s) from target
+      @config['target'] = @config['target'].split('//')[-1]
 
       @multi_target_config[@config['target']] = @config
 
@@ -356,10 +355,10 @@ module BVT::Harness
     end
 
     def format_target(str)
-      if str.start_with? 'http://'
-        str.gsub('http://', '')
-      else
+      if str.start_with? 'http'
         str
+      else
+        'https://' + str
       end
     end
 

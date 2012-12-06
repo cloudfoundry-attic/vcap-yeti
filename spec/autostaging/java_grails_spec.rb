@@ -20,7 +20,7 @@ describe BVT::Spec::AutoStaging::JavaGrails do
       key = "key-#{i}"
       value = "FooBar-#{i}"
       records[key] = value
-      response = app.get_response(:post, path, {"name" => value}.to_json)
+      response = app.get_response(:post, path, "name" => value)
       response.code.should == 302
     end
     records

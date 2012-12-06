@@ -1,3 +1,5 @@
+include BVT::Harness
+
 module BVT::Spec
   module ServiceLifecycleHelper
 
@@ -23,12 +25,14 @@ module BVT::Spec
 
   def get_snapshots(service_id)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots"
-    r = RestClient.get url, :content_type => "application/json", :AUTHORIZATION => @session.token
-
-    if r.code == 501
-      pending "Snapshot extension is disabled, return code=501"
-    elsif r.code != 200
-      raise "code:#{r.code}, body:#{r.to_str}"
+    begin
+      r = RestClient.get(url, auth_headers)
+    rescue RestClient::Exception => e
+      if e.http_code == 501
+        pending "Snapshot extension is disabled, return code=501"
+      elsif e.http_code != 200
+        raise "code:#{e.http_code}, body:#{e.to_s}"
+      end
     end
 
     resp = r.to_str
@@ -38,13 +42,17 @@ module BVT::Spec
 
   def get_serialized_url(service_id, snapshot_id)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}"
-    r = RestClient.get url, :content_type => "application/json", :AUTHORIZATION => @session.token
-
-    if r.code == 501
-      pending "Serialized API is disabled, return code=501"
-    elsif r.code != 200
-      return nil
+    begin
+      r = RestClient.get(url, auth_headers)
+    rescue RestClient::Exception => e
+      if e.http_code == 501
+        pending "Serialized API is disabled, return code=501"
+      elsif e.http_code != 200
+        return nil
+      end
     end
+
+    return nil if r.code != 200
 
     resp = r.to_str
     result = JSON.parse(resp)
@@ -54,7 +62,7 @@ module BVT::Spec
   def download_data(serialized_url)
     temp_file = Tempfile.new('serialized_data')
     File.open(temp_file.path, "wb+") do |f|
-      c = RestClient.get serialized_url
+      c = RestClient.get(serialized_url)
       c.code.should == 200
       f.write(c.to_str)
     end
@@ -66,7 +74,7 @@ module BVT::Spec
 
   def import_service_from_url(service_id, serialized_url)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url"
-    RestClient.put url, :url => serialized_url, :content_type => "application/json", :AUTHORIZATION => @session.token
+    r = RestClient.put(url, {:url=>serialized_url}.to_json, auth_headers)
 
     resp = r.to_str
     resp.should_not == nil
@@ -80,8 +88,7 @@ module BVT::Spec
 
   def import_service_from_data(service_id, serialized_data)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/data"
-    RestClient.post url, :data_file => File.new(serialized_data.path, "rb"),
-                         :content_type => "application/json", :AUTHORIZATION => @session.token
+    r = RestClient.put(url, {:data_file=>File.new(serialized_data.path)}, auth_headers)
 
     resp = r.to_str
     resp.should_not == nil
@@ -109,7 +116,7 @@ module BVT::Spec
 
   def create_serialized_url(service_id, snapshot_id)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}"
-    RestClient.post url, '', :content_type => "application/json", :AUTHORIZATION => @session.token
+    r = RestClient.post(url, '', auth_headers)
 
     r.code.should == 200
     resp = r.to_str
@@ -133,7 +140,7 @@ module BVT::Spec
 
   def create_snapshot(service_id)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots"
-    RestClient.post url, :content_type => "application/json", :AUTHORIZATION => @session.token
+    r = RestClient.post(url, '', auth_headers)
 
     r.code.should == 200
     resp = r.to_str
@@ -144,7 +151,11 @@ module BVT::Spec
 
   def get_snapshot(service_id, snapshot_id)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
-    RestClient.get url, :content_type => "application/json", :AUTHORIZATION => @session.token
+    begin
+      r = RestClient.get(url, auth_headers)
+    rescue
+      return nil
+    end
 
     if r.code != 200
       return nil
@@ -157,7 +168,7 @@ module BVT::Spec
 
   def rollback_snapshot(service_id, snapshot_id)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
-    RestClient.put url, '', :content_type => "application/json", :AUTHORIZATION => @session.token
+    r = RestClient.put(url, '', auth_headers)
 
     r.code.should == 200
     resp = r.to_str
@@ -170,7 +181,7 @@ module BVT::Spec
 
   def delete_snapshot(service_id, snapshot_id)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
-    RestClient.delete url, :content_type => "application/json", :AUTHORIZATION => @session.token
+    r = RestClient.delete(url, auth_headers)
 
     r.code.should == 200
     resp = r.to_str
@@ -198,7 +209,7 @@ module BVT::Spec
 
   def get_job(service_id, job_id)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/jobs/#{job_id}"
-    RestClient.get url, :content_type => "application/json", :AUTHORIZATION => @session.token
+    r = RestClient.get(url, auth_headers)
 
     resp = r.to_str
     resp.should_not == nil

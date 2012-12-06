@@ -30,9 +30,6 @@ module BVT
     VCAP_BVT_PARALLEL_MAX_USERS  = 16
     VCAP_BVT_PARALLEL_SYNC_FILE  = File.join(VCAP_BVT_HOME, "sync.yml")
 
-    ## multi-target config in memory
-    $target_config = {}
-
   end
 end
 
@@ -55,3 +52,6 @@ require "harness/parallel_monkey_patch"
 
 ## in order to support service versions, require this monkey patch
 require "harness/cfoundry_monkey_patch"
+
+## exception handling in rest-client
+require "harness/restclient_monkey_patch"

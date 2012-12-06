@@ -5,7 +5,7 @@ module BVT::Harness
 
     def set_logger(target)
       # setup logger
-      filename    = target ? "bvt.#{format_target(target)}.log" : "bvt.log"
+      filename    = target ? "bvt.#{target_without_http(target)}.log" : "bvt.log"
       logfile     = File.join(VCAP_BVT_HOME, filename)
       loglevel    = :debug
       config = {:level => loglevel, :file => logfile}
@@ -13,14 +13,9 @@ module BVT::Harness
       VCAP::Logging.setup_from_config(config)
     end
 
-    def format_target(str)
-      if str.start_with? 'http://api.'
-        str.gsub('http://api.', '')
-      elsif str.start_with? 'api.'
-        str.gsub('api.', '')
-      else
-        str
-      end
+    def target_without_http(target)
+      target.split('//')[-1]
     end
+
   end
 end
