@@ -303,7 +303,6 @@ module BVT::Harness
       puts "need admin account to create parallel users"
       get_admin_user
       get_admin_user_passwd
-      puts @config
       @config['parallel'] = []
       begin
         session = BVT::Harness::CFSession.new(:admin => true,

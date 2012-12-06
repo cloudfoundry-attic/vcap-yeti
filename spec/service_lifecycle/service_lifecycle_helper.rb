@@ -1,3 +1,4 @@
+require "rest_client"
 module BVT::Spec
   module ServiceLifecycleHelper
 
@@ -87,18 +88,9 @@ module BVT::Spec
   end
 
   def import_service_from_data(service_id, serialized_data)
-    post_data = []
-    post_data << Curl::PostField.content("_method", "PUT")
-    post_data << Curl::PostField.file("data_file", serialized_data.path)
-
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/data")
-    easy.multipart_form_post = true
-    easy.headers = {"AUTHORIZATION" => @session.token}
-    easy.resolve_mode =:ipv4
-    easy.http_put(post_data)
-    resp = easy.body_str
-    resp.should_not be_nil
-    job = JSON.parse(resp)
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/data"
+    response = RestClient.put(url, {:data_file=> File.new(serialized_data.path)}, { Authorization: "#{@session.token}"})
+    job = JSON.parse(response)
     job = wait_job(service_id, job["job_id"])
     job.should_not be_nil, "The job cannot be completed in 8 seconds"
     snapshot_id = job["result"]["snapshot_id"]
