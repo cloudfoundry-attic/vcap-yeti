@@ -1,13 +1,15 @@
 require "harness"
 require "spec_helper"
+require "harness/rake_helper"
+
 include BVT::Spec
+include BVT::Harness::RakeHelper
 
 describe BVT::Spec::MarketplaceGateway::RubySinatra do
 
   # Temporary function until yeti has support for provider
   def create_service_using_v1_api(manifest)
-    target = ENV['VCAP_BVT_TARGET']
-    base_url = target =~ /^http:\/\/api\./ ? target : "http://api.#{target}"
+    base_url = format_target(ENV['VCAP_BVT_TARGET'])
     client = ("#{base_url}/services/v1/offerings")
 
     provision_request = {
