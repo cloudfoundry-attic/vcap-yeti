@@ -1,7 +1,6 @@
 require 'harness'
 require 'spec_helper'
 require 'json'
-require 'curb'
 require 'tempfile'
 require 'base64'
 include BVT::Spec

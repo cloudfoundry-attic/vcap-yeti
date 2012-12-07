@@ -34,8 +34,8 @@ describe BVT::Spec::AutoStaging::NodeNode do
     url = SERVICE_URL_MAPPING[REDIS_MANIFEST[:vendor]]
 
     response = app.get_response(:get, "/service/#{url}/connection")
-    response.response_code.should == 200
-    response.body_str.should == "Redisconnectionto127.0.0.1:6379failed"
+    response.code.should == 200
+    response.to_str.should == "Redisconnectionto127.0.0.1:6379failed"
   end
 
   it "Node.js opt-out of autostaging via cf-runtime module", :redis=>true do
@@ -44,7 +44,7 @@ describe BVT::Spec::AutoStaging::NodeNode do
     url = SERVICE_URL_MAPPING[REDIS_MANIFEST[:vendor]]
 
     response = app.get_response(:get, "/service/#{url}/connection")
-    response.response_code.should == 200
-    response.body_str.should == "Redisconnectionto127.0.0.1:6379failed"
+    response.code.should == 200
+    response.to_str.should == "Redisconnectionto127.0.0.1:6379failed"
   end
 end

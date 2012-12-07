@@ -36,21 +36,21 @@ describe BVT::Spec::Simple::Update::RubySinatra do
     new_url = @app.get_url(second_domain_name)
     @app.map(new_url)
     response = @app.get_response(:get, "/", nil, second_domain_name)
-    response.body_str.should =~ /Hello from VCAP!/
-    @app.get_response(:get).body_str.should =~ /Hello from VCAP!/
+    response.to_str.should =~ /Hello from VCAP!/
+    @app.get_response(:get).to_str.should =~ /Hello from VCAP!/
 
     url = @app.get_url
     @app.unmap(url)
     response = @app.get_response(:get, "/", nil, second_domain_name)
-    response.body_str.should =~ /Hello from VCAP!/
-    @app.get_response(:get).body_str.should =~ /404 Not Found/
+    response.to_str.should =~ /Hello from VCAP!/
+    @app.get_response(:get).to_str.should =~ /404 Not Found/
     @app.urls.length.should be(1), "There are more than one url" +
         " mapped to application: #{@app.name}"
   end
 
   it "redeploy application", :p1 => true do
     @app.push(nil, "modified_simple_app2")
-    @app.get_response(:get).body_str.should =~ /Hello from modified VCAP/
+    @app.get_response(:get).to_str.should =~ /Hello from modified VCAP/
   end
 
 end

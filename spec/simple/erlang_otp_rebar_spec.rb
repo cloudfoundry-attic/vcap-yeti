@@ -52,7 +52,6 @@ describe BVT::Spec::Simple::ErlangOtpRebar do
 
     contents = app.get_response(:get)
     contents.should_not == nil
-    contents.body_str.should =~ /Hello from VCAP/
-    contents.close
+    contents.to_str.should =~ /Hello from VCAP/
   end
 end

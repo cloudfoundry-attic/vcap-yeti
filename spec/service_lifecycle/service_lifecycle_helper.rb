@@ -22,36 +22,31 @@ module BVT::Spec
   end
 
   def get_snapshots(service_id)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_get
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots"
+    r = RestClient.get url, :content_type => "application/json", :AUTHORIZATION => @session.token
 
-    if easy.response_code == 501
+    if r.code == 501
       pending "Snapshot extension is disabled, return code=501"
-    elsif easy.response_code != 200
-      raise "code:#{easy.response_code}, body:#{easy.body_str}"
+    elsif r.code != 200
+      raise "code:#{r.code}, body:#{r.to_str}"
     end
 
-    resp = easy.body_str
+    resp = r.to_str
     resp.should_not == nil
     JSON.parse(resp)
-
   end
 
   def get_serialized_url(service_id, snapshot_id)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_get
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}"
+    r = RestClient.get url, :content_type => "application/json", :AUTHORIZATION => @session.token
 
-    if easy.response_code == 501
+    if r.code == 501
       pending "Serialized API is disabled, return code=501"
-    elsif easy.response_code != 200
+    elsif r.code != 200
       return nil
     end
 
-    resp = easy.body_str
+    resp = r.to_str
     result = JSON.parse(resp)
     result["url"]
   end
@@ -59,10 +54,9 @@ module BVT::Spec
   def download_data(serialized_url)
     temp_file = Tempfile.new('serialized_data')
     File.open(temp_file.path, "wb+") do |f|
-      c = Curl::Easy.new(serialized_url)
-      c.on_body{|data| f.write(data)}
-      c.perform
-      c.response_code.should == 200
+      c = RestClient.get serialized_url
+      c.code.should == 200
+      f.write(c.to_str)
     end
     File.open(temp_file.path) do |f|
       f.size.should > 0
@@ -71,13 +65,10 @@ module BVT::Spec
   end
 
   def import_service_from_url(service_id, serialized_url)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url")
-    easy.headers = auth_headers
-    payload = {"url" => serialized_url}
-    easy.resolve_mode =:ipv4
-    easy.http_put(JSON payload)
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url"
+    RestClient.put url, :url => serialized_url, :content_type => "application/json", :AUTHORIZATION => @session.token
 
-    resp = easy.body_str
+    resp = r.to_str
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
@@ -88,17 +79,11 @@ module BVT::Spec
   end
 
   def import_service_from_data(service_id, serialized_data)
-    post_data = []
-    post_data << Curl::PostField.content("_method", "put")
-    post_data << Curl::PostField.file("data_file", serialized_data.path)
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/data"
+    RestClient.post url, :data_file => File.new(serialized_data.path, "rb"),
+                         :content_type => "application/json", :AUTHORIZATION => @session.token
 
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/data")
-    easy.multipart_form_post = true
-    easy.headers = {"AUTHORIZATION" => @session.token}
-    easy.resolve_mode =:ipv4
-    easy.http_post(post_data)
-
-    resp = easy.body_str
+    resp = r.to_str
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
@@ -110,7 +95,7 @@ module BVT::Spec
 
   def parse_service_id(content, srv_name)
     service_id = nil
-    services = JSON.parse content.body_str
+    services = JSON.parse(content.to_str)
     services.each do |k, v|
       v.each do |srv|
         if srv["name"] =~ /#{srv_name}/
@@ -123,13 +108,11 @@ module BVT::Spec
   end
 
   def create_serialized_url(service_id, snapshot_id)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_post ''
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}"
+    RestClient.post url, '', :content_type => "application/json", :AUTHORIZATION => @session.token
 
-    easy.response_code.should == 200
-    resp = easy.body_str
+    r.code.should == 200
+    resp = r.to_str
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id,job["job_id"])
@@ -140,52 +123,44 @@ module BVT::Spec
   def post_and_verify_service(service_manifest, app, key, data)
       url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
       app.get_response(:post, "/service/#{url}/#{key}", data)
-      app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
+      app.get_response(:get, "/service/#{url}/#{key}").to_str.should == data
   end
 
   def verify_service(service_manifest, app, key, data)
       url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
-      app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
+      app.get_response(:get, "/service/#{url}/#{key}").to_str.should == data
   end
 
   def create_snapshot(service_id)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots"
-    easy = Curl::Easy.new(url)
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_post
+    RestClient.post url, :content_type => "application/json", :AUTHORIZATION => @session.token
 
-    easy.response_code.should == 200
-    resp = easy.body_str
+    r.code.should == 200
+    resp = r.to_str
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
   end
 
   def get_snapshot(service_id, snapshot_id)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_get
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
+    RestClient.get url, :content_type => "application/json", :AUTHORIZATION => @session.token
 
-    if easy.response_code != 200
+    if r.code != 200
       return nil
     end
 
-    resp = easy.body_str
+    resp = r.to_str
     resp.should_not == nil
     JSON.parse(resp)
   end
 
   def rollback_snapshot(service_id, snapshot_id)
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
+    RestClient.put url, '', :content_type => "application/json", :AUTHORIZATION => @session.token
 
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_put ''
-
-    easy.response_code.should == 200
-    resp = easy.body_str
+    r.code.should == 200
+    resp = r.to_str
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id,job["job_id"])
@@ -194,13 +169,11 @@ module BVT::Spec
   end
 
   def delete_snapshot(service_id, snapshot_id)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_delete
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
+    RestClient.delete url, :content_type => "application/json", :AUTHORIZATION => @session.token
 
-    easy.response_code.should == 200
-    resp = easy.body_str
+    r.code.should == 200
+    resp = r.to_str
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
@@ -224,12 +197,10 @@ module BVT::Spec
   end
 
   def get_job(service_id, job_id)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/jobs/#{job_id}")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_get
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/jobs/#{job_id}"
+    RestClient.get url, :content_type => "application/json", :AUTHORIZATION => @session.token
 
-    resp = easy.body_str
+    resp = r.to_str
     resp.should_not == nil
     JSON.parse(resp)
   end

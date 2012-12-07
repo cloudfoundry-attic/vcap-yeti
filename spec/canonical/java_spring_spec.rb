@@ -17,15 +17,13 @@ describe BVT::Spec::Canonical::JavaSpring do
     app = create_push_app("app_spring_service")
     contents = app.get_response(:get)
     contents.should_not == nil
-    contents.body_str.should_not == nil
-    contents.body_str.should == "hello from spring"
-    contents.close
+    contents.to_str.should_not == nil
+    contents.to_str.should == "hello from spring"
 
     contents = app.get_response(:get, '/crash')
     contents.should_not == nil
-    contents.response_code.should >= 500
-    contents.response_code.should < 600
-    contents.close
+    contents.code.should >= 500
+    contents.code.should < 600
   end
 
   it "spring test mysql service", :mysql => true, :p1 => true do
@@ -56,34 +54,34 @@ describe BVT::Spec::Canonical::JavaSpring do
   it "deploy spring 3.1 app", :redis => true do
     app = create_push_app("spring-env-app")
 
-    response = app.get_response(:get, "/profiles/active/cloud").body_str
+    response = app.get_response(:get, "/profiles/active/cloud").to_str
     response.should == 'true'
 
-    response = app.get_response(:get, "/profiles/active/default").body_str
+    response = app.get_response(:get, "/profiles/active/default").to_str
     response.should == 'false'
 
-    response = app.get_response(:get, "/properties/sources/source/cloud").body_str
+    response = app.get_response(:get, "/properties/sources/source/cloud").to_str
     response.length.should_not == 0
 
     app_name = app.get_response(:get, "/properties/sources/property/cloud"+
-                                      ".application.name").body_str
+                                      ".application.name").to_str
     app_name.should == app.name
     provider_url = app.get_response(:get, "/properties/sources/property/cloud"+
-                                          ".provider.url").body_str
+                                          ".provider.url").to_str
     provider_url.should == @session.TARGET.gsub('http://api.', '')
 
     redis_service = bind_service(REDIS_MANIFEST, app)
     type = app.get_response(:get, "/properties/sources/property/cloud."+
-                                  "services.#{redis_service.name}.type").body_str
+                                  "services.#{redis_service.name}.type").to_str
     type.should satisfy {|arg| arg.start_with? 'redis'}
     plan = app.get_response(:get, "/properties/sources/property/cloud."+
-                                  "services.#{redis_service.name}.plan").body_str
+                                  "services.#{redis_service.name}.plan").to_str
     requested_plan = ENV['VCAP_BVT_SERVICE_PLAN'] || REDIS_MANIFEST[:plan] || 'free' # lib/harness/service.rb#L67-73
     plan.should == requested_plan
     password = app.get_response(:get, "/properties/sources/property/cloud.services"+
-                             ".#{redis_service.name}.connection.password").body_str
+                             ".#{redis_service.name}.connection.password").to_str
     aliased_password = app.get_response(:get, "/properties/sources/property/cloud."+
-                                     "services.redis.connection.password").body_str
+                                     "services.redis.connection.password").to_str
     aliased_password.should == password
   end
 
@@ -95,10 +93,9 @@ describe BVT::Spec::Canonical::JavaSpring do
 
     contents = app.get_response(:get, '/java')
     contents.should_not == nil
-    contents.body_str.should_not == nil
-    contents.body_str.should =~ /#{version}/
-    contents.response_code.should == 200
-    contents.close
+    contents.to_str.should_not == nil
+    contents.to_str.should =~ /#{version}/
+    contents.code.should == 200
 
   end
 

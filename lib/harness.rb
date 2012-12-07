@@ -1,5 +1,6 @@
 require "vcap/logging"
 require "yaml"
+require "rest-client"
 
 module BVT
   module Harness

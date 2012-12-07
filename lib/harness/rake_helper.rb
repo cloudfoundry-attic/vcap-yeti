@@ -1,7 +1,6 @@
 require "yaml"
 require "interact"
 require "harness"
-require "curb"
 require "mongo"
 require "yajl"
 require "digest/md5"
@@ -61,21 +60,18 @@ module BVT::Harness
     end
 
     def check_network_connection
-      easy = Curl::Easy.new
-      easy.url = "http://#{@config['target']}/info"
-      easy.resolve_mode = :ipv4
-      easy.timeout = 10
+      url = "#{@config['target']}/info"
       begin
-        easy.http_get
-      rescue Curl::Err::CurlError
+        r = RestClient.get url
+      rescue
         raise RuntimeError,
-              red("Cannot connect to target environment, #{easy.url}\n" +
+              red("Cannot connect to target environment, #{url}\n" +
                       "Please check your network connection to target environment.")
       end
-      unless easy.response_code == HTTP_RESPONSE_CODE::OK
+      unless r.code == HTTP_RESPONSE_CODE::OK
         raise RuntimeError,
-              red("URL: #{easy.url} response code does not equal to " +
-                      "#{HTTP_RESPONSE_CODE::OK}\nPlease check your target environment first.")
+              red("URL: #{url} response code is: " +
+                      "#{r.code}\nPlease check your target environment first.")
       end
     end
 
@@ -454,21 +450,18 @@ module BVT::Harness
     end
 
     def get_assets_info
-      easy = Curl::Easy.new
-      easy.url = "#{VCAP_BVT_ASSETS_STORE_URL}/list"
-      easy.resolve_mode = :ipv4
-      easy.timeout = 10
+      url = "#{VCAP_BVT_ASSETS_STORE_URL}/list"
       begin
-        easy.http_get
-      rescue Curl::Err::CurlError
+        r = RestClient.get url
+      rescue
         raise RuntimeError,
-              red("Cannot connect to yeti assets storage server, #{easy.url}\n" +
+              red("Cannot connect to yeti assets storage server, #{url}\n" +
                       "Please check your network connection.")
       end
 
-      if easy.response_code == HTTP_RESPONSE_CODE::OK
+      if r.code == HTTP_RESPONSE_CODE::OK
         parser = Yajl::Parser.new
-        return parser.parse(easy.body_str)
+        return parser.parse(r.to_str)
       end
     end
 
@@ -478,16 +471,13 @@ module BVT::Harness
 
     def download_binary(filepath)
       filename = File.basename(filepath)
-      easy = Curl::Easy.new
-      easy.url = "#{VCAP_BVT_ASSETS_STORE_URL}/files/#{filename}"
-      easy.resolve_mode = :ipv4
-      easy.timeout = 60 * 5
+      url = "#{VCAP_BVT_ASSETS_STORE_URL}/files/#{filename}"
       begin
-        easy.http_get
+        r = RestClient.get url
         # retry once
-        unless easy.response_code == HTTP_RESPONSE_CODE::OK
+        unless r.code == HTTP_RESPONSE_CODE::OK
           sleep(1) # waiting for 1 second and try again
-          easy.http_get
+          r = RestClient.get url
         end
       rescue
         raise RuntimeError,
@@ -495,8 +485,8 @@ module BVT::Harness
                       "Please try again.")
       end
 
-      if easy.response_code == HTTP_RESPONSE_CODE::OK
-        contents = easy.body_str.chomp
+      if r.code == HTTP_RESPONSE_CODE::OK
+        contents = r.to_str.chomp
         File.open(filepath, 'wb') { |f| f.write(contents) }
       else
         raise RuntimeError, "Fail to download binary #{filename}"

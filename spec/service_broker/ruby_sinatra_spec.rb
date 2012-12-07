@@ -1,6 +1,5 @@
 require "uri"
 require "json"
-require 'curb'
 require "harness"
 require "spec_helper"
 require "vmc"
@@ -130,14 +129,9 @@ module BVT::Spec
 
   def post_and_verify_service(app,key,value)
     uri = get_uri(app, "brokered-service/#{@brokered_service_label}")
-    data = "#{key}:#{value}"
-    easy = Curl::Easy.new
-    easy.url = uri
-    easy.resolve_mode =:ipv4
-    easy.http_post(data)
-    easy.response_code.should == 200
-    easy.close
-
+    data = {key => value}.to_json
+    r = RestClient.post uri, data
+    r.code.should == 200
   end
 
   def delete_brokered_services
@@ -181,8 +175,8 @@ describe BVT::Spec::ServiceBroker::RubySinatra do
 
     content = app.get_response(:get, "/service/key1")
     content.should_not == nil
-    content.response_code.should == 200
-    content.body_str.should == 'value1'
+    content.code.should == 200
+    content.to_str.should == 'value1'
   end
 
 end

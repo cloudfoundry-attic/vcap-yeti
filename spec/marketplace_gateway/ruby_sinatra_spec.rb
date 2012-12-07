@@ -60,9 +60,8 @@ describe BVT::Spec::MarketplaceGateway::RubySinatra do
   def health_check(app)
     response = app.get_response(:get, '/healthcheck')
     response.should_not == nil
-    response.body_str.should =~ /^OK/
-    response.response_code.should == 200
-    response.close
+    response.to_str.should =~ /^OK/
+    response.code.should == 200
   end
 
   it "should deploy env_test app and be able to bind to testservice from test mpgw" do
@@ -96,9 +95,8 @@ describe BVT::Spec::MarketplaceGateway::RubySinatra do
 
     response = app.get_response(:get, '/services')
     response.should_not == nil
-    response.response_code.should == 200
-    service_list = JSON.parse(response.body_str)
-    response.close
+    response.code.should == 200
+    service_list = JSON.parse(response.to_str)
 
     # assert that the services list that we get from the app environment
     # matches what we expect from provisioning

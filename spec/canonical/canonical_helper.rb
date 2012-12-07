@@ -5,7 +5,7 @@ module BVT::Spec
       data = "#{service_manifest[:vendor]}#{key}"
       url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
       app.get_response(:post, "/service/#{url}/#{key}", data)
-      app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
+      app.get_response(:get, "/service/#{url}/#{key}").to_str.should == data
     end
 
     def bind_service_and_verify(app, service_manifest)

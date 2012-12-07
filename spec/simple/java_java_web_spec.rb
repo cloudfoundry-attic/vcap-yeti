@@ -29,9 +29,8 @@ describe BVT::Spec::Simple::JavaJavaWeb do
 
     contents = app.get_response(:get)
     contents.should_not == nil
-    contents.body_str.should_not == nil
-    contents.body_str.should =~ /I am up and running/
-    contents.close
+    contents.to_str.should_not == nil
+    contents.to_str.should =~ /I am up and running/
   end
 
   it "tomcat validation", :p1 => true do
@@ -39,10 +38,10 @@ describe BVT::Spec::Simple::JavaJavaWeb do
 
     response = app.get_response(:get)
     response.should_not == nil
-    response.response_code.should == 200
-    response.body_str.should_not == nil
+    response.code.should == 200
+    response.to_str.should_not == nil
 
-    doc = Nokogiri::XML(response.body_str)
+    doc = Nokogiri::XML(response.to_str)
     version = doc.xpath("//version").first.content
     version.should_not == nil
     version.should =~ /Apache Tomcat/

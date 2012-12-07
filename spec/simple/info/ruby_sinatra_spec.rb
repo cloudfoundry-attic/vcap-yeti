@@ -83,7 +83,6 @@ describe BVT::Spec::Simple::Info::RubySinatra do
     pid = files.chomp
 
     contents = app.get_response(:get, "/crash/#{pid}")
-    contents.close
 
     crashes = get_crashes(app.name)
 
