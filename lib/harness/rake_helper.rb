@@ -208,6 +208,8 @@ module BVT::Harness
       @config['user'].delete('passwd') if @config['user']
       @config['admin'].delete('passwd') if @config['admin']
 
+      @multi_target_config[@config['target']] = @config
+
       File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(@multi_target_config) }
     end
 
