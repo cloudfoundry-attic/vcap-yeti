@@ -177,7 +177,7 @@ def longevity(threads, filter, rerun=false)
   if loop_number == 1
     ParallelHelper.run_tests(threads, filter, rerun)
     return
-  elsif loop_number < 1
+  elsif loop_number < 0
     puts red("longevity input error")
     return
   end
@@ -187,16 +187,22 @@ def longevity(threads, filter, rerun=false)
   time_start = Time.now
   puts yellow("loop number: #{loop_number}")
   $stdout.flush
-  actual_loop_number = 0
-  loop_number.times {|i|
-    puts yellow("This is run: #{i + 1}")
-    actual_loop_number = i + 1
-    result = ParallelHelper.run_tests(threads, filter, rerun)
-    total_case_number += result[:case_number]
-    total_failure_number += result[:failure_number]
-    total_pending_number += result[:pending_number]
-    break if result[:interrupted]
-  }
+  actual_loop_number = 1
+  while TRUE
+    puts yellow("This is run: #{actual_loop_number}")
+    begin
+      result = ParallelHelper.run_tests(threads, filter, rerun)
+      total_case_number += result[:case_number]
+      total_failure_number += result[:failure_number]
+      total_pending_number += result[:pending_number]
+      break if result[:interrupted]
+    rescue Exception => e
+      puts e.to_s
+      sleep 180
+    end
+    break if actual_loop_time == loop_number
+    actual_loop_time += 1
+  end
   puts yellow("longevity finished!")
   puts yellow("loop number:    #{actual_loop_number}")
   t1 = Time.now
