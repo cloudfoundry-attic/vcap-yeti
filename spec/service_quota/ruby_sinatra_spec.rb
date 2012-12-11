@@ -97,6 +97,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     bind_service(MONGODB_MANIFEST, app)
 
     quota_size = SERVICE_QUOTA['mongodb']['quota_data_size']
+    block = 100
 
     # a minor record
     response = app.get_response(:post, '/service/mongodb/collection?colname=testcolA&size=1')
@@ -104,7 +105,11 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     response.body_str.should == ""
 
     # fill up the quota data size
-    content = app.get_response(:post, "/service/mongodb/collection?colname=testcolB&size=#{quota_size}")
+    written = 0
+    while written <= quota_size
+      content = app.get_response(:post, "/service/mongodb/collection?colname=testcolB&size=#{block}")
+      written += block
+    end
     result = app.get_response(:get, '/service/mongodb/db/storagesize')
     result.response_code.should == 200
 
@@ -112,7 +117,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
 
     # Quota Exceed, proxy will drop the connection with clients
     content = app.get_response(:post, "/service/mongodb/collection?colname=testcolB&size=1")
-    content.body_str.should =~ /Connection reset by peer/
+    content.body_str.should =~ /Connection Blocked/
 
     # drop whole testcolB collection
     content = app.get_response(:delete, "/service/mongodb/collection?colname=testcolB")
