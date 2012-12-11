@@ -125,8 +125,8 @@ module BVT::Harness
         s[:provider]      = service.provider
         s[:plans]         = service.service_plans.collect {|p| p.name } if v2?
         services[service.label] ||= {}
-        services[service.label] = s
-        services[service.label][:versions] = versions
+        services[service.label][service.provider] = s
+        services[service.label][service.provider][:versions] = versions
       end
       services
     end
