@@ -17,8 +17,8 @@ module BVT::Harness
       options[:case_folder] = SPEC_PATH
       options[:report_folder] = REPORT_PATH
       options[:rerun] = rerun
-      options[:separate_rerun_report] = false if ENV["VCAP_BVT_CI_SINGLE_REPORT"] == true
-      options[:show_pending] = true if ENV['VCAP_BVT_SHOW_PENDING'] == true
+      options[:separate_rerun_report] = false if ENV["VCAP_BVT_CI_SINGLE_REPORT"] == "true"
+      options[:show_pending] = true if ENV['VCAP_BVT_SHOW_PENDING'] == "true"
 
       rp = Rspec_parallel.new(options)
       rp.run_tests

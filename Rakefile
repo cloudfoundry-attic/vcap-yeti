@@ -131,7 +131,17 @@ task :rerun, :thread_number do |t, args|
   end
 end
 
-task :rerun_failure => :rerun
+# alias of rerun, need to copy the logic to parse the thread parameter
+task :rerun_failure, :thread_number do |t, args|
+  threads = 10
+  threads = args[:thread_number].to_i if args[:thread_number]
+  RakeHelper.prepare_all(threads)
+  if File.directory?("./reports")
+    longevity(threads, nil, true)
+  else
+    puts yellow('no reports folder found')
+  end
+end
 
 desc "sync yeti assets binaries"
 task :sync_assets do
