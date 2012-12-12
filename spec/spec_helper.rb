@@ -126,6 +126,10 @@ module BVT
       class Space; end
     end
 
+    module CustomDomain
+      class Domain; end
+    end
+
     SERVICE_URL_MAPPING = Hash["mysql"      => "mysql",
                                "redis"      => "redis",
                                "mongodb"    => "mongo",

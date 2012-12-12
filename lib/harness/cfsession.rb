@@ -131,10 +131,10 @@ module BVT::Harness
       services
     end
 
-    def app(name, prefix = '')
+    def app(name, prefix = '', domain=nil)
       app = @client.app
       app.name = "#{prefix}#{@namespace}#{name}"
-      App.new(app, self)
+      App.new(app, self, domain)
     end
 
     def apps
@@ -182,7 +182,7 @@ module BVT::Harness
       if v2?
         @client.organizations
       else
-        fail "not implemented in v1."
+        raise RuntimeError, "not support in CCNG v1 API"
       end
     end
 
@@ -190,7 +190,15 @@ module BVT::Harness
       if v2?
         @client.spaces.collect {|space| BVT::Harness::Space.new(space, self)}
       else
-        fail "not implemented in v1."
+        raise RuntimeError, "not support in CCNG v1 API"
+      end
+    end
+
+    def domains
+      if v2?
+        @client.domains.collect {|domain| BVT::Harness::Domain.new(domain, self)}
+      else
+        raise RuntimeError, "not support in CCNG v1 API"
       end
     end
 
@@ -205,6 +213,21 @@ module BVT::Harness
       rescue Exception => e
         @log.error("Fail to get space: #{name}")
         raise RuntimeError, "Fail to get space: " +
+            "\n#{e.to_s}\n#{print_client_logs}"
+      end
+    end
+
+    def domain(name, require_namespace=true)
+      if require_namespace
+        name = "#{@namespace}#{name}"
+      end
+      begin
+        domain = @client.domain
+        domain.name = name
+        BVT::Harness::Domain.new( domain, self)
+      rescue Exception => e
+        @log.error("Fail to create domain: #{name}")
+        raise RuntimeError, "Fail to create domain: " +
             "\n#{e.to_s}\n#{print_client_logs}"
       end
     end
@@ -226,23 +249,31 @@ module BVT::Harness
       User.new(@client.user(email), self)
     end
 
+    def get_target_domain
+      @TARGET.split(".", 2).last
+    end
+
     # It will delete all services and apps belong to login token via client object
     # mode: current -> delete app/service_instance in current space.
     # mode: all -> delete app/service_instance in each space
     def cleanup!(mode = "current")
       if v2?
+        target_domain = get_target_domain
         if (mode == "all")
           @client.spaces.each{ |s|
             s.apps.each {|app| app.delete!}
             s.service_instances.each {|service| service.delete!}
+            s.domains.each {|domain| domain.delete! if s.name != target_domain }
           }
         elsif (mode == "current")
           # CCNG cannot delete service which binded to application
           # therefore, remove application first
           @client.current_organization = @current_organization
           @client.current_space = @current_space
+          domains = @client.current_space.domains
           apps.each {|app| app.delete}
           services.each {|service| service.delete}
+          domains.each {|domain| domain.delete! if domain.name != target_domain }
         end
       else
         apps.each { |app| app.delete }

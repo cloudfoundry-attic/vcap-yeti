@@ -4,12 +4,13 @@ module BVT::Harness
   class App
     attr_reader :name, :manifest
 
-    def initialize(app, session)
+    def initialize(app, session, domain=nil)
       @app      = app
       @name     = @app.name
       @session  = session
       @client   = @session.client
       @log      = @session.log
+      @domain      = domain
     end
 
     def inspect
@@ -20,7 +21,6 @@ module BVT::Harness
       load_manifest(appid)
       check_framework(@manifest['framework'])
       check_runtime(@manifest['runtime'])
-
       @app = @session.client.app_by_name(@name)
       if @app
         sync_app(@app, @manifest['path'])
@@ -544,7 +544,12 @@ module BVT::Harness
 
       app.command = @manifest['command'] if @manifest['framework'] == "standalone"
 
-      url = get_url
+      if @domain
+        url = "#{@name}.#{@domain}"
+      else
+        url = get_url
+      end
+
       @manifest['uris'] = [url,]
 
       app.memory = @manifest['memory']
@@ -556,6 +561,7 @@ module BVT::Harness
       end
 
       @app = app
+
       map(url) if !@manifest['no_url']
 
       services.each { |service| bind(service, false)} if services
