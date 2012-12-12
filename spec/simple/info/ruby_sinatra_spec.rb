@@ -84,6 +84,7 @@ describe BVT::Spec::Simple::Info::RubySinatra do
 
     crashes = get_crashes(app.name)
 
+    sleep 1
     crash = crashes.first
     crash.since.should_not == nil
 

@@ -501,10 +501,10 @@ module BVT::Harness
       end
 
       if @session.v2?
-        production = @manifest['plan'] if @manifest['plan']
+        production = @manifest['plan'] ? true : false
 
         if production != app.production
-          diff[:production] = [bool(app.production), bool(production)]
+          diff[:production] = [app.production, production]
           app.production = production
         end
       end

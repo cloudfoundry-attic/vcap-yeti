@@ -13,12 +13,8 @@ gem "yajl-ruby"
 gem "nokogiri"
 gem "fuubar"
 gem "progressbar", "~> 0.11.0"
-gem "cli"
-gem "vmc"
 gem "rest-client"
 gem "console-vmc-plugin"
 
-group :ci do
-  gem "ci_reporter"
-end
-gem "ruby-debug19"
+gem "caldecott"
+gem "rspec_parallel", ">= 0.1.4"

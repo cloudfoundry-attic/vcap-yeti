@@ -32,7 +32,7 @@ task :help do
   puts "  clean\t\tclean up test environment(only run this task after interruption).\n" +
            "\t\t  1, Remove all apps and services under test user\n" +
            "\t\t  2, Remove all apps and services under parallel users"
-  puts "  rerun_failure\trerun failed cases of the previous run\n"
+  puts "  rerun\t\trerun failed cases of the previous run\n"
   puts "  help\t\tlist help commands"
 end
 
@@ -43,7 +43,7 @@ task :full, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
   create_reports_folder
-  longevity("ParallelHelper.run_tests(#{threads}, {'tags' => '~admin,~slow'})")
+  longevity(threads, {'tags' => '~admin,~slow'})
 end
 
 desc "run tests subset"
@@ -53,19 +53,18 @@ task :tests, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
   create_reports_folder
-  longevity("ParallelHelper.run_tests(#{threads}, {'tags' => 'p1,~admin,~slow'})")
+  longevity(threads, {'tags' => 'p1,~admin,~slow'})
 end
 
 desc "Run all bvts randomly, add [N] to specify a seed"
 task :random, :seed do |t, args|
   RakeHelper.sync_assets
-  RakeHelper.prepare_all(1)
   if args[:seed] != nil
-    longevity("sh 'bundle exec rspec spec/ --tag ~admin --tag ~slow' +
-       ' --seed #{args[:seed]} --format d -c'")
+    sh "bundle exec rspec spec/ --tag ~admin --tag ~slow" +
+       " --seed #{args[:seed]} --format d -c"
   else
-    longevity('sh "bundle exec rspec spec/ --tag ~admin --tag ~slow" +
-       " --order rand --format d -c"')
+    sh "bundle exec rspec spec/ --tag ~admin --tag ~slow" +
+       " --order rand --format d -c"
   end
 end
 
@@ -73,7 +72,7 @@ desc "Run admin test cases"
 task :admin do
   RakeHelper.prepare_all
   create_reports_folder
-  longevity("ParallelHelper.run_tests(1, {'tags' => 'admin'})")
+  longevity(1, {'tags' => 'admin'})
 end
 
 desc "Run java tests (spring, java_web)"
@@ -83,7 +82,7 @@ task :java, :thread_number, :longevity, :fail_fast do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
   create_reports_folder
-  longevity("ParallelHelper.run_tests(#{threads}, {'pattern' => /_(spring|java_web)_spec\.rb/})")
+  longevity(threads, {'pattern' => /_(spring|java_web)_spec\.rb/})
 end
 
 desc "Run jvm tests (spring, java_web, grails, lift)"
@@ -93,7 +92,7 @@ task :jvm, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
   create_reports_folder
-  longevity("ParallelHelper.run_test(#{threads}, {'pattern' => /_(spring|java_web|grails|lift)_spec\.rb/})")
+  longevity(threads, {'pattern' => /_(spring|java_web|grails|lift)_spec\.rb/})
 end
 
 desc "Run ruby tests (rails3, sinatra, rack)"
@@ -102,7 +101,7 @@ task :ruby, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
   create_reports_folder
-  longevity("ParallelHelper.run_tests(#{threads}, {'pattern' => /ruby_.+_spec\.rb/})")
+  longevity(threads, {'pattern' => /ruby_.+_spec\.rb/})
 end
 
 desc "Run service tests (mongodb, redis, mysql, postgres, rabbitmq, neo4j, vblob)"
@@ -112,7 +111,7 @@ task :services, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
   create_reports_folder
-  longevity("ParallelHelper.run_tests(#{threads}, {'tags' => '~admin,mongodb,rabbitmq,mysql,redis,postgresql,neo4j,vblob'})")
+  longevity(threads, {'tags' => '~admin,mongodb,rabbitmq,mysql,redis,postgresql,neo4j,vblob'})
 end
 
 desc "Clean up test environment"
@@ -121,12 +120,23 @@ task :clean do
 end
 
 desc "rerun failed cases of the previous run"
+task :rerun, :thread_number do |t, args|
+  threads = 10
+  threads = args[:thread_number].to_i if args[:thread_number]
+  RakeHelper.prepare_all(threads)
+  if File.directory?("./reports")
+    longevity(threads, nil, true)
+  else
+    puts yellow('no reports folder found')
+  end
+end
+
 task :rerun_failure, :thread_number do |t, args|
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
   if File.directory?("./reports")
-    longevity("ParallelHelper.run_tests(#{threads}, nil, true)")
+    longevity(threads, nil, true)
   else
     puts yellow('no reports folder found')
   end
@@ -156,29 +166,17 @@ def create_reports_folder
   end
 end
 
-def get_longevity_time
+def get_longevity_number
   return ENV['VCAP_BVT_LONGEVITY'].to_i if ENV['VCAP_BVT_LONGEVITY']
   return 1
 end
 
-def case_number
-  eval("ParallelHelper::case_number")
-end
-
-def failure_number
-  eval("ParallelHelper::failure_number")
-end
-
-def pending_number
-  eval("ParallelHelper::pending_number")
-end
-
-def longevity(cmd)
-  loop_times = get_longevity_time
-  if loop_times == 1
-    eval(cmd)
+def longevity(threads, filter, rerun=false)
+  loop_number = get_longevity_number
+  if loop_number == 1
+    ParallelHelper.run_tests(threads, filter, rerun)
     return
-  elsif loop_times < 1
+  elsif loop_number < 1
     puts red("longevity input error")
     return
   end
@@ -186,24 +184,20 @@ def longevity(cmd)
   total_failure_number = 0
   total_pending_number = 0
   time_start = Time.now
-  begin
-    puts yellow("loop times: #{loop_times}")
-    $stdout.flush
-    loop_times.times {|i|
-      puts yellow("This is #{i} run.")
-      eval(cmd)
-      total_case_number += case_number
-      total_failure_number += failure_number
-      total_pending_number += pending_number
-    }
-  rescue Interrupt
-    puts red("Catch CTRL+C, Ending")
-    total_case_number += case_number
-    total_failure_number += failure_number
-    total_pending_number += pending_number
-  end
+  puts yellow("loop number: #{loop_number}")
+  $stdout.flush
+  actual_loop_number = 0
+  loop_number.times {|i|
+    puts yellow("This is run: #{i + 1}")
+    actual_loop_number = i + 1
+    result = ParallelHelper.run_tests(threads, filter, rerun)
+    total_case_number += result[:case_number]
+    total_failure_number += result[:failure_number]
+    total_pending_number += result[:pending_number]
+    break if result[:interrupted]
+  }
   puts yellow("longevity finished!")
-  puts yellow("loop times:    #{loop_times}")
+  puts yellow("loop number:    #{actual_loop_number}")
   t1 = Time.now
   running_time = (t1 - time_start).to_i
   puts yellow("total running time: #{running_time} seconds")

@@ -1,0 +1,28 @@
+---
+name: yeti
+commands:
+  full:
+    exec: "bundle exec rake full --trace"
+    desc: "execute all tests"
+    dependencies:
+      - "bundle package"
+      - "bundle install --deployment"
+  default:
+    exec: "bundle exec rake full --trace"
+    desc: "execute all tests. If no subcommand is specific, default command will be executed"
+    dependencies:
+      - "bundle package"
+      - "bundle install --deployment"
+  bvt:
+    exec: "bundle exec rake tests --trace"
+    desc: "execute all core tests. It will be finished in shorter time frame"
+    dependencies:
+      - "bundle package"
+      - "bundle install --deployment"
+  rerun:
+    exec: "bundle exec rake rerun_failure --trace"
+    desc: "execute all core tests. It will be finished in shorter time frame"
+    dependencies:
+      - "bundle package"
+      - "bundle install --deployment"
+results: ./reports

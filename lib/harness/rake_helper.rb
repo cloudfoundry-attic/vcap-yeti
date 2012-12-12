@@ -208,6 +208,8 @@ module BVT::Harness
       @config['user'].delete('passwd') if @config['user']
       @config['admin'].delete('passwd') if @config['admin']
 
+      @multi_target_config[@config['target']] = @config
+
       File.open(VCAP_BVT_CONFIG_FILE, "w") { |f| f.write YAML.dump(@multi_target_config) }
     end
 
@@ -303,6 +305,7 @@ module BVT::Harness
       puts "need admin account to create parallel users"
       get_admin_user
       get_admin_user_passwd
+
       @config['parallel'] = []
       begin
         session = BVT::Harness::CFSession.new(:admin => true,

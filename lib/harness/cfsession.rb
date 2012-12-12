@@ -16,7 +16,6 @@ module BVT::Harness
       @email = options[:email] ? options[:email] : get_login_email(@is_admin)
       @passwd = options[:passwd] ? options[:passwd] : get_login_passwd(@is_admin)
 
-
       if options[:target]
         target = RakeHelper.format_target(options[:target])
       else
