@@ -43,13 +43,9 @@ module BVT::Harness
     def update!(what = {})
       @log.info("Update App: #{@app.name}, what = #{what}")
       begin
-        if @session.v2?
-          env = what['env'] || {}
-          @app.env = env
-          @app.update!
-        else
-          @app.update!(what)
-        end
+        env = what['env'] || {}
+        @app.env = env
+        @app.update!
         restart
       rescue Exception => e
         @log.error "Update App: #{@app.name} failed.\n#{e.to_s}"
@@ -466,30 +462,16 @@ module BVT::Harness
         app.total_instances = instances
       end
 
-      framework =  @manifest['framework']
-      if @session.v2?
-        if framework != app.framework.name
-          diff[:framework] = [app.framework.name, framework]
-          app.framework = @session.client.framework_by_name(framework)
-        end
-      else
-        if framework != app.framework
-          diff[:framework] = [app.framework, framework]
-          app.framework = app.framework
-        end
+      framework = @manifest['framework']
+      if framework != app.framework.name
+        diff[:framework] = [app.framework.name, framework]
+        app.framework = @client.framework_by_name(framework)
       end
 
       runtime = @manifest['runtime']
-      if @session.v2?
-        if runtime != app.runtime.name
-          diff[:runtime] = [app.runtime.name, runtime]
-          app.runtime = @session.client.runtime_by_name(runtime)
-        end
-      else
-        if runtime != app.runtime
-          diff[:runtime] = [app.runtime, runtime]
-          app.runtime = runtime
-        end
+      if runtime != app.runtime.name
+        diff[:runtime] = [app.runtime.name, runtime]
+        app.runtime = @client.runtime_by_name(runtime)
       end
 
       if @manifest['framework'] == "standalone"
@@ -531,16 +513,9 @@ module BVT::Harness
       app.total_instances = @manifest['instances']
       app.production = @manifest['plan'] if @session.v2? && @manifest['plan']
 
-      if @session.v2?
-        all_frameworks = @session.client.frameworks
-        framework = all_frameworks.find { |f| f.name == @manifest['framework']}
+      app.framework = @client.framework_by_name(@manifest['framework'])
+      app.runtime = @client.runtime_by_name(@manifest['runtime'])
 
-        all_runtimes = @session.client.runtimes
-        runtime = all_runtimes.find { |r| r.name == @manifest['runtime']}
-      end
-
-      app.framework = framework || @manifest['framework']
-      app.runtime = runtime || @manifest['runtime']
 
       app.command = @manifest['command'] if @manifest['framework'] == "standalone"
 
