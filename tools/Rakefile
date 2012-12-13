@@ -9,11 +9,30 @@ task :help do
   puts "  build\t\t\t\tbuild the tests"
   puts "  upload_assets\t\t\tupload the pre-compiled java packages"
   puts "  help\t\t\t\tlist help commands"
+  puts "  gen_service_plan\t\trun service optionally"
 end
 
 desc "upload the pre-compiled java packages"
 task :upload_assets do
   Tools::AssetsHelper.upload_assets
+end
+
+desc "run gen_service_plan.rb and create service_plan_version_test.sh"
+task :gen_service_plan, :service, :plan do |t, args|
+  unless ENV["VCAP_BVT_DEPLOY_MANIFEST"]
+    puts "please specify deploy manifest by env var: VCAP_BVT_DEPLOY_MANIFEST"
+    exit(1)
+  end
+  inputfile = ENV["VCAP_BVT_DEPLOY_MANIFEST"]
+  cmd_args = ""
+  cmd_args += "--service=#{args[:service]} " if args[:service] and !args[:service].empty?
+  if args[:plan].nil? or args[:plan].empty?
+    cmd_args += "--plan=free "
+  else
+    cmd_args += "--plan=#{args[:plan]} "
+  end
+  output = `ruby ./scripts/gen_service_plan.rb  --input #{inputfile} #{cmd_args}  --output service_plan_version_test.sh`
+  puts output
 end
 
 BUILD_ARTIFACT = File.join(Dir.pwd, ".build")
