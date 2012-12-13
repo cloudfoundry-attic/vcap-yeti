@@ -200,8 +200,8 @@ def longevity(threads, filter, rerun=false)
       puts e.to_s
       sleep 180
     end
-    break if actual_loop_time == loop_number
-    actual_loop_time += 1
+    break if actual_loop_number == loop_number
+    actual_loop_number += 1
   end
   puts yellow("longevity finished!")
   puts yellow("loop number:    #{actual_loop_number}")
