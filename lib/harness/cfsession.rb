@@ -115,10 +115,9 @@ module BVT::Harness
       @client.services.each do |service|
         s = {}
         s[:description]   = service.description
+        versions = []
         if services[service.label]
-          versions = services[service.label][:versions] if services[service.label][:versions]
-        else
-          versions = []
+          versions = services[service.label][service.provider][:versions] if services[service.label][service.provider]
         end
         versions          << service.version.to_s unless versions.index(service.version.to_s)
         s[:provider]      = service.provider
