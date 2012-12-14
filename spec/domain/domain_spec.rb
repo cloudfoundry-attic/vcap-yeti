@@ -9,7 +9,6 @@ describe BVT::Spec::CustomDomain::Domain do
   before(:all) do
     @session = BVT::Harness::CFSession.new
     pending("cloud controller v1 API does not support custom domain") unless @session.v2?
-    @org_name = @session.current_organization.name
   end
 
   after(:each) do
@@ -17,6 +16,7 @@ describe BVT::Spec::CustomDomain::Domain do
   end
 
   it "create and delete custom domain" do
+    @org_name = @session.current_organization.name
     new_name = 'new-domain.com'
     domain = @session.domain(new_name)
 
@@ -64,6 +64,7 @@ describe BVT::Spec::CustomDomain::Domain do
   end
 
   it "add and delete custom domain" do
+    @org_name = @session.current_organization.name
     new_name = 'new-domain.com'
     domain = @session.domain(new_name)
 
@@ -150,7 +151,7 @@ describe BVT::Spec::CustomDomain::Domain do
   end
 
   it "push app to one custom domain" do
-    new_name = 'newdomain.com'
+    new_name = 'new-domain.com'
     domain = @session.domain(new_name)
 
     new_domain = domain.create
