@@ -148,11 +148,12 @@ module BVT::Harness
           filepath = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, item['filename'])
           puts yellow("#{index_str}downloading\t#{item['filename']}")
           download_binary(filepath)
-          unless check_md5(filepath) == item['md5']
+          actual_md5 = check_md5(filepath)
+          unless actual_md5 == item['md5']
             puts red("#{index_str}fail to download\t\t#{item['filename']}.\n"+
                      "Might be caused by unstable network, please try again.")
           end
-          skipped << Hash['filename' => item['filename'], 'md5' => item['md5']]
+          skipped << Hash['filename' => item['filename'], 'md5' => actual_md5]
           File.open(VCAP_BVT_ASSETS_PACKAGES_MANIFEST, "w") do |f|
             f.write YAML.dump(Hash['packages' => skipped])
           end
