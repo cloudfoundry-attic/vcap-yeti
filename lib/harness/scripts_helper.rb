@@ -26,8 +26,8 @@ module BVT::Harness
     end
 
     # Application
-    def create_app(app_name, domain=nil)
-      app = @session.app(app_name, domain)
+    def create_app(app_name, prefix = '', domain=nil)
+      app = @session.app(app_name, prefix, domain)
       app.load_manifest
       if VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(app.manifest['framework'].to_sym) &&
           VCAP_BVT_SYSTEM_RUNTIMES.has_key?(app.manifest['runtime'])
@@ -43,8 +43,8 @@ module BVT::Harness
       app
     end
 
-    def create_push_app(app_name, domain=nil)
-      app = create_app(app_name, domain)
+    def create_push_app(app_name, prefix = '', domain=nil)
+      app = create_app(app_name, prefix, domain)
       app.push
       unless @session.v2?
         app.healthy?.should be_true, "Application #{app.name} is not running"

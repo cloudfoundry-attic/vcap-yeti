@@ -150,7 +150,7 @@ describe BVT::Spec::CustomDomain::Domain do
   end
 
   it "push app to one custom domain" do
-    new_name = 'new-domain.com'
+    new_name = 'newdomain.com'
     domain = @session.domain(new_name)
 
     new_domain = domain.create
@@ -159,7 +159,7 @@ describe BVT::Spec::CustomDomain::Domain do
     domain.add(new_domain)
     domain.check_domain_of_space.should == true
 
-    app = create_push_app("simple_app", new_domain.name)
+    app = create_push_app("simple_app", '', new_domain.name)
 
     #check if app is successfully pushed to custom domain
     expected_url = app.name + "." + new_domain.name
@@ -177,7 +177,7 @@ describe BVT::Spec::CustomDomain::Domain do
     domain.add(new_domain)
     domain.check_domain_of_space.should == true
 
-    create_push_app("simple_app", new_domain.name)
+    create_push_app("simple_app", '', new_domain.name)
 
     lambda {domain.delete}.should raise_error(RuntimeError, /The request is invalid/)
     domain.check_domain_of_org.should == true
@@ -192,7 +192,7 @@ describe BVT::Spec::CustomDomain::Domain do
     domain.check_domain_of_space.should == true
 
     #push app into the custom domain
-    app = create_push_app("simple_app", new_domain.name)
+    app = create_push_app("simple_app", '', new_domain.name)
     app.stats["0"][:state].should == "RUNNING"
 
     #delete app
