@@ -7,42 +7,6 @@ include BVT::Harness::RakeHelper
 
 describe BVT::Spec::MarketplaceGateway::RubySinatra do
 
-  # Temporary function until yeti has support for provider
-  def create_service_using_v1_api(manifest)
-    base_url = format_target(ENV['VCAP_BVT_TARGET'])
-    client = ("#{base_url}/services/v1/offerings")
-
-    provision_request = {
-      :label => "#{manifest[:vendor]}-#{manifest[:version]}",
-      :name => manifest[:name],
-      :plan => manifest[:plan] || "free",
-      :version => manifest[:version],
-      :provider => manifest[:provider],
-    }
-
-    payload = Yajl::Encoder.encode(provision_request)
-
-    headers = {}
-    headers["Authorization"] = @session.token
-    headers["Accept"] = "application/json"
-    headers["Content-Type"] = "application/json"
-    headers["Content-Length"] = payload.size
-
-    req = {}
-    req[:method]  = "post"
-    req[:url]     = "#{base_url}/services/v1/configurations"
-    req[:headers] = headers
-    req[:payload] = payload
-
-    RestClient::Request.execute(req) do |response, request|
-      if response.code == 200
-        @session.service(manifest[:name], false)
-      else
-        raise response.to_str
-      end
-    end
-  end
-
   before(:all) do
     @mpgw_url = ENV['MPGW_URL']
     @mpgw_token = ENV['MPGW_TOKEN']
@@ -51,7 +15,7 @@ describe BVT::Spec::MarketplaceGateway::RubySinatra do
 
     @session = BVT::Harness::CFSession.new
     @services = @session.system_services
- end
+  end
 
   after(:each) do
     @session.cleanup!
@@ -75,22 +39,21 @@ describe BVT::Spec::MarketplaceGateway::RubySinatra do
     resp.code.should == "200"
     json = JSON.parse(resp.body)
     json["marketplace"].should == "Test"
-    json["offerings"].keys.include?("testservice-1.0").should == true
+    json["offerings"].keys.size.should == 1
+    json["offerings"].keys.first.start_with?("testservice").should == true
 
     app = create_push_app("env_test_app")
     should_be_there = []
 
     myname = "testservice-12345"
     manifest = MPGW_TESTSERVICE_MANIFEST.dup
+    service = create_service(manifest, myname)
 
     # then record for testing against the environment variables
     manifest[:name] = myname
-
-    service = create_service_using_v1_api(manifest) # TODO: Replace with yeti function
-
-    app.bind(service)
     should_be_there << manifest
 
+    app.bind(service)
     services = app.services
     services.should_not == nil
 
@@ -103,6 +66,7 @@ describe BVT::Spec::MarketplaceGateway::RubySinatra do
     # assert that the services list that we get from the app environment
     # matches what we expect from provisioning
     services = service_list['services']
+
     should_be_there.all? { |v|
       services.any? {|s|
         v[:name] == s['name'] && v[:vendor] == s['vendor']
