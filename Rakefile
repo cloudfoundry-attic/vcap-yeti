@@ -175,11 +175,15 @@ end
 def longevity(threads, filter, rerun=false)
   loop_number = get_longevity_number
   if loop_number == 1
-    ParallelHelper.run_tests(threads, filter, rerun)
-    return
+    result = ParallelHelper.run_tests(threads, filter, rerun)
+    if result[:interrupted] || result[:failure_number] > 0
+      exit(1)
+    else
+      exit(0)
+    end
   elsif loop_number < 0
     puts red("longevity input error")
-    return
+    exit(1)
   end
   total_case_number = 0
   total_failure_number = 0
@@ -188,6 +192,7 @@ def longevity(threads, filter, rerun=false)
   puts yellow("loop number: #{loop_number}")
   $stdout.flush
   actual_loop_number = 1
+  result = nil
   while TRUE
     puts yellow("This is run: #{actual_loop_number}")
     begin
@@ -211,5 +216,10 @@ def longevity(threads, filter, rerun=false)
   puts "total case number: #{total_case_number}"
   puts red("total failure number: #{total_failure_number}")
   puts yellow("total pending number: #{total_pending_number}")
+  if result == nil || result[:interrupted] || total_failure_number > 0
+    exit(1)
+  else
+    exit(0)
+  end
 end
 
