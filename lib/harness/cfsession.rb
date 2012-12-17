@@ -261,17 +261,15 @@ module BVT::Harness
           @client.spaces.each{ |s|
             s.apps.each {|app| app.delete!}
             s.service_instances.each {|service| service.delete!}
-            s.domains.each {|domain| domain.delete! if s.name != target_domain }
           }
         elsif (mode == "current")
           # CCNG cannot delete service which binded to application
           # therefore, remove application first
           @client.current_organization = @current_organization
           @client.current_space = @current_space
-          domains = @client.current_space.domains
           apps.each {|app| app.delete}
           services.each {|service| service.delete}
-          domains.each {|domain| domain.delete! if domain.name != target_domain }
+
         end
       else
         apps.each { |app| app.delete }

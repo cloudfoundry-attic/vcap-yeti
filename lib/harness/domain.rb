@@ -49,6 +49,7 @@ module BVT::Harness
 
     def check_domain_of_space
       space = @session.current_space
+
       domains = space.domains
       match = false
       domains.each{ |s|

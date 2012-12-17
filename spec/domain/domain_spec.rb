@@ -11,10 +11,6 @@ describe BVT::Spec::CustomDomain::Domain do
     pending("cloud controller v1 API does not support custom domain") unless @session.v2?
   end
 
-  after(:each) do
-    @session.cleanup!("current")
-  end
-
   it "create and delete custom domain" do
     @org_name = @session.current_organization.name
     new_name = 'new-domain.com'
@@ -107,11 +103,14 @@ describe BVT::Spec::CustomDomain::Domain do
 
   it "list domains in one space" do
     #create one space & setting this space as current space
-    @space = @session.space("domain-space")
-    @space.create
-    @session.select_org_and_space("",@space.name)
+    #record current space before we set new current space, so that we can reset back
+    previous_space = @session.current_space
+    space = @session.space("domain-space")
+    space.create
+    @session.select_org_and_space("",space.name)
     space = @session.current_space
-    space.name.should == @space.name
+    space.name.should == space.name
+    harness_space = BVT::Harness::Space.new(space, @session)
 
     #add newly-created custom domain into this space
     target_domain = @session.get_target_domain
@@ -148,6 +147,13 @@ describe BVT::Spec::CustomDomain::Domain do
       end
     }
 
+    #delete space
+    harness_space.delete
+
+    #reset back to previous space
+    @session.select_org_and_space("",previous_space.name)
+    space = @session.current_space
+    space.name.should == previous_space.name
   end
 
   it "push app to one custom domain" do
@@ -166,6 +172,10 @@ describe BVT::Spec::CustomDomain::Domain do
     expected_url = app.name + "." + new_domain.name
     app.stats["0"][:state].should == "RUNNING"
     app.stats["0"][:stats][:uris][0].should == expected_url
+
+    #clean up app, domain
+    app.delete
+    domain.delete
   end
 
   it "delete custom domain with apps(negative testing)" do
@@ -178,10 +188,14 @@ describe BVT::Spec::CustomDomain::Domain do
     domain.add(new_domain)
     domain.check_domain_of_space.should == true
 
-    create_push_app("simple_app", '', new_domain.name)
+    app = create_push_app("simple_app", '', new_domain.name)
 
     lambda {domain.delete}.should raise_error(RuntimeError, /The request is invalid/)
     domain.check_domain_of_org.should == true
+
+    #clean up app, domain
+    app.delete
+    domain.delete
   end
 
   it "delete custom domain that was ever bound with app" do
@@ -204,4 +218,32 @@ describe BVT::Spec::CustomDomain::Domain do
     domain.check_domain_of_org.should == false
   end
 
+  it "remove custom domain" do
+    #create one space & setting this space as current space
+    @space = @session.space("domain-space")
+    @space.create
+    @session.select_org_and_space("",@space.name)
+    space = @session.current_space
+    space.name.should == @space.name
+
+    #create newly-created custom domain
+    new_name = 'new-domain.com'
+    domain = @session.domain(new_name)
+    new_domain = domain.create
+    domain.check_domain_of_org.should be_true, "domain: #{domain.name} does not exist in org: #{@org_name}."
+
+    #add newly-created custom domain into the space
+    domain.add(new_domain)
+    domain.check_domain_of_space.should be_true, "domain: #{domain.name} does not exist in space: #{@session.current_space.name}."
+    harness_space = BVT::Harness::Space.new(space, @session)
+    harness_space.remove_domain(domain)
+
+    #check if the domain is removed from the space
+    domain.check_domain_of_space.should be_false, "domain: #{domain.name} is not successfully removed from space: #{@session.current_space.name}."
+    domain.check_domain_of_org.should be_true, "domain: #{domain.name} should not be removed from org: #{@org_name}."
+
+    #clean up domain, space
+    domain.delete
+    harness_space.delete
+  end
 end

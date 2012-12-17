@@ -2,7 +2,7 @@ require "cfoundry"
 
 module BVT::Harness
   class Space
-    attr_reader :name
+    attr_reader :name, :space
 
     def initialize(space, session)
       @space = space
@@ -12,7 +12,7 @@ module BVT::Harness
     end
 
     def inspect
-      "#<BVT::Harness::Space '#@name'>"
+      "#<BVT::Harness::Space '#@name', '#@space'>"
     end
 
     def create
@@ -53,6 +53,25 @@ module BVT::Harness
           @log.error("Fail to delete space ( #{@space.name} )" )
           raise RuntimeError, "Fail to delete space ( #{@space.name} )" +
               "\n#{e.to_s}"
+        end
+      end
+    end
+
+    def remove_domain(domain)
+      if domain != nil
+        @log.info("Remove Domain (#{domain.name} ")
+        begin
+          domains = @session.client.domains
+          domains.each{ |s|
+             if s.name == domain.name
+               @space.remove_domain(s)
+               break
+             end
+          }
+        rescue Exception => e
+          @log.error("Fail to remove domain ( #{domain.name} )" )
+          raise RuntimeError, "Fail to remove domain ( #{domain.name} )" +
+              "\n#{e.to_s}\n#{@session.print_client_logs}"
         end
       end
     end
