@@ -10,6 +10,7 @@ module BVT::Harness
       loglevel    = :debug
       config = {:level => loglevel, :file => logfile}
       Dir.mkdir(VCAP_BVT_HOME) unless Dir.exist?(VCAP_BVT_HOME)
+      VCAP::Logging.reset
       VCAP::Logging.setup_from_config(config)
     end
 

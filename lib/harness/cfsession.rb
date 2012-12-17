@@ -20,6 +20,8 @@ module BVT::Harness
         @TARGET = RakeHelper.get_target
       end
 
+      LoggerHelper::set_logger(@TARGET)
+
       @log = get_logger
       @namespace = get_namespace
       login

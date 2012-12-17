@@ -34,7 +34,6 @@ module BVT
 end
 
 require "harness/logger_helper"
-BVT::Harness::LoggerHelper::set_logger(ENV['VCAP_BVT_TARGET'])
 
 require "harness/constants"
 require "harness/color_helper"
