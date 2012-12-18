@@ -37,7 +37,7 @@ module BVT::Harness
         elsif service_manifest[:plan]
           plan = service_manifest[:plan]
         else
-          plan = @session.v2? ? "D100" : "free"
+          plan = @session.v2? ? "100" : "free"
         end
         if @session.v2?
           plans = service.service_plans.select { |p| p.name == plan}
@@ -101,7 +101,7 @@ module BVT::Harness
 
         ###default service plan
         #in v1, use 'free'; in v2, use 'D100' as default
-        default_service_plan = @session.v2? ? "D100" : "free"
+        default_service_plan = @session.v2? ? "100" : "free"
         service_manifest[:plan] ||= default_service_plan
         plan = meta[:plans].find { |p|
           p =~ /#{service_manifest[:plan]}/

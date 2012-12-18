@@ -79,7 +79,7 @@ describe BVT::Spec::Canonical::JavaSpring do
     plan = app.get_response(:get, "/properties/sources/property/cloud."+
                                   "services.#{redis_service.name}.plan").body_str
     if @session.client.info[:version] > 1
-      plan.should == 'D100'
+      plan.should == '100'
     else
       plan.should == 'free'
     end
