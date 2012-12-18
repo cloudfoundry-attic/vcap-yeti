@@ -10,15 +10,15 @@ end
 module BVT::Spec
   ## default service manifest
   MYSQL_MANIFEST            = ENV['VCAP_BVT_MYSQL_MANIFEST'] ? eval(ENV['VCAP_BVT_MYSQL_MANIFEST']) :
-                              {:vendor=>"mysql", :version=>"5.1"}
+                              {:vendor=>"mysql", :version=>"5.5"}
   REDIS_MANIFEST            = ENV['VCAP_BVT_REDIS_MANIFEST'] ? eval(ENV['VCAP_BVT_REDIS_MANIFEST']) :
-                              {:vendor => "redis", :version=>"2.2"}
+                              {:vendor => "redis", :version=>"2.6"}
   MONGODB_MANIFEST          = ENV['VCAP_BVT_MONGODB_MANIFEST'] ? eval(ENV['VCAP_BVT_MONGODB_MANIFEST']) :
-                              {:vendor => "mongodb", :version=>"2.0"}
+                              {:vendor => "mongodb", :version=>"2.2"}
   RABBITMQ_MANIFEST         = ENV['VCAP_BVT_RABBITMQ_MANIFEST'] ? eval(ENV['VCAP_BVT_RABBITMQ_MANIFEST']) :
-                              {:vendor => "rabbitmq", :version=>"2.4"}
+                              {:vendor => "rabbitmq", :version=>"2.8"}
   POSTGRESQL_MANIFEST       = ENV['VCAP_BVT_POSTGRESQL_MANIFEST'] ? eval(ENV['VCAP_BVT_POSTGRESQL_MANIFEST']) :
-                              {:vendor => "postgresql", :version=>"9.0"}
+                              {:vendor => "postgresql", :version=>"9.1"}
   NEO4J_MANIFEST            = ENV['VCAP_BVT_NEO4J_MANIFEST'] ? eval(ENV['VCAP_BVT_NEO4J_MANIFEST']) :
                               {:vendor => "neo4j", :version=>"1.4"}
   BLOB_MANIFEST             = ENV['VCAP_BVT_BLOB_MANIFEST'] ? eval(ENV['VCAP_BVT_BLOB_MANIFEST']) :
