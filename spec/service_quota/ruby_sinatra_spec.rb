@@ -117,7 +117,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
 
     # Quota Exceed, proxy will drop the connection with clients
     content = app.get_response(:post, "/service/mongodb/collection?colname=testcolB&size=1")
-    content.body_str.should =~ /Connection Blocked/
+    content.to_str.should =~ /Connection Blocked/
 
     # drop whole testcolB collection
     content = app.get_response(:delete, "/service/mongodb/collection?colname=testcolB")
