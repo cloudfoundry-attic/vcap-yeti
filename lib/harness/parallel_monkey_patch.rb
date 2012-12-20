@@ -1,4 +1,4 @@
-class Rspec_parallel
+class RspecParallel
   def reorder_tests(case_list)
     # rails console doesn't support parallel, so arrange rails console cases dispersively
     total_number = case_list.size

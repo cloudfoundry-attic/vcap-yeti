@@ -17,4 +17,4 @@ gem "rest-client"
 gem "console-vmc-plugin"
 
 gem "caldecott"
-gem "rspec_parallel", ">= 0.1.4"
+gem "rspec_parallel", ">= 0.1.6"
