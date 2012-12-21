@@ -7,10 +7,8 @@ module BVT::Spec
     def verify_service(service_manifest, app, key)
       data = "#{service_manifest[:vendor]}#{key}"
       url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
-      response = app.get_response(:post, "/service/#{url}/#{key}", data)
-      response.response_code.should equal(OK), "Response code should be #{OK}, " +
-          "however got #{response.response_code}, and body is \n#{response.body_str}"
-      app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
+      app.get_response(:post, "/service/#{url}/#{key}", data)
+      app.get_response(:get, "/service/#{url}/#{key}").to_str.should == data
     end
 
     def bind_service_and_verify(app, service_manifest)

@@ -16,7 +16,7 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
     data = "#{service_manifest[:vendor]}#{key}"
     url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
     app.get_response(:post, "/service/#{url}/#{key}", data)
-    app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
+    app.get_response(:get, "/service/#{url}/#{key}").to_str.should == data
   end
 
   def add_env(app,key,value)
@@ -31,24 +31,24 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
     app = create_push_app("broken_gem_app")
     app.stats.should_not == nil
     app.get_response(:get).should_not == nil
-    app.get_response(:get).body_str.should_not == nil
-    app.get_response(:get).body_str.should == "hello from sinatra"
+    app.get_response(:get).to_str.should_not == nil
+    app.get_response(:get).to_str.should == "hello from sinatra"
   end
 
   it "sinatra test deploy app with git gems using ruby19" do
     app = create_push_app("git_gems_app_ruby19")
     app.stats.should_not == nil
     response = app.get_response(:get,"/")
-    response.response_code.should == 200
-    response.body_str.should == "hello from git"
+    response.code.should == 200
+    response.to_str.should == "hello from git"
   end
 
   it "sinatra test deploy app with git gems using ruby18" do
     app = create_push_app("git_gems_app_ruby18")
     app.stats.should_not == nil
     response = app.get_response(:get,"/")
-    response.response_code.should == 200
-    response.body_str.should == "hello from git"
+    response.code.should == 200
+    response.to_str.should == "hello from git"
   end
 
   it "sinatra test deploy app without specifying BUNDLE_WITHOUT" do
@@ -59,8 +59,8 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
     bundle_config = app.file("app/.bundle/config")
     bundle_config.should include "BUNDLE_WITHOUT: test"
     response = app.get_response(:get,"/")
-    response.response_code.should == 200
-    response.body_str.should == "hello from sinatra"
+    response.code.should == 200
+    response.to_str.should == "hello from sinatra"
   end
 
   it "sinatra test deploy app specifying BUNDLE_WITHOUT" do
@@ -76,8 +76,8 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
     bundle_config.should include "BUNDLE_WITHOUT: development"
 
     response = app.get_response(:get, "/")
-    response.response_code.should == 200
-    response.body_str.should == "hello from sinatra"
+    response.code.should == 200
+    response.to_str.should == "hello from sinatra"
 
   end
 
@@ -95,8 +95,8 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
     bundle_config.should include "BUNDLE_WITHOUT: development:test"
 
     response = app.get_response(:get, "/")
-    response.response_code.should == 200
-    response.body_str.should == "hello from sinatra"
+    response.code.should == 200
+    response.to_str.should == "hello from sinatra"
 
   end
 
@@ -114,8 +114,8 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
     bundle_config.should_not include "BUNDLE_WITHOUT"
 
     response = app.get_response(:get, "/")
-    response.response_code.should == 200
-    response.body_str.should == "hello from sinatra"
+    response.code.should == 200
+    response.to_str.should == "hello from sinatra"
 
   end
 
@@ -140,8 +140,8 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
     staging_log.should_not include "Adding yajl-ruby-0.8.3.gem to app"
 
     response = app.get_response(:get, "/")
-    response.response_code.should == 200
-    response.body_str.should == "hello from sinatra"
+    response.code.should == 200
+    response.to_str.should == "hello from sinatra"
   end
 
 

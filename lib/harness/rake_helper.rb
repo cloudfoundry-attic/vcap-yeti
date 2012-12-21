@@ -1,7 +1,6 @@
 require "yaml"
 require "interact"
 require "harness"
-require "curb"
 require "mongo"
 require "yajl"
 require "digest/md5"
@@ -55,27 +54,25 @@ module BVT::Harness
       profile[:services] = client.system_services
       profile[:frameworks] = client.system_frameworks
       profile[:script_hash] = get_script_git_hash
+      target_without_http = @config['target'].split('//')[-1]
       $vcap_bvt_profile_file ||= File.join(BVT::Harness::VCAP_BVT_HOME,
-                                           "profile.#{@config['target']}.yml")
+                                           "profile.#{target_without_http}.yml")
       File.open($vcap_bvt_profile_file, "w") { |f| f.write YAML.dump(profile) }
     end
 
     def check_network_connection
-      easy = Curl::Easy.new
-      easy.url = "http://#{@config['target']}/info"
-      easy.resolve_mode = :ipv4
-      easy.timeout = 10
+      url = "#{@config['target']}/info"
       begin
-        easy.http_get
-      rescue Curl::Err::CurlError
+        r = RestClient.get url
+      rescue
         raise RuntimeError,
-              red("Cannot connect to target environment, #{easy.url}\n" +
+              red("Cannot connect to target environment, #{url}\n" +
                       "Please check your network connection to target environment.")
       end
-      unless easy.response_code == HTTP_RESPONSE_CODE::OK
+      unless r.code == HTTP_RESPONSE_CODE::OK
         raise RuntimeError,
-              red("URL: #{easy.url} response code does not equal to " +
-                      "#{HTTP_RESPONSE_CODE::OK}\nPlease check your target environment first.")
+              red("URL: #{url} response code is: " +
+                      "#{r.code}\nPlease check your target environment first.")
       end
     end
 
@@ -151,11 +148,12 @@ module BVT::Harness
           filepath = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, item['filename'])
           puts yellow("#{index_str}downloading\t#{item['filename']}")
           download_binary(filepath)
-          unless check_md5(filepath) == item['md5']
+          actual_md5 = check_md5(filepath)
+          unless actual_md5 == item['md5']
             puts red("#{index_str}fail to download\t\t#{item['filename']}.\n"+
                      "Might be caused by unstable network, please try again.")
           end
-          skipped << Hash['filename' => item['filename'], 'md5' => item['md5']]
+          skipped << Hash['filename' => item['filename'], 'md5' => actual_md5]
           File.open(VCAP_BVT_ASSETS_PACKAGES_MANIFEST, "w") do |f|
             f.write YAML.dump(Hash['packages' => skipped])
           end
@@ -187,12 +185,7 @@ module BVT::Harness
         target = format_target(ENV['VCAP_BVT_TARGET'])
         @multi_target_config.keys.each do |key|
           if target.include? key
-            unless key.include? target
-              value = @multi_target_config[key]
-              @multi_target_config.delete(key)
-              @multi_target_config[target] = value
-            end
-            @config = @multi_target_config[target]
+            @config = @multi_target_config[key]
             break
           end
         end
@@ -207,6 +200,9 @@ module BVT::Harness
       ## remove password
       @config['user'].delete('passwd') if @config['user']
       @config['admin'].delete('passwd') if @config['admin']
+
+      ## remove http(s) from target
+      @config['target'] = @config['target'].split('//')[-1]
 
       @multi_target_config[@config['target']] = @config
 
@@ -360,11 +356,11 @@ module BVT::Harness
     end
 
     def format_target(str)
-      prefix = %w(https:// http://)
-      prefix.each { |p|
-        str = str.gsub(p,'') if str.start_with?(p)
-      }
-      str
+      if str.start_with? 'http'
+        str
+      else
+        'https://' + str
+      end
     end
 
     private
@@ -454,21 +450,18 @@ module BVT::Harness
     end
 
     def get_assets_info
-      easy = Curl::Easy.new
-      easy.url = "#{VCAP_BVT_ASSETS_STORE_URL}/list"
-      easy.resolve_mode = :ipv4
-      easy.timeout = 10
+      url = "#{VCAP_BVT_ASSETS_STORE_URL}/list"
       begin
-        easy.http_get
-      rescue Curl::Err::CurlError
+        r = RestClient.get url
+      rescue
         raise RuntimeError,
-              red("Cannot connect to yeti assets storage server, #{easy.url}\n" +
+              red("Cannot connect to yeti assets storage server, #{url}\n" +
                       "Please check your network connection.")
       end
 
-      if easy.response_code == HTTP_RESPONSE_CODE::OK
+      if r.code == HTTP_RESPONSE_CODE::OK
         parser = Yajl::Parser.new
-        return parser.parse(easy.body_str)
+        return parser.parse(r.to_str)
       end
     end
 
@@ -478,16 +471,13 @@ module BVT::Harness
 
     def download_binary(filepath)
       filename = File.basename(filepath)
-      easy = Curl::Easy.new
-      easy.url = "#{VCAP_BVT_ASSETS_STORE_URL}/files/#{filename}"
-      easy.resolve_mode = :ipv4
-      easy.timeout = 60 * 5
+      url = "#{VCAP_BVT_ASSETS_STORE_URL}/files/#{filename}"
       begin
-        easy.http_get
+        r = RestClient.get url
         # retry once
-        unless easy.response_code == HTTP_RESPONSE_CODE::OK
+        unless r.code == HTTP_RESPONSE_CODE::OK
           sleep(1) # waiting for 1 second and try again
-          easy.http_get
+          r = RestClient.get url
         end
       rescue
         raise RuntimeError,
@@ -495,8 +485,8 @@ module BVT::Harness
                       "Please try again.")
       end
 
-      if easy.response_code == HTTP_RESPONSE_CODE::OK
-        contents = easy.body_str.chomp
+      if r.code == HTTP_RESPONSE_CODE::OK
+        contents = r.to_str.chomp
         File.open(filepath, 'wb') { |f| f.write(contents) }
       else
         raise RuntimeError, "Fail to download binary #{filename}"

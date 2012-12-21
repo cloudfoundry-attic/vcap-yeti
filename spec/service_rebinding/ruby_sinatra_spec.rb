@@ -32,8 +32,7 @@ describe BVT::Spec::ServiceRebinding::RubySinatra do
     get_db_objs(service_manifest).each do |k, v|
       res = app.get_response(:put, "/service/#{service_manifest[:vendor]}" +
                                    "/#{k}/#{v}", "")
-      res.response_code.should == OK
-      res.close
+      res.code.should == OK
     end
   end
 
@@ -41,8 +40,7 @@ describe BVT::Spec::ServiceRebinding::RubySinatra do
     get_db_objs(service_manifest).each do |k, v|
       res = app.get_response(:delete, "/service/#{service_manifest[:vendor]}" +
                                       "/#{k}/#{v}")
-      res.response_code.should == OK
-      res.close
+      res.code.should == OK
     end
   end
 
@@ -50,7 +48,7 @@ describe BVT::Spec::ServiceRebinding::RubySinatra do
     data = "#{service_manifest[:vendor]}#{key}"
     url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
     app.get_response(:post, "/service/#{url}/#{key}", data)
-    app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
+    app.get_response(:get, "/service/#{url}/#{key}").to_str.should == data
   end
 
   def post_data(key, data, service_manifest, app)
@@ -61,9 +59,8 @@ describe BVT::Spec::ServiceRebinding::RubySinatra do
   def get_data(key, data, service_manifest, app)
     url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
     res = app.get_response(:get, "/service/#{url}/#{key}")
-    res.response_code.should == OK
-    res.body_str.should == data
-    res.close
+    res.code.should == OK
+    res.to_str.should == data
   end
 
   def rebind(service_manifest, app)

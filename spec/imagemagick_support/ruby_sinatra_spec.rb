@@ -14,6 +14,6 @@ describe BVT::Spec::ImageMagicKSupport::RubySinatra do
 
   it "Deploy Ruby application that uses RMagick and ImageMagick tools" do
     app = create_push_app("sinatra_imagemagick")
-    app.get_response(:get).body_str.should == "hello from imagemagick"
+    app.get_response(:get).to_str.should == "hello from imagemagick"
   end
 end

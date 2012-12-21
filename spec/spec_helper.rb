@@ -164,17 +164,17 @@ end
 RSpec.configure do |config|
   include BVT::Harness::ColorHelpers
   config.before(:suite) do
-    BVT::Harness::RakeHelper.get_target
-    BVT::Harness::VCAP_BVT_CONFIG = BVT::Harness::RakeHelper.get_config
-    if BVT::Harness::VCAP_BVT_CONFIG.empty?
-      raise RuntimeError, "\nCannot find target #{yellow(ENV['VCAP_BVT_TARGET'])} information" +
-          " in config file #{BVT::Harness::VCAP_BVT_CONFIG_FILE}\n" +
-          "Please run #{yellow("bundle exec rake <TASK>")}, instead of rspec directly"
-    end
-
     target = BVT::Harness::RakeHelper.get_target
-    $vcap_bvt_profile_file ||= File.join(BVT::Harness::VCAP_BVT_HOME,
-                                         "profile.#{target}.yml")
+    target_without_http = target.split('//')[-1]
+    config = BVT::Harness::RakeHelper.get_config
+    profile_file = File.join(BVT::Harness::VCAP_BVT_HOME, "profile.#{target_without_http}.yml")
+    unless File.exists? profile_file
+      BVT::Harness::RakeHelper.get_user
+      BVT::Harness::RakeHelper.get_user_passwd
+      user = BVT::Harness::RakeHelper.get_config['user']
+      BVT::Harness::RakeHelper.check_environment(user)
+    end
+    $vcap_bvt_profile_file ||= profile_file
     profile = YAML.load_file($vcap_bvt_profile_file)
     BVT::Harness::VCAP_BVT_SYSTEM_FRAMEWORKS  =  profile[:frameworks]
     BVT::Harness::VCAP_BVT_SYSTEM_RUNTIMES    =  profile[:runtimes]

@@ -18,8 +18,8 @@ describe BVT::Spec::Canonical::RubyRails3 do
   end
 
   it "rails3 test deploy app" do
-    @app.get_response(:get).body_str.should == "hello from rails"
-    @app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
+    @app.get_response(:get).to_str.should == "hello from rails"
+    @app.get_response(:get, "/crash").to_str.should =~ /502 Bad Gateway/
   end
 
   it "rails test setting RAILS_ENV" do
@@ -27,7 +27,7 @@ describe BVT::Spec::Canonical::RubyRails3 do
     add_env(@app,'RAILS_ENV','development')
     @app.start
 
-    @app.get_response(:get).body_str.should == "hello from rails"
+    @app.get_response(:get).to_str.should == "hello from rails"
     logs = @app.logs
     logs.should include "starting in development"
   end

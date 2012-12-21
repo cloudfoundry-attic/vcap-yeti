@@ -16,9 +16,8 @@ describe BVT::Spec::AppPerformance::RubySinatra do
   def health_check(app)
     response = app.get_response(:get, '/healthcheck')
     response.should_not == nil
-    response.body_str.should =~ /^OK/
-    response.response_code.should == 200
-    response.close
+    response.to_str.should =~ /^OK/
+    response.code.should == 200
   end
 
   def incr_counter(app, number)
@@ -26,18 +25,16 @@ describe BVT::Spec::AppPerformance::RubySinatra do
       sleep 0.02
       response = app.get_response(:get, '/incr')
       response.should_not == nil
-      response.body_str.should =~ /^OK:/
-      response.response_code.should == 200
-      response.close
+      response.to_str.should =~ /^OK:/
+      response.code.should == 200
     end
   end
 
   def check_sum_instances(app, number, sum=true)
     response = app.get_response(:get, '/getstats')
     response.should_not == nil
-    response.response_code.should == 200
-    counters = JSON.parse(response.body_str)
-    response.close
+    response.code.should == 200
+    counters = JSON.parse(response.to_str)
 
     total_count = 0
     counters.each do |k,v|
@@ -49,15 +46,13 @@ describe BVT::Spec::AppPerformance::RubySinatra do
   def reset_counter(app)
     response = app.get_response(:get, '/reset')
     response.should_not == nil
-    response.body_str.should =~ /^OK/
-    response.response_code.should == 200
-    response.close
+    response.to_str.should =~ /^OK/
+    response.code.should == 200
 
     response = app.get_response(:get, '/getstats')
     response.should_not == nil
-    response.body_str.should =~ /^\{\}/
-    response.response_code.should == 200
-    response.close
+    response.to_str.should =~ /^\{\}/
+    response.code.should == 200
   end
 
   it "deploy redis lb app", :redis => true, :p1 => true do
@@ -85,9 +80,8 @@ describe BVT::Spec::AppPerformance::RubySinatra do
 
     response = app.get_response(:get, '/getstats')
     response.should_not == nil
-    response.response_code.should == 200
-    counters = JSON.parse(response.body_str)
-    response.close
+    response.code.should == 200
+    counters = JSON.parse(response.to_str)
 
     counters.each do |k,v|
       v.to_i.should be_within(16.5).of(30)
@@ -113,9 +107,8 @@ describe BVT::Spec::AppPerformance::RubySinatra do
 
     response = app.get_response(:get, '/services')
     response.should_not == nil
-    response.response_code.should == 200
-    service_list = JSON.parse(response.body_str)
-    response.close
+    response.code.should == 200
+    service_list = JSON.parse(response.to_str)
 
     # assert that the services list that we get from the app environment
     # matches what we expect from provisioning

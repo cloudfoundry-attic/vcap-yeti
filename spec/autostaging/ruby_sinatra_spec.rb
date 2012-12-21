@@ -33,10 +33,10 @@ describe BVT::Spec::AutoStaging::RubySinatra do
     bind_service(service_manifest, app)
     data = "#{service_manifest[:vendor]}abc"
     app.get_response(:post, "/service/amqpurl/abc", data)
-    app.get_response(:get, "/service/amqpurl/abc").body_str.should == data
+    app.get_response(:get, "/service/amqpurl/abc").to_str.should == data
 
     app.get_response(:post, "/service/amqpoptions/abc", data)
-    app.get_response(:get, "/service/amqpoptions/abc").body_str.should == data
+    app.get_response(:get, "/service/amqpoptions/abc").to_str.should == data
   end
 
   it "Autostaging with unsupported client versions", :mysql => true,
@@ -68,7 +68,7 @@ describe BVT::Spec::AutoStaging::RubySinatra do
     service_manifest = RABBITMQ_MANIFEST
     bind_service(service_manifest, app)
     data = "Connectionrefused-connect(2)-127.0.0.1:1234"
-    app.get_response(:get, "/service/carrot/connection").body_str.should == data
+    app.get_response(:get, "/service/carrot/connection").to_str.should == data
   end
 
   it "Sinatra opt-out of autostaging via config file", :redis => true do
@@ -78,7 +78,7 @@ describe BVT::Spec::AutoStaging::RubySinatra do
     service_manifest = REDIS_MANIFEST
     bind_service(service_manifest, app)
     data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
-    app.get_response(:get, "/service/#{service_manifest[:vendor]}/connection").body_str.should == data
+    app.get_response(:get, "/service/#{service_manifest[:vendor]}/connection").to_str.should == data
   end
 
   it "Sinatra opt-out of autostaging via cf-runtime gem", :redis => true do
@@ -88,6 +88,6 @@ describe BVT::Spec::AutoStaging::RubySinatra do
     service_manifest = REDIS_MANIFEST
     bind_service(service_manifest, app)
     data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
-    app.get_response(:get, "/service/#{service_manifest[:vendor]}/connection").body_str.should == data
+    app.get_response(:get, "/service/#{service_manifest[:vendor]}/connection").to_str.should == data
   end
 end

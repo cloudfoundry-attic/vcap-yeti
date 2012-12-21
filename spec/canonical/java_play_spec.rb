@@ -38,9 +38,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/tasks' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -55,9 +54,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/tasks' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -75,9 +73,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/login' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -100,9 +97,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/login' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -123,9 +119,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -143,9 +138,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -169,9 +163,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -193,9 +186,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -211,9 +203,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -230,9 +221,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -249,9 +239,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -268,9 +257,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -287,9 +275,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
-    contents.body_str.should_not    == nil
-    contents.response_code.should   == 200
-    contents.close
+    contents.to_str.should_not    == nil
+    contents.code.should   == 200
 
     log = app.logs
     log.should_not == nil
@@ -306,9 +293,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
     contents = app.get_response(:get, '/java')
     contents.should_not == nil
-    contents.body_str.should_not  == nil
-    contents.body_str.should =~ /#{version}/
-    contents.response_code.should == 200
-    contents.close
+    contents.to_str.should_not  == nil
+    contents.to_str.should =~ /#{version}/
+    contents.code.should == 200
   end
 end

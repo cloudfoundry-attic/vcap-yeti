@@ -1,5 +1,6 @@
 require "vcap/logging"
 require "yaml"
+require "rest-client"
 
 module BVT
   module Harness
@@ -29,14 +30,10 @@ module BVT
     VCAP_BVT_PARALLEL_MAX_USERS  = 16
     VCAP_BVT_PARALLEL_SYNC_FILE  = File.join(VCAP_BVT_HOME, "sync.yml")
 
-    ## multi-target config in memory
-    $target_config = {}
-
   end
 end
 
 require "harness/logger_helper"
-BVT::Harness::LoggerHelper::set_logger(ENV['VCAP_BVT_TARGET'])
 
 require "harness/constants"
 require "harness/color_helper"
@@ -60,3 +57,6 @@ require "harness/domain"
 
 ## test ccng v1 API
 require "harness/ccng-v1-test-monkey-patch" if ENV['VCAP_BVT_CCNG_V1_TEST']
+
+## exception handling in rest-client
+require "harness/restclient_monkey_patch"

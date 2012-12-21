@@ -18,8 +18,8 @@ describe BVT::Spec::Canonical::NodeNode do
   end
 
   it "node test deploy app" do
-    @app.get_response(:get).body_str.should == "hello from node"
-    @app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
+    @app.get_response(:get).to_str.should == "hello from node"
+    @app.get_response(:get, "/crash").to_str.should =~ /502 Bad Gateway/
   end
 
   it "node test mysql service", :mysql => true, :p1 => true do

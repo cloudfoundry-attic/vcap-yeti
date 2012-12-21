@@ -17,12 +17,12 @@ module BVT::Harness
       @passwd = options[:passwd] ? options[:passwd] : get_login_passwd(@is_admin)
 
       if options[:target]
-        target = RakeHelper.format_target(options[:target])
+        @TARGET = RakeHelper.format_target(options[:target])
       else
-        target = RakeHelper.get_target
+        @TARGET = RakeHelper.get_target
       end
 
-      @TARGET = "http://#{target}"
+      LoggerHelper::set_logger(@TARGET)
 
       @log = get_logger
       @namespace = get_namespace

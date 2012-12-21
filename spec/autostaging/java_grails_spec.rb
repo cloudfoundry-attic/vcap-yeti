@@ -20,8 +20,8 @@ describe BVT::Spec::AutoStaging::JavaGrails do
       key = "key-#{i}"
       value = "FooBar-#{i}"
       records[key] = value
-      response = app.get_response(:post, path, Curl::PostField.content("name", value))
-      response.response_code.should == 302
+      response = app.get_response(:post, path, "name" => value)
+      response.code.should == 302
     end
     records
   end
@@ -29,8 +29,8 @@ describe BVT::Spec::AutoStaging::JavaGrails do
   def verify_records(app, records, number, path='', xpath='//li/p')
     response = app.get_response(:get, path)
     response.should_not == nil
-    response.response_code.should == 200
-    verify_contents(records, number, response.body_str, xpath)
+    response.code.should == 200
+    verify_contents(records, number, response.to_str, xpath)
   end
 
   def verify_contents(records, count, contents, path)

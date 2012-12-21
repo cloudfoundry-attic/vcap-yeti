@@ -23,10 +23,9 @@ describe BVT::Spec::Canonical::JavaGrails do
 
     contents = app.get_response(:get)
     contents.should_not == nil
-    contents.body_str.should_not == nil
-    contents.response_code.should == 200
-    contents.body_str.should =~ /JVM version: #{version}/
-    contents.close
+    contents.to_str.should_not == nil
+    contents.code.should == 200
+    contents.to_str.should =~ /JVM version: #{version}/
 
   end
 

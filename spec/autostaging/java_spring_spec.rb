@@ -27,8 +27,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
       key = "key-#{i}"
       value = "FooBar-#{i}"
       records[key] = value
-      response = app.get_response(:post, path, Curl::PostField.content("name", value))
-      response.response_code.should == 302
+      response = app.get_response(:post, path, "name" => value)
+      response.code.should == 302
     end
     records
   end
@@ -36,8 +36,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
   def verify_records(app, records, number, path='', xpath='//li/p')
     response = app.get_response(:get, path)
     response.should_not == nil
-    response.response_code.should == 200
-    verify_contents(records, number, response.body_str, xpath)
+    response.code.should == 200
+    verify_contents(records, number, response.to_str, xpath)
   end
 
   def verify_contents(records, count, contents, path)
@@ -68,8 +68,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
     response = app.get_response(:get, "/mysql")
     response.should_not == nil
-    response.response_code.should == 200
-    response.body_str.should == 'jdbc:mysql://localhost:3306/vcap-java-test-app'
+    response.code.should == 200
+    response.to_str.should == 'jdbc:mysql://localhost:3306/vcap-java-test-app'
   end
 
   it "Spring Web Application specifying a Service Scan and Data Source",
@@ -81,8 +81,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
     response = app.get_response(:get, "/mysql")
     response.should_not == nil
-    response.response_code.should == 200
-    response.body_str.should == 'jdbc:mysql://localhost:3306/vcap-java-test-app'
+    response.code.should == 200
+    response.to_str.should == 'jdbc:mysql://localhost:3306/vcap-java-test-app'
   end
 
   it "Spring Web Application using a local MongoDBFactory", :mongodb => true do
@@ -93,8 +93,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
     response = app.get_response(:get, "/mongo")
     response.should_not == nil
-    response.response_code.should == 200
-    response.body_str.should =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
+    response.code.should == 200
+    response.to_str.should =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
   end
 
   it "Spring Web Application using a local RedisConnectionFactory",
@@ -106,8 +106,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
     response = app.get_response(:get, "/redis/host")
     response.should_not == nil
-    response.response_code.should == 200
-    response.body_str.should =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
+    response.code.should == 200
+    response.to_str.should =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
   end
 
   it "Spring Web Application using a local RabbitConnectionFactory",
@@ -119,8 +119,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
     response = app.get_response(:get, "/rabbit")
     response.should_not == nil
-    response.response_code.should == 200
-    response.body_str.should =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
+    response.code.should == 200
+    response.to_str.should =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4,5}/
   end
 
   it "Spring 3.1 Hibernate application using a local DataSource",
@@ -132,8 +132,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
     response = app.get_response(:get, "/hibernate")
     response.should_not == nil
-    response.response_code.should == 200
-    response.body_str.should == 'org.hibernate.dialect.MySQLDialect'
+    response.code.should == 200
+    response.to_str.should == 'org.hibernate.dialect.MySQLDialect'
   end
 
   it "Start Spring Web Application with no service dependencies" do
@@ -141,7 +141,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
     response = app.get_response(:get)
     response.should_not == nil
-    response.response_code.should == 200
+    response.code.should == 200
   end
 
   it "start Spring 3.1 Hibernate application with an annotation context using" +
@@ -151,8 +151,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
     response = app.get_response(:get, "/hibernate")
     response.should_not == nil
-    response.response_code.should == 200
-    response.body_str.should == 'org.hibernate.dialect.MySQLDialect'
+    response.code.should == 200
+    response.to_str.should == 'org.hibernate.dialect.MySQLDialect'
   end
 
   it "Spring Web application using JPA using mysql", :mysql => true do
@@ -229,7 +229,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
     response = app.get_response(:get)
     response.should_not == nil
-    response.response_code.should == 200
+    response.code.should == 200
   end
 
 end

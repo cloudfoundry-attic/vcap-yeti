@@ -18,8 +18,8 @@ describe BVT::Spec::Canonical::RubyRack do
   end
 
   it "rack test deploy app", :p1 => true do
-    @app.get_response(:get).body_str.should == "hello from sinatra"
-    @app.get_response(:get, "/crash").body_str.should =~ /502 Bad Gateway/
+    @app.get_response(:get).to_str.should == "hello from sinatra"
+    @app.get_response(:get, "/crash").to_str.should =~ /502 Bad Gateway/
   end
 
   it "rack test setting RACK_ENV" do
@@ -27,8 +27,8 @@ describe BVT::Spec::Canonical::RubyRack do
     @app.stop
     @app.start
 
-    @app.get_response(:get,"/rack/env").response_code.should == 200
-    @app.get_response(:get,"/rack/env").body_str.should == 'development'
+    @app.get_response(:get,"/rack/env").code.should == 200
+    @app.get_response(:get,"/rack/env").to_str.should == 'development'
   end
 
   it "rack test mysql service", :mysql => true, :p1 => true do

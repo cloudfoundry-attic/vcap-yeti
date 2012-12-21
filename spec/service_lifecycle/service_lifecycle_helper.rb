@@ -1,4 +1,5 @@
-require "rest_client"
+include BVT::Harness
+
 module BVT::Spec
   module ServiceLifecycleHelper
 
@@ -23,35 +24,37 @@ module BVT::Spec
   end
 
   def get_snapshots(service_id)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_get
-    if easy.response_code == 501
-      pending "Snapshot extension is disabled, return code=501"
-    elsif easy.response_code != 200
-      raise "code:#{easy.response_code}, body:#{easy.body_str}"
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots"
+    begin
+      r = RestClient.get(url, auth_headers)
+    rescue RestClient::Exception => e
+      if e.http_code == 501
+        pending "Snapshot extension is disabled, return code=501"
+      elsif e.http_code != 200
+        raise "code:#{e.http_code}, body:#{e.to_s}"
+      end
     end
 
-    resp = easy.body_str
+    resp = r.to_str
     resp.should_not == nil
     JSON.parse(resp)
-
   end
 
   def get_serialized_url(service_id, snapshot_id)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_get
-
-    if easy.response_code == 501
-      pending "Serialized API is disabled, return code=501"
-    elsif easy.response_code != 200
-      return nil
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}"
+    begin
+      r = RestClient.get(url, auth_headers)
+    rescue RestClient::Exception => e
+      if e.http_code == 501
+        pending "Serialized API is disabled, return code=501"
+      elsif e.http_code != 200
+        return nil
+      end
     end
 
-    resp = easy.body_str
+    return nil if r.code != 200
+
+    resp = r.to_str
     result = JSON.parse(resp)
     result["url"]
   end
@@ -59,10 +62,9 @@ module BVT::Spec
   def download_data(serialized_url)
     temp_file = Tempfile.new('serialized_data')
     File.open(temp_file.path, "wb+") do |f|
-      c = Curl::Easy.new(serialized_url)
-      c.on_body{|data| f.write(data)}
-      c.perform
-      c.response_code.should == 200
+      c = RestClient.get(serialized_url)
+      c.code.should == 200
+      f.write(c.to_str)
     end
     File.open(temp_file.path) do |f|
       f.size.should > 0
@@ -71,13 +73,10 @@ module BVT::Spec
   end
 
   def import_service_from_url(service_id, serialized_url)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url")
-    easy.headers = auth_headers
-    payload = {"url" => serialized_url}
-    easy.resolve_mode =:ipv4
-    easy.http_put(JSON payload)
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url"
+    r = RestClient.put(url, {:url=>serialized_url}.to_json, auth_headers)
 
-    resp = easy.body_str
+    resp = r.to_str
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
@@ -89,8 +88,11 @@ module BVT::Spec
 
   def import_service_from_data(service_id, serialized_data)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/data"
-    response = RestClient.put(url, {:data_file=> File.new(serialized_data.path)}, { Authorization: "#{@session.token}"})
-    job = JSON.parse(response)
+    r = RestClient.put(url, {:data_file=>File.new(serialized_data.path)}, auth_headers)
+
+    resp = r.to_str
+    resp.should_not == nil
+    job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
     job.should_not be_nil, "The job cannot be completed in 8 seconds"
     snapshot_id = job["result"]["snapshot_id"]
@@ -100,7 +102,7 @@ module BVT::Spec
 
   def parse_service_id(content, srv_name)
     service_id = nil
-    services = JSON.parse content.body_str
+    services = JSON.parse(content.to_str)
     services.each do |k, v|
       v.each do |srv|
         if srv["name"] =~ /#{srv_name}/
@@ -113,13 +115,11 @@ module BVT::Spec
   end
 
   def create_serialized_url(service_id, snapshot_id)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_post ''
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}"
+    r = RestClient.post(url, '', auth_headers)
 
-    easy.response_code.should == 200
-    resp = easy.body_str
+    r.code.should == 200
+    resp = r.to_str
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id,job["job_id"])
@@ -130,52 +130,48 @@ module BVT::Spec
   def post_and_verify_service(service_manifest, app, key, data)
       url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
       app.get_response(:post, "/service/#{url}/#{key}", data)
-      app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
+      app.get_response(:get, "/service/#{url}/#{key}").to_str.should == data
   end
 
   def verify_service(service_manifest, app, key, data)
       url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
-      app.get_response(:get, "/service/#{url}/#{key}").body_str.should == data
+      app.get_response(:get, "/service/#{url}/#{key}").to_str.should == data
   end
 
   def create_snapshot(service_id)
     url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots"
-    easy = Curl::Easy.new(url)
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_post
+    r = RestClient.post(url, '', auth_headers)
 
-    easy.response_code.should == 200
-    resp = easy.body_str
+    r.code.should == 200
+    resp = r.to_str
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
   end
 
   def get_snapshot(service_id, snapshot_id)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_get
-
-    if easy.response_code != 200
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
+    begin
+      r = RestClient.get(url, auth_headers)
+    rescue
       return nil
     end
 
-    resp = easy.body_str
+    if r.code != 200
+      return nil
+    end
+
+    resp = r.to_str
     resp.should_not == nil
     JSON.parse(resp)
   end
 
   def rollback_snapshot(service_id, snapshot_id)
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
+    r = RestClient.put(url, '', auth_headers)
 
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_put ''
-
-    easy.response_code.should == 200
-    resp = easy.body_str
+    r.code.should == 200
+    resp = r.to_str
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id,job["job_id"])
@@ -184,13 +180,11 @@ module BVT::Spec
   end
 
   def delete_snapshot(service_id, snapshot_id)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_delete
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
+    r = RestClient.delete(url, auth_headers)
 
-    easy.response_code.should == 200
-    resp = easy.body_str
+    r.code.should == 200
+    resp = r.to_str
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
@@ -214,12 +208,10 @@ module BVT::Spec
   end
 
   def get_job(service_id, job_id)
-    easy = Curl::Easy.new("#{@session.TARGET}/services/v1/configurations/#{service_id}/jobs/#{job_id}")
-    easy.headers = auth_headers
-    easy.resolve_mode =:ipv4
-    easy.http_get
+    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/jobs/#{job_id}"
+    r = RestClient.get(url, auth_headers)
 
-    resp = easy.body_str
+    resp = r.to_str
     resp.should_not == nil
     JSON.parse(resp)
   end

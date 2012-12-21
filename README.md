@@ -32,7 +32,8 @@ How to run it
     - target
     - test user/test password
     - admin user/admin password
-   <br>target should be a complete url which starts with 'api.' or 'ccng.'.
+   <br>target should be a complete url, e.g. 'http://api.*' or 'https://ccng.*'. If no
+       http or https is given, yeti will use https as default.
    <br>This information except password is saved to ~/.bvt/config.yml file.
    <br>When run the second time around, Yeti will not prompt for the information again.
 
@@ -52,8 +53,9 @@ Yeti advance:
 ```
 ||Environment Variables       ||Function            ||Example                                             ||
 |VCAP_BVT_SHOW_PENDING        |show pending cases   |true                                                  |
-|VCAP_BVT_LONGEVITY           |run testing N times  |100                                                   |
+|VCAP_BVT_LONGEVITY           |run testing N times  |100 (0 is endless)                                    |
 |VCAP_BVT_CONFIG_FILE         |specify config file  |***/config.yml                                        |
+|VCAP_BVT_CI_SINGLE_REPORT    |single reports for ci|true                                                  |
 ```
 
 Service/App related:
@@ -64,6 +66,7 @@ Service/App related:
 |SERVICE_BROKER_URL           |service broker url   |http://...                                            |
 |VCAP_BVT_SERVICE_PLAN        |service plan         |P100                                                  |
 |VCAP_BVT_REDIS_MANIFEST      |service manifest     |{:vendor=>"redis", :version=>"2.2", :provider=>"core"}|
+|VCAP_BVT_DEPLOY_MANIFEST     |deploy manifest      |<path to the file>                                    |
 |VCAP_BVT_RUNTIME             |app runtime          |{:ruby=>"ruby19", :java=>"java6", :node=>"node"}      |
 ```
 
@@ -108,7 +111,7 @@ FAQ:
       - For example, php/python is not available in the production environment so all php/python
       related test cases should be pending.
 
-2. What's update.sh?
+2. What's the update file?
    <br>A: For assets that need to be compiled such as Java applications, Yeti leverages a common
       blob store to hold all these precompiled assets.  Therefore, users do not need maven to build
       java-based applications locally, the binaries just need to be sync'd from blobs.cloudfoundry.com.
@@ -136,12 +139,11 @@ FAQ:
 
 7. What runtimes/frameworks/services should my environment have?
    <br>Dev setup:
-   - runtimes: java, ruby18, ruby19, node, node06, node08, php, python2, erlangR14B01
+   - runtimes: java6, java7, ruby18, ruby19, ruby1.9.3, node04, node06, node08, php, python2, erlang
    - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone, php,
    django, wsgi, otp_rebar
-   - services: mongodb, mysql, postgresql, rabbitmq, redis, vblob, filesystem
-   <br>(env variable CLOUD_FOUNDRY_EXCLUDED_COMPONENT can disable components, for details, please
-   check README under vcap/dev_setup.)
+   - services: mongodb, mysql, postgresql, rabbitmq, redis, vblob, memcached, elasticsearch, couchdb,
+   neo4j, echo, filesystem
 
    Dev instance:
    - runtimes: java, java7, ruby18, ruby19, node, node06, node08
@@ -153,7 +155,7 @@ FAQ:
    - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone
    - services: mongodb, mysql, postgresql, rabbitmq, redis
 
-   (updated on July 19th, 2012)
+   (updated on Dec 17th, 2012)
 
 8. Runtime errors
    <br>Sometimes runtime errors happen during Yeti execution,
@@ -200,9 +202,9 @@ Rake Tasks:
 - mcf
 <br>run Micro Cloud Foundry tests
 <br>e.g. rake mcf\[5\] (default to 10, max = 16)
-- rerun_failure
+- rerun
 <br>rerun failed cases of the last run
-<br>e.g. rake rerun_failure\[5\] (default to 10, max = 16)
+<br>e.g. rake rerun\[5\] (default to 10, max = 16)
 - clean
 <br>clean up test environment(only run this task after interruption).
 <br>1, Remove all apps and services under test user

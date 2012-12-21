@@ -19,8 +19,8 @@ describe BVT::Spec::Simple::RubyRails3 do
     runtime = @app.manifest['runtime']
     version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version].split("p",2).first
     @app.get_response(:get).should_not == nil
-    @app.get_response(:get).body_str.should_not == nil
-    @app.get_response(:get).body_str.should == "running version "+version
+    @app.get_response(:get).to_str.should_not == nil
+    @app.get_response(:get).to_str.should == "running version "+version
   end
 
   it "precompiles assets" do
@@ -28,9 +28,9 @@ describe BVT::Spec::Simple::RubyRails3 do
     @app.stats.should_not == nil
     res = @app.get_response(:get, "/assets/manifest.yml")
     res.should_not == nil
-    res.body_str.should match /application.js: application-\w/
+    res.to_str.should match /application.js: application-\w/
     res = @app.get_response(:get, "/assets/application.js")
-    res.body_str.should match /alert\(\"Hello from CoffeeScript!\"\)/
+    res.to_str.should match /alert\(\"Hello from CoffeeScript!\"\)/
   end
 
 end

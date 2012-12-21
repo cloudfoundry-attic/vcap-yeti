@@ -28,26 +28,26 @@ describe BVT::Spec::AutoStaging::RubyStandalone do
 
   it "standalone ruby opt-out of autostaging via config file", :redis => true do
     app = create_push_app("standalone_ruby_autoconfig_disabled_by_file")
-    app.get_response(:get).body_str.should == "hello from sinatra"
+    app.get_response(:get).to_str.should == "hello from sinatra"
 
     # provision service
     service_manifest = REDIS_MANIFEST
     bind_service(service_manifest, app)
     data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
     res = app.get_response(:get, "/service/#{service_manifest[:vendor]}/connection")
-    res.body_str.should == data
+    res.to_str.should == data
   end
 
   it "standalone ruby opt-out of autostaging via cf-runtime gem", :redis => true do
     app = create_push_app("standalone_ruby_autoconfig_disabled_by_gem")
-    app.get_response(:get).body_str.should == "hello from sinatra"
+    app.get_response(:get).to_str.should == "hello from sinatra"
 
     # provision service
     service_manifest = REDIS_MANIFEST
     bind_service(service_manifest, app)
     data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
     res = app.get_response(:get, "/service/#{service_manifest[:vendor]}/connection")
-    res.body_str.should == data
+    res.to_str.should == data
   end
 
 end

@@ -326,7 +326,7 @@ module BVT::Harness
     end
 
     # method should be REST method, only [:get, :put, :post, :delete] is supported
-    def get_response(method, relative_path = "/", data = nil, second_domain = nil)
+    def get_response(method, relative_path = "/", data = '', second_domain = nil)
       unless [:get, :put, :post, :delete].include?(method)
         @log.error("REST method #{method} is not supported")
         raise RuntimeError, "REST method #{method} is not supported"
@@ -334,32 +334,34 @@ module BVT::Harness
 
       path = relative_path.start_with?("/") ? relative_path : "/" + relative_path
 
-      easy              = Curl::Easy.new
-      easy.url          = get_url(second_domain) + path
-      easy.resolve_mode = :ipv4
+      url = get_url(second_domain) + path
       begin
         case method
           when :get
-            @log.debug("Get response from URL: #{easy.url}")
-            easy.http_get
+            @log.debug("Get response from URL: #{url}")
+            r = RestClient.get url
           when :put
-            @log.debug("Put data: #{data} to URL: #{easy.url}")
-            easy.http_put(data)
+            @log.debug("Put data: #{data} to URL: #{url}")
+            r = RestClient.put url, data
           when :post
-            @log.debug("Post data: #{data} to URL: #{easy.url}")
-            easy.http_post(data)
+            @log.debug("Post data: #{data} to URL: #{url}")
+            r = RestClient.post url, data
           when :delete
-            @log.debug("Delete URL: #{easy.url}")
-            easy.http_delete
+            @log.debug("Delete URL: #{url}")
+            r = RestClient.delete url
           else nil
         end
         # Time dependency
         # Some app's post is async. Sleep to ensure the operation is done.
         sleep 0.1
-        return easy
-      rescue Exception => e
-        @log.error("Cannot #{method} response from/to #{easy.url}\n#{e.to_s}")
-        raise RuntimeError, "Cannot #{method} response from/to #{easy.url}\n#{e.to_s}\n#{@session.print_client_logs}"
+        return r
+      rescue RestClient::Exception => e
+        begin
+          RestResult.new(e.http_code, e.http_body)
+        rescue
+          @log.error("Cannot #{method} response from/to #{url}\n#{e.to_s}")
+          raise RuntimeError, "Cannot #{method} response from/to #{url}\n#{e.to_s}"
+        end
       end
     end
 
@@ -404,8 +406,7 @@ module BVT::Harness
       # '_' is not a valid character for hostname according to RFC 822,
       # use '-' to replace it.
       second_domain = "-#{second_domain}" if second_domain
-      domain_name = @session.TARGET.split(".", 2).last
-      "#{@name}#{second_domain}.#{domain_name}".gsub("_", "-")
+      "#{@name}#{second_domain}.#{@session.TARGET.gsub(/http[s]?:\/\/\w+\./, "")}".gsub("_", "-")
     end
 
     private
@@ -554,5 +555,15 @@ module BVT::Harness
       end
     end
 
+  end
+
+  class RestResult
+    attr_reader :code
+    attr_reader :to_str
+
+    def initialize(code, to_str)
+      @code = code
+      @to_str = to_str
+    end
   end
 end

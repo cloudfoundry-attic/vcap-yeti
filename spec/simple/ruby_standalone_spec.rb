@@ -19,7 +19,7 @@ describe BVT::Spec::Simple::RubyStandalone do
 
   it "Bundled app with ruby runtime" do
     app = create_push_app("standalone_ruby_app")
-    app.get_response(:get).body_str.should == "running version #{get_version(app)}"
+    app.get_response(:get).to_str.should == "running version #{get_version(app)}"
   end
 
   it "Simple app with ruby runtime and no URL", :p1 => true do

@@ -42,8 +42,8 @@ describe BVT::Spec::Canonical::JavaLift do
 
     response = app.get_response(:get)
     response.should_not == nil
-    response.response_code.should == 200
-    response.body_str.should =~ /scala_lift/
+    response.code.should == 200
+    response.to_str.should =~ /scala_lift/
   end
 
   it "start Scala / Lift application and add some records", :mysql => true,

@@ -17,8 +17,8 @@ describe BVT::Spec::AutoStaging::RubyRails3 do
   def verify_rails_db_app(app, relative_path)
     response = app.get_response(:get, relative_path)
     response.should_not == nil
-    response.response_code.should == BVT::Harness::HTTP_RESPONSE_CODE::OK
-    p = JSON.parse(response.body_str)
+    response.code.should == BVT::Harness::HTTP_RESPONSE_CODE::OK
+    p = JSON.parse(response.to_str)
     p['operation'].should == 'success'
   end
 
@@ -27,7 +27,7 @@ describe BVT::Spec::AutoStaging::RubyRails3 do
     app.push
     app.healthy?.should be_true, "Application #{app.name} is not running"
     widget_name = "somewidget"
-    app.get_response(:get, "/make_widget/#{widget_name}").body_str.should == \
+    app.get_response(:get, "/make_widget/#{widget_name}").to_str.should == \
       "Saved #{widget_name}"
   end
 
@@ -65,7 +65,7 @@ describe BVT::Spec::AutoStaging::RubyRails3 do
     app = create_app("app_rails_service_autoconfig")
     app.push(services)
     app.healthy?.should be_true, "Application #{app.name} is not running"
-    app.get_response(:get).body_str.should == "hello from rails"
+    app.get_response(:get).to_str.should == "hello from rails"
 
     service_manifests.each {|manifest| verify_service_autostaging(manifest, app)}
     services = @session.services
@@ -87,11 +87,11 @@ describe BVT::Spec::AutoStaging::RubyRails3 do
     app = create_app("rails_autoconfig_disabled_by_file")
     app.push(services)
     app.healthy?.should be_true, "Application #{app.name} is not running"
-    app.get_response(:get).body_str.should == "hello from rails"
+    app.get_response(:get).to_str.should == "hello from rails"
 
     key = "connection"
     data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
-    app.get_response(:get, "/service/redis/#{key}").body_str.should == data
+    app.get_response(:get, "/service/redis/#{key}").to_str.should == data
   end
 
   it "Rails opt-out of autokstaging via cf-runtime gem", :mysql => true,
@@ -104,10 +104,10 @@ describe BVT::Spec::AutoStaging::RubyRails3 do
     app = create_app("rails_autoconfig_disabled_by_gem")
     app.push(services)
     app.healthy?.should be_true, "Application #{app.name} is not running"
-    app.get_response(:get).body_str.should == "hello from rails"
+    app.get_response(:get).to_str.should == "hello from rails"
 
     key = "connection"
     data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
-    app.get_response(:get, "/service/redis/#{key}").body_str.should == data
+    app.get_response(:get, "/service/redis/#{key}").to_str.should == data
   end
 end

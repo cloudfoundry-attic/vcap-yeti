@@ -8,7 +8,7 @@ describe BVT::Spec::Simple::Update::RubySinatra do
   VAR_REDUCE_INSTANCE = 3
   VAR_USE_MEMORY      = 64
 
-  before(:all) do
+  before(:each) do
     @session = BVT::Harness::CFSession.new
   end
 
@@ -32,27 +32,29 @@ describe BVT::Spec::Simple::Update::RubySinatra do
 
   it "map and unmap a url for the application to respond to", :p1 => true do
     response = @app.get_response(:get, "/")
-    response.body_str.should =~ /Hello from VCAP!/
+    response.to_str.should =~ /Hello from VCAP!/
 
+    sleep 0.1
+    @app.urls.length.should == 1
     second_domain_name = "new-app-url"
     new_url = @app.get_url(second_domain_name)
     @app.map(new_url)
     response = @app.get_response(:get, "/", nil, second_domain_name)
-    response.body_str.should =~ /Hello from VCAP!/
-    @app.get_response(:get).body_str.should =~ /Hello from VCAP!/
+    response.to_str.should =~ /Hello from VCAP!/
+    @app.get_response(:get).to_str.should =~ /Hello from VCAP!/
 
     url = @app.get_url
     @app.unmap(url)
     response = @app.get_response(:get, "/", nil, second_domain_name)
-    response.body_str.should =~ /Hello from VCAP!/
-    @app.get_response(:get).body_str.should =~ /404 Not Found/
+    response.to_str.should =~ /Hello from VCAP!/
+    @app.get_response(:get).to_str.should =~ /404 Not Found/
     @app.urls.length.should be(1), "There are more than one url" +
         " mapped to application: #{@app.name}"
   end
 
   it "redeploy application", :p1 => true do
     @app.push(nil, "modified_simple_app2")
-    @app.get_response(:get).body_str.should =~ /Hello from modified VCAP/
+    @app.get_response(:get).to_str.should =~ /Hello from modified VCAP/
   end
 
 end
