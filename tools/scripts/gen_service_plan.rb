@@ -47,32 +47,47 @@ fd = open(options[:output], File::RDWR|File::TRUNC|File::CREAT, 0755)
 fd.write "#!/bin/bash\n"
 
 empty = true
-SERVICE_LIST=['mysql','mongodb','redis','rabbit','postgresql','vblob']
+first_line = true
+SERVICE_LIST=['mysql','mongodb','redis','rabbit','postgresql','blob']
 refs['jobs'].each do |job|
   SERVICE_LIST.each do |service|
     next if options[:service] and service != options[:service]
     if job['name'] =~ /^#{service}_node.*$/ then
-      if service != 'vblob' then
+      if service != 'blob' then
         service_default_version = job['properties']["#{service}_node"]['default_version']
         service_plan =  job['properties']['plan']
         next if options[:plan] and service_plan != options[:plan]
-        fd.write "# Run #{service} with plan #{service_plan} and version #{service_default_version}\n"
-        fd.write "export VCAP_BVT_SERVICE_PLAN=#{service_plan}\n"
-        fd.write "export #{service.upcase}_MANIFEST='{:vendor=>\"#{service}\", :version => \"#{service_default_version}\"}'\n"
-        fd.write "bundle exec rake services\n"
+        if options[:servive] or first_line
+          if options[:service]
+            fd.write "# Run #{service} with plan #{service_plan} and version #{service_default_version}\n"
+          else
+            fd.write "# Run plan #{service_plan}\n"
+          end
+          fd.write "export VCAP_BVT_SERVICE_PLAN=#{service_plan}\n"
+          first_line = false
+        end
+        fd.write "export VCAP_BVT_#{service.upcase}_MANIFEST='{:vendor=>\"#{service}\", :version => \"#{service_default_version}\"}'\n"
+        fd.write "bundle exec rake services\n" if options[:service]
         empty = false
       else
         next if options[:plan] and service_plan != options[:plan]
-        fd.write "export VCAP_BVT_SERVICE_PLAN=#{service_plan}\n"
-        fd.write "bundle exec rake service\n"
+        if options[:service] or first_line
+          fd.write "export VCAP_BVT_SERVICE_PLAN=#{service_plan}\n"
+          first_line = false
+        end
+        fd.write "bundle exec rake services\n" if options[:serivce]
         empty = false
       end
     end
   end
 end
-fd.close
 if empty
   puts "can't find any matched service plan"
+  fd.close
   exit(-1)
 end
 
+fd.write "bundle exec rake services\n" unless options[:service]
+fd.close
+
+exit(0)
