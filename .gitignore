@@ -9,3 +9,4 @@ vendor/
 .bundle/
 .gitreview
 reports/
+tools/service_plan_version_test.sh

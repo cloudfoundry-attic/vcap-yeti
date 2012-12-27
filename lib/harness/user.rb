@@ -31,8 +31,11 @@ module BVT::Harness
       begin
         @user.delete!
       rescue Exception => e
-        @log.error("Failed to delete user")
-        raise RuntimeError, "Failed to delete user.\n#{e.to_s}"
+        # if @user has been deleted, ignore the exception
+        unless @user
+          @log.error("Failed to delete user")
+          raise RuntimeError, "Failed to delete user.\n#{e.to_s}"
+        end
       end
     end
 
