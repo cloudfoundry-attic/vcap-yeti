@@ -15,8 +15,8 @@ describe BVT::Spec::Canonical::JavaPlay do
 
   def bind_service_to_unstarted_app(service, app)
     manifest = {}
-    manifest['services'] = [service]
-    app.update!(manifest)
+    app.services = [service]
+    app.update!
   end
 
   def verify_file(file_list, file1)

@@ -40,11 +40,9 @@ module BVT::Harness
       end
     end
 
-    def update!(what = {})
-      @log.info("Update App: #{@app.name}, what = #{what}")
+    def update!
+      @log.info("Update App: #{@app.name}")
       begin
-        env = what['env'] || {}
-        @app.env = env
         @app.update!
         restart
       rescue Exception => e
@@ -277,6 +275,62 @@ module BVT::Harness
       rescue
         @log.error("Fail to list the instances for Application: #{@app.name}!")
         raise RuntimeError, "Fail to list the instances for Application: #{@app.name}!\n#{@session.print_client_logs}"
+      end
+    end
+
+    def total_instances=(val)
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
+      end
+      begin
+        @log.debug("Set application: #{@app.name} total instances #{val}")
+        @app.total_instances = val
+      rescue
+        @log.error("Fail to set the total instances for Application: #{@app.name}!")
+        raise RuntimeError, "Fail to set the total instances for Application: #{@app.name}!\n#{@session.print_client_logs}"
+      end
+    end
+
+    def total_instances
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
+      end
+      begin
+        @log.debug("Get application: #{@app.name} total instances")
+        @app.total_instances
+      rescue
+        @log.error("Fail to get the total instances for Application: #{@app.name}!")
+        raise RuntimeError, "Fail to get the total instances for Application: #{@app.name}!\n#{@session.print_client_logs}"
+      end
+    end
+
+    def env
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
+      end
+      begin
+        @log.debug("Get application: #{@app.name} env")
+        @app.env
+      rescue
+        @log.error("Fail to get the env for Application: #{@app.name}!")
+        raise RuntimeError, "Fail to get the env for Application: #{@app.name}!\n#{@session.print_client_logs}"
+      end
+    end
+
+    def env=(val)
+      unless @app.exists?
+        @log.error "Application: #{@app.name} does not exist!"
+        raise RuntimeError, "Application: #{@app.name} does not exist!"
+      end
+      begin
+        @log.debug("Set application: #{@app.name} env #{val}")
+        @app.env = val
+      rescue
+        @log.error("Fail to set the env for Application: #{@app.name}!")
+        raise RuntimeError, "Fail to set the env for Application: #{@app.name}!\n#{@session.print_client_logs}"
       end
     end
 

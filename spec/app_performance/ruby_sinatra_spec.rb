@@ -63,9 +63,8 @@ describe BVT::Spec::AppPerformance::RubySinatra do
     incr_counter(app, 5)
     reset_counter(app)
 
-    manifest = {}
-    manifest[:total_instances] = 5
-    app.update!(manifest)
+    app.total_instances = 5
+    app.update!
     app.instances.length.should == 5
 
     sleep 1

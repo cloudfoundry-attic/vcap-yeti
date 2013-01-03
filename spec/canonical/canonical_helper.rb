@@ -18,9 +18,8 @@ module BVT::Spec
 
     def add_env(app, key, value)
       env = {"#{key}"=>"#{value}"}
-      manifest = {}
-      manifest['env'] = env
-      app.update!(manifest)
+      app.env = env
+      app.update!
     end
   end
 end
