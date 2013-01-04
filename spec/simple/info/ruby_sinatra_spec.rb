@@ -83,7 +83,6 @@ describe BVT::Spec::Simple::Info::RubySinatra do
 
     crashes = get_crashes(app.name)
 
-    sleep 1
     crash = crashes.first
     crash.since.should_not == nil
 
@@ -94,7 +93,7 @@ describe BVT::Spec::Simple::Info::RubySinatra do
   it "get crash information for a broken application" do
     app = create_app("broken_app")
     app.push(nil, nil, false)
-    sleep 1
+
     crashes = get_crashes(app.name)
     crash = crashes.first
 
@@ -105,7 +104,16 @@ describe BVT::Spec::Simple::Info::RubySinatra do
 
   def get_crashes(name)
     app = @client.app_by_name(name)
-    app.crashes
+    retries = 5
+
+    crashes = app.crashes
+    while crashes.empty? && retries > 0
+      sleep 1
+      retries -= 1
+      crashes = app.crashes
+    end
+
+    crashes
   end
 
 end
