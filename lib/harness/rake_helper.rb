@@ -473,11 +473,15 @@ module BVT::Harness
       filename = File.basename(filepath)
       url = "#{VCAP_BVT_ASSETS_STORE_URL}/files/#{filename}"
       begin
-        r = RestClient.get url
-        # retry once
-        unless r.code == HTTP_RESPONSE_CODE::OK
-          sleep(1) # waiting for 1 second and try again
-          r = RestClient.get url
+        # retry 5 times if download failed
+        5.times do
+          begin
+            r = RestClient.get url
+          rescue
+            next
+          end
+          break if r.code == HTTP_RESPONSE_CODE::OK
+          sleep(1)
         end
       rescue
         raise RuntimeError,
