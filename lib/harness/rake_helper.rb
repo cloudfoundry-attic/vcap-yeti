@@ -472,6 +472,7 @@ module BVT::Harness
     def download_binary(filepath)
       filename = File.basename(filepath)
       url = "#{VCAP_BVT_ASSETS_STORE_URL}/files/#{filename}"
+      r = nil
       begin
         # retry 5 times if download failed
         5.times do
@@ -489,7 +490,7 @@ module BVT::Harness
                       "Please try again.")
       end
 
-      if r.code == HTTP_RESPONSE_CODE::OK
+      if r && r.code == HTTP_RESPONSE_CODE::OK
         contents = r.to_str.chomp
         File.open(filepath, 'wb') { |f| f.write(contents) }
       else
