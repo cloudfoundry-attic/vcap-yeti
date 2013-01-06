@@ -90,19 +90,10 @@ module BVT::Harness
     def system_runtimes
       @log.debug "get system runtimes, target: #{@TARGET}"
       runtimes = {}
-      if v2?
-        system_runtimes = @client.runtimes
-        system_runtimes.each{ |r|
-          runtimes[r.name] = {}
-          runtimes[r.name][:name] = r.name
-          runtimes[r.name][:description] = r.description
-        }
-      else
-        @info ||= @client.info
-        @info[:frameworks].each do |_, f|
-          f[:runtimes].each do |r|
-            runtimes[r[:name]] = r
-          end
+      @info ||= @client.info
+      @info[:frameworks].each do |_, f|
+        f[:runtimes].each do |r|
+          runtimes[r[:name]] = r
         end
       end
       runtimes
