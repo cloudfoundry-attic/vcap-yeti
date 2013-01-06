@@ -1,6 +1,8 @@
 #!/usr/bin/ruby
 require 'optparse'
 require 'yaml'
+require 'syck'
+YAML::ENGINE.yamler = 'syck'
 
 options = {}
 
@@ -48,16 +50,16 @@ fd.write "#!/bin/bash\n"
 
 empty = true
 first_line = true
-SERVICE_LIST=['mysql','mongodb','redis','rabbit','postgresql','blob']
+SERVICE_LIST=['mysql','mongodb','redis','rabbit','postgresql','vblob']
 refs['jobs'].each do |job|
   SERVICE_LIST.each do |service|
     next if options[:service] and service != options[:service]
     if job['name'] =~ /^#{service}_node.*$/ then
-      if service != 'blob' then
+      if service != 'vblob' then
         service_default_version = job['properties']["#{service}_node"]['default_version']
         service_plan =  job['properties']['plan']
         next if options[:plan] and service_plan != options[:plan]
-        if options[:servive] or first_line
+        if options[:service] or first_line
           if options[:service]
             fd.write "# Run #{service} with plan #{service_plan} and version #{service_default_version}\n"
           else
@@ -66,7 +68,11 @@ refs['jobs'].each do |job|
           fd.write "export VCAP_BVT_SERVICE_PLAN=#{service_plan}\n"
           first_line = false
         end
-        fd.write "export VCAP_BVT_#{service.upcase}_MANIFEST='{:vendor=>\"#{service}\", :version => \"#{service_default_version}\"}'\n"
+        if service == 'rabbit'
+          fd.write "export VCAP_BVT_RABBITMQ_MANIFEST='{:vendor=>\"rabbitmq\", :version => \"#{service_default_version}\"}'\n"
+        else
+          fd.write "export VCAP_BVT_#{service.upcase}_MANIFEST='{:vendor=>\"#{service}\", :version => \"#{service_default_version}\"}'\n"
+        end
         fd.write "bundle exec rake services\n" if options[:service]
         empty = false
       else
@@ -75,7 +81,7 @@ refs['jobs'].each do |job|
           fd.write "export VCAP_BVT_SERVICE_PLAN=#{service_plan}\n"
           first_line = false
         end
-        fd.write "bundle exec rake services\n" if options[:serivce]
+        fd.write "bundle exec rake services\n" if options[:service]
         empty = false
       end
     end

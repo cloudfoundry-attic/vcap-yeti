@@ -1,7 +1,5 @@
 require "vcap/logging"
 require "yaml"
-require 'syck'
-YAML::ENGINE.yamler = 'syck'
 
 module Tools
   VCAP_BVT_HOME                     = File.join(ENV['HOME'], '.bvt')
