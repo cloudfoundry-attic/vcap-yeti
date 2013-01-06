@@ -275,6 +275,12 @@ service_quota_app:
   memory: 512
   path: "assets/sinatra/app_sinatra_service_quota/"
 
+redis_conn_quota_app:
+  framework: "sinatra"
+  category: "ruby"
+  memory: 64
+  path: "assets/sinatra/app_sinatra_service_quota/"
+
 amqp_autoconfig:
   framework: "sinatra"
   instances: 1
