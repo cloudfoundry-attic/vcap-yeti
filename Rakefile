@@ -209,13 +209,14 @@ def longevity(threads, filter, rerun=false)
     actual_loop_number += 1
   end
   puts yellow("longevity finished!")
-  puts yellow("loop number:    #{actual_loop_number}")
+  puts yellow("loops: #{actual_loop_number}")
   t1 = Time.now
   running_time = (t1 - time_start).to_i
-  puts yellow("total running time: #{running_time} seconds")
-  puts "total case number: #{total_case_number}"
-  puts red("total failure number: #{total_failure_number}")
-  puts yellow("total pending number: #{total_pending_number}")
+  puts yellow("duration: #{running_time}s")
+  puts "examples: #{total_case_number}"
+  puts red("failures: #{total_failure_number}")
+  puts yellow("pending: #{total_pending_number}")
+
   if result == nil || result[:interrupted] || total_failure_number > 0
     exit(1)
   else
