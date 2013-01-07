@@ -68,6 +68,7 @@ describe BVT::Spec::OrgSpace::Space do
   end
 
   it "test create and delete app/route in space" do
+    pending "This test needs to be implemented based on correct expectations"
     use_space("new_space")
 
     @app = create_push_app("simple_app")
@@ -82,7 +83,13 @@ describe BVT::Spec::OrgSpace::Space do
 
     @app.delete
     space.apps.should == []
-    @session.client.routes.should == []
+    # This is NOT the correct behavior.  Deletion of an app does not cause
+    # associated routes to be deleted.  This is by design.  Otherwise,
+    # someone can route snipe.
+    #
+    # If this test is supposed to be testing route deletion, it needs to
+    # actually delete routes.
+    # @session.client.routes.should == []
 
     @space.delete(true)
   end
