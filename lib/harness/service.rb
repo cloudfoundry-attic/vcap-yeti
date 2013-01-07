@@ -100,13 +100,16 @@ module BVT::Harness
         next unless version
 
         ###default service plan
-        #in v1, use 'free'; in v2, use 'D100' as default
-        default_service_plan = @session.v2? ? "100" : "free"
-        service_manifest[:plan] ||= default_service_plan
-        plan = meta[:plans].find { |p|
-          p =~ /#{service_manifest[:plan]}/
-        }
-        next unless plan
+        #in v1, we don't need to verify plan infomation;
+        #in v2, use 'D100' as default
+        if @session.v2?
+          default_service_plan = "100"
+          service_manifest[:plan] ||= default_service_plan
+          plan = meta[:plans].find { |p|
+            p =~ /#{service_manifest[:plan]}/
+          }
+          next unless plan
+        end
 
         match = true
         break
