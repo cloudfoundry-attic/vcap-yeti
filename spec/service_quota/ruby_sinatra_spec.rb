@@ -38,7 +38,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     content = app.get_response(:post, "/service/mysql/querytime/#{max_long_query-1}")
     content.to_str.should == "OK"
 
-    content = app.get_response(:post, "/service/mysql/querytime/#{max_long_query+2}")
+    content = app.get_response(:post, "/service/mysql/querytime/#{max_long_query*1.5}")
     content.to_str.should == "query interrupted"
   end
 
@@ -50,7 +50,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     content = app.get_response(:post, "/service/postgresql/querytime/#{max_long_query-1}")
     content.to_str.should == "OK"
 
-    content = app.get_response(:post, "/service/postgresql/querytime/#{max_long_query+2}")
+    content = app.get_response(:post, "/service/postgresql/querytime/#{max_long_query*1.5}")
     content.to_str.should == "query interrupted"
   end
 
@@ -60,11 +60,15 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
 
     is_kill_long_tx?("mysql")
 
+    # max_long_tx could be much larger than client's default request timeout
+    # e.g Default request timeout of RestClient is 60 seconds
     max_long_tx = SERVICE_QUOTA['mysql']['max_long_tx']
-    content = app.get_response(:post, "/service/mysql/txtime/#{max_long_tx-1}")
+    request_timeout = (max_long_tx * 1.5) * 1000
+
+    content = app.get_response(:post, "/service/mysql/txtime/#{max_long_tx-1}", "", nil, request_timeout)
     content.to_str.should == "OK"
 
-    content = app.get_response(:post, "/service/mysql/txtime/#{max_long_tx*1.5}")
+    content = app.get_response(:post, "/service/mysql/txtime/#{max_long_tx*1.5}", "", nil, request_timeout)
     content.to_str.should == "transaction interrupted"
   end
 
@@ -75,10 +79,12 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     is_kill_long_tx?("postgresql")
 
     max_long_tx = SERVICE_QUOTA['postgresql']['max_long_tx']
-    content = app.get_response(:post, "/service/postgresql/txtime/#{max_long_tx-1}")
+    request_timeout = (max_long_tx * 1.5) * 1000
+
+    content = app.get_response(:post, "/service/postgresql/txtime/#{max_long_tx-1}", "", nil, request_timeout)
     content.to_str.should == "OK"
 
-    content = app.get_response(:post, "/service/postgresql/txtime/#{max_long_tx*1.5}")
+    content = app.get_response(:post, "/service/postgresql/txtime/#{max_long_tx*1.5}", "", nil, request_timeout)
     content.to_str.should == "transaction interrupted"
   end
 
