@@ -69,7 +69,7 @@ module BVT::Harness
 
     def delete
       if @domain.exists?
-        @log.info("Delete Domain (#{@domain.name} ")
+        @log.info("Delete Domain (#{@domain.name}) ")
 
         begin
           @domain.delete!

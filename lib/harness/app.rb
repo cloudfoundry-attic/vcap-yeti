@@ -32,11 +32,25 @@ module BVT::Harness
     def delete
       @log.info("Delete App: #{@app.name}")
       begin
-        @app.routes.each(&:delete!) if @session.v2?
+        if @session.v2?
+          @app.routes.each do |r|
+            @log.debug("Delete route #{r.host}.#{r.domain.name} from app: #{@app.name}")
+            r.delete!
+          end
+        end
         @app.delete!
-      rescue
+      rescue Exception => e
         @log.error "Delete App: #{@app.name} failed. "
-        raise RuntimeError, "Delete App: #{@app.name} failed.\n#{@session.print_client_logs}"
+        raise RuntimeError, "Delete App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
+      end
+    end
+
+    def routes
+      begin
+        @app.routes
+      rescue Exception => e
+        @log.error "Get routes failed. App: #{@app.name}"
+        raise RuntimeError, "Get routes failed. App: #{@app.name}\n#{e.to_s}\n#{@session.print_client_logs}"
       end
     end
 

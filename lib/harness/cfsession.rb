@@ -355,7 +355,7 @@ module BVT::Harness
 
     def parse_log_line(item)
       date        = item[:response][:headers]["date"]
-      time        = item[:time]
+      time        = "%.6f" % item[:time].to_f
       rest_method = item[:request][:method].upcase
       code        = item[:response][:code]
       url         = item[:request][:url]

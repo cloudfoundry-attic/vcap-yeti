@@ -246,4 +246,53 @@ describe BVT::Spec::CustomDomain::Domain do
     domain.delete
     harness_space.delete
   end
+
+  it "app can be bound to the routes based of custom domain" do
+    pending("pending due to bug, https://www.pivotaltracker.com/projects/196887#!/stories/42119197")
+    #add multiple custom domains
+    num_domain = 4
+    domain_array = []
+    num_domain.times do |i|
+      new_name = "new-domain#{i + 5}.com"
+      domain = @session.domain(new_name)
+      new_domain = domain.create
+      domain.check_domain_of_org.should == true
+      domain.add(new_domain)
+      domain_array << domain.name
+      domain.check_domain_of_space.should == true
+    end
+
+    #push app into one new domain and check if app is successfully pushed to custom domain
+    app = create_push_app("simple_app", '', domain_array[0])
+    expected_url = app.name + "." + domain_array[0]
+    app.stats["0"][:state].should == "RUNNING"
+    app.stats["0"][:stats][:uris][0].should == expected_url
+
+    #map this app to other custom domains
+    domain_array.each { |d| app.map("#{app.name}.#{d}")}
+
+    #check route list
+    routes = @session.client.routes.select { |r| r.host == app.name }
+    routes.length.should == num_domain
+
+    #clean up
+    domain_array.each { |d| app.unmap("#{app.name}.#{d}") }
+
+    #clean up app, domain
+    app.delete
+
+    #delete multiple custom domains of space and verify deletion
+    space = BVT::Harness::Space.new(@session.current_space, @session)
+    domains = @session.current_space.domains.collect {|domain| BVT::Harness::Domain.new(domain, @session)}
+
+    domains.each do |d|
+      domain_array.each do |item|
+        if d.name == item
+          space.remove_domain(d)
+          d.delete
+          d.check_domain_of_org.should == false
+        end
+      end
+    end
+  end
 end

@@ -59,7 +59,7 @@ module BVT::Harness
 
     def remove_domain(domain)
       if domain != nil
-        @log.info("Remove Domain (#{domain.name} ")
+        @log.info("Remove Domain (#{domain.name}) ")
         begin
           domains = @session.client.domains
           domains.each{ |s|
