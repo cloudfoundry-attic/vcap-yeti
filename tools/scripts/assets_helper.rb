@@ -100,7 +100,7 @@ module Tools
       filename = File.basename(filepath)
       begin
         resource = RestClient::Resource.new("#{url}?md5=#{md5}", :timeout => 600, :open_timeout => 600)
-        result = resource.post "file" => filepath
+        result = resource.post :file => File.open(filepath, "rb")
       rescue
         raise RuntimeError,
               red("Cannot connect to yeti blobs storage server, #{url}\n" +
