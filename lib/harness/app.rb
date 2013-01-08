@@ -278,7 +278,7 @@ module BVT::Harness
     end
 
     # method should be REST method, only [:get, :put, :post, :delete] is supported
-    def get_response(method, relative_path = "/", data = '', second_domain = nil)
+    def get_response(method, relative_path = "/", data = '', second_domain = nil, timeout = nil)
       unless [:get, :put, :post, :delete].include?(method)
         @log.error("REST method #{method} is not supported")
         raise RuntimeError, "REST method #{method} is not supported"
@@ -288,19 +288,20 @@ module BVT::Harness
 
       url = get_url(second_domain) + path
       begin
+        resource = RestClient::Resource.new(url, :timeout => timeout, :open_timeout => timeout)
         case method
           when :get
             @log.debug("Get response from URL: #{url}")
-            r = RestClient.get url
+            r = resource.get
           when :put
             @log.debug("Put data: #{data} to URL: #{url}")
-            r = RestClient.put url, data
+            r = resource.put data
           when :post
             @log.debug("Post data: #{data} to URL: #{url}")
-            r = RestClient.post url, data
+            r = resource.post data
           when :delete
             @log.debug("Delete URL: #{url}")
-            r = RestClient.delete url
+            r = resource.delete
           else nil
         end
         # Time dependency
