@@ -61,16 +61,22 @@ module BVT::Harness
         }
         next unless version
 
+        plan = eval "
+          intended_plan = ENV['VCAP_BVT_SERVICE_PLAN'] || service_manifest[:plan]
+          if intended_plan
+            meta[:plans].find { |p|
+              p == intended_plan
+            }
+          else
+            'free'
+          end
+        "
+        next unless plan
+
         @instance.type = meta[:type]
         @instance.vendor = vendor
         @instance.version = version
-        if ENV['VCAP_BVT_SERVICE_PLAN']
-          @instance.tier = ENV['VCAP_BVT_SERVICE_PLAN']
-        elsif service_manifest[:plan]
-          @instance.tier = service_manifest[:plan]
-        else
-          @instance.tier = "free"
-        end
+        @instance.tier = plan
 
         match = true
         break
