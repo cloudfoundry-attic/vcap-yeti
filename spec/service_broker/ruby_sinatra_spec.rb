@@ -127,7 +127,7 @@ module BVT::Spec
 
   def post_and_verify_service(app,key,value)
     uri = get_uri(app, "brokered-service/#{@brokered_service_label}")
-    data = {key => value}.to_json
+    data = "#{key}:#{value}"
     r = RestClient.post uri, data
     r.code.should == 200
   end

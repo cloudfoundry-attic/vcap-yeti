@@ -342,13 +342,18 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   def verify_max_clients(max_clients, manifest, service_url, error_msg)
+    # FIXME: since we can only create 20 applications in one user,
+    # So if the connection quota is very large that need more 20 applications,
+    # the test is pending. To fix it, we can use multiple users to create applications.
+    pending "Since the dea limitation, the test is pending when connection quota is not less than #{20 * SINGLE_APP_CLIENTS_LIMIT} " if max_clients >= 20 * SINGLE_APP_CLIENTS_LIMIT
+
     app_list = []
     service = create_service(manifest)
 
     app_number = max_clients / SINGLE_APP_CLIENTS_LIMIT + 1
     if app_number > 1
       for i in 1..app_number
-        app = @session.app("service_quota_app", i.to_s)
+        app = @session.app("redis_conn_quota_app", i.to_s)
         app.push
         app.bind(service)
         app_list << app
@@ -365,9 +370,11 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
       success_number = 0
       expect_error = 0
       message_list.each {|s|
-        temp = s.split('-')[0].to_i
-        temp = SINGLE_APP_CLIENTS_LIMIT if temp == 0
-        success_number += temp
+        if s == "ok"
+          success_number += SINGLE_APP_CLIENTS_LIMIT
+        else
+          success_number += s.split('-')[0].to_i
+        end
         if s =~ /#{error_msg}/
           expect_error += 1
         end

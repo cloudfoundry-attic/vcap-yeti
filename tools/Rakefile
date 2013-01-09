@@ -31,8 +31,15 @@ task :gen_service_plan, :service, :plan do |t, args|
   else
     cmd_args += "--plan=#{args[:plan]} "
   end
-  output = `ruby ./scripts/gen_service_plan.rb  --input #{inputfile} #{cmd_args}  --output service_plan_version_test.sh`
+  relative_output = "../service_plan_version_test.sh"
+  abs_output = File.join(Dir.pwd, relative_output)
+  output = `ruby ./scripts/gen_service_plan.rb  --input #{inputfile} #{cmd_args}  --output #{abs_output}`
   puts output
+  if $?.exitstatus == 0
+    puts "Succeeded. Script is generated at #{abs_output}"
+  else
+    puts "Failure."
+  end
 end
 
 BUILD_ARTIFACT = File.join(Dir.pwd, ".build")

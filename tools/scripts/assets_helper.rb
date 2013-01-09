@@ -3,7 +3,6 @@ $:.unshift(File.join(File.dirname(__FILE__), "../../lib"))
 require "yaml"
 require "interact"
 require "tools"
-require "curb"
 require "mongo"
 require "yajl"
 require "digest/md5"
@@ -68,38 +67,30 @@ module Tools
     private
 
     def list_binaries(url)
-      easy = Curl::Easy.new
-      easy.url = url
-      easy.resolve_mode = :ipv4
-      easy.timeout = 10
       begin
-        easy.http_get
-      rescue Curl::Err::CurlError
+        result = RestClient.get url
+      rescue
         raise RuntimeError,
-              red("Cannot connect to yeti blobs storage server, #{easy.url}\n" +
+              red("Cannot connect to yeti blobs storage server, #{url}\n" +
                       "Please check your network connection.")
       end
 
-      if easy.response_code == OK
+      if result.code == OK
         parser = Yajl::Parser.new
-        return parser.parse(easy.body_str)
+        return parser.parse(result.to_str)
       end
     end
 
     def delete_binary(url, filename)
-      easy = Curl::Easy.new
-      easy.url = "#{url}/#{filename}"
-      easy.resolve_mode = :ipv4
-      easy.timeout = 10
       begin
-        easy.http_delete
-      rescue Curl::Err::CurlError
+        result = RestClient.delete "#{url}/#{filename}"
+      rescue
         raise RuntimeError,
-              red("Cannot connect to yeti blobs storage server, #{easy.url}\n" +
+              red("Cannot connect to yeti blobs storage server, #{url}\n" +
                       "Please check your network connection.")
       end
 
-      unless easy.response_code == OK
+      unless result.code == OK
         raise RuntimeError, "Fail to delete file #{filename}\nPlease rerun " +
             "'#{yellow("rake upload_assets")}' command."
       end
@@ -107,23 +98,16 @@ module Tools
 
     def post_binary(url, filepath, md5)
       filename = File.basename(filepath)
-      easy = Curl::Easy.new
-      easy.url = "#{url}?md5=#{md5}"
-      easy.resolve_mode = :ipv4
-      easy.timeout = 60 * 10
-
-      post_data = Curl::PostField.file('file', filepath)
-      easy.multipart_form_post = true
-
       begin
-        easy.http_post(post_data)
-      rescue Curl::Err::CurlError
+        resource = RestClient::Resource.new("#{url}?md5=#{md5}", :timeout => 600, :open_timeout => 600)
+        result = resource.post "file" => filepath
+      rescue
         raise RuntimeError,
-              red("Cannot connect to yeti blobs storage server, #{easy.url}\n" +
+              red("Cannot connect to yeti blobs storage server, #{url}\n" +
                       "Please check your network connection.")
       end
 
-      unless easy.response_code == OK
+      unless result.code == OK
         raise RuntimeError, "Fail to post file #{filename}\nPlease rerun " +
             "'#{yellow("rake upload_assets")}' command."
       end
