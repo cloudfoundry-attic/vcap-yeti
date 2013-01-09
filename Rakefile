@@ -111,7 +111,11 @@ task :services, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
   create_reports_folder
-  longevity(threads, {'tags' => '~admin,mongodb,rabbitmq,mysql,redis,postgresql,neo4j,vblob'})
+  if ENV["VCAP_BVT_SERVICE"]
+    longevity(threads, {'tags' => "~admin,#{ENV["VCAP_BVT_SERVICE"].downcase}"})
+  else
+    longevity(threads, {'tags' => '~admin,mongodb,rabbitmq,mysql,redis,postgresql,neo4j,vblob'})
+  end
 end
 
 desc "Clean up test environment"
