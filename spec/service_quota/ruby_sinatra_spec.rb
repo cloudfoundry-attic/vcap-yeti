@@ -173,7 +173,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     sleep 2
 
     # can insert data again
-    r = app.get_response(:post, '/service/postgresql/tables/quota_table/1', '')
+    r = app.get_response(:post, '/service/postgresql/tables/quota_table/1/1', '')
     r.code.should == 200
     r.to_str.should == 'ok'
 
@@ -224,7 +224,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     sleep 2
 
     # can insert data again
-    r = app.get_response(:post, '/service/mysql/tables/quota_table/1', '')
+    r = app.get_response(:post, '/service/mysql/tables/quota_table/1/1', '')
     r.code.should == 200
     r.to_str.should == 'ok'
 
@@ -408,6 +408,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     single_app_megabytes = 200
     table_name = service_url.split('/')[-1]
     data_percent = 0.8
+    chunk_size = max_db_size * 0.1 > 10 ? 10 : 1
     data_percent = ENV['SERVICE_QUOTA_DB_SIZE_PERCENT'] if ENV['SERVICE_QUOTA_DB_SIZE_PERCENT']
     error_msg2 << error_msg
 
@@ -423,11 +424,11 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     sizes << left_quota if left_quota > 0
 
     sizes.each do |size|
-      r = app.get_response(:post, "#{service_url}/#{size}")
+      r = app.get_response(:post, "#{service_url}/#{size}/#{chunk_size}")
       if error_msg2.any? { |err| r.to_str =~ /#{err}/ }
         success_size += r.to_str.split('-')[0].to_i
         # confirm the write permission is revoked.
-        r2 = app.get_response(:post, "#{service_url}/1", "")
+        r2 = app.get_response(:post, "#{service_url}/1/1", "")
         r2.to_str.should =~ /#{error_msg}/
         # confirm we insert enough data to trigger quota enforcement
         (success_size.to_f / max_db_size.to_f).should > data_percent
@@ -438,12 +439,12 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
       success_size += size
     end
 
-    r = app.get_response(:post, "#{service_url}/1", "")
+    r = app.get_response(:post, "#{service_url}/1/1", "")
     r.code.should == 200
     sleep 2
 
     # if no data explicit expansion, we should see permisison error
-    r = app.get_response(:post, "#{service_url}/1", "")
+    r = app.get_response(:post, "#{service_url}/1/1", "")
     r.code.should == 200
     r.to_str.should =~ /#{error_msg}/
   end
