@@ -17,3 +17,4 @@ gem "console-vmc-plugin"
 
 gem "caldecott"
 gem "rspec_parallel", ">= 0.1.6"
+gem "cf-uaac", "= 1.3.3"

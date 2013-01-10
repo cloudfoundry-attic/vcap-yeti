@@ -303,6 +303,7 @@ module BVT::Harness
       get_admin_user_passwd
 
       @config['parallel'] = []
+      session = nil
       begin
         session = BVT::Harness::CFSession.new(:admin => true,
                                               :email => @config['admin']['email'],
@@ -315,13 +316,25 @@ module BVT::Harness
 
       passwd = 'aZ_x13YcIa4nhl'  #parallel user secret
       (1..user_number).to_a.each do |index|
-        email = "#{index}-test_user@yeti_parallel.com"
-        user  = session.user(email)
-        user.create(passwd)
         config = {}
-        config['email']  = user.email
+        if session.v2?
+          @uaa_cc_secret ||= get_uaa_cc_secret
+          uaa_url = @config['target'].gsub(/\/\/\w+/, '//uaa')
+          email = session.namespace + "-#{index}-test_user@vmware.com"
+          org_name = session.namespace + "-yeti_test_org-#{index}"
+          space_name = "yeti_test_space"
+          CCNGUserHelper.create_user(uaa_url, @uaa_cc_secret, @config['target'], @config['admin']['email'],
+                                     @config['admin']['passwd'], email, passwd, org_name, space_name)
+          config['email']  = email
+        else
+          email = "#{index}-test_user@vmware.com"
+          user  = session.user(email)
+          user.create(passwd)
+          config['email']  = user.email
+        end
         config['passwd'] = passwd
         puts "create user: #{yellow(config['email'])}"
+        $stdout.flush
         @config['parallel'] << config
       end
       @config['admin'].delete('passwd')
@@ -361,6 +374,24 @@ module BVT::Harness
       else
         'https://' + str
       end
+    end
+
+    def get_uaa_cc_secret
+      @uaa_cc_secret = nil
+      if ENV['VCAP_BVT_UAA_CC_SECRET']
+        @uaa_cc_secret = ENV['VCAP_BVT_UAA_CC_SECRET']
+      elsif ENV['VCAP_BVT_DEPLOY_MANIFEST']
+        begin
+          deploy_manifest = YAML.load_file(ENV['VCAP_BVT_DEPLOY_MANIFEST'])
+          @uaa_cc_secret = deploy_manifest['properties']['uaa']['cc']['client_secret']
+        rescue
+          puts red("can't find uaa_cc_secret in your manifest")
+          exit(-1)
+        end
+      else
+        @uaa_cc_secret = ask_and_validate("uaa_cc_secret", '\S*')
+      end
+      @uaa_cc_secret
     end
 
     private

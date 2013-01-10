@@ -1,5 +1,7 @@
 require "vcap/logging"
 require "yaml"
+require "yajl"
+require "json"
 require "rest-client"
 
 module BVT
@@ -45,6 +47,7 @@ require "harness/user"
 require "harness/http_response_code"
 require "harness/scripts_helper"
 require "harness/parallel_helper"
+require "harness/ccng_user_helper"
 
 ## to arrange rails console cases in parallel
 require "harness/parallel_monkey_patch"

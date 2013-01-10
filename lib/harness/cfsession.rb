@@ -27,7 +27,7 @@ module BVT::Harness
       @log = get_logger
       @namespace = get_namespace
       login
-      check_privilege(@is_admin)
+      check_privilege(@is_admin) unless v2?
     end
 
     def inspect
