@@ -17,8 +17,8 @@ module BVT::Harness
 
     # service manifest example
     #{:vendor=>"mysql", :version=>"5.1"}
-    def create(service_manifest)
-      unless available?(service_manifest)
+    def create(service_manifest, check_available = true)
+      if check_available && !available?(service_manifest)
         @log.error("Service: #{service_manifest[:vendor]} #{service_manifest[:version]} " +
                        "is not available on target: #{@session.TARGET}")
         raise RuntimeError, "Service: #{service_manifest[:vendor]}" +
@@ -30,6 +30,15 @@ module BVT::Harness
       services.reject! { |s| s.version != service_manifest[:version] } if service_manifest[:version]
 
       service = services.first
+      # if more than 1 services are matched, raise exception
+      if services.size > 1
+        service_list = []
+        services.each {|s| service_list << "#{s.label}, #{s.provider}, #{s.version}"}
+        @log.error("can't match the unique service using manifest: #{service_manifest}," +
+                   " matched services:#{service_list}")
+        raise RuntimeError, "can't match the unique service using manifest: #{service_manifest}," +
+                            " matched services:#{service_list}")
+      end
       @log.debug("Prepare to create service: #{@instance.name}")
       begin
         if ENV['VCAP_BVT_SERVICE_PLAN']
@@ -41,6 +50,12 @@ module BVT::Harness
         end
         if @session.v2?
           plans = service.service_plans.select { |p| p.name == plan}
+          if plans.size == 0
+            plan_list = []
+            service.service_plans.each {|p| plan_list << p.name}
+            @log.error("can't find service plan #{plan}, supported plans: #{plan_list}")
+            raise RuntimeError, "can't find service plan #{plan}, supported plans: #{plan_list}"
+          end
           plan = plans.first
           @instance.service_plan = plan
           @instance.space = @session.current_space

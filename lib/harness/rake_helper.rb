@@ -320,8 +320,8 @@ module BVT::Harness
         if session.v2?
           @uaa_cc_secret ||= get_uaa_cc_secret
           uaa_url = @config['target'].gsub(/\/\/\w+/, '//uaa')
-          email = session.namespace + "-#{index}-test_user@vmware.com"
-          org_name = session.namespace + "-yeti_test_org-#{index}"
+          email = session.namespace + "#{index}-test_user@vmware.com"
+          org_name = session.namespace + "yeti_test_org-#{index}"
           space_name = "yeti_test_space"
           CCNGUserHelper.create_user(uaa_url, @uaa_cc_secret, @config['target'], @config['admin']['email'],
                                      @config['admin']['passwd'], email, passwd, org_name, space_name)
@@ -389,7 +389,7 @@ module BVT::Harness
           exit(-1)
         end
       else
-        @uaa_cc_secret = ask_and_validate("uaa_cc_secret", '\S*')
+        @uaa_cc_secret = ask_and_validate("uaa_cc_client_secret", '\S*')
       end
       @uaa_cc_secret
     end
