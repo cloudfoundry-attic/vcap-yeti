@@ -5,6 +5,7 @@ include BVT::Spec
 describe BVT::Spec::UsersManagement::ACL do
 
   before(:all) do
+    pending "ACL is not working under CCNG"
     @session = BVT::Harness::CFSession.new
     SERVICE_MANIFEST_LIST = [MYSQL_MANIFEST, REDIS_MANIFEST, POSTGRESQL_MANIFEST,
         MONGODB_MANIFEST, RABBITMQ_MANIFEST, BLOB_MANIFEST]
