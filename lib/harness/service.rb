@@ -37,7 +37,7 @@ module BVT::Harness
         @log.error("can't match the unique service using manifest: #{service_manifest}," +
                    " matched services:#{service_list}")
         raise RuntimeError, "can't match the unique service using manifest: #{service_manifest}," +
-                            " matched services:#{service_list}")
+                            " matched services:#{service_list}"
       end
       @log.debug("Prepare to create service: #{@instance.name}")
       begin
