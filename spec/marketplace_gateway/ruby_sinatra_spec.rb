@@ -29,18 +29,6 @@ describe BVT::Spec::MarketplaceGateway::RubySinatra do
   end
 
   it "should deploy env_test app and be able to bind to testservice from test mpgw" do
-    uri = URI.parse(@mpgw_url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    resp = http.request(
-      Net::HTTP::Get.new("/",
-        {'Content-Type' => 'application/json', 'X-VCAP-Service-Token' => @mpgw_token}))
-
-    resp.code.should == "200"
-    json = JSON.parse(resp.body)
-    json["marketplace"].should == "Test"
-    json["offerings"].keys.size.should == 1
-    json["offerings"].keys.first.start_with?("testservice").should == true
-
     app = create_push_app("env_test_app")
     should_be_there = []
 
