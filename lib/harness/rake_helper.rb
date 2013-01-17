@@ -94,10 +94,10 @@ module BVT::Harness
       get_user_passwd
       save_config
       check_network_connection
-      cleanup_services_apps(@config['user']['email'], @config['user']['passwd'])
+      cleanup_user_data(@config['user']['email'], @config['user']['passwd'])
       if @config['parallel']
         @config['parallel'].each do |puser|
-          cleanup_services_apps(puser['email'], puser['passwd'])
+          cleanup_user_data(puser['email'], puser['passwd'])
         end
       end
       # clear parallel env
@@ -409,51 +409,62 @@ module BVT::Harness
       `git log --pretty=oneline`.split("\n").first
     end
 
-    def cleanup_services_apps(email, passwd)
+    def cleanup_user_data(email, passwd)
       session = BVT::Harness::CFSession.new(:email => email,
                                             :passwd => passwd,
                                             :target => @config['target'])
       puts yellow("Ready to clean up for test user: #{session.email}")
-      apps = session.apps
-      services = session.services
 
-      if services.empty?
-        puts "No service has been provisioned by test user: #{session.email}"
-      elsif session.email =~ /^t\w{6,7}-\d{1,2}-/ #parallel user, delete without asking
-        services.each { |service|
-          puts "deleting service: #{service.name}..."
-          service.delete
-        }
-      else
-        puts "List all services belong to test user: #{session.email}"
-        services.each { |service| puts service.name }
-        if ask("Do you want to remove all above servcies?", :default => true)
-          services.each { |service| service.delete }
-          puts yellow("all services belong to #{session.email} have been removed")
-        else
-          puts yellow("Keep those services\n")
-        end
-      end
+      services = session.client.service_instances
+      puts yellow("Begin to clean up services")
+      cleanup_data(session, services)
 
-      if apps.empty?
-        puts "No application has been created by test user: #{session.email}"
-      elsif session.email =~ /^t\w{6,7}-\d{1,2}-/ #parallel user, delete without asking
-        apps.each { |app|
-          puts "deleting app: #{app.name}..."
-          app.delete
-        }
-      else
-        puts "List all applications belong to test user: #{session.email}"
-        apps.each { |app| puts app.name }
-        if ask("Do you want to remove all above applications?", :default => true)
-          apps.each { |app| app.delete }
-          puts yellow("all applications belong to #{session.email} have been removed")
-        else
-          puts yellow("Keep those applications\n")
-        end
+      apps = session.client.apps
+      puts yellow("Begin to clean up apps")
+      cleanup_data(session, apps)
+
+      if session.v2?
+        routes = session.client.routes
+        puts yellow("Begin to clean up routes")
+        cleanup_data(session, routes)
+
+        domains = session.client.domains
+        puts yellow("Begin to clean up domains")
+        cleanup_data(session, domains)
       end
 
       puts yellow("Clean up work for test user: #{session.email} has been done.\n")
+    end
+
+    def is_parallel_user?(email)
+      return true if email =~ /^t\w{6,7}-\d{1,2}-/ #parallel user, delete without asking
+      false
+    end
+
+    def cleanup_data(session, objs)
+      if objs.empty?
+        puts "No instance has been created by test user: #{session.email}"
+      elsif is_parallel_user?(session.email)
+        objs.each{ |obj|
+          puts "deleting #{obj.class.to_s}: #{obj.name}..."
+          obj.delete!
+        }
+      else
+        puts "List all instances belong to test user: #{session.email}"
+        # filter system domain, since system domain cannot be removed via normal user
+        if objs.first.class.to_s =~ /Domain/
+          system_domain = session.TARGET.split(".", 2).last
+          objs.reject! {|obj| obj.name =~ /#{system_domain}/}
+        end
+
+        objs.each { |obj| puts obj.name }
+        if  ask("Do you want to remove all above instances?", :default => true)
+          objs.each { |obj| obj.delete! }
+          puts yellow("all instances belong to #{session.email} have been removed")
+        else
+          puts yellow("keep above ones\n")
+        end
+      end
     end
 
     def cleanup_test_accounts
