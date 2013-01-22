@@ -26,6 +26,7 @@ module BVT::Harness
       end
 
       services = @session.client.services
+      services.reject! { |s| s.label != service_manifest[:vendor] } if service_manifest[:vendor]
       services.reject! { |s| s.provider != service_manifest[:provider] } if service_manifest[:provider]
       services.reject! { |s| s.version != service_manifest[:version] } if service_manifest[:version]
 
@@ -41,10 +42,10 @@ module BVT::Harness
       end
       @log.debug("Prepare to create service: #{@instance.name}")
       begin
-        if ENV['VCAP_BVT_SERVICE_PLAN']
-          plan = ENV['VCAP_BVT_SERVICE_PLAN']
-        elsif service_manifest[:plan]
+        if service_manifest[:plan]
           plan = service_manifest[:plan]
+        elsif ENV['VCAP_BVT_SERVICE_PLAN']
+          plan = ENV['VCAP_BVT_SERVICE_PLAN']
         else
           plan = @session.v2? ? "100" : "free"
         end
