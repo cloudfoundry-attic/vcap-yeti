@@ -5,7 +5,8 @@ module BVT::Spec
 
     SERVICE_QUOTA_CONFIG = ENV['VCAP_BVT_DEPLOY_MANIFEST'] || File.join(File.dirname(__FILE__), "service_quota.yml")
     SERVICE_CONFIG = YAML.load_file(SERVICE_QUOTA_CONFIG)
-    SERVICE_PLAN = ENV['VCAP_BVT_SERVICE_PLAN'] || "100"
+    default_service_plan = (@session && @session.v2?) ? "100" : "free"
+    SERVICE_PLAN = ENV['VCAP_BVT_SERVICE_PLAN'] || default_service_plan
     SERVICE_QUOTA = {}
     SERVICE_LIST=[]
 

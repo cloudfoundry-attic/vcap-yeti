@@ -76,7 +76,7 @@ describe BVT::Spec::Canonical::JavaSpring do
     type.should satisfy {|arg| arg.start_with? 'redis'}
     plan = app.get_response(:get, "/properties/sources/property/cloud."+
                                   "services.#{redis_service.name}.plan").to_str
-    if @session.client.info[:version] > 1
+    if @session.v2?
       plan.should == '100'
     else
       plan.should == 'free'
