@@ -20,11 +20,9 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
   end
 
   def add_env(app,key,value)
-     env = ["#{key}=#{value}"]
-     manifest = {}
-     manifest['env'] = env
-     manifest['state'] = 'STARTED'
-     app.update!(manifest)
+    app.env[key] = value
+    app.update!
+    app.start
   end
 
   it "access my application root and see hello from sinatra", :p1 => true do

@@ -32,4 +32,5 @@ describe BVT::Spec::Simple::RubyRails3 do
     res = @app.get_response(:get, "/assets/application.js")
     res.to_str.should match /alert\(\"Hello from CoffeeScript!\"\)/
   end
+
 end

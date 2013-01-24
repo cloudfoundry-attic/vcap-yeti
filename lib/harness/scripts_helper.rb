@@ -9,7 +9,7 @@ module BVT::Harness
       service_name = name || service_manifest[:vendor]
       require_namespace = name.nil?
       service = @session.service(service_name, require_namespace)
-      unless service.has_vendor?(service_manifest)
+      unless service.available?(service_manifest)
         @session.log.debug("Service: (#{service_manifest[:vendor]} #{service_manifest[:version]}) " +
                            "is not available on target: #{@session.TARGET}")
         pending("Service: (#{service_manifest[:vendor]} #{service_manifest[:version]}) " +
@@ -26,8 +26,8 @@ module BVT::Harness
     end
 
     # Application
-    def create_app(app_name)
-      app = @session.app(app_name)
+    def create_app(app_name, prefix = '', domain=nil)
+      app = @session.app(app_name, prefix, domain)
       app.load_manifest
       if VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(app.manifest['framework'].to_sym) &&
           VCAP_BVT_SYSTEM_RUNTIMES.has_key?(app.manifest['runtime'])
@@ -43,10 +43,12 @@ module BVT::Harness
       app
     end
 
-    def create_push_app(app_name)
-      app = create_app(app_name)
+    def create_push_app(app_name, prefix = '', domain=nil)
+      app = create_app(app_name, prefix, domain)
       app.push
-      app.healthy?.should be_true, "Application #{app.name} is not running"
+      unless @session.v2?
+        app.healthy?.should be_true, "Application #{app.name} is not running"
+      end
       app
     end
   end

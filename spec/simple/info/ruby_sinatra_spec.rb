@@ -1,6 +1,5 @@
 require "harness"
 require "spec_helper"
-require "vmc"
 include BVT::Spec
 
 describe BVT::Spec::Simple::Info::RubySinatra do
@@ -10,6 +9,7 @@ describe BVT::Spec::Simple::Info::RubySinatra do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
+    @client = @session.client
   end
 
   after(:each) do
@@ -51,7 +51,7 @@ describe BVT::Spec::Simple::Info::RubySinatra do
   #should get app_name & status
   it "get resource usage information for an application" do
     app = create_push_app("simple_app2")
-    hash_all = app.stats[:"0"]
+    hash_all = app.stats["0"]
     hash_all[:state].should == "RUNNING"
     hash_stats = hash_all[:stats]
     arr_name = hash_stats[:name].split("-")
@@ -73,63 +73,47 @@ describe BVT::Spec::Simple::Info::RubySinatra do
   end
 
   it "get crash information for an application" do
-    @client = VMC::Client.new(@session.TARGET)
-    @client.login(@session.email, @session.passwd)
-
     app = create_push_app("simple_app2")
 
-    files = @client.app_files(app.name, '/run.pid', '0')
-    files.should_not == nil
-    pid = files.chomp
+    file = app.file('/run.pid')
+    file.should_not == nil
+    pid = file.chomp
 
     contents = app.get_response(:get, "/crash/#{pid}")
 
     crashes = get_crashes(app.name)
 
     crash = crashes.first
-    crash[:since].should_not be_nil
+    crash.since.should_not == nil
 
-    verify_files(app.name, crash[:instance], "/")
-    verify_files(app.name, crash[:instance], "/app")
+    crash.files("/").should_not == nil
+    crash.files("/app").should_not == nil
   end
 
   it "get crash information for a broken application" do
-    @client = VMC::Client.new(@session.TARGET)
-    @client.login(@session.email, @session.passwd)
-
     app = create_app("broken_app")
     app.push(nil, nil, false)
 
     crashes = get_crashes(app.name)
-
     crash = crashes.first
-    crash.should include(:instance)
 
-    verify_files(app.name, crash[:instance], "/")
-    verify_files(app.name, crash[:instance], "/app")
+    crash.files("/").should_not == nil
+    crash.files("/app").should_not == nil
+
   end
 
-  def get_crashes(application_name)
-    stop = Time.now + 5
-    crash_info = nil
+  def get_crashes(name)
+    app = @client.app_by_name(name)
+    retries = 5
 
-    while Time.now < stop
-      crash_info = @client.app_crashes(application_name)
-      if crash_info[:crashes].empty?
-        sleep 1
-      else
-        break
-      end
+    crashes = app.crashes
+    while crashes.empty? && retries > 0
+      sleep 1
+      retries -= 1
+      crashes = app.crashes
     end
-
-    crashes = crash_info[:crashes]
-    crashes.should_not be_empty, "No crashes"
 
     crashes
   end
 
-  def verify_files(application_name, instance_id, path)
-    files = @client.app_files(application_name, path, instance_id)
-    files.should_not be_nil, "No files under #{path}"
-  end
 end

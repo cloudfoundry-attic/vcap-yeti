@@ -1,5 +1,8 @@
+require "harness"
+
 module BVT::Spec
   module CanonicalHelper
+    include BVT::Harness::HTTP_RESPONSE_CODE
 
     def verify_service(service_manifest, app, key)
       data = "#{service_manifest[:vendor]}#{key}"
@@ -14,10 +17,9 @@ module BVT::Spec
     end
 
     def add_env(app, key, value)
-      env = ["#{key}=#{value}"]
-      manifest = {}
-      manifest['env'] = env
-      app.update!(manifest)
+      env = {"#{key}"=>"#{value}"}
+      app.env = env
+      app.update!
     end
   end
 end

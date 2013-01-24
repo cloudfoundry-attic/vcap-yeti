@@ -19,7 +19,7 @@ describe BVT::Spec::Simple::Lifecycle::RubySinatra do
 
     # start app
     app.start
-    hash_all = app.stats[:"0"]
+    hash_all = app.stats["0"]
     hash_all[:state].should == "RUNNING"
 
     # stop app

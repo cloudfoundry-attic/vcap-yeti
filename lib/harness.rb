@@ -1,5 +1,7 @@
 require "vcap/logging"
 require "yaml"
+require "yajl"
+require "json"
 require "rest-client"
 
 module BVT
@@ -45,12 +47,19 @@ require "harness/user"
 require "harness/http_response_code"
 require "harness/scripts_helper"
 require "harness/parallel_helper"
+require "harness/ccng_user_helper"
 
 ## to arrange rails console cases in parallel
 require "harness/parallel_monkey_patch"
 
-## in order to support service versions, require this monkey patch
-require "harness/cfoundry_monkey_patch"
+require "harness/console_helper"
+require "harness/cfconsole_monkey_patch"
+## support v2
+require "harness/space"
+require "harness/domain"
+
+## test ccng v1 API
+require "harness/ccng-v1-test-monkey-patch" if ENV['VCAP_BVT_CCNG_V1_TEST']
 
 ## exception handling in rest-client
 require "harness/restclient_monkey_patch"

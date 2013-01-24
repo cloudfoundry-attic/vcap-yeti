@@ -4,6 +4,7 @@ describe 'core frameworks', :cfcore => true, :mcf => true do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
+    pending "not supported in v2 yet" if @session.v2?
   end
 
   subject { @session.system_frameworks }

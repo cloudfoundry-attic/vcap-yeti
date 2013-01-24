@@ -1,8 +1,9 @@
 # Matches if the service with name and version is found in the result of
 # system_service.
 RSpec::Matchers.define :have_service do |name, version|
+  default_provider = 'core'
   match do |system_services|
-    system_services.fetch(name, {}).fetch(:versions, []).include?(version)
+    system_services.fetch(name, {})[default_provider].fetch(:versions, []).include?(version)
   end
 
   failure_message_for_should do

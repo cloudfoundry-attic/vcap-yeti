@@ -1,7 +1,8 @@
-
+require "harness"
 
 module BVT::Spec
   module AutoStagingHelper
+    include BVT::Harness::HTTP_RESPONSE_CODE
 
     def verify_service_autostaging(service_manifest, app)
       key = "abc"

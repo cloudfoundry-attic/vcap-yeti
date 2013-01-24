@@ -40,14 +40,14 @@ describe BVT::Spec::Simple::FileRange::RubySinatra do
     @app.stats.should_not == nil
 
     range = "10-"
-    num_bytes = 224
+    num_bytes = 10
     @file_contents = File.read("#{@app.manifest['path']}/#{FILE_NAME}")
     url = "#{@session.TARGET}/apps/#{@app.name}/instances/0/files/app/#{FILE_NAME}"
     hdrs = {"AUTHORIZATION" => @session.token, "Range" => "bytes=#{range}"}
 
     resp = RestClient.get(url, hdrs)
     resp.should_not == nil
-    resp.body.should == @file_contents.slice(@file_contents.size - num_bytes, num_bytes)
+    resp.body.should == @file_contents.slice(num_bytes, @file_contents.size)
 
   end
 

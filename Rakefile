@@ -135,7 +135,6 @@ task :rerun, :thread_number do |t, args|
   end
 end
 
-# alias of rerun, need to copy the logic to parse the thread parameter
 task :rerun_failure, :thread_number do |t, args|
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]

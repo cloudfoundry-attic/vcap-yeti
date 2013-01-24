@@ -5,7 +5,7 @@ module BVT::Spec
 
   SERVICE_LIFECYCLE_CONFIG = ENV['VCAP_BVT_DEPLOY_MANIFEST'] || File.join(File.dirname(__FILE__), "service_lifecycle.yml")
   SERVICE_CONFIG = (YAML.load_file(SERVICE_LIFECYCLE_CONFIG) rescue {"properties"=>{"service_plans"=>{}}})
-  SERVICE_PLAN = ENV['VCAP_BVT_SERVICE_PLAN'] || "free"
+  SERVICE_PLAN = ENV['VCAP_BVT_SERVICE_PLAN'] || "100"
   SERVICE_SNAPSHOT_QUOTA = {}
   SERVICE_CONFIG['properties']['service_plans'].each do |service,config|
     SERVICE_SNAPSHOT_QUOTA[service] = config[SERVICE_PLAN]["configuration"] if config.include?(SERVICE_PLAN)
@@ -80,7 +80,7 @@ module BVT::Spec
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
-    job.should_not == nil
+    job.should_not be_nil, "The job cannot be completed in 8 seconds"
     snapshot_id = job["result"]["snapshot_id"]
     snapshot_id.should_not == nil
     snapshot_id
@@ -94,7 +94,7 @@ module BVT::Spec
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
-    job.should_not == nil
+    job.should_not be_nil, "The job cannot be completed in 8 seconds"
     snapshot_id = job["result"]["snapshot_id"]
     snapshot_id.should_not == nil
     snapshot_id
@@ -175,7 +175,7 @@ module BVT::Spec
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id,job["job_id"])
-    job.should_not == nil
+    job.should_not be_nil, "The job cannot be completed in 8 seconds"
     job["result"]["result"].should == "ok"
   end
 
@@ -188,7 +188,7 @@ module BVT::Spec
     resp.should_not == nil
     job = JSON.parse(resp)
     job = wait_job(service_id, job["job_id"])
-    job.should_not == nil
+    job.should_not be_nil, "The job cannot be completed in 8 seconds"
     job["result"]["result"].should == "ok"
 
   end

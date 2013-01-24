@@ -1,5 +1,6 @@
 require "harness"
 require "spec_helper"
+require "json"
 include BVT::Spec::AutoStagingHelper
 include BVT::Spec
 

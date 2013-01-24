@@ -2,81 +2,71 @@ require "uri"
 require "json"
 require "harness"
 require "spec_helper"
-require "vmc"
-require "cli"
+require "service_broker/service_broker_helper"
 include BVT::Spec
 
-module BVT::Spec
-  module ServiceBrokerHelper
+describe BVT::Spec::ServiceBroker::RubySinatra do
+  include BVT::Spec::ServiceBrokerHelper
+  BROKER_APP_VERSION = "9.99"
 
-  def new
-    @service_broker_token = ENV['SERVICE_BROKER_TOKEN']
-    @service_broker_url = ENV['SERVICE_BROKER_URL']
-    pending "service broker url or token is not provided" unless @service_broker_url && @service_broker_token
+  before(:all) do
+    check_env
   end
 
-  BROKER_API_VERSION = "v1"
-
-  def broker_hdrs
-    {
-    'Content-Type' => 'application/json',
-    'X-VCAP-Service-Token' => @service_broker_token,
-    }
+  after(:each) do
+    @session.cleanup! if @session
+    cleanup
   end
 
   def init_brokered_service(app)
     brokered_service_app = app
-    app_name = "simple_kv"
-    app_version = "1.0"
-    app_label = "#{app_name}-#{app_version}"
-    option_name = "default"
+    @bsvc_name = "simple_kv"
+    @bsvc_version = BROKER_APP_VERSION
+    @app_label = "#{@bsvc_name}-#{@bsvc_version}"
+    @bsvc_plan = "default"
+    #TODO remove the hardcode provider==name setup
+    @bsvc_provider = @bsvc_name
+    @option_name = "default"
 
     #the real name in vmc
-    @brokered_service_name = "#{app_name}_#{option_name}"
-    @brokered_service_label = "#{app_name}_#{option_name}-#{app_version}"
+    @brokered_service_name = "#{@bsvc_name}_#{@option_name}"
+    @brokered_service_label = "#{@bsvc_name}_#{@option_name}-#{@bsvc_version}"
     app_uri = get_uri(brokered_service_app)
     @brokered_service = {
-      :label => app_label,
+      :label => @app_label,
       :options => [ {
-        :name => option_name,
+        :name => @option_name,
         :acls => {
           :users => [@session.email],
           :wildcards => []
         },
-       :credentials =>{:url => "http://#{app_uri}"}
+        :credentials =>{:url => "http://#{app_uri}"},
+        :provider => @bsvc_provider,
       }]
     }
     @service_name = "brokered_service_app_#{@brokered_service_name}"
     @service_manifest = {
-     'vendor'=>"brokered_service",
-     'tier'=>"free",
-     'version'=>"1.0",
-     'name'=>@service_name
+     :vendor => @brokered_service_name,
+     :tier => "free",
+     :version => BROKER_APP_VERSION,
+     :plan => @bsvc_plan,
+     :name => @service_name,
+     :provider => @bsvc_provider,
     }
   end
 
-  def create_brokered_service(app)
-    klass = Net::HTTP::Post
-    url = "/service-broker/#{BROKER_API_VERSION}/offerings"
-    body = @brokered_service.to_json
-    resp = perform_http_request(klass, url, body)
-    resp.code.should == "200"
+  def cleanup
+    delete_brokered_services @brokered_service if @brokered_service
+    if @brokered_service_name && @bsvc_provider
+      delete_service_auth_token(@brokered_service_name, @bsvc_provider)
+    end
   end
 
-  def find_service(app,vendor)
-    services = @session.system_services
-    services.has_key?(vendor)
-  end
-
-  def find_brokered_service(app)
-    find_service(app,@brokered_service_name)
-  end
-
-  def perform_http_request(klass, url, body=nil)
-    uri = URI.parse(@service_broker_url)
-    req = klass.new(url, initheader=broker_hdrs)
-    req.body = body if body
-    resp = Net::HTTP.new(uri.host, uri.port).start {|http| http.request(req)}
+  def post_and_verify_service(app,key,value)
+    uri = get_uri(app, "brokered-service/#{@brokered_service_label}")
+    data = "#{key}:#{value}"
+    r = RestClient.post uri, data
+    r.code.should == 200
   end
 
   def get_uri app, relative_path=nil
@@ -87,90 +77,17 @@ module BVT::Spec
     uri
   end
 
-  def bind_brokered_service(app)
-    @client.create_service(@brokered_service_name.to_sym, @service_name)
-
-    attach_provisioned_service(app, @service_manifest, @token)
-
-    health = get_health_status(app)
-    health.should == "RUNNING"
-
-  end
-
-  def attach_provisioned_service(app, service_manifest, token)
-    appname = app.name
-    app_manifest = app.stats
-    provisioned_service = app_manifest[:services]
-    provisioned_service = [] unless provisioned_service
-    svc_name = service_manifest['name']
-    provisioned_service << svc_name
-    app_manifest[:services] = provisioned_service
-    @client.update_app(appname, app_manifest)
-
-    app_manifest[:state] = 'STARTED'
-    @client.update_app(appname, app_manifest)
-    sleep 1
-  end
-
-  def get_health_status(app)
-    timeout = 30
-    sleep_time = 1
-    while timeout > 0
-      sleep sleep_time
-      timeout -= sleep_time
-
-      status = app.stats
-      if status["0".to_sym][:state] == 'RUNNING'
-        return "RUNNING"
-      end
-    end
-    nil
-  end
-
-  def post_and_verify_service(app,key,value)
-    uri = get_uri(app, "brokered-service/#{@brokered_service_label}")
-    data = "#{key}:#{value}"
-    r = RestClient.post uri, data
-    r.code.should == 200
-  end
-
-  def delete_brokered_services
-    klass = Net::HTTP::Delete
-    label = @brokered_service[:label]
-    url = "/service-broker/#{BROKER_API_VERSION}/offerings/#{label}"
-    resp = perform_http_request(klass, url)
-    resp
-  end
-
-  end
-end
-
-describe BVT::Spec::ServiceBroker::RubySinatra do
-  include BVT::Spec::ServiceBrokerHelper
-
-  before(:all) do
-    @session = BVT::Harness::CFSession.new
-    @client = VMC::Client.new(@session.TARGET)
-    @token = @client.login(@session.email, @session.passwd)
-    new
-  end
-
-  after(:each) do
-    @session.cleanup!
-  end
-
   it "Create a brokered service" do
+    setup
     app = create_push_app('simple_kv_app')
     init_brokered_service(app)
-    delete_brokered_services
-    create_brokered_service(app)
-
+    cleanup
+    create_service_auth_token(@brokered_service_name, @bsvc_provider)
+    create_brokered_services @brokered_service
     app.services.should_not == nil
-    response = find_brokered_service(app)
-    response.should be_true
 
     brokered_app = create_push_app('brokered_service_app')
-    bind_brokered_service(brokered_app)
+    bind_brokered_service(brokered_app, @service_manifest)
     post_and_verify_service(brokered_app,'key1','value1')
 
     content = app.get_response(:get, "/service/key1")

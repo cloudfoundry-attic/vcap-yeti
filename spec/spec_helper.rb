@@ -118,8 +118,16 @@ module BVT
       end
 
       module RailsConsole
-        class RubyRails3; end
+        class Console; end
       end
+    end
+
+    module OrgSpace
+      class Space; end
+    end
+
+    module CustomDomain
+      class Domain; end
     end
 
     SERVICE_URL_MAPPING = Hash["mysql"      => "mysql",

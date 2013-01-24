@@ -15,10 +15,8 @@ describe BVT::Spec::AutoStaging::JavaSpring do
   end
 
   def add_env(app, key, value)
-    env = ["#{key}=#{value}"]
-    manifest = {}
-    manifest['env'] = env
-    app.update!(manifest)
+    app.env[key] = value
+    app.update!
   end
 
   def add_records(app, number, path='')

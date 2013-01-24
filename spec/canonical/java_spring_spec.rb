@@ -76,8 +76,11 @@ describe BVT::Spec::Canonical::JavaSpring do
     type.should satisfy {|arg| arg.start_with? 'redis'}
     plan = app.get_response(:get, "/properties/sources/property/cloud."+
                                   "services.#{redis_service.name}.plan").to_str
-    requested_plan = ENV['VCAP_BVT_SERVICE_PLAN'] || REDIS_MANIFEST[:plan] || 'free' # lib/harness/service.rb#L67-73
-    plan.should == requested_plan
+    if @session.client.info[:version] > 1
+      plan.should == '100'
+    else
+      plan.should == 'free'
+    end
     password = app.get_response(:get, "/properties/sources/property/cloud.services"+
                              ".#{redis_service.name}.connection.password").to_str
     aliased_password = app.get_response(:get, "/properties/sources/property/cloud."+

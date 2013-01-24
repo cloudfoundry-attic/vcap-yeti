@@ -1,6 +1,7 @@
 
 module BVT::Harness
   module LoggerHelper
+    attr_reader :logfile
     module_function
 
     def set_logger(target)
