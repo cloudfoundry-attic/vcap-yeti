@@ -83,7 +83,6 @@ desc "Build the tests. If the git hash hasn't change, nothing is built. To force
 task :build, [:force] do |t, args|
   download_play if not File.exists? File.join(Dir.pwd, "play-#{PLAY_VERSION}","play")
   puts "\nBuilding tests"
-  sh('cd .. && git submodule update')
   if build_required? args.force
     prompt_message = "\nBVT need java development environment to build java-base apps.\n"+
     "Please run 'sudo aptitude install maven2 default-jdk' on your Linux box"
