@@ -3,20 +3,11 @@ include BVT::Harness
 module BVT::Spec
   module ServiceLifecycleHelper
 
-  SERVICE_LIFECYCLE_CONFIG = ENV['VCAP_BVT_DEPLOY_MANIFEST'] || File.join(File.dirname(__FILE__), "service_lifecycle.yml")
-  SERVICE_CONFIG = (YAML.load_file(SERVICE_LIFECYCLE_CONFIG) rescue {"properties"=>{"service_plans"=>{}}})
-  SERVICE_PLAN = ENV['VCAP_BVT_SERVICE_PLAN'] || "100"
-  SERVICE_SNAPSHOT_QUOTA = {}
-  SERVICE_CONFIG['properties']['service_plans'].each do |service,config|
-    SERVICE_SNAPSHOT_QUOTA[service] = config[SERVICE_PLAN]["configuration"] if config.include?(SERVICE_PLAN)
-  end
-  DEFAULT_SNAPSHOT_QUOTA = 5
-
   def snapshot_quota(service)
-    q = SERVICE_SNAPSHOT_QUOTA[service] || {}
+    q = service_snapshot_quota[service] || {}
     q = q["lifecycle"] || {}
     q = q["snapshot"] || {}
-    q["quota"] || DEFAULT_SNAPSHOT_QUOTA
+    q["quota"] || default_snapshot_quota
   end
 
   def auth_headers

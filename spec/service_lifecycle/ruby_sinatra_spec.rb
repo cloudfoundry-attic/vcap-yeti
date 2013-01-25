@@ -5,7 +5,6 @@ require 'tempfile'
 require 'base64'
 include BVT::Spec
 
-
 describe BVT::Spec::ServiceLifecycle::RubySinatra do
   include BVT::Spec::ServiceLifecycleHelper
 
@@ -16,6 +15,26 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
   after(:each) do
     @session.cleanup!
   end
+
+  let(:service_lifecycle_config) {
+    ENV['VCAP_BVT_DEPLOY_MANIFEST'] || File.join(File.dirname(__FILE__), "service_lifecycle_quota.yml")
+  }
+
+  let(:service_config) {
+    (YAML.load_file(service_lifecycle_config) rescue {"properties"=>{"service_plans"=>{}}})
+  }
+
+  let(:service_plan) { ENV['VCAP_BVT_SERVICE_PLAN'] || @session.v2? ? "100" : "free" }
+
+  let(:service_snapshot_quota) {
+    service_snapshot_quota = {}
+    service_config['properties']['service_plans'].each do |service,config|
+      service_snapshot_quota[service] = config[service_plan]["configuration"] if config.include?(service_plan)
+    end
+    service_snapshot_quota
+  }
+
+  let(:default_snapshot_quota) { 5 }
 
   it "Take mysql snapshot and rollback to a certain snapshot", :mysql => true do
     quota = snapshot_quota('mysql')
