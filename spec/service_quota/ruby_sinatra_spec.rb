@@ -2,7 +2,6 @@ require "harness"
 require "spec_helper"
 require "rest_client"
 include BVT::Spec
-include BVT::Spec::ServiceQuotaHelper
 
 describe BVT::Spec::ServiceQuota::RubySinatra do
 
@@ -15,12 +14,12 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   before(:each) do
     service = nil
     example.metadata.each do |k, v|
-      if v == true && SERVICE_LIST.index(k.to_s)
+      if v == true && service_list.index(k.to_s)
         service = k.to_s
         break
       end
     end
-    pending "service doesn't has this plan for quota testing" unless service && SERVICE_QUOTA[service]
+    pending "service doesn't has this plan for quota testing" unless service && service_quota[service]
     if @session.TARGET =~ /\.vcap\.me$/
       pending "service quota cases are not available in dev setup env"
     end
@@ -30,11 +29,33 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     @session.cleanup!
   end
 
+  let(:default_service_plan) { @session.v2? ? "100" : "free" }
+  let(:service_quota_config) { ENV['VCAP_BVT_DEPLOY_MANIFEST'] || File.join(File.dirname(__FILE__), "service_quota.yml") }
+  let(:service_config) { YAML.load_file(service_quota_config) }
+
+  let(:service_plan) { ENV['VCAP_BVT_SERVICE_PLAN'] || default_service_plan }
+  let(:service_quota) {
+    service_quota = {}
+    service_config['properties']['service_plans'].each do |service,configure|
+      service_quota[service] = configure[service_plan]["configuration"] if configure[service_plan]
+    end
+    service_quota
+  }
+
+  let(:service_list) {
+    service_list=[]
+    service_config['properties']['service_plans'].each do |service,configure|
+      service_list << service
+      service_quota[service] = configure[service_plan]["configuration"] if configure[service_plan]
+    end
+    service_list
+  }
+
   it "test mysql max query time", :mysql => true do
     app = create_push_app("service_quota_app")
     bind_service(MYSQL_MANIFEST, app)
 
-    max_long_query = SERVICE_QUOTA['mysql']['max_long_query']
+    max_long_query = service_quota['mysql']['max_long_query']
     content = app.get_response(:post, "/service/mysql/querytime/#{max_long_query-1}")
     content.to_str.should == "OK"
 
@@ -46,7 +67,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     app = create_push_app("service_quota_app")
     bind_service(POSTGRESQL_MANIFEST, app)
 
-    max_long_query = SERVICE_QUOTA['postgresql']['max_long_query']
+    max_long_query = service_quota['postgresql']['max_long_query']
     content = app.get_response(:post, "/service/postgresql/querytime/#{max_long_query-1}")
     content.to_str.should == "OK"
 
@@ -62,7 +83,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
 
     # max_long_tx could be much larger than client's default request timeout
     # e.g Default request timeout of RestClient is 60 seconds
-    max_long_tx = SERVICE_QUOTA['mysql']['max_long_tx']
+    max_long_tx = service_quota['mysql']['max_long_tx']
     request_timeout = (max_long_tx * 1.5) * 1000
 
     content = app.get_response(:post, "/service/mysql/txtime/#{max_long_tx-1}", "", nil, request_timeout)
@@ -78,7 +99,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
 
     is_kill_long_tx?("postgresql")
 
-    max_long_tx = SERVICE_QUOTA['postgresql']['max_long_tx']
+    max_long_tx = service_quota['postgresql']['max_long_tx']
     request_timeout = (max_long_tx * 1.5) * 1000
 
     content = app.get_response(:post, "/service/postgresql/txtime/#{max_long_tx-1}", "", nil, request_timeout)
@@ -89,20 +110,20 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   def is_kill_long_tx?(service_name)
-    kill_long_tx = SERVICE_QUOTA[service_name]['kill_long_tx']
+    kill_long_tx = service_quota[service_name]['kill_long_tx']
     if service_name == "mysql"
       pending "it will not kill long transactions" unless kill_long_tx == true
     end
-    pending "max_long_tx not enabled" if SERVICE_QUOTA[service_name]['max_long_tx'] == 0
+    pending "max_long_tx not enabled" if service_quota[service_name]['max_long_tx'] == 0
   end
 
 
   it "test mongodb quota enforcement", :mongodb => true do
-    pending "mongodb free plan does not have storage quota enforcement" if SERVICE_PLAN == "free"
+    pending "mongodb free plan does not have storage quota enforcement" if service_plan == "free"
     app = create_push_app("service_quota_app")
     bind_service(MONGODB_MANIFEST, app)
 
-    quota_size = SERVICE_QUOTA['mongodb']['quota_data_size']
+    quota_size = service_quota['mongodb']['quota_data_size']
     block = 100
 
     # a minor record
@@ -143,7 +164,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   it "deploy service quota application with postgresql service", :postgresql => true do
-    pg_max_db_size = SERVICE_QUOTA['postgresql']['max_db_size']
+    pg_max_db_size = service_quota['postgresql']['max_db_size']
 
     app = create_push_app("service_quota_app")
     bind_service(POSTGRESQL_MANIFEST, app)
@@ -195,7 +216,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   it "max_db_size for mysql service", :mysql => true do
-    mysql_max_db_size = SERVICE_QUOTA['mysql']['max_db_size']
+    mysql_max_db_size = service_quota['mysql']['max_db_size']
 
     app = create_push_app("service_quota_app")
     bind_service(MYSQL_MANIFEST, app)
@@ -240,7 +261,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   it "max_memory of redis service", :redis => true do
-    redis_max_memory = SERVICE_QUOTA['redis']['max_memory'].to_f
+    redis_max_memory = service_quota['redis']['max_memory'].to_f
 
     app = create_push_app("service_quota_app")
     bind_service(REDIS_MANIFEST, app)
@@ -313,35 +334,35 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   it "max_clients of postgresql service", :postgresql => true do
-    postgresql_max_clients = SERVICE_QUOTA['postgresql']['max_clients']
+    postgresql_max_clients = service_quota['postgresql']['max_clients']
 
     verify_max_clients(postgresql_max_clients, POSTGRESQL_MANIFEST, 'postgresql',
                        'FATAL:  too many connections for database')
   end
 
   it "max_clients of mysql service", :mysql => true do
-    mysql_max_clients = SERVICE_QUOTA['mysql']['max_clients']
+    mysql_max_clients = service_quota['mysql']['max_clients']
 
     verify_max_clients(mysql_max_clients, MYSQL_MANIFEST, "mysql",
                        "has exceeded the 'max_user_connections' resource")
   end
 
   it "max_clients of mongodb service", :mongodb => true do
-    mongodb_max_clients = SERVICE_QUOTA['mongodb']['max_clients']
+    mongodb_max_clients = service_quota['mongodb']['max_clients']
 
     verify_max_clients(mongodb_max_clients, MONGODB_MANIFEST, 'mongodb',
                        'Operation failed with the following exception: #<Mongo::ConnectionFailure')
   end
 
   it "max_clients of rabbitmq service", :rabbitmq => true do
-    rabbitmq_max_clients = SERVICE_QUOTA['rabbit']['max_clients']
+    rabbitmq_max_clients = service_quota['rabbit']['max_clients']
 
     verify_max_clients(rabbitmq_max_clients, RABBITMQ_MANIFEST, 'rabbitmq',
                        'connection timeout')
   end
 
   it "max_clients of redis service", :redis => true do
-    redis_max_clients = SERVICE_QUOTA['redis']['max_clients']
+    redis_max_clients = service_quota['redis']['max_clients']
 
     verify_max_clients(redis_max_clients, REDIS_MANIFEST, 'redis',
                        'ERR max number of clients reached')
@@ -357,6 +378,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     service = create_service(manifest)
 
     app_number = max_clients / SINGLE_APP_CLIENTS_LIMIT + 1
+
     if app_number > 1
       for i in 1..app_number
         app = @session.app("redis_conn_quota_app", i.to_s)
@@ -450,7 +472,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   it "max_db_size of vblob service", :vblob => true do
-    config = SERVICE_QUOTA['vblob']
+    config = service_quota['vblob']
     if config['vblobd_quota']
       # non-wardenized blob service (bytes --> MB)
       blob_disk_quota = config['vblobd_quota']/(1024*1024)
@@ -513,7 +535,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
 
   it "max_obj_limit of vblob service", :vblob => true do
     pending "it needs about 18 minutes to finish, please remove pending manually if you want to run it"
-    vblob_max_obj_limit = SERVICE_QUOTA['vblob']['max_obj_limit'] || 32768 # https://github.com/cloudfoundry/cf-release/blob/warden/jobs/vblob_node/templates/vblob_node.yml.erb#L38
+    vblob_max_obj_limit = service_quota['vblob']['max_obj_limit'] || 32768 # https://github.com/cloudfoundry/cf-release/blob/warden/jobs/vblob_node/templates/vblob_node.yml.erb#L38
 
     app = create_push_app("service_quota_app")
     bind_service(BLOB_MANIFEST, app)
@@ -565,12 +587,12 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
 
   # Bandwidth test only for rabbitmq now
   it "bandwidth rate for rabbit service", :rabbitmq => true do
-    pending("no configuration for bandwidth rate") unless SERVICE_QUOTA['rabbit']['bandwidth_quotas'] && SERVICE_QUOTA['rabbit']['bandwidth_quotas']['per_second']
+    pending("no configuration for bandwidth rate") unless service_quota['rabbit']['bandwidth_quotas'] && service_quota['rabbit']['bandwidth_quotas']['per_second']
     service = create_service(RABBITMQ_MANIFEST)
     app = create_push_app("service_quota_app")
     app.bind(service)
 
-    rabbit_bandwidth_rate = SERVICE_QUOTA['rabbit']['bandwidth_quotas']['per_second'].to_f
+    rabbit_bandwidth_rate = service_quota['rabbit']['bandwidth_quotas']['per_second'].to_f
     result_reg = /ok-([0-9]+)/
     send_size_mb = rabbit_bandwidth_rate * 30 # Set throughput size to 30 times of rate
     r = app.get_response(:post, "/service/rabbitmq/bandwidth/#{send_size_mb}")
@@ -582,9 +604,9 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
 
   # Daylimit test only for rabbitmq now
   it "daylimit for rabbit service", :rabbitmq => true do
-    pending("no configuration for bandwidth rate") unless SERVICE_QUOTA['rabbit']['bandwidth_quotas'] && SERVICE_QUOTA['rabbit']['bandwidth_quotas']['time_window'] && SERVICE_QUOTA['rabbit']['bandwidth_quotas']['per_day']
-    time_window = SERVICE_QUOTA['rabbit']['bandwidth_quotas']['time_window'].to_i
-    per_day = SERVICE_QUOTA['rabbit']['bandwidth_quotas']['per_day'].to_f
+    pending("no configuration for bandwidth rate") unless service_quota['rabbit']['bandwidth_quotas'] && service_quota['rabbit']['bandwidth_quotas']['time_window'] && service_quota['rabbit']['bandwidth_quotas']['per_day']
+    time_window = service_quota['rabbit']['bandwidth_quotas']['time_window'].to_i
+    per_day = service_quota['rabbit']['bandwidth_quotas']['per_day'].to_f
     pending("take too much time, please set a small time_window value") unless time_window < 600
     service = create_service(RABBITMQ_MANIFEST)
     app = create_push_app("service_quota_app")

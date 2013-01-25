@@ -195,4 +195,3 @@ end
 require "autostaging/autostaging_helper"
 require "canonical/canonical_helper"
 require "service_lifecycle/service_lifecycle_helper"
-require "service_quota/service_quota_helper"

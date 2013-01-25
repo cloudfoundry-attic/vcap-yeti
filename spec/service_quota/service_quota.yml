@@ -44,7 +44,7 @@ properties:
       "100":
         configuration:
           max_memory: 16
-          max_clients: 10
+          max_clients: 50
     rabbit:
       free:
         configuration:
