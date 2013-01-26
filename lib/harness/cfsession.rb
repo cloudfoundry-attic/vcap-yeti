@@ -4,7 +4,7 @@ require "harness/rake_helper"
 
 module BVT::Harness
   class CFSession
-    attr_reader :log, :namespace, :TARGET, :email, :passwd, :is_admin, :token, :current_organization, :current_space,
+    attr_reader :log, :namespace, :TARGET, :email, :passwd, :token, :current_organization, :current_space,
                 :client
 
     def initialize(options = {})
@@ -12,9 +12,6 @@ module BVT::Harness
                  :email => nil,
                  :passwd => nil,
                  :target => nil}.merge(options)
-      @is_admin = options[:admin]
-      @email = options[:email] ? options[:email] : get_login_email(@is_admin)
-      @passwd = options[:passwd] ? options[:passwd] : get_login_passwd(@is_admin)
 
       if options[:target]
         @TARGET = RakeHelper.format_target(options[:target])
@@ -22,12 +19,23 @@ module BVT::Harness
         @TARGET = RakeHelper.get_target
       end
 
+      @email = options[:email] ? options[:email] : get_login_email(options[:admin])
+      @passwd = options[:passwd] ? options[:passwd] : get_login_passwd(options[:admin])
+
+      # Restrict admin from performing non-admin operations
+      unless options[:admin]
+        if is_user_admin?(@email, @passwd)
+          raise RuntimeError, "current operation can not be performed as" +
+            " user with admin privileges"
+        end
+      end
+
       LoggerHelper::set_logger(@TARGET)
 
       @log = get_logger
       @namespace = get_namespace
       login
-      check_privilege(@is_admin) unless v2?
+      check_privilege(options[:admin]) unless v2?
     end
 
     def inspect
@@ -268,6 +276,10 @@ module BVT::Harness
       end
     end
 
+    def v1?
+      @client.is_a?(CFoundry::V1::Client)
+    end
+
     def v2?
       @client.is_a?(CFoundry::V2::Client)
     end
@@ -299,21 +311,17 @@ module BVT::Harness
 
     def get_login_email(expected_admin = false)
       if expected_admin
-        return RakeHelper.get_admin_user
-      elsif ENV['YETI_PARALLEL_USER']
-        return ENV['YETI_PARALLEL_USER']
+        RakeHelper.get_admin_user
       else
-        return RakeHelper.get_user
+        ENV['YETI_PARALLEL_USER'] || RakeHelper.get_user
       end
     end
 
     def get_login_passwd(expected_admin = false)
       if expected_admin
-        return RakeHelper.get_admin_user_passwd
-      elsif ENV['YETI_PARALLEL_USER_PASSWD']
-        return ENV['YETI_PARALLEL_USER_PASSWD']
+        RakeHelper.get_admin_user_passwd
       else
-        return RakeHelper.get_user_passwd
+        ENV['YETI_PARALLEL_USER_PASSWD'] || RakeHelper.get_user_passwd
       end
     end
 
@@ -334,13 +342,7 @@ module BVT::Harness
 
     def admin?
       begin
-        if v2?
-          #hard code for ccng
-          return false
-        else
-          user = @client.user(@email)
-          user.admin?
-        end
+        is_user_admin?(@email, @passwd)
       rescue Exception => e
         @log.error("Fail to check user's admin privilege. Target: #{@client.target},"+
                        " login email: #{@email}\n#{e.to_s}")
@@ -367,6 +369,24 @@ module BVT::Harness
       end
 
       "[#{date}]  #{time}\t#{request_id}  #{rest_method}\t-> #{code}\t#{url}"
+    end
+  end
+
+  private
+
+  def is_user_admin?(email, passwd)
+    if v1? && @client
+      @client.user(email).admin?
+    else
+      # Currently cfoundry v2 can only check
+      # if user is an admin if we logged in as admin
+      check_admin_client = CFoundry::Client.new(@TARGET)
+      begin
+        check_admin_client.login({ :username => email, :password => passwd })
+        check_admin_client.current_user.admin?
+      rescue
+        false
+      end
     end
   end
 end
