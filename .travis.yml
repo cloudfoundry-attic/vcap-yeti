@@ -1,11 +1,10 @@
+---
 language: ruby
 rvm:
-  - "1.8.7"
-  - "1.9.2"
-  - "1.9.3"
-  - jruby-18mode # JRuby in 1.8 mode
-  - jruby-19mode # JRuby in 1.9 mode
-  - rbx-18mode
-  - rbx-19mode
-# uncomment this line if your project needs to run something other than `rake`:
-script: bundle exec tools/scripts/run_tests.sh
+- 1.9.3
+script: bundle exec run tests
+env:
+- secure: "lO5ZI64oqIr5KeBBPbdM6DodzwjO/ZFUMP/zOp8MYy53s0Hg6OsXbhiqRLMt\nBxkNu4IRYTpoeOuQyl7wRftVtiAOM3+5k+9UlSV46sxUhpBLaXmbIGSMcjmw\no7SHRpRdUoQVx8qOgdkcRFhj+pIM90UTr1cFJxGCgjsWj7up0gM="
+- secure: "N+1gVdqzFBIoWE+fZbkW030t0bXhs1NV7IMBz7yV7xyLFVevcouvCxhSLJyg\nHdlED2+Vm1h0x50mo9NbsaTU/yeTjiQ2eZ8NIC6+KovQ49odmwDzLA+YS7MB\nPYJ47bqegTCuqr97vDcKzMvsQt5DmMpRxMARJ9PoLPq08/DaGyM="
+- secure: "As9Sa7jPFhVgK5Od6E/zdtdKLvi5+uGg/TVNHsP5fJ75RyNQVmFMeZGeQVMn\nq751SXBhor13w0ROFt/BxrZQjrtM6RvTpI72lxP/HjDW05kRyzmabjZ4q53j\nTGBFaN6IPxXl3XjaExvQ7CmlXrVCtpQBEp8nmPEIRKkQDGNdwo8="
+- secure: "twkxbjMUTsOiIMFaxcfRG6UHtZgfaD7YORZrda8G6Id+Adn611BijyLmYFPI\n8pAKm5USuBYNYRL1B+WIQs3MK5dGf1jvXCf3lR2S0Yws5FuwfXMoCsG6LbQH\nuw6+iMhModzwMSw/4Rsdaj4pBboJGP3LRlHGs3drPaVs4ny1fJo="
