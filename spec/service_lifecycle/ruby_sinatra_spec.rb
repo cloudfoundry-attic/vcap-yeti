@@ -24,7 +24,7 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     (YAML.load_file(service_lifecycle_config) rescue {"properties"=>{"service_plans"=>{}}})
   }
 
-  let(:service_plan) { ENV['VCAP_BVT_SERVICE_PLAN'] || @session.v2? ? "100" : "free" }
+  let(:service_plan) { ENV['VCAP_BVT_SERVICE_PLAN'] || (@session.v2? ? "100" : "free") }
 
   let(:service_snapshot_quota) {
     service_snapshot_quota = {}
