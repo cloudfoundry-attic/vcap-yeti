@@ -1,7 +1,7 @@
 language: ruby
 rvm:
 - 1.9.3
-script: bundle exec run tests
+script: bundle exec rake tests
 env:
   global:
     - secure: "lO5ZI64oqIr5KeBBPbdM6DodzwjO/ZFUMP/zOp8MYy53s0Hg6OsXbhiqRLMt\nBxkNu4IRYTpoeOuQyl7wRftVtiAOM3+5k+9UlSV46sxUhpBLaXmbIGSMcjmw\no7SHRpRdUoQVx8qOgdkcRFhj+pIM90UTr1cFJxGCgjsWj7up0gM="
