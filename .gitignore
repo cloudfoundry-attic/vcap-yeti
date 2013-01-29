@@ -10,3 +10,4 @@ vendor/
 .gitreview
 reports/
 service_plan_version_test.sh
+.idea
