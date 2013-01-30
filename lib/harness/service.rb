@@ -120,7 +120,7 @@ module BVT::Harness
         #in v2, use 'D100' as default
         if @session.v2?
           default_service_plan = "100"
-          service_manifest[:plan] ||= default_service_plan
+          service_manifest[:plan] ||= (ENV['VCAP_BVT_SERVICE_PLAN'] || default_service_plan)
           plan = meta[:plans].find { |p|
             p =~ /#{service_manifest[:plan]}/
           }
