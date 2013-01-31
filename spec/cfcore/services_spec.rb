@@ -14,7 +14,7 @@ describe 'core services', :cfcore => true, :mcf => true do
   let(:postgresql_versions) { @session.v2? ? ['9.1'] : ['9.0'] }
   let(:redis_versions) { @session.v2? ? ['2.6'] : ['2.2'] }
   let(:rabbitmq_versions) { @session.v2? ? ['2.8'] : ['2.4'] }
-  let(:mongodb_versions) { @session.v2? ? ['2.2'] : ['1.8', '2.0'] }
+  let(:mongodb_versions) { @session.v2? ? ['2.2'] : ['2.0'] }
 
   it { mysql_versions.each { |v| should have_service 'mysql', v } }
 
