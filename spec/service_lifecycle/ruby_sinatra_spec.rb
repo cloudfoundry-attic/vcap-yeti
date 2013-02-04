@@ -420,4 +420,100 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     result["result"]["snapshot_id"].should == nil
   end
 
+  it "Take rabbit snapshot and rollback to a certain snapshot", :rabbit => true do
+    quota = snapshot_quota('rabbit')
+    pending('This test requires quota > 0') unless quota > 0
+
+    app = create_push_app('app_sinatra_service2')
+    bind_service(RABBITMQ_MANIFEST, app)
+
+    content = app.get_response(:get, '/env')
+    service_id = parse_service_id(content, 'rabbit')
+    get_snapshots(service_id)
+    post_and_verify_service(RABBITMQ_MANIFEST,app,'abc','rabbitabc')
+    result = create_snapshot(service_id)
+    snapshot_id = result["result"]["snapshot_id"]
+
+    snapshot = get_snapshot(service_id, snapshot_id)
+    snapshot["snapshot_id"].should == snapshot_id
+    snapshot["size"].should > 0
+    snapshot["date"].should_not == nil
+
+    snapshots = get_snapshots(service_id)
+    snapshot = snapshots["snapshots"].find {|s| s["snapshot_id"] == snapshot_id}
+    snapshot.should_not == nil
+    snapshot["size"].should > 0
+    snapshot["date"].should_not == nil
+
+    post_and_verify_service(RABBITMQ_MANIFEST,app,'abc','rabbitabc2')
+    rollback_snapshot(service_id, snapshot_id)
+    post_and_verify_service(RABBITMQ_MANIFEST,app,'abc','rabbitabc')
+
+    delete_snapshot(service_id, snapshot_id)
+    snapshot = get_snapshot(service_id, snapshot_id)
+    snapshot.should == nil
+    snapshots = get_snapshots(service_id)
+    snapshot = snapshots["snapshots"].find {|s| s["snapshot_id"] == snapshot_id}
+    snapshot.should == nil
+
+    (1..quota).each do |i|
+      create_snapshot(service_id)
+    end
+
+    result = create_snapshot(service_id)
+    result.should_not == nil
+    result["status"].should == "failed"
+    result["result"]["snapshot_id"].should == nil
+  end
+
+  it "Import and export serialized data for rabbit service", :rabbit => true do
+    quota = snapshot_quota('rabbit')
+    pending('This test requires quota > 2') unless quota > 2 # FIXME
+
+    app = create_push_app('app_sinatra_service2')
+    bind_service(RABBITMQ_MANIFEST, app)
+    post_and_verify_service(RABBITMQ_MANIFEST,app,'abc','rabbitabc')
+
+    content = app.get_response(:get, '/env')
+    service_id = parse_service_id(content, 'mysql')
+    get_snapshots(service_id)
+    result = create_snapshot(service_id)
+    snapshot_id = result["result"]["snapshot_id"]
+
+    get_serialized_url(service_id, snapshot_id)
+
+    serialized_url = create_serialized_url(service_id, snapshot_id)
+    response = get_serialized_url(service_id, snapshot_id)
+    response.should == serialized_url
+    serialized_data = download_data(serialized_url)
+
+    post_and_verify_service(RABBITMQ_MANIFEST,app,'abc','rabbitabc2')
+
+    import_url_snapshot_id = import_service_from_url(service_id,serialized_url)
+    rollback_snapshot(service_id, import_url_snapshot_id)
+    verify_service(RABBITMQ_MANIFEST,app,'abc','rabbitabc')
+
+    post_and_verify_service(RABBITMQ_MANIFEST,app,'abc','rabbitabc2')
+
+    import_data_snapshot_id = import_service_from_data(service_id,serialized_data)
+    rollback_snapshot(service_id, import_data_snapshot_id)
+    verify_service(RABBITMQ_MANIFEST,app,'abc','rabbitabc')
+
+    delete_snapshot(service_id, snapshot_id)
+    snapshot = get_snapshot(service_id, snapshot_id)
+    snapshot.should == nil
+    snapshots = get_snapshots(service_id)
+    snapshot = snapshots["snapshots"].find {|s| s["snapshot_id"] == snapshot_id}
+    snapshot.should == nil
+
+    (1..quota).each do |i|
+      create_snapshot(service_id)
+    end
+
+    result = create_snapshot(service_id)
+    result.should_not == nil
+    result["status"].should == "failed"
+    result["result"]["snapshot_id"].should == nil
+  end
+
 end
