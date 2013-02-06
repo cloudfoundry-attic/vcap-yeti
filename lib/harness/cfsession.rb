@@ -48,7 +48,7 @@ module BVT::Harness
       @client.trace = true if ENV['VCAP_BVT_TRACE']
       @client.log = []
       begin
-        @token = @client.login({:username => @email, :password =>  @passwd})
+        @token = @client.login(@email, @passwd)
       rescue Exception => e
         @log.error "Fail to login in, target: #{@TARGET}, user: #{@email}\n#{e.to_s}"
         raise "Cannot login target environment:\n" +
