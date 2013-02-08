@@ -478,8 +478,6 @@ module BVT::Harness
       "#{@name}#{second_domain}.#{@session.TARGET.gsub(/http[s]?:\/\/\w+\./, "")}".gsub("_", "-")
     end
 
-    private
-
     def check_framework(framework)
       unless VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(framework.to_sym)
         @log.error("Framework: #{framework} is not available " +
