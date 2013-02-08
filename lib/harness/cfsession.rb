@@ -220,6 +220,7 @@ module BVT::Harness
       end
       begin
         domain = @client.domain
+        domain.wildcard = true
         domain.name = name
         BVT::Harness::Domain.new( domain, self)
       rescue Exception => e
