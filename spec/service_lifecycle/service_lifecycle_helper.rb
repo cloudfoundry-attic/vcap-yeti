@@ -11,7 +11,7 @@ module BVT::Spec
   end
 
   def auth_headers
-    {"content-type"=>"application/json", "AUTHORIZATION" => @session.token}
+    {"content-type"=>"application/json", "AUTHORIZATION" => @session.token.auth_header}
   end
 
   def get_snapshots(service_id)
