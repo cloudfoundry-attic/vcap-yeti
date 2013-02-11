@@ -26,7 +26,7 @@ describe BVT::Spec::Simple::FileRange::RubySinatra do
     num_bytes = 10
     @file_contents = File.read("#{@app.manifest['path']}/#{FILE_NAME}")
     url = "#{@session.TARGET}/apps/#{@app.name}/instances/0/files/app/#{FILE_NAME}"
-    hdrs = {"AUTHORIZATION" => @session.token, "Range" => "bytes=#{range}"}
+    hdrs = {"AUTHORIZATION" => @session.token.auth_header, "Range" => "bytes=#{range}"}
 
     resp = RestClient.get(url, hdrs)
     resp.should_not == nil
@@ -43,7 +43,7 @@ describe BVT::Spec::Simple::FileRange::RubySinatra do
     num_bytes = 10
     @file_contents = File.read("#{@app.manifest['path']}/#{FILE_NAME}")
     url = "#{@session.TARGET}/apps/#{@app.name}/instances/0/files/app/#{FILE_NAME}"
-    hdrs = {"AUTHORIZATION" => @session.token, "Range" => "bytes=#{range}"}
+    hdrs = {"AUTHORIZATION" => @session.token.auth_header, "Range" => "bytes=#{range}"}
 
     resp = RestClient.get(url, hdrs)
     resp.should_not == nil
@@ -62,7 +62,7 @@ describe BVT::Spec::Simple::FileRange::RubySinatra do
     num_bytes = fin - start + 1
     @file_contents = File.read("#{@app.manifest['path']}/#{FILE_NAME}")
     url = "#{@session.TARGET}/apps/#{@app.name}/instances/0/files/app/#{FILE_NAME}"
-    hdrs = {"AUTHORIZATION" => @session.token, "Range" => "bytes=#{range}"}
+    hdrs = {"AUTHORIZATION" => @session.token.auth_header, "Range" => "bytes=#{range}"}
 
     resp = RestClient.get(url, hdrs)
     resp.should_not == nil
