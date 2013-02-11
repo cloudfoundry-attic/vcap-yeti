@@ -10,7 +10,7 @@ describe BVT::Spec::UsersManagement::NormalUser do
 
   it "check JWT token", :p1 => true do
     if @session.email.end_with?("@vmware.com") || @session.email.end_with?("@rbcon.com")
-      @session.token.should match /(^bearer\s\S+[.]\S+[.]\S+$)/
+      @session.token.auth_header.should match /(^bearer\s\S+[.]\S+[.]\S+$)/
     end
   end
 
