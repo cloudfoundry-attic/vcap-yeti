@@ -25,11 +25,13 @@ describe "Application name collision" do
   end
 
   it "will not push two apps with the same name" do
+    pending if session.v1?
     deploy_app_with_name(@yeti_app, app_name)
     expect { deploy_app_with_name(@yeti_app, app_name) }.to raise_error(RuntimeError, /CFoundry::AppNameTaken/)
   end
 
   it "will not push two apps whose names only differ in capitalization" do
+    pending if session.v1?
     deploy_app_with_name(@yeti_app, app_name)
     expect { deploy_app_with_name(@yeti_app, app_name.upcase) }.to raise_error(RuntimeError, /CFoundry::AppNameTaken/)
   end
