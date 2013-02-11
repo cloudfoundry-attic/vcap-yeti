@@ -5,6 +5,7 @@ include BVT::Spec
 describe "Application name collision" do
   let(:session) { BVT::Harness::CFSession.new }
   let(:cfoundry_app) { session.client.app }
+  let(:app_name) { "prefix-simple_app-#{session.namespace}" }
 
   before do
     cfoundry_app.name = "prefix-simple_app"
@@ -24,12 +25,12 @@ describe "Application name collision" do
   end
 
   it "will not push two apps with the same name" do
-    deploy_app_with_name(@yeti_app, "prefix-simple_app")
-    expect { deploy_app_with_name(@yeti_app, "prefix-simple_app") }.to raise_error(RuntimeError, /CFoundry::AppNameTaken/)
+    deploy_app_with_name(@yeti_app, app_name)
+    expect { deploy_app_with_name(@yeti_app, app_name) }.to raise_error(RuntimeError, /CFoundry::AppNameTaken/)
   end
 
   it "will not push two apps whose names only differ in capitalization" do
-    deploy_app_with_name(@yeti_app, "prefix-simple_app")
-    expect { deploy_app_with_name(@yeti_app, "PREFIX-SIMPLE_APP") }.to raise_error(RuntimeError, /CFoundry::AppNameTaken/)
+    deploy_app_with_name(@yeti_app, app_name)
+    expect { deploy_app_with_name(@yeti_app, app_name.upcase) }.to raise_error(RuntimeError, /CFoundry::AppNameTaken/)
   end
 end
