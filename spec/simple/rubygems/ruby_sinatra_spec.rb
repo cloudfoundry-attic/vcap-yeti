@@ -4,13 +4,9 @@ include BVT::Spec
 
 describe BVT::Spec::Simple::RubyGems::RubySinatra do
 
-  before(:all) do
-    @session = BVT::Harness::CFSession.new
-  end
+  before(:all) { @session = BVT::Harness::CFSession.new }
 
-  after(:each) do
-    @session.cleanup!
-  end
+  after { @session.cleanup! }
 
   def verify_service(service_manifest, app, key)
     data = "#{service_manifest[:vendor]}#{key}"
@@ -121,11 +117,11 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
   end
 
   it "sinatra test deploy app with Gemfile.lock containing Windows versions", :mysql=>true, :postgresql=>true do
-    app = create_push_app("sinatra_windows_gemfile")
     staging_log = app.file("logs/staging.log")
     staging_log.should_not include "Adding yajl-ruby-0.8.3.gem to app"
     staging_log.should include "Adding mysql2-0.3.11.gem to app"
     staging_log.should include "Adding pg-0.14.0.gem to app"
+    app = create_push_app("sinatra_windows_gemfile", nil, nil, [MYSQL_MANIFEST, POSTGRESQL_MANIFEST])
 
     bind_service(MYSQL_MANIFEST, app)
     verify_service(MYSQL_MANIFEST, app, "abc")
@@ -144,6 +140,4 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
     response.code.should == 200
     response.to_str.should == "hello from sinatra"
   end
-
-
 end

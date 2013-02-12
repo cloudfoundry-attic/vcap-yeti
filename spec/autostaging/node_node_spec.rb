@@ -15,15 +15,14 @@ describe BVT::Spec::AutoStaging::NodeNode do
 
   it "Node.js version 0.4 autostaging", :mysql=>true, :redis=>true,
     :mongodb=>true, :rabbitmq=>true, :postgresql=>true do
-    app = push_app_and_verify("node_autoconfig04", "/", "hello from node")
-
     manifests = [MYSQL_MANIFEST,
                  REDIS_MANIFEST,
                  MONGODB_MANIFEST,
                  RABBITMQ_MANIFEST,
                  POSTGRESQL_MANIFEST]
+    app = push_app_and_verify("node_autoconfig04", "/", "hello from node", manifests)
+
     manifests.each do |service_manifest|
-      bind_service(service_manifest, app)
       verify_service_autostaging(service_manifest, app)
     end
   end

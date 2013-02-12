@@ -40,8 +40,7 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     quota = snapshot_quota('mysql')
     pending('This test requires quota > 0') unless quota > 0
 
-    app = create_push_app('app_sinatra_service2')
-    bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app('app_sinatra_service2', nil, nil, [MYSQL_MANIFEST])
 
     content = app.get_response(:get, '/env')
     service_id = parse_service_id(content, 'mysql')
@@ -86,8 +85,7 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     quota = snapshot_quota('mysql')
     pending('This test requires quota > 2') unless quota > 2 # FIXME
 
-    app = create_push_app('app_sinatra_service2')
-    bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app('app_sinatra_service2', nil, nil, [MYSQL_MANIFEST])
     post_and_verify_service(MYSQL_MANIFEST,app,'abc','mysqlabc')
 
     content = app.get_response(:get, '/env')
@@ -136,8 +134,7 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     quota = snapshot_quota('redis')
     pending('This test requires quota > 0') unless quota > 0
 
-    app = create_push_app('app_sinatra_service2')
-    bind_service(REDIS_MANIFEST, app)
+    app = create_push_app('app_sinatra_service2', nil, nil, [REDIS_MANIFEST])
 
     content = app.get_response(:get, '/env')
     service_id = parse_service_id(content, 'redis')
@@ -182,8 +179,7 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     quota = snapshot_quota('redis')
     pending('This test requires quota > 2') unless quota > 2 # FIXME
 
-    app = create_push_app('app_sinatra_service2')
-    bind_service(REDIS_MANIFEST, app)
+    app = create_push_app('app_sinatra_service2', nil, nil, [REDIS_MANIFEST])
     post_and_verify_service(REDIS_MANIFEST,app,'abc','redisabc')
 
     content = app.get_response(:get, '/env')
@@ -232,8 +228,7 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     quota = snapshot_quota('mongodb')
     pending('This test requires quota > 0') unless quota > 0
 
-    app = create_push_app('app_sinatra_service2')
-    bind_service(MONGODB_MANIFEST, app)
+    app = create_push_app('app_sinatra_service2', nil, nil, [MONGODB_MANIFEST])
 
     content = app.get_response(:get, '/env')
     service_id = parse_service_id(content, 'mongodb')
@@ -278,8 +273,7 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     quota = snapshot_quota('mongodb')
     pending('This test requires quota > 2') unless quota > 2 # FIXME
 
-    app = create_push_app('app_sinatra_service2')
-    bind_service(MONGODB_MANIFEST, app)
+    app = create_push_app('app_sinatra_service2', nil, nil, [MONGODB_MANIFEST])
     post_and_verify_service(MONGODB_MANIFEST,app,'abc','mongodbabc')
 
     content = app.get_response(:get, '/env')
@@ -328,8 +322,7 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     quota = snapshot_quota('postgresql')
     pending('This test requires quota > 0') unless quota > 0
 
-    app = create_push_app('app_sinatra_service2')
-    bind_service(POSTGRESQL_MANIFEST, app)
+    app = create_push_app('app_sinatra_service2', nil, nil, [POSTGRESQL_MANIFEST])
 
     content = app.get_response(:get, '/env')
     service_id = parse_service_id(content, 'postgresql')
@@ -374,8 +367,7 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     quota = snapshot_quota('postgresql')
     pending('This test requires quota > 2') unless quota > 2 # FIXME
 
-    app = create_push_app('app_sinatra_service2')
-    bind_service(POSTGRESQL_MANIFEST, app)
+    app = create_push_app('app_sinatra_service2', nil, nil, [POSTGRESQL_MANIFEST])
     post_and_verify_service(POSTGRESQL_MANIFEST,app,'abc','postgresqlabc')
 
     content = app.get_response(:get, '/env')
@@ -424,8 +416,7 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     quota = snapshot_quota('rabbit')
     pending('This test requires quota > 0') unless quota > 0
 
-    app = create_push_app('app_sinatra_service2')
-    bind_service(RABBITMQ_MANIFEST, app)
+    app = create_push_app('app_sinatra_service2', nil, nil, [RABBITMQ_MANIFEST])
 
     content = app.get_response(:get, '/env')
     service_id = parse_service_id(content, 'rabbit')
@@ -470,8 +461,7 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     quota = snapshot_quota('rabbit')
     pending('This test requires quota > 2') unless quota > 2 # FIXME
 
-    app = create_push_app('app_sinatra_service2')
-    bind_service(RABBITMQ_MANIFEST, app)
+    app = create_push_app('app_sinatra_service2', nil, nil, [RABBITMQ_MANIFEST])
     post_and_verify_service(RABBITMQ_MANIFEST,app,'abc','rabbitabc')
 
     content = app.get_response(:get, '/env')
@@ -515,5 +505,4 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     result["status"].should == "failed"
     result["result"]["snapshot_id"].should == nil
   end
-
 end

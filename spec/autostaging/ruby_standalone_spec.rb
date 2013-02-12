@@ -13,15 +13,13 @@ describe BVT::Spec::AutoStaging::RubyStandalone do
     @session.cleanup!
   end
 
-  it "standalone ruby18 autostaging", :mysql => true, :redis => true,
-    :mongodb => true, :postgresql => true, :rabbitmq => true do
-    app = create_push_app("standalone_ruby18_autoconfig")
-
+  it "standalone ruby18 autostaging", :mysql => true, :redis => true, :mongodb => true, :postgresql => true, :rabbitmq => true do
     # provision service
     manifests = [MYSQL_MANIFEST, REDIS_MANIFEST, MONGODB_MANIFEST,
                  RABBITMQ_MANIFEST, POSTGRESQL_MANIFEST]
+    app = create_push_app("standalone_ruby18_autoconfig", nil, nil, manifests)
+
     manifests.each do |service_manifest|
-      bind_service(service_manifest, app)
       verify_service_autostaging(service_manifest, app)
     end
   end

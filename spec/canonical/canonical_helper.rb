@@ -12,7 +12,11 @@ module BVT::Spec
     end
 
     def bind_service_and_verify(app, service_manifest)
-      service = bind_service(service_manifest, app)
+      bind_service(service_manifest, app)
+      verify_keys(app, service_manifest)
+    end
+
+    def verify_keys(app, service_manifest)
       %W(abc 123 def).each { |key| verify_service(service_manifest, app, key)}
     end
 

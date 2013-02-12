@@ -18,9 +18,12 @@ module BVT::Spec
       app.get_response(:get, "/service/#{url}/#{key}").to_str.should == data
     end
 
-    def push_app_and_verify(app_name, relative_url, response_str)
+    def push_app_and_verify(app_name, relative_url, response_str, services=[])
       app = create_app(app_name)
-      app.push
+      service_instances = services.map do |service|
+        create_service(service)
+      end
+      app.push(service_instances)
       app.healthy?.should be_true, "Application #{app.name} is not running"
       app.get_response(:get, relative_url).to_str.should =~ /#{response_str}/
       app

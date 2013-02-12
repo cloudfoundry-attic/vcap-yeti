@@ -52,18 +52,8 @@ describe BVT::Spec::AutoStaging::JavaGrails do
   end
 
   it "Start grails app and add some records", :mysql => true, :p1 => true do
-    app = create_push_app("grails_app")
-    service = bind_service(MYSQL_MANIFEST, app)
-
+    app = create_push_app("grails_app", nil, nil, [MYSQL_MANIFEST])
     records = add_records(app, 3, "/guest/save")
-
     verify_records(app, records, 3, "/guest/list", "//tbody/tr")
-
-    app.delete
-
-    app2 = create_push_app("grails_app")
-    app2.bind(service)
-
-    verify_records(app2, records, 3, "/guest/list", "//tbody/tr")
   end
 end

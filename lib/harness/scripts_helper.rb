@@ -43,9 +43,12 @@ module BVT::Harness
       app
     end
 
-    def create_push_app(app_name, prefix = '', domain=nil)
+    def create_push_app(app_name, prefix = '', domain=nil, services=[])
       app = create_app(app_name, prefix, domain)
-      app.push
+      service_instances = services.map do |service|
+        create_service(service)
+      end
+      app.push(service_instances)
       unless @session.v2?
         app.healthy?.should be_true, "Application #{app.name} is not running"
       end
