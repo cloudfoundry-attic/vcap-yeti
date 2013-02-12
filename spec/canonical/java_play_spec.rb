@@ -268,13 +268,10 @@ describe BVT::Spec::Canonical::JavaPlay do
   it "Deploy Play Application using Java 6" do
     app = create_push_app("play_todolist_app")
 
-    runtime = app.manifest['runtime']
-    version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version]
-
     contents = app.get_response(:get, '/java')
     contents.should_not == nil
     contents.to_str.should_not  == nil
-    contents.to_str.should =~ /#{version}/
+    contents.to_str.should =~ /1.6/
     contents.code.should == 200
   end
 end

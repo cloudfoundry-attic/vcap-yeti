@@ -73,21 +73,18 @@ describe BVT::Spec::Simple::RailsConsole::Console do
 
   it "Rails Console runs tasks with correct ruby version in path" do
 
-    runtime = app.manifest["runtime"]
     app = create_push_app("rails_console_test_app", nil, nil,  [POSTGRESQL_MANIFEST])
     app = open_console(app)
 
     sleep 1
 
-    version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version]
-
     init_console(@client, app)
 
     response = @console.send_console_command("`ruby --version`")
     match = false
-    response.each{ |res|
-      match = true if res =~ /#{Regexp.escape("ruby #{version}")}/
-    }
+    response.each do |res|
+      match = true if res =~ /#{Regexp.escape("ruby 1.9.2")}/
+    end
     match.should == true
   end
 

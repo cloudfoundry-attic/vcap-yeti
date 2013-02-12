@@ -48,7 +48,7 @@ describe BVT::Spec::OrgSpace::Space do
   it "test create and delete app/service in space" do
     use_space("new_space")
 
-    app = create_push_app("simple_app", nil, nil, [MYSQL_MANIFEST])
+    create_push_app("simple_app", nil, nil, [MYSQL_MANIFEST])
 
     space = @session.current_space
 
