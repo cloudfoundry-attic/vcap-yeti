@@ -25,8 +25,7 @@ describe BVT::Spec::Simple::RailsConsole::Console do
   end
 
   it "rails test console", :p1 => true do
-    app = create_push_app("rails_console_test_app")
-
+    app = create_push_app("rails_console_test_app", nil, nil, [POSTGRESQL_MANIFEST])
     app = open_console(app)
 
     sleep 1
@@ -42,7 +41,7 @@ describe BVT::Spec::Simple::RailsConsole::Console do
   end
 
   it "rails test console stdout redirect" do
-    app = create_push_app("rails_console_test_app")
+    app = create_push_app("rails_console_test_app", nil, nil, [POSTGRESQL_MANIFEST])
 
     app = open_console(app)
 
@@ -56,7 +55,7 @@ describe BVT::Spec::Simple::RailsConsole::Console do
   end
 
   it "rails test console rake task" do
-    app = create_push_app("rails_console_test_app")
+    app = create_push_app("rails_console_test_app", nil, nil,  [POSTGRESQL_MANIFEST])
 
     app = open_console(app)
 
@@ -66,16 +65,16 @@ describe BVT::Spec::Simple::RailsConsole::Console do
 
     response = @console.send_console_command("`rake routes`")
     match = false
-    response.each{ |res|
+    response.each do |res|
       match = true if res =~ /#{Regexp.escape(':action=>\"hello\"')}/
-    }
+    end
     match.should == true
   end
 
   it "Rails Console runs tasks with correct ruby version in path" do
 
-    app = create_push_app("rails_console_test_app")
     runtime = app.manifest["runtime"]
+    app = create_push_app("rails_console_test_app", nil, nil,  [POSTGRESQL_MANIFEST])
     app = open_console(app)
 
     sleep 1
@@ -94,8 +93,7 @@ describe BVT::Spec::Simple::RailsConsole::Console do
 
 
   it "rails test console MySQL connection", :mysql=>true do
-    app = create_push_app("rails_console_19_test_app")
-    bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app("rails_console_19_test_app", nil, nil, [MYSQL_MANIFEST])
     app = open_console(app)
     sleep 1
 
@@ -128,8 +126,7 @@ describe BVT::Spec::Simple::RailsConsole::Console do
   end
 
   it "rails test console Postgres connection", :postgresql=>true do
-    app = create_push_app("rails_console_19_test_app")
-    bind_service(POSTGRESQL_MANIFEST, app)
+    app = create_push_app("rails_console_19_test_app", nil, nil, [POSTGRESQL_MANIFEST])
     app = open_console(app)
     sleep 1
 

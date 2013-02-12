@@ -27,28 +27,28 @@ describe BVT::Spec::Canonical::JavaSpring do
   end
 
   it "spring test mysql service", :mysql => true, :p1 => true do
-    app = create_push_app("app_spring_service")
-    bind_service_and_verify(app, MYSQL_MANIFEST)
+    app = create_push_app("app_spring_service", nil, nil, [MYSQL_MANIFEST])
+    verify_keys(app, MYSQL_MANIFEST)
   end
 
   it "spring test redis service", :redis => true, :p1 => true do
-    app = create_push_app("app_spring_service")
-    bind_service_and_verify(app, REDIS_MANIFEST)
+    app = create_push_app("app_spring_service", nil, nil, [REDIS_MANIFEST])
+    verify_keys(app, REDIS_MANIFEST)
   end
 
   it "spring test mongodb service", :mongodb => true, :p1 => true do
-    app = create_push_app("app_spring_service")
-    bind_service_and_verify(app, MONGODB_MANIFEST)
+    app = create_push_app("app_spring_service", nil, nil, [MONGODB_MANIFEST])
+    verify_keys(app, MONGODB_MANIFEST)
   end
 
   it "spring test rabbitmq service", :rabbitmq => true, :p1 => true do
-    app = create_push_app("app_spring_service")
-    bind_service_and_verify(app, RABBITMQ_MANIFEST)
+    app = create_push_app("app_spring_service", nil, nil, [RABBITMQ_MANIFEST])
+    verify_keys(app, RABBITMQ_MANIFEST)
   end
 
   it "spring test postgresql service", :postgresql => true do
-    app = create_push_app("app_spring_service")
-    bind_service_and_verify(app, POSTGRESQL_MANIFEST)
+    app = create_push_app("app_spring_service", nil, nil, [POSTGRESQL_MANIFEST])
+    verify_keys(app, POSTGRESQL_MANIFEST)
   end
 
   it "deploy spring 3.1 app", :redis => true do

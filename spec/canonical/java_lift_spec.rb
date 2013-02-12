@@ -48,9 +48,7 @@ describe BVT::Spec::Canonical::JavaLift do
 
   it "start Scala / Lift application and add some records", :mysql => true,
     :p1 => true do
-    app = create_push_app("lift-db-app")
-
-    service = bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app("lift-db-app", nil, nil, [MYSQL_MANIFEST])
 
     records = {}
     uri = app.manifest['uris'][0] + "/api/guests"
@@ -62,17 +60,6 @@ describe BVT::Spec::Canonical::JavaLift do
       response.should == 200
     end
 
-    response = RestClient.get uri, :accept => 'text/xml'
-    response.should_not == nil
-    response.code.should == 200
-    verify_contents(3, response.body, "//guest", records)
-
-    app.delete
-
-    app2 = create_push_app("lift-db-app")
-    app2.bind(service)
-
-    uri = app2.manifest['uris'][0] + "/api/guests"
     response = RestClient.get uri, :accept => 'text/xml'
     response.should_not == nil
     response.code.should == 200

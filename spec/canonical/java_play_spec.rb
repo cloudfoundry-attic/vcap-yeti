@@ -32,9 +32,7 @@ describe BVT::Spec::Canonical::JavaPlay do
 
   it "play application with mysql auto-reconfiguration", :mysql => true,
     :p1 => true do
-    app = create_push_app("play_todolist_app")
-
-    bind_service( MYSQL_MANIFEST, app )
+    app = create_push_app("play_todolist_app", nil, nil,  [MYSQL_MANIFEST])
 
     contents = app.get_response( :get, '/tasks' )
     contents.should_not             == nil
@@ -48,9 +46,7 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application using cloud foundry runtime lib", :mysql => true do
-    app = create_push_app("play_todolist_with_cfruntime_app")
-
-    bind_service( MYSQL_MANIFEST, app )
+    app = create_push_app("play_todolist_with_cfruntime_app", nil, nil,  [MYSQL_MANIFEST])
 
     contents = app.get_response( :get, '/tasks' )
     contents.should_not             == nil
@@ -113,9 +109,7 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application with auto-reconfiguration disabled", :mysql => true do
-    app = create_push_app("play_computer_database_autoconfig_disabled_app")
-
-    bind_service( MYSQL_MANIFEST, app )
+    app = create_push_app("play_computer_database_autoconfig_disabled_app", nil, nil,  [MYSQL_MANIFEST])
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
@@ -180,9 +174,7 @@ describe BVT::Spec::Canonical::JavaPlay do
 
   it "play application with mysql JPA auto-reconfiguration",
     :mysql => true do
-    app = create_push_app("play_computer_database_jpa_mysql_app")
-
-    bind_service( MYSQL_MANIFEST, app )
+    app = create_push_app("play_computer_database_jpa_mysql_app", nil, nil,  [MYSQL_MANIFEST])
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
@@ -197,9 +189,7 @@ describe BVT::Spec::Canonical::JavaPlay do
 
   it "play application with postgresql JPA auto-reconfiguration",
     :postgresql => true, :p1 => true do
-    app = create_push_app("play_computer_database_jpa_app")
-
-    bind_service( POSTGRESQL_MANIFEST, app )
+    app = create_push_app("play_computer_database_jpa_app", nil, nil,  [POSTGRESQL_MANIFEST])
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
@@ -214,10 +204,7 @@ describe BVT::Spec::Canonical::JavaPlay do
 
   it "play application with multiple databases", :mysql => true,
     :postgresql => true do
-    app = create_push_app("play_computer_database_multi_dbs_app")
-
-    bind_service( POSTGRESQL_MANIFEST, app )
-    bind_service( MYSQL_MANIFEST, app )
+    app = create_push_app("play_computer_database_multi_dbs_app", nil, nil,  [POSTGRESQL_MANIFEST, MYSQL_MANIFEST])
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
@@ -233,9 +220,7 @@ describe BVT::Spec::Canonical::JavaPlay do
 
   it "play application with postgres auto-reconfiguration",
     :postgresql => true do
-    app = create_push_app("play_computer_database_scala_app")
-
-    bind_service( POSTGRESQL_MANIFEST, app )
+    app = create_push_app("play_computer_database_scala_app", nil, nil,  [POSTGRESQL_MANIFEST])
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil
@@ -250,9 +235,7 @@ describe BVT::Spec::Canonical::JavaPlay do
 
   it "play application with multiple database services, one named production",
     :postgresql => true do
-    app = create_push_app("play_computer_database_scala_app")
-
-    bind_service( POSTGRESQL_MANIFEST, app )
+    app = create_push_app("play_computer_database_scala_app", nil, nil,  [POSTGRESQL_MANIFEST])
     bind_service( POSTGRESQL_MANIFEST, app, 'play-comp-db-app-production' )
 
     contents = app.get_response( :get, '/computers' )
@@ -268,10 +251,7 @@ describe BVT::Spec::Canonical::JavaPlay do
 
   it "play application with multiple database services", :mysql => true,
     :postgresql => true do
-    app = create_push_app("play_computer_database_scala_app")
-
-    bind_service( POSTGRESQL_MANIFEST, app )
-    bind_service( MYSQL_MANIFEST, app )
+    app = create_push_app("play_computer_database_scala_app", nil, nil,  [POSTGRESQL_MANIFEST, MYSQL_MANIFEST])
 
     contents = app.get_response( :get, '/computers' )
     contents.should_not             == nil

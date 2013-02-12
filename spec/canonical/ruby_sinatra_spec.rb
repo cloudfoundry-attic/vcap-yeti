@@ -38,35 +38,23 @@ describe BVT::Spec::Canonical::RubySinatra do
     logs.should include "development"
   end
 
-  it "sinatra test mysql service", :mysql => true do
-    app = create_push_app("app_sinatra_service")
-    bind_service_and_verify(app, MYSQL_MANIFEST)
-  end
-
-  it "sinatra test redis service", :redis => true, :p1 => true do
-    app = create_push_app("app_sinatra_service")
-    bind_service_and_verify(app, REDIS_MANIFEST)
-  end
-
-  it "sinatra test mongodb service", :mongodb => true, :p1 => true do
-    app = create_push_app("app_sinatra_service")
-    bind_service_and_verify(app, MONGODB_MANIFEST)
-  end
-
-  it "sinatra test rabbitmq service", :rabbitmq => true, :p1 => true do
-    app = create_push_app("app_sinatra_service")
-    bind_service_and_verify(app, RABBITMQ_MANIFEST)
-  end
-
-  it "sinatra test postgresql service", :postgresql => true do
-    app = create_push_app("app_sinatra_service")
-    bind_service_and_verify(app, POSTGRESQL_MANIFEST)
+  it "sinatra test services", :mysql => true, :redis => true, :postgresql => true, :mongodb => true, :rabbitmq => true do
+    app = create_push_app("app_sinatra_service", nil, nil, [
+      MYSQL_MANIFEST,
+      POSTGRESQL_MANIFEST,
+      RABBITMQ_MANIFEST,
+      MONGODB_MANIFEST,
+      REDIS_MANIFEST
+    ])
+    verify_keys(app, MYSQL_MANIFEST)
+    verify_keys(app, POSTGRESQL_MANIFEST)
+    verify_keys(app, RABBITMQ_MANIFEST)
+    verify_keys(app, MONGODB_MANIFEST)
+    verify_keys(app, REDIS_MANIFEST)
   end
 
   it "sinatra test neo4j service", :neo4j => true, :p1 => true do
-    neo4j_service = create_service(NEO4J_MANIFEST)
-    app = create_push_app("neo4j_app")
-    app.bind(neo4j_service.name)
+    app = create_push_app("neo4j_app", nil, nil, [NEO4J_MANIFEST])
 
     r = app.get_response(:post, '/question',
         { :question => 'Q1', :answer => 'A1'}.to_json)
@@ -82,9 +70,7 @@ describe BVT::Spec::Canonical::RubySinatra do
   end
 
   it "sinatra test blob service", :blob => true, :p1 => true do
-    blob_service = create_service(BLOB_MANIFEST)
-    app = create_push_app("blob_app")
-    app.bind(blob_service)
+    app = create_push_app("blob_app", nil, nil, [BLOB_MANIFEST])
 
     r = app.get_response(:post, '/service/vblob/container1', 'dummy')
     r.code.should == 200
@@ -99,9 +85,7 @@ describe BVT::Spec::Canonical::RubySinatra do
   end
 
   it "memcached services", :p1 => true, :memcached => true do
-    memcached_service = create_service(MEMCACHED_MANIFEST)
-    app = create_push_app("memcached_app")
-    app.bind(memcached_service)
+    app = create_push_app("memcached_app", nil, nil, [MEMCACHED_MANIFEST])
 
     r1 = app.get_response(:post,"/storeincache",{:key => 'foo', :value => 'bar'}.to_json)
     r1.code.should == 200
@@ -115,8 +99,7 @@ describe BVT::Spec::Canonical::RubySinatra do
   end
 
   it "sinatra test couchdb service", :couchdb => true, :p1 => true do
-    app = create_push_app("couchdb_app")
-    service = bind_service(COUCHDB_MANIFEST, app)
+    app = create_push_app("couchdb_app", nil, nil, [COUCHDB_MANIFEST])
 
     data = { :key => 'foo', :value => 'bar'}
     res = app.get_response(:post, "/storeincouchdb", data.to_json)
@@ -130,8 +113,7 @@ describe BVT::Spec::Canonical::RubySinatra do
   end
 
   it "sinatra test elasticsearch service", :elasticsearch => true, :p1 => true do
-    app = create_push_app("elasticsearch_app")
-    service = bind_service(ELASTICSSEARCH_MANIFEST, app)
+    app = create_push_app("elasticsearch_app", nil, nil, [ELASTICSSEARCH_MANIFEST])
 
     data = "id=foo&message=bar"
     res = app.get_response(:post, "/es/save", data)
@@ -144,11 +126,9 @@ describe BVT::Spec::Canonical::RubySinatra do
   end
 
   it "sinatra test oauth2 service", :oauth2 => true do
-    app = create_push_app("oauth2_app")
-    service = bind_service(OAUTH2_MANIFEST, app)
+    app = create_push_app("oauth2_app", nil, nil, [OAUTH2_MANIFEST])
     res = app.get_response(:get, "/auth/cloudfoundry")
     res.code.should == HTTP_RESPONSE_CODE::FOUND
     res.header_str.should match "Location: http.*://(login|uaa).*"
   end
-
 end

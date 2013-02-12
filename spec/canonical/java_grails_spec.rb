@@ -21,6 +21,7 @@ describe BVT::Spec::Canonical::JavaGrails do
     runtime = app.manifest['runtime']
     version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version]
 
+    app = create_push_app("grails_app", nil, nil, [MYSQL_MANIFEST])
     contents = app.get_response(:get)
     contents.should_not == nil
     contents.to_str.should_not == nil

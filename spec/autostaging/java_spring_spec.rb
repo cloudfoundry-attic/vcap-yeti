@@ -58,9 +58,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
   it "Spring Web Application specifying a Cloud Service and Data Source",
     :mysql => true, :mongodb => true, :p1 => true do
-    app = create_push_app("auto-reconfig-test-app")
-    bind_service(MONGODB_MANIFEST, app)
-    bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app("auto-reconfig-test-app", nil, nil, [MONGODB_MANIFEST, MYSQL_MANIFEST])
 
     add_env(app,'TEST_PROFILE','auto-staging-off-using-cloud-service')
 
@@ -72,8 +70,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
   it "Spring Web Application specifying a Service Scan and Data Source",
     :mysql => true do
-    app = create_push_app("auto-reconfig-test-app")
-    bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app("auto-reconfig-test-app", nil, nil, [MYSQL_MANIFEST])
 
     add_env(app,'TEST_PROFILE','auto-staging-off-using-service-scan')
 
@@ -84,8 +81,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
   end
 
   it "Spring Web Application using a local MongoDBFactory", :mongodb => true do
-    app = create_push_app("auto-reconfig-test-app")
-    bind_service(MONGODB_MANIFEST, app)
+    app = create_push_app("auto-reconfig-test-app", nil, nil, [MONGODB_MANIFEST])
 
     add_env(app,'TEST_PROFILE','mongo-auto-staging')
 
@@ -97,8 +93,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
   it "Spring Web Application using a local RedisConnectionFactory",
     :redis => true, :p1 => true do
-    app = create_push_app("auto-reconfig-test-app")
-    bind_service(REDIS_MANIFEST, app)
+    app = create_push_app("auto-reconfig-test-app", nil, nil, [REDIS_MANIFEST])
 
     add_env(app,'TEST_PROFILE','redis-auto-staging')
 
@@ -110,8 +105,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
   it "Spring Web Application using a local RabbitConnectionFactory",
     :rabbitmq => true, :p1 => true do
-    app = create_push_app("auto-reconfig-test-app")
-    bind_service(RABBITMQ_MANIFEST, app)
+    app = create_push_app("auto-reconfig-test-app", nil, nil, [RABBITMQ_MANIFEST])
 
     add_env(app,'TEST_PROFILE','rabbit-auto-staging')
 
@@ -123,8 +117,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
   it "Spring 3.1 Hibernate application using a local DataSource",
     :mysql => true do
-    app = create_push_app("auto-reconfig-test-app")
-    bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app("auto-reconfig-test-app", nil, nil, [MYSQL_MANIFEST])
 
     add_env(app,'TEST_PROFILE','hibernate-auto-staging')
 
@@ -144,8 +137,7 @@ describe BVT::Spec::AutoStaging::JavaSpring do
 
   it "start Spring 3.1 Hibernate application with an annotation context using" +
      " a local DataSource", :mysql => true do
-    app = create_push_app("auto-reconfig-annotation-app")
-    bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app("auto-reconfig-annotation-app", nil, nil, [MYSQL_MANIFEST])
 
     response = app.get_response(:get, "/hibernate")
     response.should_not == nil
@@ -154,72 +146,38 @@ describe BVT::Spec::AutoStaging::JavaSpring do
   end
 
   it "Spring Web application using JPA using mysql", :mysql => true do
-    app = create_push_app("jpa_app")
-    service = bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app("jpa_app", nil, nil, [MYSQL_MANIFEST])
 
     records = add_records(app, 3)
 
     verify_records(app, records, 3)
-
-    app.delete
-
-    app2 = create_push_app("jpa_app")
-    app2.bind(service)
-
-    verify_records(app2, records, 3)
   end
 
   it "Spring Web application using Hibernate and mysql", :mysql => true do
-    app = create_push_app("hibernate_app")
-    service = bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app("hibernate_app", nil, nil, [MYSQL_MANIFEST])
 
     records = add_records(app, 3)
 
     verify_records(app, records, 3)
-
-    app.delete
-
-    app2 = create_push_app("hibernate_app")
-    app2.bind(service)
-
-    verify_records(app2, records, 3)
   end
 
   it "Spring Roo application using mysql", :mysql => true do
-    app = create_push_app("roo_app")
-    service = bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app("roo_app", nil, nil, [MYSQL_MANIFEST])
 
     records = add_records(app, 3, '/guests')
 
     # The Roo page returns an extra row for the footer in the table
     # hence the "+ 1"
     verify_records(app, records, 4, '/guests', '//table/tr')
-
-    app.delete
-
-    app2 = create_push_app("roo_app")
-    app2.bind(service)
-
-    # The Roo page returns an extra row for the footer in the table
-    # hence the "+ 1"
-    verify_records(app2, records, 4, '/guests', '//table/tr')
   end
 
   it "Spring Web application using Hibernate and postgresql",
     :postgresql => true, :p1 => true do
-    app = create_push_app("hibernate_app")
-    service = bind_service(POSTGRESQL_MANIFEST, app)
+    app = create_push_app("hibernate_app", nil, nil, [POSTGRESQL_MANIFEST])
 
     records = add_records(app, 3)
 
     verify_records(app, records, 3)
-
-    app.delete
-
-    app2 = create_push_app("hibernate_app")
-    app2.bind(service)
-
-    verify_records(app2, records, 3)
   end
 
   it "Start Spring Web Application with no service dependencies" do

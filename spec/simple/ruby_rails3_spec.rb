@@ -13,7 +13,7 @@ describe BVT::Spec::Simple::RubyRails3 do
   end
 
   it "access my application root and see it's running version" do
-    @app = create_push_app("app_rails_version")
+    @app = create_push_app("app_rails_version", nil, nil, [MYSQL_MANIFEST])
     @app.stats.should_not == nil
 
     runtime = @app.manifest['runtime']

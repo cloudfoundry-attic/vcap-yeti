@@ -52,8 +52,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   }
 
   it "test mysql max query time", :mysql => true do
-    app = create_push_app("service_quota_app")
-    bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app("service_quota_app", nil, nil, [MYSQL_MANIFEST])
 
     max_long_query = service_quota['mysql']['max_long_query']
     content = app.get_response(:post, "/service/mysql/querytime/#{max_long_query-1}")
@@ -64,8 +63,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   it "test postgresql max query time", :postgresql => true do
-    app = create_push_app("service_quota_app")
-    bind_service(POSTGRESQL_MANIFEST, app)
+    app = create_push_app("service_quota_app", nil, nil, [POSTGRESQL_MANIFEST])
 
     max_long_query = service_quota['postgresql']['max_long_query']
     content = app.get_response(:post, "/service/postgresql/querytime/#{max_long_query-1}")
@@ -76,8 +74,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   it "test mysql max transaction time", :mysql => true do
-    app = create_push_app("service_quota_app")
-    bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app("service_quota_app", nil, nil, [MYSQL_MANIFEST])
 
     is_kill_long_tx?("mysql")
 
@@ -94,8 +91,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   it "test postgresql max transaction time", :postgresql => true do
-    app = create_push_app("service_quota_app")
-    bind_service(POSTGRESQL_MANIFEST, app)
+    app = create_push_app("service_quota_app", nil, nil, [POSTGRESQL_MANIFEST])
 
     is_kill_long_tx?("postgresql")
 
@@ -120,8 +116,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
 
   it "test mongodb quota enforcement", :mongodb => true do
     pending "mongodb free plan does not have storage quota enforcement" if service_plan == "free"
-    app = create_push_app("service_quota_app")
-    bind_service(MONGODB_MANIFEST, app)
+    app = create_push_app("service_quota_app", nil, nil, [MONGODB_MANIFEST])
 
     quota_size = service_quota['mongodb']['quota_data_size']
     block = 100
@@ -166,8 +161,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   it "deploy service quota application with postgresql service", :postgresql => true do
     pg_max_db_size = service_quota['postgresql']['max_db_size']
 
-    app = create_push_app("service_quota_app")
-    bind_service(POSTGRESQL_MANIFEST, app)
+    app = create_push_app("service_quota_app", nil, nil, [POSTGRESQL_MANIFEST])
 
     verify_max_db_size(pg_max_db_size, app, '/service/postgresql/tables/quota_table',
                        'ERROR:  permission denied for relation quota_table', ['connection not open','server closed the connection unexpectedly','terminating connection due to administrator command'])
@@ -218,8 +212,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   it "max_db_size for mysql service", :mysql => true do
     mysql_max_db_size = service_quota['mysql']['max_db_size']
 
-    app = create_push_app("service_quota_app")
-    bind_service(MYSQL_MANIFEST, app)
+    app = create_push_app("service_quota_app", nil, nil, [MYSQL_MANIFEST])
 
     #when will we receive the following errors?
     #Query execution was interrupted: connection closed during a query
@@ -263,8 +256,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   it "max_memory of redis service", :redis => true do
     redis_max_memory = service_quota['redis']['max_memory'].to_f
 
-    app = create_push_app("service_quota_app")
-    bind_service(REDIS_MANIFEST, app)
+    app = create_push_app("service_quota_app", nil, nil, [REDIS_MANIFEST])
 
     # Since redis uses up more memory than the actual size of data,
     # we'll do a best fill upto redis_max_memory
@@ -485,8 +477,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
       blob_disk_quota = 2048
     end
 
-    app = create_push_app("service_quota_app")
-    bind_service(BLOB_MANIFEST, app)
+    app = create_push_app("service_quota_app", nil, nil, [BLOB_MANIFEST])
 
     single_app_megabytes = 200
 
@@ -537,8 +528,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     pending "it needs about 18 minutes to finish, please remove pending manually if you want to run it"
     vblob_max_obj_limit = service_quota['vblob']['max_obj_limit'] || 32768 # https://github.com/cloudfoundry/cf-release/blob/warden/jobs/vblob_node/templates/vblob_node.yml.erb#L38
 
-    app = create_push_app("service_quota_app")
-    bind_service(BLOB_MANIFEST, app)
+    app = create_push_app("service_quota_app", nil, nil, [BLOB_MANIFEST])
 
     single_app_objs = 1000
 
