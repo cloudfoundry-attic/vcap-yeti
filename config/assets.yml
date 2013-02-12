@@ -186,18 +186,6 @@ app_rails_service_autoconfig:
   memory: 256
   path: "assets/rails3/app_rails_service_autoconfig"
 
-rails_autoconfig_disabled_by_file:
-  framework: "rails3"
-  runtime: "ruby19"
-  memory: 256
-  path: "assets/rails3/autoconfig_disabled_by_file"
-
-rails_autoconfig_disabled_by_gem:
-  framework: "rails3"
-  runtime: "ruby19"
-  memory: 256
-  path: "assets/rails3/autoconfig_disabled_by_gem"
-
 rails_3_2_app:
   framework: "rails3"
   runtime: "ruby19"
@@ -226,22 +214,6 @@ rack_autoconfig_ruby19:
   startup: "ruby app.rb"
   memory: 64
   path: "assets/rack/autoconfig_ruby19"
-
-rack_autoconfig_disabled_by_file:
-  framework: "rack"
-  instances: 1
-  runtime: "ruby18"
-  startup: "ruby app.rb"
-  memory: 64
-  path: "assets/rack/autoconfig_disabled_by_file"
-
-rack_autoconfig_disabled_by_gem:
-  framework: "rack"
-  instances: 1
-  runtime: "ruby18"
-  startup: "ruby app.rb"
-  memory: 64
-  path: "assets/rack/autoconfig_disabled_by_gem"
 
 app_sinatra_service:
   framework: "sinatra"
@@ -301,31 +273,11 @@ autoconfig_unsupported_carrot_version:
   memory: 64
   path: "assets/sinatra/autoconfig_unsupported_carrot_version"
 
-sinatra_autoconfig_disabled_by_file:
-  framework: "sinatra"
-  instances: 1
-  runtime: "ruby19"
-  memory: 64
-  path: "assets/sinatra/autoconfig_disabled_by_file"
-
-sinatra_autoconfig_disabled_by_gem:
-  framework: "sinatra"
-  instances: 1
-  runtime: "ruby19"
-  memory: 64
-  path: "assets/sinatra/autoconfig_disabled_by_gem"
-
 app_node_service:
   framework: "node"
   runtime: "node"
   memory: 64
   path: "assets/node/app_node_service"
-
-app_node_dependencies04:
-  framework: "node"
-  runtime: "node"
-  memory: 64
-  path: "assets/node/node_dependencies04"
 
 app_node_dependencies06:
   framework: "node"
@@ -363,18 +315,6 @@ node_autoconfig08:
   runtime: "node08"
   memory: 64
   path: "assets/node/node_autoconfig"
-
-node_autoconfig_disabled_by_file:
-  framework: "node"
-  runtime: "node"
-  memory: 64
-  path:  "assets/node/node_autoconfig_disabled_by_file"
-
-node_autoconfig_disabled_by_module:
-  framework: "node"
-  runtime: "node"
-  memory: 64
-  path: "assets/node/node_autoconfig_disabled_by_module"
 
 node_git_modules:
   framework: "node"
@@ -543,21 +483,6 @@ standalone_ruby18_autoconfig:
   runtime: "ruby19"
   memory: 64
   path: "assets/standalone/ruby_autoconfig"
-
-
-standalone_ruby_autoconfig_disabled_by_file:
-  framework: "standalone"
-  command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
-  runtime: "ruby19"
-  memory: 64
-  path: "assets/standalone/ruby_autoconfig_disabled_by_file"
-
-standalone_ruby_autoconfig_disabled_by_gem:
-  framework: "standalone"
-  command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
-  runtime: "ruby19"
-  memory: 64
-  path: "assets/standalone/ruby_autoconfig_disabled_by_gem"
 
 standalone_php_app:
   framework: "standalone"

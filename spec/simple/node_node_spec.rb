@@ -21,14 +21,6 @@ describe BVT::Spec::Simple::NodeNode do
     app.get_response(:get).to_str.should =~ /running version v0.4/
   end
 
-  it "access my application root and see hello from express" do
-    app = create_push_app("app_node_dependencies04")
-    app.stats.should_not == nil
-    app.get_response(:get).should_not == nil
-    app.get_response(:get).to_str.should_not == nil
-    app.get_response(:get).to_str.should == "hello from express"
-  end
-
   it "access my application root and see hello from git" do
     app = create_push_app("node_git_modules")
     app.stats.should_not == nil
