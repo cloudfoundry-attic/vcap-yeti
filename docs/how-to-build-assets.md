@@ -20,7 +20,7 @@ Steps
 
 1. Checkout Repo & update
 -----------------------
-``gerrit clone ssh://<yourname>@reviews.cloudfoundry.org:29418/vcap-yeti``
+``git clone git@github.com:cloudfoundry/vcap-yeti.git``
 
 ``cd vcap-yeti && bash update.sh``
 
@@ -32,7 +32,7 @@ Folder tree is like:
 
     |--- assets
 
-      |--- django
+      |--- rails3
 
       |--- grails
 
@@ -102,10 +102,10 @@ Test locally to make sure the functions being correct.
 
 6. Commit your change
 -----------------------
-Commit your app code, push to vcap_test_assets repo on Gerrit for review. And also don’t forget to commit yeti changes: ``config/assets.yml``, ``tools/Rakefile``...
+Commit your app code and submit a pull request to vcap_test_assets. And also don’t forget to commit yeti changes: ``config/assets.yml``, ``tools/Rakefile``...
 
 Once it has been merged, please notice QA to upload binary to blobs server.
 
 
 
-That’ all about assets build steps, Thank you.
+That’s all about assets build steps, Thank you.

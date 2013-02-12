@@ -143,12 +143,6 @@ roo_app:
   memory: 256
   path: ".assets-binaries/roo-guestbook.war"
 
-mochiweb_test:
-  framework: "otp_rebar"
-  runtime: "erlangR14B02"
-  memory: 64
-  path: "assets/mochiweb/mochiweb_test/rel/mochiweb_test"
-
 simple-lift-app:
   framework: "lift"
   memory: 256
@@ -346,30 +340,6 @@ neo4j_app:
   memory: 128
   path: "assets/sinatra/neo4j_app"
 
-simple_wsgi_app:
-  framework: "wsgi"
-  runtime: "python2"
-  memory: 64
-  path: "assets/django/simple_wsgi_app"
-
-wsgi_app_with_requirements:
-  framework: "wsgi"
-  runtime: "python2"
-  memory: 64
-  path: "assets/django/wsgi_app_with_requirements"
-
-simple_django_app:
-  framework: "django"
-  runtime: "python2"
-  memory: 64
-  path: "assets/django/simple_django_app"
-
-simple_php_app:
-  framework: "php"
-  runtime: "php"
-  memory: 64
-  path: "assets/php/simple_php_app"
-
 spring-env-app:
   framework: "spring"
   memory: 256
@@ -483,30 +453,6 @@ standalone_ruby18_autoconfig:
   runtime: "ruby19"
   memory: 64
   path: "assets/standalone/ruby_autoconfig"
-
-standalone_php_app:
-  framework: "standalone"
-  command: "php index.php"
-  runtime: php
-  memory: 64
-  path: "assets/standalone/php_app"
-  no_url: true
-
-standalone_python_app:
-  framework: "standalone"
-  command: "python HelloWorld.py"
-  runtime: python2
-  memory: 64
-  path: "assets/standalone/python_app"
-  no_url: true
-
-standalone_erlang_app:
-  framework: "standalone"
-  command: "erl -noshell -s helloworld start -s"
-  runtime: "erlangR14B02"
-  memory: 64
-  path: "assets/standalone/erlang_app"
-  no_url: true
 
 play_computer_database_autoconfig_disabled_app:
   framework: "play"

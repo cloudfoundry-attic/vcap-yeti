@@ -89,13 +89,6 @@ module BVT
       class RubyStandalone; end
       class RubyRails3; end
       class RubySinatra; end
-      class ErlangStandalone; end
-      class PhpStandalone; end
-      class Python2Standalone; end
-      class ErlangOtpRebar; end
-      class PhpPhp; end
-      class Python2Wsgi; end
-      class Python2Django; end
 
       module Info
         class RubySinatra; end

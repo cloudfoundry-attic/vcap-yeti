@@ -108,8 +108,6 @@ FAQ:
    <br>A: *Pending* means your target environment is missing some prerequisites, usually a service,
        framework or runtime.
       <br>The number of pending cases depends on your target environment and environment variables.
-      - For example, php/python is not available in the production environment so all php/python
-      related test cases should be pending.
 
 2. What's the update file?
    <br>A: For assets that need to be compiled such as Java applications, Yeti leverages a common
@@ -138,13 +136,6 @@ FAQ:
       - Junit-format report is under [yeti_home]/reports. The junitResult.xml is the summary.
 
 7. What runtimes/frameworks/services should my environment have?
-   <br>Dev setup:
-   - runtimes: java6, java7, ruby18, ruby19, ruby1.9.3, node04, node06, node08, php, python2, erlang
-   - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone, php,
-   django, wsgi, otp_rebar
-   - services: mongodb, mysql, postgresql, rabbitmq, redis, vblob, memcached, elasticsearch, couchdb,
-   neo4j, echo, filesystem
-
    Dev instance:
    - runtimes: java, java7, ruby18, ruby19, node, node06, node08
    - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone
