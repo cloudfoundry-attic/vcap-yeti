@@ -1,12 +1,3 @@
-module BVT::Harness
-  ## multi versions of runtime. constant for category and runtimes.
-  VCAP_BVT_INFO_RUNTIME = {
-    :ruby=>['ruby19', 'ruby18'],
-    :java=>['java', 'java7'],
-    :node=>['node', 'node06', 'node08']
-  }
-end
-
 module BVT::Spec
   ## default service manifest
   MYSQL_MANIFEST            = ENV['VCAP_BVT_MYSQL_MANIFEST'] ? eval(ENV['VCAP_BVT_MYSQL_MANIFEST']) :

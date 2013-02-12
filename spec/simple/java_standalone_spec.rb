@@ -18,12 +18,11 @@ describe BVT::Spec::Simple::JavaStandalone do
     contents = app.get_response(:get)
     contents.should_not == nil
 
-    runtime = app.manifest['runtime']
-    version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version]
     response = app.logs
-    response.should =~ /Java version: #{version}/
-    response.should include 'Hello from the cloud.  Java opts:  -Xms64m -Xmx64m'+
-    ' -Djava.io.tmpdir=appdir/tmp'
+    response.should =~ /Java version: 1.6/
+    response.should include '-Xms64m'
+    response.should include '-Xmx64m'
+    response.should include '-Djava.io.tmpdir=appdir/tmp'
   end
 
 end

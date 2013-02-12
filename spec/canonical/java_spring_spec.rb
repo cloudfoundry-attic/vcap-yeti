@@ -86,14 +86,10 @@ describe BVT::Spec::Canonical::JavaSpring do
 
   it "java test deploy app using java 6" do
     app = create_push_app("app_spring_service")
-
-    runtime = app.manifest['runtime']
-    version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version]
-
     contents = app.get_response(:get, '/java')
     contents.should_not == nil
     contents.to_str.should_not == nil
-    contents.to_str.should =~ /#{version}/
+    contents.to_str.should =~ /1.6/
     contents.code.should == 200
 
   end

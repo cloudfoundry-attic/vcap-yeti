@@ -14,8 +14,6 @@ describe BVT::Spec::Simple::NodeStandalone do
 
   it "Simple app with node runtime and no URL", :p1 => true do
     app = create_push_app("standalone_node_app")
-    runtime = app.manifest['runtime']
-    version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version]
-    app.logs =~ /it's running version v#{version}/
+    app.logs =~ /it's running version v0.4/
   end
 end

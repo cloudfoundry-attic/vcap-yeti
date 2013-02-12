@@ -16,11 +16,9 @@ describe BVT::Spec::Simple::RubyRails3 do
     @app = create_push_app("app_rails_version", nil, nil, [MYSQL_MANIFEST])
     @app.stats.should_not == nil
 
-    runtime = @app.manifest['runtime']
-    version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version].split("p",2).first
     @app.get_response(:get).should_not == nil
     @app.get_response(:get).to_str.should_not == nil
-    @app.get_response(:get).to_str.should == "running version "+version
+    @app.get_response(:get).to_str.should == "running version 1.9.2"
   end
 
   it "precompiles assets" do

@@ -15,12 +15,10 @@ describe BVT::Spec::Simple::NodeNode do
   it "access my application root and see it's running version",
     :p1 => true do
     app = create_push_app("app_node_version04")
-    runtime = app.manifest['runtime']
-    version = VCAP_BVT_SYSTEM_RUNTIMES[runtime][:version]
     app.stats.should_not == nil
     app.get_response(:get).should_not == nil
     app.get_response(:get).to_str.should_not == nil
-    app.get_response(:get).to_str.should == "running version v#{version}"
+    app.get_response(:get).to_str.should =~ /running version v0.4/
   end
 
   it "access my application root and see hello from express" do
