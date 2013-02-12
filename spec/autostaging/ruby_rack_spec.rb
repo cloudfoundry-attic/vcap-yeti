@@ -40,28 +40,4 @@ describe BVT::Spec::AutoStaging::RubyRack do
       verify_service_autostaging(service_manifest, app)
     end
   end
-
-  it "rack opt-out of autostaging via config file", :redis => true do
-    app = create_push_app("rack_autoconfig_disabled_by_file")
-    app.get_response(:get).to_str.should == "hello from sinatra"
-
-    # provision service
-    service_manifest = REDIS_MANIFEST
-    bind_service(service_manifest, app)
-    data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
-    url = "/service/#{service_manifest[:vendor]}/connection"
-    app.get_response(:get, url).to_str.should == data
-  end
-
-  it "rack opt-out of autostaging via cf-runtime gem", :redis => true do
-    app = create_push_app("rack_autoconfig_disabled_by_gem")
-    app.get_response(:get).to_str.should == "hello from sinatra"
-
-    # provision service
-    service_manifest = REDIS_MANIFEST
-    bind_service(service_manifest, app)
-    data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
-    url = "/service/#{service_manifest[:vendor]}/connection"
-    app.get_response(:get, url).to_str.should == data
-  end
 end

@@ -74,37 +74,4 @@ describe BVT::Spec::AutoStaging::RubyRails3 do
       verify_service_autostaging(service_manifest, app)
     end
   end
-
-  it "Rails opt-out of autostaging via config file", :mysql => true, :redis => true do
-    # provision service
-    service_manifests = [MYSQL_MANIFEST, REDIS_MANIFEST]
-    services = []
-    service_manifests.each { |manifest| services << create_service(manifest) }
-
-    app = create_app("rails_autoconfig_disabled_by_file")
-    app.push(services)
-    app.healthy?.should be_true, "Application #{app.name} is not running"
-    app.get_response(:get).to_str.should == "hello from rails"
-
-    key = "connection"
-    data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
-    app.get_response(:get, "/service/redis/#{key}").to_str.should == data
-  end
-
-  it "Rails opt-out of autokstaging via cf-runtime gem", :mysql => true,
-    :redis => true do
-    # provision service
-    service_manifests = [MYSQL_MANIFEST, REDIS_MANIFEST]
-    services = []
-    service_manifests.each { |manifest| services << create_service(manifest) }
-
-    app = create_app("rails_autoconfig_disabled_by_gem")
-    app.push(services)
-    app.healthy?.should be_true, "Application #{app.name} is not running"
-    app.get_response(:get).to_str.should == "hello from rails"
-
-    key = "connection"
-    data = "Connectionrefused-UnabletoconnecttoRedison127.0.0.1:6379"
-    app.get_response(:get, "/service/redis/#{key}").to_str.should == data
-  end
 end
