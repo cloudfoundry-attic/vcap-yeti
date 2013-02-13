@@ -62,8 +62,9 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
   end
 
   it "sinatra test deploy app specifying BUNDLE_WITHOUT" do
-    app = create_push_app("sinatra_gem_groups")
-    app.stop
+    app = create_app("sinatra_gem_groups")
+    app.manifest["no_start"] = true
+    app.push
     add_env(app, "BUNDLE_WITHOUT", "development")
     app.start
 
@@ -80,8 +81,9 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
   end
 
   it "sinatra test deploy app setting BUNDLE_WITHOUT to multiple groups" do
-    app = create_push_app("sinatra_gem_groups")
-    app.stop
+    app = create_app("sinatra_gem_groups")
+    app.manifest["no_start"] = true
+    app.push
     add_env(app, "BUNDLE_WITHOUT", "development:test")
     app.start
 
@@ -99,8 +101,9 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
   end
 
   it "sinatra test deploy app setting BUNDLE_WITHOUT blank to override default" do
-    app = create_push_app("sinatra_gem_groups")
-    app.stop
+    app = create_app("sinatra_gem_groups")
+    app.manifest["no_start"] = true
+    app.push
     add_env(app, "BUNDLE_WITHOUT", "")
     app.start
 

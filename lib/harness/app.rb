@@ -610,7 +610,7 @@ module BVT::Harness
       services.each { |service| bind(service, false)} if services
       upload_app(app, path)
 
-      start(need_check)
+      start(need_check) unless @manifest["no_start"]
     end
 
     def upload_app(app, path)
