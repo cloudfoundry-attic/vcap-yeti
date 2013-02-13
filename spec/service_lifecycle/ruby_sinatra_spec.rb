@@ -475,7 +475,7 @@ describe BVT::Spec::ServiceLifecycle::RubySinatra do
     post_and_verify_service(RABBITMQ_MANIFEST,app,'abc','rabbitabc')
 
     content = app.get_response(:get, '/env')
-    service_id = parse_service_id(content, 'mysql')
+    service_id = parse_service_id(content, 'rabbit')
     get_snapshots(service_id)
     result = create_snapshot(service_id)
     snapshot_id = result["result"]["snapshot_id"]
