@@ -530,12 +530,10 @@ module BVT::Harness
         app.runtime = @client.runtime_by_name(runtime)
       end
 
-      if @manifest['framework'] == "standalone"
-        command = @manifest['command']
-        if command != app.command
-          diff[:command] = [app.command, command]
-          app.command = command
-        end
+      command = @manifest['command']
+      if command != app.command
+        diff[:command] = [app.command, command]
+        app.command = command
       end
 
       if @session.v2?
@@ -571,9 +569,7 @@ module BVT::Harness
 
       app.framework = @client.framework_by_name(@manifest['framework'])
       app.runtime = @client.runtime_by_name(@manifest['runtime'])
-
-
-      app.command = @manifest['command'] if @manifest['framework'] == "standalone"
+      app.command = @manifest['command']
 
       if @domain
         url = "#{@name}.#{@domain}"

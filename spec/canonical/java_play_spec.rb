@@ -101,11 +101,6 @@ describe BVT::Spec::Canonical::JavaPlay do
     log.should include("Found cloud properties in configuration.  " +
       "Auto-reconfiguration disabled")
     log.should include("database [default] connected at jdbc:mysql")
-
-    files = app.files('app/lib/')
-    has_file = verify_file(files, "postgresql-9.0-801.jdbc4.jar")
-
-    has_file.should == false
   end
 
   it "play application with auto-reconfiguration disabled", :mysql => true do
