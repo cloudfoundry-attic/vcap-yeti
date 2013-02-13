@@ -45,93 +45,22 @@ describe BVT::Spec::Simple::RubyGems::RubySinatra do
     response.to_str.should == "hello from git"
   end
 
-  it "sinatra test deploy app without specifying BUNDLE_WITHOUT" do
-    app = create_push_app("sinatra_gem_groups")
-
-    staging_log = app.file("logs/staging.log")
-    staging_log.should_not include "Adding rspec-2.11.0.gem to app"
-    bundle_config = app.file("app/.bundle/config")
-    bundle_config.should include "BUNDLE_WITHOUT: test"
-    response = app.get_response(:get,"/")
-    response.code.should == 200
-    response.to_str.should == "hello from sinatra"
-  end
-
-  it "sinatra test deploy app specifying BUNDLE_WITHOUT" do
-    app = create_push_app("sinatra_gem_groups")
-    app.stop
-    add_env(app, "BUNDLE_WITHOUT", "development")
-    app.start
-
-    staging_log = app.file("logs/staging.log")
-    staging_log.should include "Adding thor-0.15.4.gem to app"
-    staging_log.should_not include "Adding rubyzip-0.9.9.gem to app"
-    bundle_config = app.file("app/.bundle/config")
-    bundle_config.should include "BUNDLE_WITHOUT: development"
-
-    response = app.get_response(:get, "/")
-    response.code.should == 200
-    response.to_str.should == "hello from sinatra"
-
-  end
-
-  it "sinatra test deploy app setting BUNDLE_WITHOUT to multiple groups" do
-    app = create_push_app("sinatra_gem_groups")
-    app.stop
-    add_env(app, "BUNDLE_WITHOUT", "development:test")
-    app.start
-
-    staging_log = app.file("logs/staging.log")
-    staging_log.should_not include "Adding thor-0.15.4.gem to app"
-    staging_log.should_not include "Adding rubyzip-0.9.9.gem to app"
-    staging_log.should_not include "Adding rspec-2.11.0.gem to app"
-    bundle_config = app.file("app/.bundle/config")
-    bundle_config.should include "BUNDLE_WITHOUT: development:test"
-
-    response = app.get_response(:get, "/")
-    response.code.should == 200
-    response.to_str.should == "hello from sinatra"
-
-  end
-
-  it "sinatra test deploy app setting BUNDLE_WITHOUT blank to override default" do
-    app = create_push_app("sinatra_gem_groups")
-    app.stop
-    add_env(app, "BUNDLE_WITHOUT", "")
-    app.start
-
-    staging_log = app.file("logs/staging.log")
-    staging_log.should include "Adding thor-0.15.4.gem to app"
-    staging_log.should include "Adding rubyzip-0.9.9.gem to app"
-    staging_log.should include "Adding rspec-2.11.0.gem to app"
-    bundle_config = app.file("app/.bundle/config")
-    bundle_config.should_not include "BUNDLE_WITHOUT"
-
-    response = app.get_response(:get, "/")
-    response.code.should == 200
-    response.to_str.should == "hello from sinatra"
-
-  end
-
   it "sinatra test deploy app with Gemfile.lock containing Windows versions", :mysql=>true, :postgresql=>true do
-    staging_log = app.file("logs/staging.log")
-    staging_log.should_not include "Adding yajl-ruby-0.8.3.gem to app"
-    staging_log.should include "Adding mysql2-0.3.11.gem to app"
-    staging_log.should include "Adding pg-0.14.0.gem to app"
     app = create_push_app("sinatra_windows_gemfile", nil, nil, [MYSQL_MANIFEST, POSTGRESQL_MANIFEST])
+    staging_log = app.file("logs/staging_task.log")
+    staging_log.should_not match "Installing yajl-ruby"
+    staging_log.should include "Installing mysql2"
+    staging_log.should include "Installing pg"
 
-    bind_service(MYSQL_MANIFEST, app)
     verify_service(MYSQL_MANIFEST, app, "abc")
-    bind_service(POSTGRESQL_MANIFEST, app)
     verify_service(POSTGRESQL_MANIFEST, app, "abc")
-
   end
 
   it "sinatra test deploy app containing gems specifying a ruby platform" do
     app = create_push_app("sinatra_gem_groups")
-    staging_log = app.file("logs/staging.log")
-    staging_log.should include "Adding uglifier-1.2.6.gem to app"
-    staging_log.should_not include "Adding yajl-ruby-0.8.3.gem to app"
+    staging_log = app.file("logs/staging_task.log")
+    staging_log.should include "Installing uglifier (1.2.6)"
+    staging_log.should_not include "Installing yajl-ruby (0.8.3)"
 
     response = app.get_response(:get, "/")
     response.code.should == 200
