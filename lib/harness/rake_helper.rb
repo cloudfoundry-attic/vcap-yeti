@@ -27,7 +27,7 @@ module BVT::Harness
                       'passwd' => @config['admin']['passwd']}
       elsif threads < 1 || threads > VCAP_BVT_PARALLEL_MAX_USERS
         puts red("threads number must be within 1~#{VCAP_BVT_PARALLEL_MAX_USERS}")
-        exit(0)
+        exit(1)
       else
         parallel_users = get_parallel_users(true)
         if threads > 1
@@ -351,7 +351,7 @@ module BVT::Harness
         if check_user
           if check_user_availability(parallel_users[0]) == false
             puts red("can't login target env using parallel user: #{parallel_users[0]}")
-            exit(0)
+            exit(1)
           end
         end
       end
