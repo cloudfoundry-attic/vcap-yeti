@@ -211,8 +211,3 @@ Rake Tasks:
 <br>2, Remove all test users created in admin_user_spec.rb
 - help
 <br>list help commands
-
-File a Bug:
------------
-To file a bug against Cloud Foundry Open Source and its components, sign up and use our bug tracking
- system: [http://cloudfoundry.atlassian.net](http://cloudfoundry.atlassian.net)
