@@ -586,55 +586,55 @@ standalone_erlang_app:
 
 play_computer_database_autoconfig_disabled_app:
   framework: "play"
-  memory: 128
+  memory: 256
   runtime: "java"
   path: ".assets-binaries/computer_database_autoconfig_disabled.zip"
 
 play_computer_database_cf_by_name_app:
   framework: "play"
-  memory: 128
+  memory: 256
   runtime: "java"
   path: ".assets-binaries/computer_database_cf_by_name.zip"
 
 play_computer_database_cf_by_type_app:
   framework: "play"
-  memory: 128
+  memory: 256
   runtime: "java"
   path: ".assets-binaries/computer_database_cf_by_type.zip"
 
 play_computer_database_jpa_mysql_app:
   framework: "play"
-  memory: 128
+  memory: 256
   category: "java"
   path: ".assets-binaries/computer_database_jpa_mysql.zip"
 
 play_computer_database_jpa_app:
   framework: "play"
-  memory: 128
+  memory: 256
   category: "java"
   path: ".assets-binaries/computer_database_jpa.zip"
 
 play_computer_database_multi_dbs_app:
   framework: "play"
-  memory: 128
+  memory: 256
   runtime: "java"
   path: ".assets-binaries/computer_database_multi_dbs.zip"
 
 play_computer_database_scala_app:
   framework: "play"
-  memory: 128
+  memory: 256
   category: "java"
   path: ".assets-binaries/computer_database_scala.zip"
 
 play_todolist_app:
   framework: "play"
-  memory: 128
+  memory: 256
   category: "java"
   path: ".assets-binaries/todolist.zip"
 
 play_todolist_with_cfruntime_app:
   framework: "play"
-  memory: 128
+  memory: 256
   category: "java"
   path: ".assets-binaries/todolist_with_cfruntime.zip"
 
@@ -646,7 +646,7 @@ play_zentasks_cf_by_name_app:
 
 play_zentasks_cf_by_type_app:
   framework: "play"
-  memory: 128
+  memory: 256
   runtime: "java"
   path: ".assets-binaries/zentasks_cf_by_type.zip"
 
