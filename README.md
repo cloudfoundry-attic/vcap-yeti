@@ -70,14 +70,6 @@ Service/App related:
 |VCAP_BVT_RUNTIME             |app runtime          |{:ruby=>"ruby19", :java=>"java6", :node=>"node"}      |
 ```
 
-ACL related:
-```
-||Environment Variables       ||Function            ||Example                                             ||
-|ACM_URL                      |acm base url         |<URL>                                                 |
-|ACM_USER                     |acm user             |<user>                                                |
-|ACM_PASSWORD                 |acm user password    |<***>                                                 |
-```
-
 UAA related:
 ```
 ||Environment Variables       ||Function            ||Example                                             ||
