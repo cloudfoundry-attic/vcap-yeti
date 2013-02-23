@@ -492,71 +492,72 @@ standalone_ruby18_autoconfig:
   memory: 64
   path: "assets/standalone/ruby_autoconfig"
 
-play_computer_database_autoconfig_disabled_app:
+play_computer_database_autoconfig_disabled_app_20:
   framework: "buildpack"
   memory: 256
   runtime: "ruby19"
   path: ".assets-binaries/computer_database_autoconfig_disabled.zip"
 
-play_computer_database_cf_by_name_app:
+play_computer_database_cf_by_name_app_20:
   framework: "buildpack"
   memory: 256
   runtime: "ruby19"
   path: ".assets-binaries/computer_database_cf_by_name.zip"
 
-play_computer_database_cf_by_type_app:
+play_computer_database_cf_by_type_app_20:
   framework: "buildpack"
   memory: 256
   runtime: "ruby19"
   path: ".assets-binaries/computer_database_cf_by_type.zip"
 
-play_computer_database_jpa_mysql_app:
+play_computer_database_jpa_mysql_app_20:
   framework: "buildpack"
   memory: 256
   runtime: "ruby19"
   path: ".assets-binaries/computer_database_jpa_mysql.zip"
 
-play_computer_database_jpa_app:
+play_computer_database_jpa_app_21:
   framework: "buildpack"
   memory: 256
   runtime: "ruby19"
-  path: ".assets-binaries/computer_database_jpa.zip"
+  path: ".assets-binaries/computer_database_jpa-2.1.zip"
 
-play_computer_database_multi_dbs_app:
+play_computer_database_multi_dbs_app_20:
   framework: "buildpack"
   memory: 256
   runtime: "ruby19"
   path: ".assets-binaries/computer_database_multi_dbs.zip"
 
-play_computer_database_scala_app:
+play_computer_database_scala_app_20:
   framework: "buildpack"
   memory: 256
   runtime: "ruby19"
   path: ".assets-binaries/computer_database_scala.zip"
 
-play_todolist_app:
+play_todolist_app_20:
   framework: "buildpack"
   memory: 256
   runtime: "ruby19"
   path: ".assets-binaries/todolist.zip"
 
-play_todolist_with_cfruntime_app:
+
+play_todolist_with_cfruntime_app_21:
   framework: "buildpack"
   memory: 256
   runtime: "ruby19"
-  path: ".assets-binaries/todolist_with_cfruntime.zip"
+  path: ".assets-binaries/todolist_with_cfruntime-2.1.zip"
 
-play_zentasks_cf_by_name_app:
+play_zentasks_cf_by_name_app_20:
   framework: "buildpack"
   memory: 256
   runtime: "ruby19"
   path: ".assets-binaries/zentasks_cf_by_name.zip"
 
-play_zentasks_cf_by_type_app:
+play_zentasks_cf_by_type_app_21:
   framework: "buildpack"
   memory: 256
   runtime: "ruby19"
-  path: ".assets-binaries/zentasks_cf_by_type.zip"
+  path: ".assets-binaries/zentasks_cf_by_type-2.1.zip"
 
 auto-reconfig-annotation-app:
   framework: "buildpack"

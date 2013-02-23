@@ -45,57 +45,71 @@ end
 BUILD_ARTIFACT = File.join(Dir.pwd, ".build")
 TESTS_PATH = File.join(Dir.pwd, "../assets")
 VCAP_BVT_ASSETS_PACKAGES_HOME = File.join(File.dirname(__FILE__),
-  "../.assets-binaries")
+                                          "../.assets-binaries")
 
-TESTS_TO_BUILD = ["#{TESTS_PATH}/spring/auto-reconfig-test-app",
-             "#{TESTS_PATH}/spring/auto-reconfig-missing-deps-test-app",
-             "#{TESTS_PATH}/spring/app_spring_service",
-             "#{TESTS_PATH}/java_web/app_with_startup_delay",
-             "#{TESTS_PATH}/java_web/tomcat-version-check-app",
-             "#{TESTS_PATH}/spring/roo-guestbook",
-             "#{TESTS_PATH}/spring/jpa-guestbook",
-             "#{TESTS_PATH}/spring/hibernate-guestbook",
-             "#{TESTS_PATH}/spring/spring-env",
-             "#{TESTS_PATH}/spring/spring_imagemagick",
-             "#{TESTS_PATH}/grails/guestbook",
-             "#{TESTS_PATH}/java_web/java_tiny_app",
-             "#{TESTS_PATH}/lift/hello_lift",
-             "#{TESTS_PATH}/lift/lift-db-app",
-             "#{TESTS_PATH}/standalone/java_app",
-             "#{TESTS_PATH}/play/computer_database_autoconfig_disabled",
-             "#{TESTS_PATH}/play/computer_database_cf_by_name",
-             "#{TESTS_PATH}/play/computer_database_cf_by_type",
-             "#{TESTS_PATH}/play/computer_database_jpa",
-             "#{TESTS_PATH}/play/computer_database_jpa_mysql",
-             "#{TESTS_PATH}/play/computer_database_multi_dbs",
-             "#{TESTS_PATH}/play/computer_database_scala",
-             "#{TESTS_PATH}/play/todolist",
-             "#{TESTS_PATH}/play/todolist_with_cfruntime",
-             "#{TESTS_PATH}/play/zentasks_cf_by_name",
-             "#{TESTS_PATH}/play/zentasks_cf_by_type",
-             "#{TESTS_PATH}/spring/auto-reconfig-annotation-app",
-             "#{TESTS_PATH}/spring/javaee-namespace-app"
+TESTS_TO_BUILD = [
+  "#{TESTS_PATH}/spring/auto-reconfig-test-app",
+  "#{TESTS_PATH}/spring/auto-reconfig-missing-deps-test-app",
+  "#{TESTS_PATH}/spring/app_spring_service",
+  "#{TESTS_PATH}/java_web/app_with_startup_delay",
+  "#{TESTS_PATH}/java_web/tomcat-version-check-app",
+  "#{TESTS_PATH}/spring/roo-guestbook",
+  "#{TESTS_PATH}/spring/jpa-guestbook",
+  "#{TESTS_PATH}/spring/hibernate-guestbook",
+  "#{TESTS_PATH}/spring/spring-env",
+  "#{TESTS_PATH}/spring/spring_imagemagick",
+  "#{TESTS_PATH}/grails/guestbook",
+  "#{TESTS_PATH}/java_web/java_tiny_app",
+  "#{TESTS_PATH}/lift/hello_lift",
+  "#{TESTS_PATH}/lift/lift-db-app",
+  "#{TESTS_PATH}/standalone/java_app",
+
+  "#{TESTS_PATH}/play/2.0/computer_database_autoconfig_disabled",
+  "#{TESTS_PATH}/play/2.0/computer_database_cf_by_name",
+  "#{TESTS_PATH}/play/2.0/computer_database_cf_by_type",
+  "#{TESTS_PATH}/play/2.0/computer_database_jpa_mysql",
+  "#{TESTS_PATH}/play/2.0/computer_database_multi_dbs",
+  "#{TESTS_PATH}/play/2.0/computer_database_scala",
+  "#{TESTS_PATH}/play/2.0/todolist",
+  "#{TESTS_PATH}/play/2.0/zentasks_cf_by_name",
+
+  "#{TESTS_PATH}/play/2.1/computer_database_jpa-2.1",
+  "#{TESTS_PATH}/play/2.1/todolist_with_cfruntime-2.1",
+  "#{TESTS_PATH}/play/2.1/zentasks_cf_by_type-2.1",
+
+  "#{TESTS_PATH}/spring/auto-reconfig-annotation-app",
+  "#{TESTS_PATH}/spring/javaee-namespace-app"
 ]
 
-PLAY_VERSION="2.0.1"
+PLAY_VERSIONS= {"2.0" => "2.0.1", "2.1" => "2.1.0" }
+
 
 desc "Build the tests. If the git hash hasn't change, nothing is built. To force a build, invoke 'rake build[--force]'"
 task :build, [:force] do |t, args|
-  download_play if not File.exists? File.join(Dir.pwd, "play-#{PLAY_VERSION}","play")
+  puts "Downloading play"
+  PLAY_VERSIONS.each do |major_version, play_version|
+    download_play(play_version) if not File.exists? File.join(Dir.pwd, "play-#{play_version}","play")
+  end
+
   puts "\nBuilding tests"
   if build_required? args.force
     prompt_message = "\nBVT need java development environment to build java-base apps.\n"+
-    "Please run 'sudo aptitude install maven2 default-jdk' on your Linux box"
+      "Please run 'sudo aptitude install maven2 default-jdk' on your Linux box"
     `mvn -v 2>&1`
     raise prompt_message if $?.exitstatus != 0
     ENV['MAVEN_OPTS']="-XX:MaxPermSize=256M"
-    ENV['PLAY2_HOME']=File.join(Dir.pwd, "play-#{PLAY_VERSION}")
+
     update_list = []
+
+    working_dir = Dir.pwd
 
     TESTS_TO_BUILD.each do |test|
       puts "\tBuilding '#{test}'"
       Dir.chdir test do
-        sh('mvn package -DskipTests') do |success, exit_code|
+        play_version_match = /play\/(.*)\//.match(test)
+        ENV['PLAY2_HOME']=File.join(working_dir, "play-#{PLAY_VERSIONS[play_version_match[1]]}") if play_version_match
+        puts "Play home: #{ENV['PLAY2_HOME']}"
+        sh('mvn clean package -DskipTests') do |success, exit_code|
           if success
             target_file = ''
             file_name = ''
@@ -145,11 +159,17 @@ def build_required? (force_build=nil)
   end
 end
 
-def download_play
+def download_play(play_version)
   puts "Downloading and unpacking Play Framework"
-  sh("wget http://download.playframework.org/releases/play-#{PLAY_VERSION}.zip")
-  sh("unzip -q play-#{PLAY_VERSION}.zip")
-  FileUtils.rm_f("play-#{PLAY_VERSION}.zip")
+
+  if play_version == "2.0.1"
+    sh("wget http://downloads.typesafe.com/releases/play-2.0.1.zip")
+  else
+    sh("wget http://downloads.typesafe.com/play/#{play_version}/play-#{play_version}.zip")
+  end
+
+  sh("unzip -q play-#{play_version}.zip")
+  FileUtils.rm_f("play-#{play_version}.zip")
 end
 
 def save_git_hash

@@ -30,14 +30,13 @@ describe BVT::Spec::Canonical::JavaPlay do
     has_file
   end
 
-  it "play application with mysql auto-reconfiguration", :mysql => true,
-    :p1 => true do
-    app = create_push_app("play_todolist_app", nil, nil,  [MYSQL_MANIFEST])
+  it "play application with mysql auto-reconfiguration", :mysql => true, :p1 => true do
+    app = create_push_app("play_todolist_app_20", nil, nil, [MYSQL_MANIFEST])
 
-    contents = app.get_response( :get, '/tasks' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
+    contents = app.get_response(:get, '/tasks')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
 
     log = app.logs
     log.should_not == nil
@@ -46,36 +45,35 @@ describe BVT::Spec::Canonical::JavaPlay do
   end
 
   it "play application using cloud foundry runtime lib", :mysql => true do
-    app = create_push_app("play_todolist_with_cfruntime_app", nil, nil,  [MYSQL_MANIFEST])
+    app = create_push_app("play_todolist_with_cfruntime_app_21", nil, nil, [MYSQL_MANIFEST])
 
-    contents = app.get_response( :get, '/tasks' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
+    contents = app.get_response(:get, '/tasks')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
 
     log = app.logs
     log.should_not == nil
     log.should include("Found cloudfoundry-runtime lib.  " +
-      "Auto-reconfiguration disabled")
+                         "Auto-reconfiguration disabled")
     log.should include("database [default] connected at jdbc:h2")
   end
 
-  it "play application using cloud properties for mysql configuration by " +
-    "service name", :mysql => true do
-    app = create_app("play_zentasks_cf_by_name_app")
+  it "play 2.0 application using cloud properties for mysql configuration by " + "service name", :mysql => true do
+    app = create_app("play_zentasks_cf_by_name_app_20")
 
     service = create_service(MYSQL_MANIFEST, "play_zentasks_cf_by_name_appmysql")
     app.push([service])
 
-    contents = app.get_response( :get, '/login' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
+    contents = app.get_response(:get, '/login')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
 
     log = app.logs
     log.should_not == nil
     log.should include("Found cloud properties in configuration.  " +
-      "Auto-reconfiguration disabled")
+                         "Auto-reconfiguration disabled")
     log.should include("database [default] connected at jdbc:mysql")
 
     files = app.files("/app/lib/")
@@ -84,32 +82,32 @@ describe BVT::Spec::Canonical::JavaPlay do
     has_file.should == false
   end
 
-  it "play application using cloud properties for mysql configuration " +
-    "by service type", :mysql => true do
-    app = create_app("play_zentasks_cf_by_type_app")
+  it "play 2.1 application using cloud properties for mysql configuration " +
+       "by service type", :mysql => true do
+    app = create_app("play_zentasks_cf_by_type_app_21")
 
     service = create_service(MYSQL_MANIFEST)
     app.push([service])
 
-    contents = app.get_response( :get, '/login' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
+    contents = app.get_response(:get, '/login')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
 
     log = app.logs
     log.should_not == nil
     log.should include("Found cloud properties in configuration.  " +
-      "Auto-reconfiguration disabled")
+                         "Auto-reconfiguration disabled")
     log.should include("database [default] connected at jdbc:mysql")
   end
 
-  it "play application with auto-reconfiguration disabled", :mysql => true do
-    app = create_push_app("play_computer_database_autoconfig_disabled_app", nil, nil,  [MYSQL_MANIFEST])
+  it "play 2.0 application with auto-reconfiguration disabled", :mysql => true do
+    app = create_push_app("play_computer_database_autoconfig_disabled_app_20", nil, nil, [MYSQL_MANIFEST])
 
-    contents = app.get_response( :get, '/computers' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
+    contents = app.get_response(:get, '/computers')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
 
     log = app.logs
     log.should_not == nil
@@ -117,23 +115,23 @@ describe BVT::Spec::Canonical::JavaPlay do
     log.should include("database [default] connected at jdbc:h2")
   end
 
-  it "play application using cloud properties for postgresql configuration " +
-    "by service name", :postgresql => true do
-    app = create_app("play_computer_database_cf_by_name_app")
+  it "play 2.0 application using cloud properties for postgresql configuration " +
+       "by service name", :postgresql => true do
+    app = create_app("play_computer_database_cf_by_name_app_20")
 
     service = create_service(POSTGRESQL_MANIFEST,
-      "play_computer_database_cf_by_name_apppostgresql")
+                             "play_computer_database_cf_by_name_apppostgresql")
     app.push([service])
 
-    contents = app.get_response( :get, '/computers' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
+    contents = app.get_response(:get, '/computers')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
 
     log = app.logs
     log.should_not == nil
     log.should include("Found cloud properties in configuration.  " +
-      "Auto-reconfiguration disabled" )
+                         "Auto-reconfiguration disabled")
     log.should include("database [default] connected at jdbc:postgresql")
 
     files = app.files("/app/lib/")
@@ -142,23 +140,23 @@ describe BVT::Spec::Canonical::JavaPlay do
     has_file.should == false
   end
 
-  it "play application using cloud properties for postgresql configuration " +
-    "by service type", :postgresql => true do
-    app = create_app("play_computer_database_cf_by_type_app")
+  it "play 2.0 application using cloud properties for postgresql configuration " +
+       "by service type", :postgresql => true do
+    app = create_app("play_computer_database_cf_by_type_app_20")
 
     service = create_service(POSTGRESQL_MANIFEST)
 
     app.push([service])
 
-    contents = app.get_response( :get, '/computers' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
+    contents = app.get_response(:get, '/computers')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
 
     log = app.logs
     log.should_not == nil
     log.should include("Found cloud properties in configuration.  " +
-      "Auto-reconfiguration disabled" )
+                         "Auto-reconfiguration disabled")
     log.should include("database [default] connected at jdbc:postgresql")
 
     files = app.files("/app/lib/")
@@ -167,14 +165,14 @@ describe BVT::Spec::Canonical::JavaPlay do
     has_file.should == false
   end
 
-  it "play application with mysql JPA auto-reconfiguration",
-    :mysql => true do
-    app = create_push_app("play_computer_database_jpa_mysql_app", nil, nil,  [MYSQL_MANIFEST])
+  it "play 2.0 application with mysql JPA auto-reconfiguration",
+     :mysql => true do
+    app = create_push_app("play_computer_database_jpa_mysql_app_20", nil, nil, [MYSQL_MANIFEST])
 
-    contents = app.get_response( :get, '/computers' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
+    contents = app.get_response(:get, '/computers')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
 
     log = app.logs
     log.should_not == nil
@@ -182,14 +180,14 @@ describe BVT::Spec::Canonical::JavaPlay do
     log.should include("database [default] connected at jdbc:mysql")
   end
 
-  it "play application with postgresql JPA auto-reconfiguration",
-    :postgresql => true, :p1 => true do
-    app = create_push_app("play_computer_database_jpa_app", nil, nil,  [POSTGRESQL_MANIFEST])
+  it "play 2.1 application with postgresql JPA auto-reconfiguration",
+     :postgresql => true, :p1 => true do
+    app = create_push_app("play_computer_database_jpa_app_21", nil, nil, [POSTGRESQL_MANIFEST])
 
-    contents = app.get_response( :get, '/computers' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
+    contents = app.get_response(:get, '/computers')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
 
     log = app.logs
     log.should_not == nil
@@ -197,46 +195,30 @@ describe BVT::Spec::Canonical::JavaPlay do
     log.should include("database [default] connected at jdbc:postgresql")
   end
 
-  it "play application with multiple databases", :mysql => true,
-    :postgresql => true do
-    app = create_push_app("play_computer_database_multi_dbs_app", nil, nil,  [POSTGRESQL_MANIFEST, MYSQL_MANIFEST])
+  it "play 2.0 application with multiple databases", :mysql => true,
+     :postgresql => true do
+    app = create_push_app("play_computer_database_multi_dbs_app_20", nil, nil, [POSTGRESQL_MANIFEST, MYSQL_MANIFEST])
 
-    contents = app.get_response( :get, '/computers' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
+    contents = app.get_response(:get, '/computers')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
 
     log = app.logs
     log.should_not == nil
     log.should include("Found multiple databases in Play configuration.  " +
-      "Skipping auto-reconfiguration")
+                         "Skipping auto-reconfiguration")
     log.should include("database [default] connected at jdbc:h2")
   end
 
-  it "play application with postgres auto-reconfiguration",
-    :postgresql => true do
-    app = create_push_app("play_computer_database_scala_app", nil, nil,  [POSTGRESQL_MANIFEST])
+  it "play 2.0 application with postgres auto-reconfiguration",
+     :postgresql => true do
+    app = create_push_app("play_computer_database_scala_app_20", nil, nil, [POSTGRESQL_MANIFEST])
 
-    contents = app.get_response( :get, '/computers' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
-
-    log = app.logs
-    log.should_not == nil
-    log.should include("Auto-reconfiguring default")
-    log.should include("database [default] connected at jdbc:postgresql")
-  end
-
-  it "play application with multiple database services, one named production",
-    :postgresql => true do
-    app = create_push_app("play_computer_database_scala_app", nil, nil,  [POSTGRESQL_MANIFEST])
-    bind_service( POSTGRESQL_MANIFEST, app, 'play-comp-db-app-production' )
-
-    contents = app.get_response( :get, '/computers' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
+    contents = app.get_response(:get, '/computers')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
 
     log = app.logs
     log.should_not == nil
@@ -244,29 +226,34 @@ describe BVT::Spec::Canonical::JavaPlay do
     log.should include("database [default] connected at jdbc:postgresql")
   end
 
-  it "play application with multiple database services", :mysql => true,
-    :postgresql => true do
-    app = create_push_app("play_computer_database_scala_app", nil, nil,  [POSTGRESQL_MANIFEST, MYSQL_MANIFEST])
+  it "play 2.0 application with multiple database services, one named production",
+     :postgresql => true do
+    app = create_push_app("play_computer_database_scala_app_20", nil, nil, [POSTGRESQL_MANIFEST])
+    bind_service(POSTGRESQL_MANIFEST, app, 'play-comp-db-app-production')
 
-    contents = app.get_response( :get, '/computers' )
-    contents.should_not             == nil
-    contents.to_str.should_not    == nil
-    contents.code.should   == 200
+    contents = app.get_response(:get, '/computers')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
+
+    log = app.logs
+    log.should_not == nil
+    log.should include("Auto-reconfiguring default")
+    log.should include("database [default] connected at jdbc:postgresql")
+  end
+
+  it "play 2.0 application with multiple database services", :mysql => true, :postgresql => true do
+    app = create_push_app("play_computer_database_scala_app_20", nil, nil, [POSTGRESQL_MANIFEST, MYSQL_MANIFEST])
+
+    contents = app.get_response(:get, '/computers')
+    contents.should_not == nil
+    contents.to_str.should_not == nil
+    contents.code.should == 200
 
     log = app.logs
     log.should_not == nil
     log.should include("Found 0 or multiple database services bound to app.  " +
-      "Skipping auto-reconfiguration")
+                         "Skipping auto-reconfiguration")
     log.should include("database [default] connected at jdbc:h2")
-  end
-
-  it "Deploy Play Application using Java 6" do
-    app = create_push_app("play_todolist_app")
-
-    contents = app.get_response(:get, '/java')
-    contents.should_not == nil
-    contents.to_str.should_not  == nil
-    contents.to_str.should =~ /1.6/
-    contents.code.should == 200
   end
 end
