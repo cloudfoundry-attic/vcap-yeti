@@ -13,8 +13,12 @@ gem "nokogiri"
 gem "fuubar"
 gem "progressbar", "~> 0.11.0"
 gem "rest-client"
-gem "console-vmc-plugin"
 
 gem "caldecott"
 gem "rspec_parallel", ">= 0.1.6"
 gem "cf-uaac", "= 1.3.3"
+
+git "git://github.com/cloudfoundry/vmc-plugins.git" do
+  gem "tunnel-vmc-plugin"
+  gem "console-vmc-plugin"
+end
