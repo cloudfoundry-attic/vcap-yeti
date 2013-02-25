@@ -4,22 +4,24 @@ module BVT::Harness
   module ConsoleHelpers
 
     def init_console(client, app, port = 10000)
+      console = CFConsole.new(client, app)
+      port = console.pick_port!(port)
+      console.open!
+      console.wait_for_start
+      logged_in = false
       3.times do
         begin
-          @console = CFConsole.new(client, app)
-          port = @console.pick_port!(port)
-          @console.open!
-          @console.wait_for_start
-          prompt = @console.login
-          @console
+          console.login
+          logged_in = true
           break
         rescue => e
+          puts "Unable to login to console: #{e}. Retrying."
           sleep 1
         end
       end
-      @console.should_not be_nil, "rails console connection " +
+      logged_in.should be_true, "rails console connection " +
         "cannot be established in 3 times"
-      @console
+      console
     end
 
   end
