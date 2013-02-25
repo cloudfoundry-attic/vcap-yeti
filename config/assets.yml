@@ -131,7 +131,7 @@ hibernate_app:
   framework: "buildpack"
   instances: 1
   runtime: "ruby19"
-  memory: 320
+  memory: 512
   path: ".assets-binaries/hibernate-guestbook.war"
 
 dbrails_app:
@@ -357,7 +357,7 @@ app_spring_service:
   framework: "buildpack"
   instances: 1
   runtime: "ruby19"
-  memory: 256
+  memory: 512
   path: ".assets-binaries/app_spring_service.war"
 
 my_test_app_env_test_app:
@@ -375,19 +375,19 @@ neo4j_app:
 
 spring-env-app:
   framework: "buildpack"
-  memory: 256
+  memory: 512
   runtime: "ruby19"
   path: ".assets-binaries/spring-env.war"
 
 auto-reconfig-test-app:
   framework: "buildpack"
   runtime: "ruby19"
-  memory: 256
+  memory: 512
   path: ".assets-binaries/auto-reconfig-test-app.war"
 
 auto-reconfig-missing-deps-test-app:
   framework: "buildpack"
-  memory: 256
+  memory: 512
   runtime: "ruby19"
   path: ".assets-binaries/auto-reconfig-missing-deps-test-app.war"
 
@@ -588,7 +588,7 @@ node_imagemagick:
 
 spring_imagemagick_java6:
   framework: "buildpack"
-  memory: 256
+  memory: 512
   runtime: "ruby19"
   path: ".assets-binaries/spring_imagemagick.war"
 
