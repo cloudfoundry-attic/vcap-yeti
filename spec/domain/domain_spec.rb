@@ -11,6 +11,14 @@ describe BVT::Spec::CustomDomain::Domain do
     pending("cloud controller v1 API does not support custom domain") unless @session.v2?
   end
 
+  before do
+    @original_space = @session.current_space
+  end
+
+  after do
+    @session.select_org_and_space("", @original_space.name)
+  end
+
   it "create and delete custom domain" do
     @org_name = @session.current_organization.name
     new_name = 'new-domain.com'
@@ -222,9 +230,9 @@ describe BVT::Spec::CustomDomain::Domain do
     #create one space & setting this space as current space
     @space = @session.space("domain-space")
     @space.create
-    @session.select_org_and_space("",@space.name)
-    space = @session.current_space
-    space.name.should == @space.name
+    @session.select_org_and_space("", @space.name)
+    current_space = @session.current_space
+    current_space.name.should == @space.name
 
     #create newly-created custom domain
     new_name = 'new-domain.com'
@@ -235,7 +243,7 @@ describe BVT::Spec::CustomDomain::Domain do
     #add newly-created custom domain into the space
     domain.add(new_domain)
     domain.check_domain_of_space.should be_true, "domain: #{domain.name} does not exist in space: #{@session.current_space.name}."
-    harness_space = BVT::Harness::Space.new(space, @session)
+    harness_space = BVT::Harness::Space.new(current_space, @session)
     harness_space.remove_domain(domain)
 
     #check if the domain is removed from the space
@@ -248,7 +256,6 @@ describe BVT::Spec::CustomDomain::Domain do
   end
 
   it "app can be bound to the routes based of custom domain" do
-    pending("pending due to bug, https://www.pivotaltracker.com/projects/196887#!/stories/42119197")
     #add multiple custom domains
     num_domain = 4
     domain_array = []
@@ -276,7 +283,7 @@ describe BVT::Spec::CustomDomain::Domain do
     routes.length.should == num_domain
 
     #clean up
-    domain_array.each { |d| app.unmap("#{app.name}.#{d}") }
+    domain_array.each { |d| app.unmap("#{app.name}.#{d}", :delete => true) }
 
     #clean up app, domain
     app.delete

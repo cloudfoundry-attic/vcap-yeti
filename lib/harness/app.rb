@@ -34,7 +34,7 @@ module BVT::Harness
       begin
         if @session.v2?
           @app.routes.each do |r|
-            @log.debug("Delete route #{r.host}.#{r.domain.name} from app: #{@app.name}")
+            @log.debug("Delete route #{r.name} from app: #{@app.name}")
             r.delete!
           end
         end
@@ -197,7 +197,7 @@ module BVT::Harness
 
     end
 
-    def unmap(url)
+    def unmap(url, options={})
       @log.info("Unmap URL: #{url} to Application: #{@app.name}")
       simple = url.sub(/^https?:\/\/(.*)\/?/i, '\1')
       begin
@@ -215,6 +215,7 @@ module BVT::Harness
 
           @log.debug("Removing route #{simple}")
           @app.remove_route(route)
+          route.delete! if options[:delete]
         else
           @app.urls.delete(simple)
           @app.update!
