@@ -382,15 +382,8 @@ module BVT::Harness
       # Currently cfoundry v2 can only check
       # if user is an admin if we logged in as admin
       check_admin_client = CFoundry::Client.new(@TARGET)
-      begin
-        check_admin_client.login({ :username => email, :password => passwd })
-        check_admin_client.current_user.admin?
-      rescue
-        false
-      end
+      check_admin_client.login(email, passwd)
+      check_admin_client.current_user.admin?
     end
   end
 end
-
-
-
