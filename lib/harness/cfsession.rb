@@ -262,6 +262,7 @@ module BVT::Harness
             s.apps.each {|app| app.delete!}
             s.service_instances.each {|service| service.delete!}
           }
+          @client.routes.each { |route| route.delete! }
         elsif (mode == "current")
           # CCNG cannot delete service which binded to application
           # therefore, remove application first
