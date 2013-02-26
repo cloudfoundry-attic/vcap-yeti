@@ -383,7 +383,11 @@ module BVT::Harness
       # if user is an admin if we logged in as admin
       check_admin_client = CFoundry::Client.new(@TARGET)
       check_admin_client.login(email, passwd)
-      check_admin_client.current_user.admin?
+      begin
+        check_admin_client.current_user.admin?
+      rescue CFoundry::APIError
+        false
+      end
     end
   end
 end
