@@ -270,7 +270,7 @@ module BVT::Harness
           @client.current_space = @current_space
           apps.each {|app| app.delete}
           services.each {|service| service.delete}
-
+          @client.routes.each { |route| route.delete! }
         end
       else
         apps.each { |app| app.delete }
