@@ -47,7 +47,7 @@ tiny_java_app:
   framework: "buildpack"
   runtime: "ruby19"
   instances: 1
-  memory: 64
+  memory: 128
   path: ".assets-binaries/java_tiny_app.war"
 
 simple_db_app:
