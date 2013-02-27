@@ -24,7 +24,7 @@ describe BVT::Spec::Simple::RailsConsole::Console do
     app
   end
 
-  it "rails test console", :p1 => true do
+  it "rails test console", :slow => true, :p1 => true do
     app = create_push_app("rails_console_test_app", nil, nil, [POSTGRESQL_MANIFEST])
     app = open_console(app)
 
@@ -40,7 +40,7 @@ describe BVT::Spec::Simple::RailsConsole::Console do
     match.should == true
   end
 
-  it "rails test console stdout redirect" do
+  it "rails test console stdout redirect", :slow => true do
     app = create_push_app("rails_console_test_app", nil, nil, [POSTGRESQL_MANIFEST])
 
     app = open_console(app)
@@ -54,7 +54,7 @@ describe BVT::Spec::Simple::RailsConsole::Console do
     response.should == expect
   end
 
-  it "rails test console rake task" do
+  it "rails test console rake task", :slow => true do
     app = create_push_app("rails_console_test_app", nil, nil,  [POSTGRESQL_MANIFEST])
 
     app = open_console(app)
@@ -71,7 +71,7 @@ describe BVT::Spec::Simple::RailsConsole::Console do
     match.should == true
   end
 
-  it "Rails Console runs tasks with correct ruby version in path" do
+  it "Rails Console runs tasks with correct ruby version in path", :slow => true do
 
     app = create_push_app("rails_console_test_app", nil, nil,  [POSTGRESQL_MANIFEST])
     app = open_console(app)
@@ -89,7 +89,7 @@ describe BVT::Spec::Simple::RailsConsole::Console do
   end
 
 
-  it "rails test console MySQL connection", :mysql=>true do
+  it "rails test console MySQL connection", :slow => true, :mysql=>true do
     app = create_push_app("rails_console_19_test_app", nil, nil, [MYSQL_MANIFEST])
     app = open_console(app)
     sleep 1
@@ -122,7 +122,7 @@ describe BVT::Spec::Simple::RailsConsole::Console do
 
   end
 
-  it "rails test console Postgres connection", :postgresql=>true do
+  it "rails test console Postgres connection", :slow => true, :postgresql=>true do
     app = create_push_app("rails_console_19_test_app", nil, nil, [POSTGRESQL_MANIFEST])
     app = open_console(app)
     sleep 1

@@ -112,13 +112,13 @@ describe BVT::Spec::ServiceRebinding::RubySinatra do
     rebind(POSTGRESQL_MANIFEST, app1)
   end
 
-  it "Verify binding mysql to two applications", :mysql => true do
+  it "Verify binding mysql to two applications", :slow => true, :mysql => true do
     app1 = create_push_app("app_sinatra_service")
     app2 = create_push_app("app_sinatra_service2")
     bind_apps(MYSQL_MANIFEST, app1, app2)
   end
 
-  it "Verify binding postgresql to two applications", :postgresql => true do
+  it "Verify binding postgresql to two applications", :slow => true, :postgresql => true do
     app1 = create_push_app("app_sinatra_service")
     app2 = create_push_app("app_sinatra_service2")
     bind_apps(POSTGRESQL_MANIFEST, app1, app2)

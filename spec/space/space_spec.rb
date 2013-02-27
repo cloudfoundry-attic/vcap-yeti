@@ -16,7 +16,7 @@ describe BVT::Spec::OrgSpace::Space do
 
   let(:space_name) { "space#{rand(2**32).to_s(36)}" }
 
-  it "test create space" do
+  it "test create space", :slow => true do
     spaces = @session.spaces
 
     spaces.each { |s| s.delete(true) if s.name == space_name }

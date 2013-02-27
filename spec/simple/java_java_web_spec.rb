@@ -13,7 +13,7 @@ describe BVT::Spec::Simple::JavaJavaWeb do
     @session.cleanup!
   end
 
-  it "get applicatioin list", :p1 => true do
+  it "get applicatioin list", :slow => true, :p1 => true do
     app1 = create_push_app("simple_app2")
 
     app2 = create_push_app("tiny_java_app")
