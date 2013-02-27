@@ -78,7 +78,7 @@ describe BVT::Spec::Simple::RailsConsole::Console do
 
     sleep 1
 
-    init_console(@client, app)
+    @console = init_console(@client, app)
 
     response = @console.send_console_command("`ruby --version`")
     match = false
