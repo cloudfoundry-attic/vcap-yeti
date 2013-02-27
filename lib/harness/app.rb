@@ -87,7 +87,7 @@ module BVT::Harness
       end
     end
 
-    def start(need_check = true)
+    def start(need_check = true, async = false, &blk)
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
         raise RuntimeError, "Application: #{@app.name} does not exist!"
@@ -96,7 +96,7 @@ module BVT::Harness
       unless @app.running?
         @log.info "Start App: #{@app.name}"
         begin
-          @app.start!
+          @app.start!(async, &blk)
         rescue Exception => e
           @log.error "Start App: #{@app.name} failed.\n#{e.to_s}"
           raise RuntimeError, "Start App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
