@@ -78,35 +78,6 @@ module BVT::Harness
       User.new(@client.register(email, password), self)
     end
 
-    def system_frameworks
-      system_frameworks = {}
-      @log.debug "get system frameworks, target: #{@TARGET}"
-      if v2?
-        frameworks = @client.frameworks
-        frameworks.each { |f|
-          system_frameworks[f.name.to_sym] = {}
-          system_frameworks[f.name.to_sym][:name] = f.name
-          system_frameworks[f.name.to_sym][:description] = f.description
-        }
-      else
-        @info ||= @client.info
-        system_frameworks = @info[:frameworks]
-      end
-      system_frameworks
-    end
-
-    def system_runtimes
-      @log.debug "get system runtimes, target: #{@TARGET}"
-      runtimes = {}
-      @info ||= @client.info
-      @info[:frameworks].each do |_, f|
-        f[:runtimes].each do |r|
-          runtimes[r[:name]] = r
-        end
-      end
-      runtimes
-    end
-
     def system_services
       @log.debug "get system services, target: #{@TARGET}"
       services = {}

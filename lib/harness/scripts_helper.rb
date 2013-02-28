@@ -29,14 +29,6 @@ module BVT::Harness
     def create_app(app_name, prefix = '', domain=nil)
       app = @session.app(app_name, prefix, domain)
       app.load_manifest
-      if VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(app.manifest['framework'].to_sym) &&
-          VCAP_BVT_SYSTEM_RUNTIMES.has_key?(app.manifest['runtime'])
-      else
-        @session.log.debug("Runtime/Framework: #{app.manifest['runtime']}/#{app.manifest['framework']} " +
-                         "is not available on target: #{@session.TARGET}")
-        pending("Runtime/Framework: #{app.manifest['runtime']}/#{app.manifest['framework']} " +
-                    "is not available on target: #{@session.TARGET}")
-      end
       if app.manifest['path'].end_with?('.jar') || app.manifest['path'].end_with?('.war')
         pending "Package not found, please run update.sh" unless File.exist? app.manifest['path']
       end

@@ -67,7 +67,6 @@ Service/App related:
 |VCAP_BVT_SERVICE_PLAN        |service plan         |P100                                                  |
 |VCAP_BVT_REDIS_MANIFEST      |service manifest     |{:vendor=>"redis", :version=>"2.2", :provider=>"core"}|
 |VCAP_BVT_DEPLOY_MANIFEST     |deploy manifest      |<path to the file>                                    |
-|VCAP_BVT_RUNTIME             |app runtime          |{:ruby=>"ruby19", :java=>"java6", :node=>"node"}      |
 ```
 
 UAA related:
@@ -97,8 +96,7 @@ Notes:
 FAQ:
 ----
 1. What does "pending" mean and what is the correct number of pending cases?
-   <br>A: *Pending* means your target environment is missing some prerequisites, usually a service,
-       framework or runtime.
+   <br>A: *Pending* means your target environment is missing some prerequisites, usually a service.
       <br>The number of pending cases depends on your target environment and environment variables.
 
 2. What's the update file?
@@ -127,15 +125,11 @@ FAQ:
       - Runtime log is stored in ~/.bvt/bvt.[target].log
       - Junit-format report is under [yeti_home]/reports. The junitResult.xml is the summary.
 
-7. What runtimes/frameworks/services should my environment have?
+7. What services should my environment have?
    Dev instance:
-   - runtimes: java, java7, ruby18, ruby19, node, node06, node08
-   - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone
    - services: mongodb, mysql, postgresql, rabbitmq, redis, vblob
 
    Production:
-   - runtimes: java, java7, ruby18, ruby19, node, node06, node08
-   - frameworks: java_web, sinatra, grails, rack, play, lift, spring, rails3, node, standalone
    - services: mongodb, mysql, postgresql, rabbitmq, redis
 
    (updated on Dec 17th, 2012)

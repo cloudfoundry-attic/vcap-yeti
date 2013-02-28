@@ -12,12 +12,12 @@ describe BVT::Spec::Simple::RubyStandalone do
     @session.cleanup!
   end
 
-  it "Bundled app with ruby runtime" do
+  it "Simple ruby app" do
     app = create_push_app("standalone_ruby_app")
     app.get_response(:get).to_str.should == "running version 1.9.2"
   end
 
-  it "Simple app with ruby runtime and no URL", :p1 => true do
+  it "Simple ruby app and no URL", :p1 => true do
     app = create_push_app("standalone_simple_ruby_app")
     app.logs =~ /running version 1.9.2/
   end

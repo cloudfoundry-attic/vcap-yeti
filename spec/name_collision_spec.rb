@@ -14,8 +14,6 @@ describe "Application name collision" do
     cfoundry_app.name = app_name
     @yeti_app = App.new(cfoundry_app, session, nil)
     @yeti_app.load_manifest
-    @yeti_app.check_runtime(@yeti_app.manifest['runtime'])
-    @yeti_app.check_framework(@yeti_app.manifest['framework'])
   end
 
   after do

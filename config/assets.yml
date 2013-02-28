@@ -7,615 +7,433 @@ job_timeout_secs: 30
 sleep_secs: 1
 
 simple_app:
-  framework: "buildpack"
   memory: 128
-  runtime: "ruby19"
   command: "bundle exec ruby foo.rb -p $VCAP_APP_PORT"
   path: "assets/sinatra/hello_vcap"
 
 simple_app2:
-  framework: "buildpack"
   instances: 1
-  runtime: "ruby19"
   memory: 64
   command: "bundle exec ruby foo.rb -p $VCAP_APP_PORT"
   path: "assets/sinatra/hello_vcap"
 
 modified_simple_app2:
-  framework: "buildpack"
   instances: 2
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/modified_simple_app"
   command: "bundle exec ruby foo.rb -p $VCAP_APP_PORT"
 
 simple_app3:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/hello_vcap"
   command: "bundle exec ruby foo.rb -p $VCAP_APP_PORT"
 
 memcached_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 128
   path: "assets/sinatra/memcached_app"
   command: "bundle exec ruby memcached.rb -p $VCAP_APP_PORT"
 
 tiny_java_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   instances: 1
   memory: 128
   path: ".assets-binaries/java_tiny_app.war"
 
 simple_db_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 128
   path: "assets/sinatra/simple_db_app"
   command: "bundle exec ruby simple_db_app.rb -p $VCAP_APP_PORT"
 
 redis_lb_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 128
   path: "assets/sinatra/redis_lb_app"
   command: "bundle exec ruby redis_lb.rb -p $VCAP_APP_PORT"
 
 env_test_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/env_test_app"
   command: "bundle exec ruby env_test.rb -p $VCAP_APP_PORT"
 
 broken_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 128
   path: "assets/sinatra/broken_app"
   command: "bundle exec ruby broken.rb -p $VCAP_APP_PORT"
 
 git_gems_app_ruby18:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 256
   path: "assets/sinatra/git_gems_app"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
 
 git_gems_app_ruby19:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 256
   path: "assets/sinatra/git_gems_app"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
 
 sinatra_gem_groups:
-  framework: "buildpack"
-  runtime: "ruby19"
-  #just runtime
   memory: 256
   path: "assets/sinatra/gem_groups"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
 
 sinatra_windows_gemfile:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 256
   path: "assets/sinatra/windows_gemfile"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
 
 broken_gem_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/broken_gem_app"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
 
 rails3_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 128
   path: "assets/rails3/rails3_app"
   command: "bundle exec rake db:migrate && bundle exec rails server thin -p $PORT"
 
 jpa_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 512
   path: ".assets-binaries/jpa-guestbook.war"
 
 hibernate_app:
-  framework: "buildpack"
   instances: 1
-  runtime: "ruby19"
   memory: 512
   path: ".assets-binaries/hibernate-guestbook.war"
 
 dbrails_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 128
   path: "assets/rails3/dbrails_app"
   command: "bundle exec rake db:migrate && bundle exec rails server thin -p $PORT"
 
 dbrails_broken_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 128
   path: "assets/rails3/dbrails_broken_app"
 
 grails_app:
-  runtime: "ruby19"
-  framework: "buildpack"
   memory: 512
   path: ".assets-binaries/guestbook.war"
 
 roo_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 512
   path: ".assets-binaries/roo-guestbook.war"
 
 simple-lift-app:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/hello_lift.war"
 
 lift-db-app:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/lift-db-app.war"
 
 tomcat-version-check-app:
-  framework: "buildpack"
   memory: 128
-  runtime: "ruby19"
   tomcat_version: "6.0.35"
   path: ".assets-binaries/tomcat-version-check-app.war"
 
 app_rails_version:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 256
   path: "assets/rails3/app_rails_version"
   command: "bundle exec rake db:migrate && bundle exec rails server -p $PORT"
 
 app_rails_service:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 256
   path: "assets/rails3/app_rails_service"
   command: "bundle exec rake db:migrate && bundle exec rails server thin -p $PORT"
 
 app_rails_service_autoconfig:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 256
   path: "assets/rails3/app_rails_service_autoconfig"
   command: "bundle exec rake db:migrate && bundle exec thin start -R config.ru -e $RAILS_ENV -p $PORT"
 
 rails_3_2_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 256
   path: "assets/rails3/rails_3_2_app"
 
 app_rack_service:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 256
   path: "assets/rack/app_rack_service"
 
 app_rack_service_autoconfig:
-  framework: "buildpack"
   instances: 1
-  runtime: "ruby19"
   startup: "ruby app.rb"
   memory: 64
   path: "assets/rack/app_rack_service_autoconfig"
 
 rack_autoconfig_ruby19:
-  framework: "buildpack"
   instances: 1
-  runtime: "ruby19"
   startup: "ruby app.rb"
   memory: 64
   path: "assets/rack/autoconfig_ruby19"
 
 app_sinatra_service:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/app_sinatra_service"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
 
-
 app_sinatra_service2:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 128
   path: "assets/sinatra/app_sinatra_service"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
 
 app_sinatra_service_autoconfig:
-  framework: "buildpack"
   instances: 1
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/app_sinatra_service_autoconfig"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
 
 app_sinatra_modular:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/app_sinatra_modular"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
 
 service_quota_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 512
   path: "assets/sinatra/app_sinatra_service_quota/"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
 
 redis_conn_quota_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/app_sinatra_service_quota/"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
 
 amqp_autoconfig:
-  framework: "buildpack"
   instances: 1
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/amqp_autoconfig"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
 
 autoconfig_unsupported_versions:
-  framework: "buildpack"
   instances: 1
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/autoconfig_unsupported_versions"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
 
 autoconfig_unsupported_carrot_version:
-  framework: "buildpack"
   instances: 1
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/autoconfig_unsupported_carrot_version"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
 
-
 app_node_service:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/node/app_node_service"
   command: "node main.js"
 
 app_node_dependencies06:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/node/node_dependencies06"
   command: "node app.js"
 
 app_node_dependencies08:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/node/node_dependencies08"
   command: "node app.js"
 
 app_node_version04:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/node/app_node_version"
   command: "node app.js"
 
-
 node_autoconfig04:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/node/node_autoconfig"
   command: "node app.js"
 
 node_autoconfig06:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/node/node_autoconfig"
   command: "node app.js"
 
 node_autoconfig08:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/node/node_autoconfig"
   command: "node app.js"
 
 node_git_modules:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/node/node_git"
   command: "node app.js"
 
 app_spring_service:
-  framework: "buildpack"
   instances: 1
-  runtime: "ruby19"
   memory: 512
   path: ".assets-binaries/app_spring_service.war"
 
 my_test_app_env_test_app:
-  framework: "buildpack"
   memory: 64
   path: "assets/sinatra/hello_vcap"
   command: "bundle exec ruby foo.rb -p $VCAP_APP_PORT"
 
 neo4j_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 128
   path: "assets/sinatra/neo4j_app"
   command: "bundle exec ruby neo4j.rb -p $VCAP_APP_PORT"
 
 spring-env-app:
-  framework: "buildpack"
   memory: 512
-  runtime: "ruby19"
   path: ".assets-binaries/spring-env.war"
 
 auto-reconfig-test-app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 512
   path: ".assets-binaries/auto-reconfig-test-app.war"
 
 auto-reconfig-missing-deps-test-app:
-  framework: "buildpack"
   memory: 512
-  runtime: "ruby19"
   path: ".assets-binaries/auto-reconfig-missing-deps-test-app.war"
 
 atmos_app:
-  framework: "buildpack"
   memory: 256
   path: "assets/sinatra/atmos_app"
   command: "bundle exec ruby server.rb -p $VCAP_APP_PORT"
 
 simple_kv_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/simple_kv_app"
   command: "bundle exec ruby server.rb -p $VCAP_APP_PORT"
 
 brokered_service_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/brokered_service_app"
   command: "bundle exec ruby server.rb -p $VCAP_APP_PORT"
 
 java_app_with_startup_delay:
-  framework: "buildpack"
   instances: 1
-  runtime: "ruby19"
   memory: 128
   path: ".assets-binaries/app_with_startup_delay.war"
 
 rails_console_test_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 256
   path: "assets/rails3/app_rails_service"
 
 rails_console_19_test_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 256
   path: "assets/rails3/rails_console_test_app"
   command: "bundle exec rake db:migrate && bundle exec rails server -p $PORT"
 
 blob_app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 256
   path: "assets/sinatra/app_sinatra_service"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
 
 standalone_ruby_app:
-  framework: "buildpack"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
   memory: 64
-  runtime: "ruby19"
   path: "assets/standalone/ruby_app"
 
 standalone_simple_ruby_app:
-  framework: "buildpack"
   command: "ruby simple.rb"
   memory: 64
-  runtime: "ruby19"
   path: "assets/standalone/simple_ruby_app"
   no_url: true
 
 standalone_simple_ruby_quotes_app:
-  framework: "buildpack"
   command: "ruby \"simple.rb\""
   memory: 64
-  runtime: "ruby19"
   path: "assets/standalone/simple_ruby_app"
   no_url: true
 
 standalone_simple_ruby19_app:
-  framework: "buildpack"
   command: "ruby simple.rb"
   memory: 64
-  runtime: "ruby19"
   path: "assets/standalone/simple_ruby_app"
   no_url: true
 
 standalone_java_app:
-  framework: "buildpack"
   command: "bin/hello-cloud"
-  runtime: "ruby19"
   memory: 64
   path: ".assets-binaries/java_app.zip"
   no_url: true
 
-
 standalone_node_app:
-  framework: "buildpack"
   command: "node app.js"
-  runtime: "ruby19"
   memory: 64
   path: "assets/standalone/node_app"
 
 standalone_ruby18_autoconfig:
-  framework: "buildpack"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
-  runtime: "ruby19"
   memory: 64
   path: "assets/standalone/ruby_autoconfig"
 
 play_computer_database_autoconfig_disabled_app_20:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/computer_database_autoconfig_disabled.zip"
 
 play_computer_database_cf_by_name_app_20:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/computer_database_cf_by_name.zip"
 
 play_computer_database_cf_by_type_app_20:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/computer_database_cf_by_type.zip"
 
 play_computer_database_jpa_mysql_app_20:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/computer_database_jpa_mysql.zip"
 
 play_computer_database_jpa_app_21:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/computer_database_jpa-2.1.zip"
 
 play_computer_database_multi_dbs_app_20:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/computer_database_multi_dbs.zip"
 
 play_computer_database_scala_app_20:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/computer_database_scala.zip"
 
 play_todolist_app_20:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/todolist.zip"
 
-
 play_todolist_with_cfruntime_app_21:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/todolist_with_cfruntime-2.1.zip"
 
 play_zentasks_cf_by_name_app_20:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/zentasks_cf_by_name.zip"
 
 play_zentasks_cf_by_type_app_21:
-  framework: "buildpack"
   memory: 256
-  runtime: "ruby19"
   path: ".assets-binaries/zentasks_cf_by_type-2.1.zip"
 
 auto-reconfig-annotation-app:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 512
   path: ".assets-binaries/auto-reconfig-annotation-app.war"
 
 javaee-namespace-app:
-  framework: "buildpack"
-  runtime: "ruby19"
   startup: "thin start"
   memory: 256
   path: ".assets-binaries/javaee-namespace-app.war"
 
 sinatra_imagemagick:
-  framework: "buildpack"
   memory: 64
-  runtime: "ruby19"
   path: "assets/sinatra/sinatra_imagemagick"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
 
 node_imagemagick:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/node/node_imagemagick"
   command: "node app.js"
 
 spring_imagemagick_java6:
-  framework: "buildpack"
   memory: 512
-  runtime: "ruby19"
   path: ".assets-binaries/spring_imagemagick.war"
 
 couchdb_app:
-  framework: "buildpack"
   memory: 64
-  runtime: "ruby19"
   path: "assets/sinatra/couchdb_app"
   command: "bundle exec ruby couchdb.rb -p $VCAP_APP_PORT"
 
 elasticsearch_app:
-  framework: "buildpack"
   memory: 64
-  runtime: "ruby19"
   path: "assets/sinatra/elasticsearch_app"
   command: "bundle exec ruby elasticsearch.rb -p $VCAP_APP_PORT"
 
 oauth2_app:
-  framework: "buildpack"
   memory: 128
-  runtime: "ruby19"
   path: "assets/sinatra/oauth2_app"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
 
 sleeper:
-  framework: "buildpack"
-  runtime: "ruby19"
   memory: 64
   path: "assets/sinatra/sleeper"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
