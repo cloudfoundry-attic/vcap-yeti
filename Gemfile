@@ -2,7 +2,7 @@ source "http://rubygems.org"
 
 gem "rake"
 gem "rspec"
-gem "cfoundry", :github => "cloudfoundry/vmc-lib"
+gem "cfoundry", :github => "cloudfoundry/vmc-lib", :submodules => true
 gem "vcap_logging", ">= 1.0"
 gem "interact"
 gem "rest-client"
