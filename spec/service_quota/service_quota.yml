@@ -51,7 +51,10 @@ properties:
           max_clients: 512
       "100":
         configuration:
-          max_clients: 512
+          max_clients: 10
+          bandwidth_quotas:
+            per_day: 1
+            per_second: 0.01
     vblob:
       free:
         configuration:

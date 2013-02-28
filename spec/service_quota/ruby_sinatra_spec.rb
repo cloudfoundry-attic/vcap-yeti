@@ -346,7 +346,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
                        'Operation failed with the following exception: #<Mongo::ConnectionFailure')
   end
 
-  it "max_clients of rabbitmq service", :rabbitmq => true do
+  it "max_clients of rabbitmq service", :rabbit => true do
     rabbitmq_max_clients = service_quota['rabbit']['max_clients']
 
     verify_max_clients(rabbitmq_max_clients, RABBITMQ_MANIFEST, 'rabbitmq',
@@ -366,16 +366,12 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
     # the test is pending. To fix it, we can use multiple users to create applications.
     pending "Since the dea limitation, the test is pending when connection quota is not less than #{20 * SINGLE_APP_CLIENTS_LIMIT} " if max_clients >= 20 * SINGLE_APP_CLIENTS_LIMIT
 
-    app_list = []
-    service = create_service(manifest)
-
     app_number = max_clients / SINGLE_APP_CLIENTS_LIMIT + 1
 
     if app_number > 1
+      app_list = []
       for i in 1..app_number
-        app = @session.app("redis_conn_quota_app", i.to_s)
-        app.push
-        app.bind(service)
+        app = create_push_app("redis_conn_quota_app", i.to_s, nil, [manifest])
         app_list << app
       end
 
@@ -402,8 +398,7 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
       expect_error.should eql(1), "1 error expected, actual errors: #{expect_error}"
       success_number.should be_within(5).of(max_clients-1)
     else
-      app = create_push_app("service_quota_app")
-      app.bind(service)
+      app = create_push_app("service_quota_app", nil, nil, [manifest])
 
       r = app.get_response(:post, "/service/#{service_url}/clients/#{max_clients-1}", "")
       r.code.should == 200
@@ -576,12 +571,9 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   # Bandwidth test only for rabbitmq now
-  it "bandwidth rate for rabbit service", :rabbitmq => true do
+  it "bandwidth rate for rabbit service", :rabbit => true do
     pending("no configuration for bandwidth rate") unless service_quota['rabbit']['bandwidth_quotas'] && service_quota['rabbit']['bandwidth_quotas']['per_second']
-    service = create_service(RABBITMQ_MANIFEST)
-    app = create_push_app("service_quota_app")
-    app.bind(service)
-
+    app = create_push_app("service_quota_app", nil, nil, [RABBITMQ_MANIFEST])
     rabbit_bandwidth_rate = service_quota['rabbit']['bandwidth_quotas']['per_second'].to_f
     result_reg = /ok-([0-9]+)/
     send_size_mb = rabbit_bandwidth_rate * 30 # Set throughput size to 30 times of rate
@@ -593,14 +585,12 @@ describe BVT::Spec::ServiceQuota::RubySinatra do
   end
 
   # Daylimit test only for rabbitmq now
-  it "daylimit for rabbit service", :rabbitmq => true do
+  it "daylimit for rabbit service", :rabbit => true do
     pending("no configuration for bandwidth rate") unless service_quota['rabbit']['bandwidth_quotas'] && service_quota['rabbit']['bandwidth_quotas']['time_window'] && service_quota['rabbit']['bandwidth_quotas']['per_day']
     time_window = service_quota['rabbit']['bandwidth_quotas']['time_window'].to_i
     per_day = service_quota['rabbit']['bandwidth_quotas']['per_day'].to_f
     pending("take too much time, please set a small time_window value") unless time_window < 600
-    service = create_service(RABBITMQ_MANIFEST)
-    app = create_push_app("service_quota_app")
-    app.bind(service)
+    app = create_push_app("service_quota_app", nil, nil, [RABBITMQ_MANIFEST])
 
     result_reg = /ok-([0-9]+)/
     send_size_mb = per_day * 0.1 # Set throughput size to 30 times of rate
