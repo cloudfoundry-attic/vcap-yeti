@@ -21,9 +21,6 @@ group :vcap do
   gem "vcap_logging", ">= 1.0"
   gem "cf-uaac", "= 1.3.3"
   gem "cfoundry", :github => "cloudfoundry/vmc-lib", :submodules => true
-
-  git "git://github.com/cloudfoundry/vmc-plugins.git" do
-    gem "tunnel-vmc-plugin"
-    gem "console-vmc-plugin"
-  end
+  gem "tunnel-vmc-plugin", :github => "cloudfoundry/tunnel-vmc-plugin"
+  gem "console-vmc-plugin", :github => "cloudfoundry/console-vmc-plugin"
 end
