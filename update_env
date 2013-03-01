@@ -1,0 +1,15 @@
+# Make sure we fail if any single command fails!
+set -e -u
+
+echo -e "\n### bundle install ruby gems"
+ext_opt=${1:-local}
+
+if [[ $ext_opt = 'ci' ]]
+then
+  bundle install
+else
+  bundle install --without ci
+fi
+
+echo -e "\n### sync pre-compiled java apps"
+rake sync_assets
