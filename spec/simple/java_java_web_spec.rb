@@ -3,7 +3,7 @@ require "spec_helper"
 require "nokogiri"
 include BVT::Spec
 
-describe BVT::Spec::Simple::JavaJavaWeb do
+describe "Simple::JavaJavaWeb" do
 
   before(:each) do
     @session = BVT::Harness::CFSession.new

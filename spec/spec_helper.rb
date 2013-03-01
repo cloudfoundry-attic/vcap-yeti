@@ -18,111 +18,6 @@ end
 
 module BVT
   module Spec
-
-    module UsersManagement
-      class AdminUser; end
-      class NormalUser; end
-      class UAA; end
-      class ACL; end
-    end
-
-    module AutoStaging
-      class RubyRack; end
-      class RubyStandalone; end
-      class RubyRails3; end
-      class RubySinatra; end
-      class JavaSpring; end
-      class JavaGrails; end
-      class NodeNode; end
-    end
-
-    module Canonical
-      class JavaPlay; end
-      class JavaSpring; end
-      class JavaGrails; end
-      class JavaLift; end
-      class RubySinatra; end
-      class RubyRack; end
-      class NodeNode; end
-      class RubyRails3; end
-      class ScalaPlay; end
-    end
-
-    module ServiceQuota
-      class RubySinatra; end
-    end
-
-    module ImageMagicKSupport
-      class RubySinatra; end
-      class NodeNode; end
-      class Java; end
-    end
-
-    module ServiceLifecycle
-      class RubySinatra; end
-    end
-
-    module ServiceBroker
-      class RubySinatra; end
-    end
-
-    module MarketplaceGateway
-      class RubySinatra; end
-    end
-
-    module ServiceRebinding
-      class RubySinatra; end
-    end
-
-    module AppPerformance
-      class RubySinatra; end
-    end
-
-    module AcmManager
-      class Acm; end
-    end
-    module Simple
-      class JavaJavaWeb; end
-      class JavaStandalone; end
-      class NodeNode; end
-      class NodeStandalone; end
-      class RubyStandalone; end
-      class RubyRails3; end
-      class RubySinatra; end
-
-      module Info
-        class RubySinatra; end
-      end
-
-      module Lifecycle
-        class RubySinatra; end
-      end
-
-      module Update
-        class RubySinatra; end
-      end
-
-      module RubyGems
-        class RubySinatra; end
-      end
-
-      module FileRange
-        class RubySinatra; end
-      end
-
-      module RailsConsole
-        class Console; end
-      end
-    end
-
-    module OrgSpace
-      class Space; end
-    end
-
-    module CustomDomain
-      class Domain; end
-    end
-
     SERVICE_URL_MAPPING = Hash["mysql"      => "mysql",
                                "redis"      => "redis",
                                "mongodb"    => "mongo",
@@ -185,4 +80,4 @@ end
 
 require "autostaging/autostaging_helper"
 require "canonical/canonical_helper"
-require "service_lifecycle/service_lifecycle_helper"
+require "services/service_lifecycle_helper"

@@ -2,7 +2,7 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe BVT::Spec::Simple::RubyRails3 do
+describe "Simple::RubyRails3" do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

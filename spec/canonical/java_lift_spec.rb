@@ -4,7 +4,7 @@ require "nokogiri"
 include BVT::Spec::CanonicalHelper
 include BVT::Spec
 
-describe BVT::Spec::Canonical::JavaLift do
+describe "Canonical::JavaLift" do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
