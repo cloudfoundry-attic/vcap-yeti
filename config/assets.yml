@@ -337,7 +337,7 @@ standalone_simple_ruby19_app:
 
 standalone_java_app:
   command: "bin/hello-cloud"
-  memory: 64
+  memory: 256
   path: ".assets-binaries/java_app.zip"
   no_url: true
 
