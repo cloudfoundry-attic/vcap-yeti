@@ -108,7 +108,7 @@ describe "ServiceQuota" do
   def is_kill_long_tx?(service_name)
     kill_long_tx = service_quota[service_name]['kill_long_tx']
     if service_name == "mysql"
-      pending "it will not kill long transactions" unless kill_long_tx == true
+      pending "it will not kill long transactions" if kill_long_tx == false
     end
     pending "max_long_tx not enabled" if service_quota[service_name]['max_long_tx'] == 0
   end
