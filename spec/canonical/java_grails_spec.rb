@@ -3,7 +3,7 @@ require "spec_helper"
 include BVT::Spec
 include BVT::Spec::CanonicalHelper
 
-describe BVT::Spec::Canonical::JavaGrails do
+describe "Canonical::JavaGrails" do
 
   before { @session = BVT::Harness::CFSession.new }
 

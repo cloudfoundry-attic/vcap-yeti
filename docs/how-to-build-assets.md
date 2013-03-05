@@ -80,11 +80,7 @@ e.g.
 
       spring_app_test: # app name used in yeti case
 
-        framework: "spring"
-
         instances: 1
-
-        runtime: "java"
 
           memory: 320
 

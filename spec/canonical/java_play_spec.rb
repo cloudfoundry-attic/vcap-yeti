@@ -3,7 +3,7 @@ require "spec_helper"
 include BVT::Spec
 include BVT::Spec::CanonicalHelper
 
-describe BVT::Spec::Canonical::JavaPlay do
+describe "Canonical::JavaPlay" do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

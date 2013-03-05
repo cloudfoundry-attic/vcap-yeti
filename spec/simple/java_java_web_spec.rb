@@ -3,7 +3,7 @@ require "spec_helper"
 require "nokogiri"
 include BVT::Spec
 
-describe BVT::Spec::Simple::JavaJavaWeb do
+describe "Simple::JavaJavaWeb" do
 
   before(:each) do
     @session = BVT::Harness::CFSession.new
@@ -13,9 +13,8 @@ describe BVT::Spec::Simple::JavaJavaWeb do
     @session.cleanup!
   end
 
-  it "get applicatioin list", :slow => true, :p1 => true do
+  it "get application list", :slow => true, :p1 => true do
     app1 = create_push_app("simple_app2")
-
     app2 = create_push_app("tiny_java_app")
 
     app_list = @session.apps
@@ -45,12 +44,6 @@ describe BVT::Spec::Simple::JavaJavaWeb do
     version = doc.xpath("//version").first.content
     version.should_not == nil
     version.should =~ /Apache Tomcat/
-
-    packaged_version = app.manifest['tomcat_version']
-    packaged_version.should_not == nil
-    # The Tomcat version reported by the servlet is of the form
-    # 'Apache Tomcat/6.0.xx' for Tomcat 6 based releases.
-    version.split('/')[1].should == packaged_version
   end
 end
 

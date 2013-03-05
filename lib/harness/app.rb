@@ -19,8 +19,6 @@ module BVT::Harness
 
     def push(services = nil, appid = nil, need_check = true)
       load_manifest(appid)
-      check_framework(@manifest['framework'])
-      check_runtime(@manifest['runtime'])
       @app = @session.client.app_by_name(@name)
       if @app
         sync_app(@app, @manifest['path'])
@@ -87,7 +85,7 @@ module BVT::Harness
       end
     end
 
-    def start(need_check = true)
+    def start(need_check = true, async = false, &blk)
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
         raise RuntimeError, "Application: #{@app.name} does not exist!"
@@ -96,7 +94,7 @@ module BVT::Harness
       unless @app.running?
         @log.info "Start App: #{@app.name}"
         begin
-          @app.start!
+          @app.start!(async, &blk)
         rescue Exception => e
           @log.error "Start App: #{@app.name} failed.\n#{e.to_s}"
           raise RuntimeError, "Start App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
@@ -467,23 +465,6 @@ module BVT::Harness
       "#{@name}#{second_domain}.#{@session.TARGET.gsub(/http[s]?:\/\/\w+\./, "")}".gsub("_", "-")
     end
 
-    def check_framework(framework)
-      unless VCAP_BVT_SYSTEM_FRAMEWORKS.has_key?(framework.to_sym)
-        @log.error("Framework: #{framework} is not available " +
-                       "on target: #{@session.TARGET}")
-        raise RuntimeError, "Framework: #{framework} is not available " +
-                    "on target: #{@session.TARGET}"
-      end
-    end
-
-    def check_runtime(runtime)
-      unless VCAP_BVT_SYSTEM_RUNTIMES.has_key?(runtime)
-        @log.error("Runtime: #{runtime} is not available on target: #{@session.TARGET}")
-        raise RuntimeError, "Runtime: #{runtime} is not available" +
-            " on target: #{@session.TARGET}"
-      end
-    end
-
     def check_application
       seconds = 0
       sleep 20
@@ -517,18 +498,6 @@ module BVT::Harness
       if instances != app.total_instances
         diff[:instances] = [app.total_instances, instances]
         app.total_instances = instances
-      end
-
-      framework = @manifest['framework']
-      if framework != app.framework.name
-        diff[:framework] = [app.framework.name, framework]
-        app.framework = @client.framework_by_name(framework)
-      end
-
-      runtime = @manifest['runtime']
-      if runtime != app.runtime.name
-        diff[:runtime] = [app.runtime.name, runtime]
-        app.runtime = @client.runtime_by_name(runtime)
       end
 
       command = @manifest['command']
@@ -568,8 +537,6 @@ module BVT::Harness
       app.total_instances = @manifest['instances']
       app.production = @manifest['plan'] if @session.v2? && @manifest['plan']
 
-      app.framework = @client.framework_by_name(@manifest['framework'])
-      app.runtime = @client.runtime_by_name(@manifest['runtime'])
       app.command = @manifest['command']
 
       if @domain

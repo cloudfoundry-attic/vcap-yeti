@@ -1,6 +1,6 @@
 require 'cfcore/cfcore_helper'
 
-describe 'runtime debug modes', :cfcore => true, :mcf => true do
+describe 'debug mode', :cfcore => true, :mcf => true do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

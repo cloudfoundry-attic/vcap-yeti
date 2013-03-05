@@ -50,9 +50,7 @@ module BVT::Harness
                                            :passwd => user['passwd'],
                                            :target => @config['target'])
       profile = {}
-      profile[:runtimes] = client.system_runtimes
       profile[:services] = client.system_services
-      profile[:frameworks] = client.system_frameworks
       profile[:script_hash] = get_script_git_hash
       target_without_http = @config['target'].split('//')[-1]
       $vcap_bvt_profile_file ||= File.join(BVT::Harness::VCAP_BVT_HOME,

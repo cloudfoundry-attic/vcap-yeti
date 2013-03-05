@@ -4,7 +4,7 @@ require "json"
 include BVT::Spec::AutoStagingHelper
 include BVT::Spec
 
-describe BVT::Spec::AutoStaging::RubyRails3 do
+describe "AutoStaging::RubyRails3" do
 
   before(:each) do
     @session = BVT::Harness::CFSession.new

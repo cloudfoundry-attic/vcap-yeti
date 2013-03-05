@@ -4,7 +4,7 @@ require "nokogiri"
 include BVT::Spec
 include BVT::Spec::AutoStagingHelper
 
-describe BVT::Spec::AutoStaging::JavaGrails do
+describe "AutoStaging::JavaGrails" do
 
   before(:each) do
     @session = BVT::Harness::CFSession.new

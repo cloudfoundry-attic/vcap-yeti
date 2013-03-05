@@ -1,0 +1,66 @@
+properties:
+  service_plans:
+    mysql:
+      free:
+        configuration:
+          max_db_size: 128
+          max_long_query: 3
+          max_long_tx: 30
+          max_clients: 20
+      "100":
+        configuration:
+          max_db_size: 10
+          max_long_query: 3
+          max_long_tx: 30
+          max_clients: 10
+    postgresql:
+      free:
+        configuration:
+          max_db_size: 128
+          max_long_query: 3
+          max_long_tx: 30
+          max_clients: 20
+      "100":
+        configuration:
+          max_db_size: 10
+          max_long_query: 3
+          max_long_tx: 10
+          max_clients: 10
+    mongodb:
+      free:
+        configuration:
+          quota_files: 4
+          max_clients: 500
+      "100":
+        configuration:
+          quota_files: 4
+          max_clients: 10
+          quota_data_size: 240
+    redis:
+      free:
+        configuration:
+          max_memory: 16
+          max_clients: 500
+      "100":
+        configuration:
+          max_memory: 16
+          max_clients: 50
+    rabbit:
+      free:
+        configuration:
+          max_clients: 512
+      "100":
+        configuration:
+          max_clients: 10
+          bandwidth_quotas:
+            per_day: 1
+            per_second: 0.01
+    vblob:
+      free:
+        configuration:
+          max_db_size: 2048
+          max_obj_limit: 32768
+      "100":
+        configuration:
+          max_db_size: 2048
+          max_obj_limit: 32768

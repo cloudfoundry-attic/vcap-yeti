@@ -3,7 +3,7 @@ require "spec_helper"
 include BVT::Spec
 include BVT::Spec::CanonicalHelper
 
-describe BVT::Spec::Canonical::RubyRack do
+describe "Canonical::RubyRack" do
 
   before(:all) { @session = BVT::Harness::CFSession.new }
 
