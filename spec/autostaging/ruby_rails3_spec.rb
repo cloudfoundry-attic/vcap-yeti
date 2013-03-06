@@ -32,6 +32,7 @@ describe "AutoStaging::RubyRails3" do
   end
 
   it "start and test a rails db app with Gemfile that includes mysql2 gem",
+    :slow => true,
     :mysql => true do
     service = create_service(MYSQL_MANIFEST)
 

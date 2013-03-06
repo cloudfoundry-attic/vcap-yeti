@@ -23,7 +23,7 @@ describe "Simple::JavaJavaWeb" do
     }
   end
 
-  it "start java app with startup delay" do
+  it "start java app with startup delay", :slow => true do
     app = create_push_app("java_app_with_startup_delay")
 
     contents = app.get_response(:get)

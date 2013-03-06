@@ -80,7 +80,7 @@ describe "AutoStaging::JavaSpring" do
     response.to_str.should == 'jdbc:mysql://localhost:3306/vcap-java-test-app'
   end
 
-  it "Spring Web Application using a local MongoDBFactory", :mongodb => true do
+  it "Spring Web Application using a local MongoDBFactory", :slow => true, :mongodb => true do
     app = create_push_app("auto-reconfig-test-app", nil, nil, [MONGODB_MANIFEST])
 
     add_env(app,'TEST_PROFILE','mongo-auto-staging')
@@ -92,6 +92,7 @@ describe "AutoStaging::JavaSpring" do
   end
 
   it "Spring Web Application using a local RedisConnectionFactory",
+    :slow => true,
     :redis => true, :p1 => true do
     app = create_push_app("auto-reconfig-test-app", nil, nil, [REDIS_MANIFEST])
 

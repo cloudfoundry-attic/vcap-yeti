@@ -37,7 +37,7 @@ describe "Simple::RubyGems" do
     response.to_str.should == "hello from git"
   end
 
-  it "sinatra test deploy app with git gems using ruby18" do
+  it "sinatra test deploy app with git gems using ruby18", :slow => true do
     app = create_push_app("git_gems_app_ruby18")
     app.stats.should_not == nil
     response = app.get_response(:get,"/")

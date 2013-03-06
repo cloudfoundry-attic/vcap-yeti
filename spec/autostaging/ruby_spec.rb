@@ -23,7 +23,7 @@ describe "AutoStaging::Ruby" do
     end
   end
 
-  it "Sinatra AMQP autostaging", :rabbitmq => true do
+  it "Sinatra AMQP autostaging", :slow => true, :rabbitmq => true do
     service_manifest = RABBITMQ_MANIFEST
     app = push_app_and_verify("amqp_autoconfig", "/", "hello from sinatra", [service_manifest])
     # provision service

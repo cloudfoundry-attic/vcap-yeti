@@ -51,7 +51,7 @@ describe "Canonical::JavaSpring" do
     verify_keys(app, POSTGRESQL_MANIFEST)
   end
 
-  it "deploy spring 3.1 app", :redis => true do
+  it "deploy spring 3.1 app", :slow => true, :redis => true do
     app = create_push_app("spring-env-app")
 
     response = app.get_response(:get, "/profiles/active/cloud").to_str

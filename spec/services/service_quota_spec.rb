@@ -73,7 +73,7 @@ describe "ServiceQuota" do
     content.to_str.should == "query interrupted"
   end
 
-  it "test mysql max transaction time", :mysql => true do
+  it "test mysql max transaction time", :slow => true, :mysql => true do
     app = create_push_app("service_quota_app", nil, nil, [MYSQL_MANIFEST])
 
     is_kill_long_tx?("mysql")
@@ -339,7 +339,7 @@ describe "ServiceQuota" do
                        "has exceeded the 'max_user_connections' resource")
   end
 
-  it "max_clients of mongodb service", :mongodb => true do
+  it "max_clients of mongodb service", :slow => true, :mongodb => true do
     mongodb_max_clients = service_quota['mongodb']['max_clients']
 
     verify_max_clients(mongodb_max_clients, MONGODB_MANIFEST, 'mongodb',
