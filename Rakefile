@@ -43,6 +43,16 @@ task :full, :thread_number do |t, args|
   threads = args[:thread_number].to_i if args[:thread_number]
   RakeHelper.prepare_all(threads)
   create_reports_folder
+  longevity(threads, {'tags' => '~admin'})
+end
+
+desc "run tests (don't include admin and slow cases)"
+task :fast, :thread_number do |t, args|
+  RakeHelper.sync_assets
+  threads = 10
+  threads = args[:thread_number].to_i if args[:thread_number]
+  RakeHelper.prepare_all(threads)
+  create_reports_folder
   longevity(threads, {'tags' => '~admin,~slow'})
 end
 
