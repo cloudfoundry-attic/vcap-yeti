@@ -3,7 +3,6 @@ require "spec_helper"
 include BVT::Spec
 
 describe "Simple::Info" do
-
   VAR_INSTANCE_COUNT = 4
   VAR_MEMORY         = 64
 
@@ -94,26 +93,24 @@ describe "Simple::Info" do
     app = create_app("broken_app")
     app.push(nil, nil, false)
 
-    crashes = get_crashes(app.name)
-    crash = crashes.first
-
+    crash = get_crashes(app.name).first
     crash.files("/").should_not == nil
     crash.files("/app").should_not == nil
-
   end
 
   def get_crashes(name)
     app = @client.app_by_name(name)
-    retries = 5
+    secs = VCAP_BVT_APP_ASSETS["timeout_secs"]
 
-    crashes = app.crashes
-    while crashes.empty? && retries > 0
-      sleep 1
-      retries -= 1
+    begin
       crashes = app.crashes
+      secs -= 1
+    end while crashes.empty? && secs > 0 && sleep(1)
+
+    if crashes.empty?
+      raise "Failed to find crashes for an app."
     end
 
     crashes
   end
-
 end
