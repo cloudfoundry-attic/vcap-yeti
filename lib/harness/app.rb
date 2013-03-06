@@ -94,7 +94,7 @@ module BVT::Harness
       unless @app.running?
         @log.info "Start App: #{@app.name}"
         begin
-          @app.start!(async, &blk)
+          @app.start!(true, &blk)
         rescue Exception => e
           @log.error "Start App: #{@app.name} failed.\n#{e.to_s}"
           raise RuntimeError, "Start App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
@@ -466,21 +466,42 @@ module BVT::Harness
     end
 
     def check_application
-      seconds = 0
-      sleep 20
-      until @app.healthy?
+      # Wait initially since app most likely
+      # will not complete staging and start under 10secs
+      sleep(seconds = 10)
+
+      until application_is_really_running?
         sleep 1
         seconds += 1
+
         if seconds == VCAP_BVT_APP_ASSETS['timeout_secs']
-          sleep 2
-          unless @app.healthy?
-            @log.error "Application: #{@app.name} cannot be started " +
-                         " in #{VCAP_BVT_APP_ASSETS['timeout_secs']} seconds"
-            raise RuntimeError, "Application: #{@app.name} cannot be started " +
-              "in #{VCAP_BVT_APP_ASSETS['timeout_secs']} seconds.\n#{@session.print_client_logs}"
-          end
+          @log.error \
+            "Application: #{@app.name} cannot be started " +
+            "in #{VCAP_BVT_APP_ASSETS['timeout_secs']} seconds"
+
+          raise RuntimeError, \
+            "Application: #{@app.name} cannot be started " +
+            "in #{VCAP_BVT_APP_ASSETS['timeout_secs']} seconds.\n" +
+            "#{@session.print_client_logs}"
         end
       end
+    end
+
+    def application_is_really_running?
+      instances_are_all_running? && instances_are_all_running_for_a_bit?
+    end
+
+    def instances_are_all_running_for_a_bit?
+      3.times.map {
+        sleep(1)
+        instances_are_all_running?
+      }.all?
+    end
+
+    def instances_are_all_running?
+      instances = @app.instances
+      puts instances.map(&:state).uniq
+      instances.map(&:state).uniq == ["RUNNING"]
     end
 
     def sync_app(app, path)

@@ -2,7 +2,11 @@
 # Timeout value after we which we give up on AppCloud operations that are long running.
 # Within this value, we poll for completion status of the operations with the
 # sleep interval between successive poll requests specified below.
-timeout_secs: 60
+
+# Since we have switched to buildpacks staging time has increased
+# so until we start caching gems, bins, etc. timeout is 5min
+timeout_secs: 300
+
 job_timeout_secs: 30
 sleep_secs: 1
 
