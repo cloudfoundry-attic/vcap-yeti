@@ -53,7 +53,7 @@ describe "AutoStaging::RubyRails3" do
     health.should be_false
   end
 
-  it "Rails autostaging", :mysql => true, :redis => true, :mongodb => true, :rabbitmq => true, :postgresql => true, :p1 => true do
+  it "Rails autostaging", :slow => true, :mysql => true, :redis => true, :mongodb => true, :rabbitmq => true, :postgresql => true, :p1 => true do
     # provision service
     service_manifests = [MYSQL_MANIFEST, REDIS_MANIFEST, MONGODB_MANIFEST]
     services = []

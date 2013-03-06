@@ -102,12 +102,12 @@ describe "ServiceRebinding" do
     drop_db_obj(service_manifest, app2)
   end
 
-  it "Verify rebinding for mysql", :mysql => true, :p1 => true do
+  it "Verify rebinding for mysql", :slow => true, :mysql => true, :p1 => true do
     app1 = create_push_app("app_sinatra_service")
     rebind(MYSQL_MANIFEST, app1)
   end
 
-  it "Verify rebinding for postgresql", :postgresql => true do
+  it "Verify rebinding for postgresql", :slow => true, :postgresql => true do
     app1 = create_push_app("app_sinatra_service")
     rebind(POSTGRESQL_MANIFEST, app1)
   end
