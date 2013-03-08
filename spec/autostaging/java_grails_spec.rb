@@ -51,7 +51,9 @@ describe "AutoStaging::JavaGrails" do
     nil
   end
 
-  it "Start grails app and add some records", :mysql => true, :p1 => true do
+  it "Start grails app and add some records",
+    :slow => true,
+    :mysql => true, :p1 => true do
     app = create_push_app("grails_app", nil, nil, [MYSQL_MANIFEST])
     records = add_records(app, 3, "/guest/save")
     verify_records(app, records, 3, "/guest/list", "//tbody/tr")

@@ -14,6 +14,7 @@ describe "AutoStaging::Ruby" do
   end
 
   it "services autostaging", :mysql => true, :mongodb => true, :rabbitmq => true,
+    :slow => true,
     :postgresql => true, :redis => true, :p1 => true do
     manifests = [MYSQL_MANIFEST, REDIS_MANIFEST, MONGODB_MANIFEST,
                      RABBITMQ_MANIFEST, POSTGRESQL_MANIFEST]

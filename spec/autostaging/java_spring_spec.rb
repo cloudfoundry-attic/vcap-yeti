@@ -57,6 +57,7 @@ describe "AutoStaging::JavaSpring" do
   end
 
   it "Spring Web Application specifying a Cloud Service and Data Source",
+    :slow => true,
     :mysql => true, :mongodb => true, :p1 => true do
     app = create_push_app("auto-reconfig-test-app", nil, nil, [MONGODB_MANIFEST, MYSQL_MANIFEST])
 
@@ -69,6 +70,7 @@ describe "AutoStaging::JavaSpring" do
   end
 
   it "Spring Web Application specifying a Service Scan and Data Source",
+    :slow => true,
     :mysql => true do
     app = create_push_app("auto-reconfig-test-app", nil, nil, [MYSQL_MANIFEST])
 
@@ -105,6 +107,7 @@ describe "AutoStaging::JavaSpring" do
   end
 
   it "Spring Web Application using a local RabbitConnectionFactory",
+    :slow => true,
     :rabbitmq => true, :p1 => true do
     app = create_push_app("auto-reconfig-test-app", nil, nil, [RABBITMQ_MANIFEST])
 
@@ -117,6 +120,7 @@ describe "AutoStaging::JavaSpring" do
   end
 
   it "Spring 3.1 Hibernate application using a local DataSource",
+    :slow => true,
     :mysql => true do
     app = create_push_app("auto-reconfig-test-app", nil, nil, [MYSQL_MANIFEST])
 
@@ -146,7 +150,9 @@ describe "AutoStaging::JavaSpring" do
     response.to_str.should == 'org.hibernate.dialect.MySQLDialect'
   end
 
-  it "Spring Web application using JPA using mysql", :mysql => true do
+  it "Spring Web application using JPA using mysql",
+    :slow => true,
+    :mysql => true do
     app = create_push_app("jpa_app", nil, nil, [MYSQL_MANIFEST])
 
     records = add_records(app, 3)
@@ -162,7 +168,7 @@ describe "AutoStaging::JavaSpring" do
     verify_records(app, records, 3)
   end
 
-  it "Spring Roo application using mysql", :mysql => true do
+  it "Spring Roo application using mysql", :mysql => true, :slow => true do
     app = create_push_app("roo_app", nil, nil, [MYSQL_MANIFEST])
 
     records = add_records(app, 3, '/guests')

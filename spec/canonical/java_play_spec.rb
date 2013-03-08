@@ -227,7 +227,8 @@ describe "Canonical::JavaPlay" do
   end
 
   it "play 2.0 application with multiple database services, one named production",
-     :postgresql => true do
+    :slow => true,
+    :postgresql => true do
     app = create_push_app("play_computer_database_scala_app_20", nil, nil, [POSTGRESQL_MANIFEST])
     bind_service(POSTGRESQL_MANIFEST, app, 'play-comp-db-app-production')
 

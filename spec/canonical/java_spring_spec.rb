@@ -31,7 +31,7 @@ describe "Canonical::JavaSpring" do
     verify_keys(app, MYSQL_MANIFEST)
   end
 
-  it "spring test redis service", :redis => true, :p1 => true do
+  it "spring test redis service", :slow => true, :redis => true, :p1 => true do
     app = create_push_app("app_spring_service", nil, nil, [REDIS_MANIFEST])
     verify_keys(app, REDIS_MANIFEST)
   end
