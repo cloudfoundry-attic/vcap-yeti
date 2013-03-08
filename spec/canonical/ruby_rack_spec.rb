@@ -7,7 +7,10 @@ describe "Canonical::RubyRack" do
 
   before(:all) { @session = BVT::Harness::CFSession.new }
 
-  after { @session.cleanup! }
+  after do
+    show_crashlogs
+    @session.cleanup!
+  end
 
   it "rack test deploy app", :p1 => true do
     app = create_push_app("app_rack_service")

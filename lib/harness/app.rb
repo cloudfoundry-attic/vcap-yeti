@@ -383,6 +383,21 @@ module BVT::Harness
       body
     end
 
+    def crashlogs
+      @app.crashes.each do |instance|
+        instance.files("logs").each do |logfile|
+          content = instance.file(*logfile)
+          unless content.empty?
+            puts "\n======= Crashlogs: #{logfile.join("/")} ======="
+            puts content
+            puts "=" * 80
+          end
+        end
+      end
+    rescue CFoundry::FileError
+      # Could not get crash logs
+    end
+
     def healthy?
       h = @app.healthy?
       unless h

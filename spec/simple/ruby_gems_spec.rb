@@ -6,7 +6,10 @@ describe "Simple::RubyGems" do
 
   before(:all) { @session = BVT::Harness::CFSession.new }
 
-  after { @session.cleanup! }
+  after do
+    show_crashlogs
+    @session.cleanup!
+  end
 
   def verify_service(service_manifest, app, key)
     data = "#{service_manifest[:vendor]}#{key}"

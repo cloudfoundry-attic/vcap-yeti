@@ -11,6 +11,7 @@ describe "Simple::Space" do
   end
 
   after(:each) do
+    show_crashlogs
     @session.cleanup!("all")
   end
 

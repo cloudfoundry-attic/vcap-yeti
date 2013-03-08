@@ -49,6 +49,12 @@ def log_case_begin_end(flag)
   end
 end
 
+def show_crashlogs
+  if example.exception && @current_app
+    @current_app.crashlogs
+  end
+end
+
 RSpec.configure do |config|
   include BVT::Harness::ColorHelpers
   config.before(:suite) do
@@ -68,11 +74,13 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
+    @current_app = nil
     log_case_begin_end(:begin)
   end
 
   config.after(:each) do
     log_case_begin_end(:end)
+    show_crashlogs
   end
 
   config.include BVT::Harness::ScriptsHelper

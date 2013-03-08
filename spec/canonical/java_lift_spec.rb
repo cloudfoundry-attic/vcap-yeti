@@ -11,6 +11,7 @@ describe "Canonical::JavaLift" do
   end
 
   after(:all) do
+    show_crashlogs
     @session.cleanup!
   end
 

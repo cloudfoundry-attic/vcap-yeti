@@ -21,6 +21,7 @@ describe "User::ACL" do
   end
 
   after(:each) do
+    show_crashlogs
     @session.cleanup!
   end
 
