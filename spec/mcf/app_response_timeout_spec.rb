@@ -7,6 +7,7 @@ describe 'app response timeout', :mcf => true, :slow => true do
   end
 
   after(:each) do
+    show_crashlogs
     @session.cleanup!
   end
 

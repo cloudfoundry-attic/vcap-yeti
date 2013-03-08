@@ -32,6 +32,7 @@ module BVT::Harness
       if app.manifest['path'].end_with?('.jar') || app.manifest['path'].end_with?('.war')
         pending "Package not found, please run update.sh" unless File.exist? app.manifest['path']
       end
+      @current_app = app
       app
     end
 

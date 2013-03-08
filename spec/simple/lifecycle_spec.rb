@@ -9,6 +9,7 @@ describe "Simple::Lifecycle" do
   end
 
   after(:each) do
+    show_crashlogs
     @session.cleanup!
   end
 
