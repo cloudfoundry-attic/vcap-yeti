@@ -15,7 +15,7 @@ module BVT::Harness
     def create_uaa_user(uaa_cc_secret, email, password)
       with_cc_uaa_client(uaa_cc_secret) do
         output = run "uaac user add #{email} --email #{email} --given_name yeti --family_name testuser  -p #{password}"
-        error unless output =~ /added/
+        error("Could not create uaa user: #{output}") unless output =~ /added/
         uaa_uid(email)
       end
     end
@@ -73,16 +73,15 @@ module BVT::Harness
       `#{cmd}`
     end
 
-    def error(str = nil)
-      STDERR.puts "#{str}" if str
-      exit -1
+    def error(str)
+      abort "Error: #{str}"
     end
 
     def with_uaa_target(uaa_url)
       output = run "uaac target"
       orig_target = output[/target set to ([^,]*)?/, 1]
       output = run "uaac target #{uaa_url}"
-      error unless output =~ /target set to/
+      error("Could not target: #{output}") unless output =~ /target set to/
       begin
         yield if block_given?
       ensure
@@ -94,7 +93,7 @@ module BVT::Harness
 
     def with_cc_uaa_client(uaa_cc_secret)
       output = run "uaac token client get cloud_controller -s #{uaa_cc_secret}"
-      error if output =~ /error/
+      error "Error while creating user: #{output}" if output =~ /error/
       begin
         yield if block_given?
       ensure
@@ -110,7 +109,7 @@ module BVT::Harness
 
     def auth_token(email, password)
       output = run "uaac token get #{email} #{password}"
-      error if output =~ /failed/
+      error("Could not get auth token: #{output}") if output =~ /failed/
       output = run "uaac context | grep access_token | sed 's/ *access_token: //'"
       "bearer #{output.chomp}"
     end
