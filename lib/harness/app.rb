@@ -515,8 +515,9 @@ module BVT::Harness
 
     def instances_are_all_running?
       instances = @app.instances
-      puts instances.map(&:state).uniq
       instances.map(&:state).uniq == ["RUNNING"]
+    rescue CFoundry::Timeout => e
+      false
     end
 
     def sync_app(app, path)
