@@ -8,6 +8,7 @@ describe "ServiceQuota" do
   SINGLE_APP_CLIENTS_LIMIT = 200
 
   before(:all) do
+    pending "Will be separated into its own test suite"
     @session = BVT::Harness::CFSession.new
   end
 
