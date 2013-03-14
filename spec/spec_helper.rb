@@ -85,7 +85,3 @@ RSpec.configure do |config|
 
   config.include BVT::Harness::ScriptsHelper
 end
-
-require "autostaging/autostaging_helper"
-require "canonical/canonical_helper"
-require "services/service_lifecycle_helper"
