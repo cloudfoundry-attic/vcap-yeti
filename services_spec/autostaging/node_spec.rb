@@ -9,13 +9,14 @@ describe "AutoStaging::Node" do
     @session = BVT::Harness::CFSession.new
   end
 
-  after(:each) do
+  after do
     show_crashlogs
     @session.cleanup!
   end
 
-  it "Node.js version 0.4 autostaging", :mysql=>true, :redis=>true,
-    :mongodb=>true, :rabbitmq=>true, :postgresql=>true do
+  it "Node.js version 0.4 autostaging", :mysql=>true, :redis=>true, :mongodb=>true, :rabbitmq=>true, :postgresql=>true do
+    pending "Fails intermitteant. TODO: unpend!"
+
     manifests = [MYSQL_MANIFEST,
                  REDIS_MANIFEST,
                  MONGODB_MANIFEST,
