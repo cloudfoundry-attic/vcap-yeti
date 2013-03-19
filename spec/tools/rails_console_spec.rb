@@ -22,7 +22,7 @@ describe "Tools::RailsConsole" do
     apps.find{ |a| a.name == app.name}
   end
 
-  it "rails test console", :slow => true, :p1 => true do
+  xit "rails test console", :slow => true, :p1 => true do
     app = cfoundry_app(create_push_app("rails_console_test_app", nil, nil, [POSTGRESQL_MANIFEST]))
     @console = init_console(@client, app)
 
