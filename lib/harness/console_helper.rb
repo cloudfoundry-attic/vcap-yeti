@@ -29,6 +29,7 @@ module BVT::Harness
       tries -= 1
       blk.call
     rescue => e
+      puts "Error: #{e.message}"
       if tries >= 0
         puts "Retrying #{operation_name}"
         if opts[:sleep]
