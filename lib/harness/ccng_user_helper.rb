@@ -47,12 +47,12 @@ module BVT::Harness
       data = { "name" => name,
                "user_guids" => [user_guid],
                "manager_guids" => [user_guid],
-               "billing_enabled" => true,
                "quota_definition_guid" => quota_guid }
       response = RestClient.post("#{cc_url}/v2/organizations", data.to_json, auth_header)
       output = response.to_str
       guid = output[/"guid": "([^"]*)/, 1]
       error "could not extract space guid" unless guid
+      RestClient.put("#{cc_url}/v2/organizations/#{guid}", {"billing_enabled" => true}.to_json, auth_header)
       guid
     end
 
