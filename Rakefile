@@ -161,6 +161,11 @@ task :sync_assets do
   RakeHelper.sync_assets
 end
 
+desc "delete yeti-like organizations"
+task :delete_orgs do
+  sh "./tools/scripts/yeti-hunter.rb"
+end
+
 desc 'run core tests for verifying that an installation meets minimal Cloud Foundry compatibility requirements'
 RSpec::Core::RakeTask.new(:core) do |t|
   t.rspec_opts = '--tag cfcore'
