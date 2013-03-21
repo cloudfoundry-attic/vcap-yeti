@@ -19,7 +19,7 @@ describe "Simple::Node" do
     app.stats.should_not == nil
     app.get_response(:get).should_not == nil
     app.get_response(:get).to_str.should_not == nil
-    app.get_response(:get).to_str.should =~ /running version v0.4/
+    app.get_response(:get).to_str.should =~ /running version/
   end
 
   it "access my application root and see hello from git" do
@@ -46,6 +46,6 @@ describe "Simple::Node" do
 
   it "Simple node app and no URL", :p1 => true do
     app = create_push_app("standalone_node_app")
-    app.logs =~ /it's running version v0.4/
+    app.logs =~ /it's running version/
   end
 end
