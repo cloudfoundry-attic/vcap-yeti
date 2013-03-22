@@ -18,7 +18,7 @@ describe "Simple::Ruby" do
     app.get_response(:get).to_str.should == "running version 1.9.2"
   end
 
-  it "Simple ruby app and no URL", :p1 => true do
+  it "Simple ruby app and no URL" do
     app = create_push_app("standalone_simple_ruby_app")
     app.logs =~ /running version 1.9.2/
   end

@@ -1,6 +1,6 @@
-require 'cfcore/cfcore_helper'
+require 'spec_helper'
 
-describe 'core services', :cfcore => true, :mcf => true do
+describe 'core services' do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new

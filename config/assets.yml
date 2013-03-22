@@ -5,7 +5,7 @@
 
 # Since we have switched to buildpacks staging time has increased
 # so until we start caching gems, bins, etc. timeout is 5min
-timeout_secs: 900
+timeout_secs: 120
 
 job_timeout_secs: 30
 sleep_secs: 1

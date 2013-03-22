@@ -24,7 +24,7 @@ describe "Simple::RubyGems" do
     app.start
   end
 
-  it "access my application root and see hello from sinatra", :p1 => true do
+  it "access my application root and see hello from sinatra" do
     app = create_push_app("broken_gem_app")
     app.stats.should_not == nil
     app.get_response(:get).should_not == nil
@@ -40,7 +40,7 @@ describe "Simple::RubyGems" do
     response.to_str.should == "hello from git"
   end
 
-  it "sinatra test deploy app with git gems using ruby18", :slow => true do
+  it "sinatra test deploy app with git gems using ruby18" do
     app = create_push_app("git_gems_app_ruby18")
     app.stats.should_not == nil
     response = app.get_response(:get,"/")
@@ -48,7 +48,7 @@ describe "Simple::RubyGems" do
     response.to_str.should == "hello from git"
   end
 
-  it "sinatra test deploy app with Gemfile.lock containing Windows versions", :mysql=>true, :postgresql=>true do
+  it "sinatra test deploy app with Gemfile.lock containing Windows versions" do
     app = create_push_app("sinatra_windows_gemfile", nil, nil, [MYSQL_MANIFEST, POSTGRESQL_MANIFEST])
     staging_log = app.file("logs/staging_task.log")
     staging_log.should_not match "Installing yajl-ruby"

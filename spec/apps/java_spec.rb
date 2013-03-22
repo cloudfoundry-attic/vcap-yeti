@@ -8,12 +8,12 @@ describe "Simple::Java" do
     @session = BVT::Harness::CFSession.new
   end
 
-  after(:each) do
+  after do
     show_crashlogs
     @session.cleanup!
   end
 
-  it "simple java app", :p1 => true do
+  it "simple java app" do
     app = create_push_app("standalone_java_app")
 
     contents = app.get_response(:get)

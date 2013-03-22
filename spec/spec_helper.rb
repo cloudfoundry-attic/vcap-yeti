@@ -4,14 +4,16 @@ require 'yaml'
 require 'syck'
 YAML::ENGINE.yamler = 'syck'
 
+Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].map { |f| require f }
+
 class Bignum
-  def to_json(options = nil)
+  def to_json(_ = nil)
     to_s
   end
 end
 
 class Fixnum
-  def to_json(options = nil)
+  def to_json(_ = nil)
     to_s
   end
 end
@@ -50,8 +52,14 @@ def log_case_begin_end(flag)
 end
 
 def show_crashlogs
-  if example.exception && @current_app
+  return unless example.exception
+  logger = VCAP::Logging.logger(File.basename($0))
+
+  if @current_app
+    @current_app.logs
     @current_app.crashlogs
+  else
+    logger.warn("==== Spec failed, but no app detected ====")
   end
 end
 

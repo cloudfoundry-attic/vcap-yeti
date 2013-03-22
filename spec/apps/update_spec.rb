@@ -21,7 +21,7 @@ describe "Simple::Update" do
     @session.cleanup!
   end
 
-  it "increase/decrease instance count", :p1 => true do
+  it "increase/decrease instance count" do
     added_instance_count =  @app.instances.length + VAR_INC_INSTANCE
     @app.scale(added_instance_count, VAR_USE_MEMORY)
     @app.instances.length.should == added_instance_count
@@ -31,7 +31,7 @@ describe "Simple::Update" do
     @app.instances.length.should == reduced_instance_count
   end
 
-  it "map and unmap a url for the application to respond to", :p1 => true do
+  it "map and unmap a url for the application to respond to" do
     response = @app.get_response(:get, "/")
     response.to_str.should =~ /Hello from VCAP!/
 
@@ -53,7 +53,7 @@ describe "Simple::Update" do
         " mapped to application: #{@app.name}"
   end
 
-  it "redeploy application", :p1 => true do
+  it "redeploy application" do
     @app.push(nil, "modified_simple_app2")
     @app.get_response(:get).to_str.should =~ /Hello from modified VCAP/
   end

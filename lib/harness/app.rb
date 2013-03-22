@@ -10,7 +10,7 @@ module BVT::Harness
       @session  = session
       @client   = @session.client
       @log      = @session.log
-      @domain      = domain
+      @domain   = domain
     end
 
     def inspect
@@ -379,7 +379,7 @@ module BVT::Harness
         raise RuntimeError, "Fail to get logs for Application: #{@app.name}!" +
             "\n#{e.to_s}\n#{@session.print_client_logs}"
       end
-      @log.debug("Get Application #{@app.name}, logs contents: #{body}")
+      @log.debug("=============== Get Application #{@app.name}, logs contents: #{body}")
       body
     end
 

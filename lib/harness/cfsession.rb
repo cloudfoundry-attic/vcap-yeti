@@ -43,7 +43,7 @@ module BVT::Harness
     end
 
     def login
-      @log.debug("Login in, target: #{@TARGET}, email = #{@email}")
+      @log.info("Login in, target: #{@TARGET}, email = #{@email}")
       @client = CFoundry::Client.new(@TARGET)
       @client.trace = true if ENV['VCAP_BVT_TRACE']
       @client.log = []

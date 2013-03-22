@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe "app response timeout", :mcf => true, :slow => true do
+describe "app response timeout" do
   before(:all) do
     @session = BVT::Harness::CFSession.new
   end

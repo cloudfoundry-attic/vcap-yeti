@@ -4,39 +4,9 @@ require "harness"
 include BVT::Harness
 include BVT::Harness::ColorHelpers
 
-task :default => [:help]
+task :default => [:full]
 
-desc "List help commands"
-task :help do
-  puts "Usage: rake [command]"
-  puts "  admin\t\trun admin test cases"
-  puts "  tests\t\trun core tests in parallel, e.g. rake test[5] (default to 10, max = 16)\n"
-  puts "       \t\tOptions: VCAP_BVT_LONGEVITY=N can loop this task.\n"
-  puts "       \t\te.g. rake tests[8] VCAP_BVT_LONGEVITY=10"
-  puts "       \t\tVCAP_BVT_CONFIG_FILE=[path_to_config_file] to specify config file.\n"
-  puts "       \t\te.g. rake tests VCAP_BVT_CONFIG_FILE=/home/czhang/my_test.yml\n"
-  puts "       \t\tAbove options are also usable in other tasks."
-  puts "  full\t\trun full tests in parallel, e.g. rake full[5] (default to 10, max = 16)"
-  puts "  random\trun all bvts randomly, e.g. rake random[1023] to re-run seed 1023"
-  puts "  java\t\trun java tests (spring, java_web) in parallel\n" +
-          "\t\te.g. rake java[5] (default to 10, max = 16)"
-  puts "  jvm\t\trun jvm tests (spring, java_web, grails, lift) in parallel\n" +
-          "\t\te.g. rake jvm[5] (default to 10, max = 16)"
-  puts "  ruby\t\trun ruby tests (rails3, sinatra, rack) in parallel\n" +
-          "\t\te.g. rake ruby[5] (default to 10, max = 16)"
-  puts "  services\trun service tests (mongodb/redis/mysql/postgres/rabbitmq/neo4j/vblob) in parallel\n" +
-          "\t\te.g. rake services[5] (default to 10, max = 16)"
-  puts "  core\t\trun core tests for verifying that an installation meets\n" +
-       "\t\tminimal Cloud Foundry compatibility requirements"
-  puts "  mcf\t\trun Micro Cloud Foundry tests\n"
-  puts "  clean\t\tclean up test environment(only run this task after interruption).\n" +
-           "\t\t  1, Remove all apps and services under test user\n" +
-           "\t\t  2, Remove all apps and services under parallel users"
-  puts "  rerun\t\trerun failed cases of the previous run\n"
-  puts "  help\t\tlist help commands"
-end
-
-desc "run full tests (not include admin cases)"
+desc "run full tests in parallel, e.g. rake full[5] (default to 10, max = 16)"
 task :full, :thread_number do |t, args|
   RakeHelper.sync_assets
   threads = 10
@@ -46,46 +16,7 @@ task :full, :thread_number do |t, args|
   longevity(threads, {'tags' => '~admin'})
 end
 
-desc "run tests (don't include admin and slow cases)"
-task :fast, :thread_number do |t, args|
-  RakeHelper.sync_assets
-  threads = 10
-  threads = args[:thread_number].to_i if args[:thread_number]
-  RakeHelper.prepare_all(threads)
-  create_reports_folder
-  longevity(threads, {'tags' => '~admin,~slow'})
-end
-
-desc "run tests subset"
-task :tests, :thread_number do |t, args|
-  RakeHelper.sync_assets
-  threads = 10
-  threads = args[:thread_number].to_i if args[:thread_number]
-  RakeHelper.prepare_all(threads)
-  create_reports_folder
-  longevity(threads, {'tags' => 'p1,~admin,~slow'})
-end
-
-desc "Run all bvts randomly, add [N] to specify a seed"
-task :random, :seed do |t, args|
-  RakeHelper.sync_assets
-  if args[:seed] != nil
-    sh "bundle exec rspec spec/ --tag ~admin --tag ~slow" +
-       " --seed #{args[:seed]} --format d -c"
-  else
-    sh "bundle exec rspec spec/ --tag ~admin --tag ~slow" +
-       " --order rand --format d -c"
-  end
-end
-
-desc "Run admin test cases"
-task :admin do
-  RakeHelper.prepare_all
-  create_reports_folder
-  longevity(1, {'tags' => 'admin'})
-end
-
-desc "Run java tests (spring, java_web)"
+desc "run java tests (spring, java_web) in parallel, e.g. rake java[5] (default to 10, max = 16)"
 task :java, :thread_number, :longevity, :fail_fast do |t, args|
   RakeHelper.sync_assets
   threads = 10
@@ -95,7 +26,7 @@ task :java, :thread_number, :longevity, :fail_fast do |t, args|
   longevity(threads, {'pattern' => /_(spring|java_web)_spec\.rb/})
 end
 
-desc "Run jvm tests (spring, java_web, grails, lift)"
+desc "tests (spring, java_web, grails, lift) in parallel e.g. rake jvm[5] (default to 10, max = 16)"
 task :jvm, :thread_number do |t, args|
   RakeHelper.sync_assets
   threads = 10
@@ -105,7 +36,7 @@ task :jvm, :thread_number do |t, args|
   longevity(threads, {'pattern' => /_(spring|java_web|grails|lift)_spec\.rb/})
 end
 
-desc "Run ruby tests (rails3, sinatra, rack)"
+desc "run ruby tests (rails3, sinatra, rack) in parallel e.g. rake ruby[5] (default to 10, max = 16)"
 task :ruby, :thread_number do |t, args|
   threads = 10
   threads = args[:thread_number].to_i if args[:thread_number]
@@ -114,7 +45,7 @@ task :ruby, :thread_number do |t, args|
   longevity(threads, {'pattern' => /ruby_.+_spec\.rb/})
 end
 
-desc "Run service tests (mongodb, redis, mysql, postgres, rabbitmq, neo4j, vblob)"
+desc "run service tests (mongodb/redis/mysql/postgres/rabbitmq/neo4j/vblob) in parallel e.g. rake services[5] (default to 10, max = 16)"
 task :services, :thread_number do |t, args|
   RakeHelper.sync_assets
   threads = 10
@@ -128,7 +59,11 @@ task :services, :thread_number do |t, args|
   end
 end
 
-desc "Clean up test environment"
+desc <<-CLEAN
+clean up test environment(only run this task after interruption).
+  1, Remove all apps and services under test user
+  2, Remove all apps and services under parallel users
+CLEAN
 task :clean do
   RakeHelper.cleanup!
 end
@@ -166,16 +101,6 @@ task :delete_orgs do
   sh "./tools/scripts/yeti-hunter.rb"
 end
 
-desc 'run core tests for verifying that an installation meets minimal Cloud Foundry compatibility requirements'
-RSpec::Core::RakeTask.new(:core) do |t|
-  t.rspec_opts = '--tag cfcore'
-end
-
-desc 'run Micro Cloud Foundry tests'
-RSpec::Core::RakeTask.new(:mcf) do |t|
-  t.rspec_opts = '--tag mcf'
-end
-
 def create_reports_folder
   output = `ls .`
   if output.include? 'reports'
@@ -186,8 +111,7 @@ def create_reports_folder
 end
 
 def get_longevity_number
-  return ENV['VCAP_BVT_LONGEVITY'].to_i if ENV['VCAP_BVT_LONGEVITY']
-  return 1
+  ENV['VCAP_BVT_LONGEVITY'] ? ENV['VCAP_BVT_LONGEVITY'].to_i : 1
 end
 
 def longevity(threads, filter, rerun=false)
@@ -241,4 +165,3 @@ def longevity(threads, filter, rerun=false)
     exit(0)
   end
 end
-

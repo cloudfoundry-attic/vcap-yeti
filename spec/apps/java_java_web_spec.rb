@@ -14,7 +14,7 @@ describe "Simple::JavaJavaWeb" do
     @session.cleanup!
   end
 
-  it "get application list", :slow => true, :p1 => true do
+  it "get application list" do
     app1 = create_push_app("simple_app2")
     app2 = create_push_app("tiny_java_app")
 
@@ -24,7 +24,7 @@ describe "Simple::JavaJavaWeb" do
     }
   end
 
-  it "start java app with startup delay", :slow => true do
+  it "start java app with startup delay" do
     app = create_push_app("java_app_with_startup_delay")
 
     contents = app.get_response(:get)
@@ -33,7 +33,7 @@ describe "Simple::JavaJavaWeb" do
     contents.to_str.should =~ /I am up and running/
   end
 
-  it "tomcat validation", :p1 => true do
+  it "tomcat validation" do
     app = create_push_app("tomcat-version-check-app")
 
     response = app.get_response(:get)

@@ -56,7 +56,7 @@ describe "Performance::AppPerformance" do
     response.code.should == 200
   end
 
-  it "deploy redis lb app", :slow => true, :redis => true, :p1 => true do
+  it "deploy redis lb app" do
     app = create_push_app("redis_lb_app", nil, nil, [REDIS_MANIFEST])
     health_check(app)
 

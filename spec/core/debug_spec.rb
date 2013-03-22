@@ -1,7 +1,6 @@
-require 'cfcore/cfcore_helper'
+require 'spec_helper'
 
-describe 'debug mode', :cfcore => true, :mcf => true do
-
+describe 'debug mode' do
   before(:all) do
     @session = BVT::Harness::CFSession.new
   end
@@ -13,5 +12,4 @@ describe 'debug mode', :cfcore => true, :mcf => true do
       info[:allow_debug].should be_false
     end
   end
-
 end

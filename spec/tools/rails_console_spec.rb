@@ -22,7 +22,7 @@ describe "Tools::RailsConsole" do
     apps.find{ |a| a.name == app.name}
   end
 
-  xit "rails test console", :slow => true, :p1 => true do
+  xit "rails test console" do
     app = cfoundry_app(create_push_app("rails_console_test_app", nil, nil, [POSTGRESQL_MANIFEST]))
     @console = init_console(@client, app)
 
@@ -34,7 +34,7 @@ describe "Tools::RailsConsole" do
     match.should == true
   end
 
-  xit "rails test console stdout redirect", :slow => true do
+  xit "rails test console stdout redirect" do
     app = cfoundry_app(create_push_app("rails_console_test_app", nil, nil, [POSTGRESQL_MANIFEST]))
     @console = init_console(@client, app)
 
@@ -43,7 +43,7 @@ describe "Tools::RailsConsole" do
     response.should == expect
   end
 
-  xit "rails test console rake task", :slow => true do
+  xit "rails test console rake task" do
     app = cfoundry_app(create_push_app("rails_console_test_app", nil, nil,  [POSTGRESQL_MANIFEST]))
     @console = init_console(@client, app)
 
@@ -55,7 +55,7 @@ describe "Tools::RailsConsole" do
     match.should == true
   end
 
-  xit "Rails Console runs tasks with correct ruby version in path", :slow => true do
+  xit "Rails Console runs tasks with correct ruby version in path" do
     app = cfoundry_app(create_push_app("rails_console_test_app", nil, nil,  [POSTGRESQL_MANIFEST]))
     @console = init_console(@client, app)
 
@@ -68,7 +68,7 @@ describe "Tools::RailsConsole" do
   end
 
 
-  xit "rails test console MySQL connection", :slow => true, :mysql=>true do
+  xit "rails test console MySQL connection" do
     app = cfoundry_app(create_push_app("rails_console_19_test_app", nil, nil, [MYSQL_MANIFEST]))
     @console = init_console(@client, app)
 
@@ -98,7 +98,7 @@ describe "Tools::RailsConsole" do
 
   end
 
-  xit "rails test console Postgres connection", :slow => true, :postgresql=>true do
+  xit "rails test console Postgres connection" do
     app = cfoundry_app(create_push_app("rails_console_19_test_app", nil, nil, [POSTGRESQL_MANIFEST]))
     @console = init_console(@client, app)
 

@@ -176,9 +176,6 @@ Rake Tasks:
 <br>run core tests for verifying that an installation meets minimal Cloud Foundry
  compatibility requirements
 <br>e.g. rake core\[5\] (default to 10, max = 16)
-- mcf
-<br>run Micro Cloud Foundry tests
-<br>e.g. rake mcf\[5\] (default to 10, max = 16)
 - rerun
 <br>rerun failed cases of the last run
 <br>e.g. rake rerun\[5\] (default to 10, max = 16)

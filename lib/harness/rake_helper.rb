@@ -23,8 +23,6 @@ module BVT::Harness
       if threads == nil
         get_admin_user
         get_admin_user_passwd
-        admin_user = {'email' => @config['admin']['email'],
-                      'passwd' => @config['admin']['passwd']}
       elsif threads < 1 || threads > VCAP_BVT_PARALLEL_MAX_USERS
         puts red("threads number must be within 1~#{VCAP_BVT_PARALLEL_MAX_USERS}")
         exit(1)

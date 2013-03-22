@@ -13,8 +13,8 @@ describe "Users::AdminUser" do
     test_user.delete
   end
 
-  it "test add-user/users/delete-user/passwd command", :admin => true,
-    :p1 => true do
+  it "test add-user/users/delete-user/passwd command" do
+    pending "This test was disabled before. It is still using the old non-UAA workflow."
     # create user
     test_user = @admin_session.user(@test_email)
     test_pwd = "test-pwd"
@@ -37,5 +37,4 @@ describe "Users::AdminUser" do
                                                :passwd => new_passwd,
                                                :target => @admin_session.TARGET)
   end
-
 end
