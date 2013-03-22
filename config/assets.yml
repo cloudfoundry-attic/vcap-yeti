@@ -327,12 +327,6 @@ standalone_simple_ruby_app:
   path: "assets/standalone/simple_ruby_app"
   no_url: true
 
-standalone_simple_ruby_quotes_app:
-  command: "ruby \"simple.rb\""
-  memory: 512
-  path: "assets/standalone/simple_ruby_app"
-  no_url: true
-
 standalone_simple_ruby19_app:
   command: "ruby simple.rb"
   memory: 512
