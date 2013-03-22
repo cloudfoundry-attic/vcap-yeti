@@ -3,7 +3,6 @@ require "spec_helper"
 include BVT::Spec
 
 describe "Simple::RubyGems" do
-
   before(:all) { @session = BVT::Harness::CFSession.new }
 
   after do
@@ -16,12 +15,6 @@ describe "Simple::RubyGems" do
     url = SERVICE_URL_MAPPING[service_manifest[:vendor]]
     app.get_response(:post, "/service/#{url}/#{key}", data)
     app.get_response(:get, "/service/#{url}/#{key}").to_str.should == data
-  end
-
-  def add_env(app,key,value)
-    app.env[key] = value
-    app.update!
-    app.start
   end
 
   it "access my application root and see hello from sinatra" do
