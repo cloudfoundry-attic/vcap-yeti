@@ -258,15 +258,12 @@ module BVT::Harness
     end
 
     def print_client_logs
-      lines = ""
-      unless @client.log.empty?
-        @client.log.reverse.each do |item|
-          lines += "\n#{parse_log_line(item)}"
-        end
+      lines = @client.log.map do |item|
+        parse_log_line(item)
       end
 
       @client.log = []
-      lines
+      lines.reverse.last(5).join("\n")
     end
 
     private
