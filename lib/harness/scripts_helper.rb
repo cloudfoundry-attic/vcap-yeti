@@ -7,45 +7,72 @@ module BVT::Harness
     # Service
     def create_service(service_manifest, name=nil)
       service_name = name || service_manifest[:vendor]
-      require_namespace = name.nil?
-      service = @session.service(service_name, require_namespace)
-      unless service.available?(service_manifest)
-        @session.log.debug("Service: (#{service_manifest[:vendor]} #{service_manifest[:version]}) " +
-                           "is not available on target: #{@session.TARGET}")
-        pending("Service: (#{service_manifest[:vendor]} #{service_manifest[:version]}) " +
-                    "is not available on target: #{@session.TARGET}")
+
+      time_block "create_service '#{service_name}'" do
+        require_namespace = name.nil?
+        service = @session.service(service_name, require_namespace)
+
+        unless service.available?(service_manifest)
+          msg = <<-MSG
+            Service:
+              #{service_manifest[:vendor]}
+              #{service_manifest[:version]}
+            is not available on target: #{@session.TARGET}
+          MSG
+
+          @session.log.debug(msg)
+          pending(msg)
+        end
+
+        service.create(service_manifest)
+        service
       end
-      service.create(service_manifest)
-      service
     end
 
     def bind_service(service_manifest, app, name=nil)
-      service = create_service(service_manifest, name)
-      app.bind(service)
-      service
+      time_block "bind_service '#{app.name}'" do
+        service = create_service(service_manifest, name)
+        app.bind(service)
+        service
+      end
     end
 
     # Application
     def create_app(app_name, prefix = '', domain=nil)
-      app = @session.app(app_name, prefix, domain)
-      app.load_manifest
-      if app.manifest['path'].end_with?('.jar') || app.manifest['path'].end_with?('.war')
-        pending "Package not found, please run update.sh" unless File.exist? app.manifest['path']
+      time_block "create_app '#{app_name}'" do
+        app = @session.app(app_name, prefix, domain)
+        app.load_manifest
+        if app.manifest['path'].end_with?('.jar') || app.manifest['path'].end_with?('.war')
+          pending "Package not found, please run update.sh" unless File.exist? app.manifest['path']
+        end
+        @current_app = app
+        app
       end
-      @current_app = app
-      app
     end
 
     def create_push_app(app_name, prefix = '', domain=nil, services=[])
-      app = create_app(app_name, prefix, domain)
-      service_instances = services.map do |service|
-        create_service(service)
+      time_block "create_push_app '#{app_name}'" do
+        app = create_app(app_name, prefix, domain)
+
+        service_instances = services.map do |service|
+          create_service(service)
+        end
+
+        app.push(service_instances)
+
+        unless @session.v2?
+          app.healthy?.should be_true, "Application #{app.name} is not running"
+        end
+
+        app
       end
-      app.push(service_instances)
-      unless @session.v2?
-        app.healthy?.should be_true, "Application #{app.name} is not running"
-      end
-      app
+    end
+
+    def time_block(name)
+      t = Time.new
+      result = yield
+      puts "Took %.5fs for #{name} to finish" % (Time.now - t)
+      result
     end
   end
 end

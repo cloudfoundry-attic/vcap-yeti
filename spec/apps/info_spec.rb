@@ -90,15 +90,6 @@ describe "Simple::Info" do
     crash.files("/app").should_not == nil
   end
 
-  it "get crash information for a broken application" do
-    app = create_app("broken_app")
-    app.push(nil, nil, false)
-
-    crash = get_crashes(app.name).first
-    crash.files("/").should_not == nil
-    crash.files("/app").should_not == nil
-  end
-
   def get_crashes(name)
     app = @client.app_by_name(name)
     secs = VCAP_BVT_APP_ASSETS["timeout_secs"]

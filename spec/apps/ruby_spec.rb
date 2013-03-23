@@ -2,24 +2,71 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe "Simple::Ruby" do
+describe "Ruby" do
+  before(:all) { @session = BVT::Harness::CFSession.new }
 
-  before(:all) do
-    @session = BVT::Harness::CFSession.new
+  def self.with_app(app_asset_name)
+    before(:all) { @app = create_push_app(app_asset_name) }
+    after(:all) { @session.cleanup! }
+    define_method(:app) { @app }
   end
 
-  after(:each) do
-    show_crashlogs
-    @session.cleanup!
+  describe "ruby 1.8" do
+    with_app "ruby18"
+
+    it "starts the app successfully" do
+      res = app.get_response(:get, "/ruby_version")
+      res.to_str.should == "1.8.7"
+    end
+
+    it "supports git gems" do
+      app.file("logs/staging_task.log").tap do |log|
+        log.should match %r{Using cf .* git://github.com/cloudfoundry/cf.git}
+      end
+    end
+
+    it "installs 1.8 native extensions" do
+      app.file("logs/staging_task.log").tap do |log|
+        log.should include "Installing ffi"
+      end
+    end
   end
 
-  it "Simple ruby app" do
-    app = create_push_app("standalone_ruby_app")
-    app.get_response(:get).to_str.should == "running version 1.9.2"
+  describe "ruby 1.9" do
+    with_app "ruby19"
+
+    it "starts the app successfully" do
+      res = app.get_response(:get, "/ruby_version")
+      res.to_str.should start_with("1.9")
+    end
+
+    it "supports git gems" do
+      app.file("logs/staging_task.log").tap do |log|
+        log.should match %r{Using cf .* git://github.com/cloudfoundry/cf.git}
+      end
+    end
+
+    it "installs 1.9 native extensions" do
+      app.file("logs/staging_task.log").tap do |log|
+        log.should include "Installing ffi"
+      end
+    end
   end
 
-  it "Simple ruby app and no URL" do
-    app = create_push_app("standalone_simple_ruby_app")
-    app.logs =~ /running version 1.9.2/
+  describe "rails" do
+    with_app "rails3"
+
+    it "starts the app successfully" do
+      res = app.get_response(:get, "/health")
+      res.to_str.should == "ok"
+    end
   end
+
+  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # crashlogs
+  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!=
 end

@@ -3,10 +3,7 @@ require "spec_helper"
 include BVT::Spec
 
 describe "Simple::Lifecycle" do
-
-  before(:all) do
-    @session = BVT::Harness::CFSession.new
-  end
+  before(:all) { @session = BVT::Harness::CFSession.new }
 
   after(:each) do
     show_crashlogs
@@ -33,5 +30,15 @@ describe "Simple::Lifecycle" do
     @session.apps.length.should == len - 1
   end
 
+  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # reconsider how to tes
+  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  it "is able to run an app that does not bind to ports" do
+    app = create_push_app("standalone_simple_ruby_app")
+    app.logs =~ /running version/
+  end
 end
-

@@ -94,7 +94,10 @@ module BVT::Harness
       unless @app.running?
         @log.info "Start App: #{@app.name}"
         begin
-          @app.start!(true, &blk)
+          @app.start!(true) do |url|
+            puts "Pushing #{@app.name} - #{url}"
+            blk.call(url) if blk
+          end
         rescue Exception => e
           @log.error "Start App: #{@app.name} failed.\n#{e.to_s}"
           raise RuntimeError, "Start App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
