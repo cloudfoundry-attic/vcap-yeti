@@ -2,43 +2,54 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe "Simple::Lifecycle" do
+describe "App lifecycle" do
   before(:all) { @session = BVT::Harness::CFSession.new }
 
-  after(:each) do
-    show_crashlogs
-    @session.cleanup!
+  describe "app serving web requests" do
+    after(:each) do
+      show_crashlogs
+      @session.cleanup!
+    end
+
+    it "create/start/stop/delete application" do
+      # create app
+      app = create_push_app("simple_app2")
+      app.should_not == nil
+
+      # start app
+      app.start
+      hash_all = app.stats["0"]
+      hash_all[:state].should == "RUNNING"
+
+      # stop app
+      app.stop
+      app.stats == {}
+
+      # delete app
+      len = @session.apps.length
+      app.delete
+      @session.apps.length.should == len - 1
+    end
   end
 
-  it "create/start/stop/delete application" do
-    # create app
-    app = create_push_app("simple_app2")
-    app.should_not == nil
+  describe "app acting as a background worker (no bound uris)" do
+    with_app "worker"
 
-    # start app
-    app.start
-    hash_all = app.stats["0"]
-    hash_all[:state].should == "RUNNING"
+    def check_logs(app, match)
+      logs = nil
+      15.times do
+        logs = app.logs
+        return if logs.include?(match)
+        sleep(2)
+      end
+      raise "Could not find '#{match}' in '#{logs}'"
+    end
 
-    # stop app
-    app.stop
-    app.stats == {}
-
-    # delete app
-    len = @session.apps.length
-    app.delete
-    @session.apps.length.should == len - 1
-  end
-
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  # reconsider how to tes
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  it "is able to run an app that does not bind to ports" do
-    app = create_push_app("standalone_simple_ruby_app")
-    app.logs =~ /running version/
+    it "continues to run" do
+      check_logs(app, "running for 5 secs")
+      check_logs(app, "running for 10 secs")
+      check_logs(app, "running for 15 secs")
+      check_logs(app, "running for 20 secs")
+    end
   end
 end

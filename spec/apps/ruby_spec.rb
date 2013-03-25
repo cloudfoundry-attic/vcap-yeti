@@ -5,12 +5,6 @@ include BVT::Spec
 describe "Ruby" do
   before(:all) { @session = BVT::Harness::CFSession.new }
 
-  def self.with_app(app_asset_name)
-    before(:all) { @app = create_push_app(app_asset_name) }
-    after(:all) { @session.cleanup! }
-    define_method(:app) { @app }
-  end
-
   describe "ruby 1.8" do
     with_app "ruby18"
 
@@ -61,12 +55,4 @@ describe "Ruby" do
       res.to_str.should == "ok"
     end
   end
-
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  # crashlogs
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!=
 end

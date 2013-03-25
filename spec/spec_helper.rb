@@ -65,17 +65,20 @@ end
 
 RSpec.configure do |config|
   include BVT::Harness::ColorHelpers
+
   config.before(:suite) do
     target = BVT::Harness::RakeHelper.get_target
     target_without_http = target.split('//')[-1]
     config = BVT::Harness::RakeHelper.get_config
     profile_file = File.join(BVT::Harness::VCAP_BVT_HOME, "profile.#{target_without_http}.yml")
+
     unless File.exists? profile_file
       BVT::Harness::RakeHelper.get_user
       BVT::Harness::RakeHelper.get_user_passwd
       user = BVT::Harness::RakeHelper.get_config['user']
       BVT::Harness::RakeHelper.check_environment(user)
     end
+
     $vcap_bvt_profile_file ||= profile_file
     profile = YAML.load_file($vcap_bvt_profile_file)
     BVT::Harness::VCAP_BVT_SYSTEM_SERVICES = profile[:services]

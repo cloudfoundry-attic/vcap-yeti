@@ -73,6 +73,13 @@ rails3:
   path: "assets/ruby/rails3"
   command: "bundle exec rake db:migrate --trace && bundle exec rails server thin -p $PORT"
 
+# Lifecycle apps:
+worker:
+  memory: 512
+  path: "assets/lifecycle/worker"
+  command: "bundle exec ruby main.rb"
+  no_url: true
+
 #-
 sinatra_gem_groups:
   memory: 512
@@ -319,12 +326,6 @@ standalone_ruby_app:
   path: "assets/standalone/ruby_app"
 
 standalone_simple_ruby_app:
-  command: "ruby simple.rb"
-  memory: 512
-  path: "assets/standalone/simple_ruby_app"
-  no_url: true
-
-standalone_simple_ruby19_app:
   command: "ruby simple.rb"
   memory: 512
   path: "assets/standalone/simple_ruby_app"
