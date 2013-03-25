@@ -8,7 +8,6 @@ describe "Canonical::JavaGrails" do
   before { @session = BVT::Harness::CFSession.new }
 
   after do
-    show_crashlogs
     @session.cleanup!
   end
 

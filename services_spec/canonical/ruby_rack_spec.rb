@@ -8,7 +8,6 @@ describe "Canonical::RubyRack" do
   before(:all) { @session = BVT::Harness::CFSession.new }
 
   after do
-    show_crashlogs
     @session.cleanup!
   end
 

@@ -8,8 +8,7 @@ describe "Canonical::Node" do
   before(:all) { @session = BVT::Harness::CFSession.new }
 
   after do
-    show_crashlogs
-    @session.cleanup!
+   @session.cleanup!
   end
 
   it "node test deploy app" do

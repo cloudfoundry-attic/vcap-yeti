@@ -9,7 +9,6 @@ describe "Simple::Java" do
   end
 
   after do
-    show_crashlogs
     @session.cleanup!
   end
 

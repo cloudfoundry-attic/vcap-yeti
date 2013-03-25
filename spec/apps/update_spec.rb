@@ -17,7 +17,6 @@ describe "Simple::Update" do
   end
 
   after(:each) do
-    show_crashlogs
     @session.cleanup!
   end
 

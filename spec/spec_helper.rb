@@ -51,18 +51,6 @@ def log_case_begin_end(flag)
   end
 end
 
-def show_crashlogs
-  return unless example.exception
-  logger = VCAP::Logging.logger(File.basename($0))
-
-  if @current_app
-    @current_app.logs
-    @current_app.crashlogs
-  else
-    logger.warn("==== Spec failed, but no app detected ====")
-  end
-end
-
 RSpec.configure do |config|
   include BVT::Harness::ColorHelpers
 
@@ -91,7 +79,6 @@ RSpec.configure do |config|
 
   config.after(:each) do
     log_case_begin_end(:end)
-    show_crashlogs
   end
 
   config.include BVT::Harness::ScriptsHelper

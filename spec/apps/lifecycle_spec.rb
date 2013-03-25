@@ -7,7 +7,6 @@ describe "App lifecycle" do
 
   describe "app serving web requests" do
     after(:each) do
-      show_crashlogs
       @session.cleanup!
     end
 

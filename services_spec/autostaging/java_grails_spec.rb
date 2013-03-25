@@ -11,7 +11,6 @@ describe "AutoStaging::JavaGrails" do
   end
 
   after(:each) do
-    show_crashlogs
     @session.cleanup!
   end
 

@@ -5,7 +5,6 @@ include BVT::Spec
 describe "Async app staging" do
   before(:all) { @session = BVT::Harness::CFSession.new }
   after(:each) do
-    show_crashlogs
     @session.cleanup!
   end
 

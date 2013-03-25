@@ -10,7 +10,6 @@ describe "Canonical::RubyRails3" do
   end
 
   after(:each) do
-    show_crashlogs
     @session.cleanup!
   end
 

@@ -12,7 +12,6 @@ describe "Simple::FileRange" do
   end
 
   after(:each) do
-    show_crashlogs
     @session.cleanup!
   end
 

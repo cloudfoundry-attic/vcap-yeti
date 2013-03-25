@@ -2,14 +2,10 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe "Simple::Node" do
-
-  before(:all) do
-    @session = BVT::Harness::CFSession.new
-  end
+describe "Node" do
+  before(:all) { @session = BVT::Harness::CFSession.new }
 
   after(:each) do
-    show_crashlogs
     @session.cleanup!
   end
 

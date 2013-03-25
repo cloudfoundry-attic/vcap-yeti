@@ -10,7 +10,6 @@ describe "AutoStaging::Node" do
   end
 
   after do
-    show_crashlogs
     @session.cleanup!
   end
 
