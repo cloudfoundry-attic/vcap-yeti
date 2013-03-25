@@ -93,12 +93,22 @@ module BVT::Harness
 
       unless @app.running?
         @log.info "Start App: #{@app.name}"
+        timeout_retries_remaining = 5
 
         begin
           @app.start!(true) do |url|
             puts "Pushing #{@app.name} - #{url}"
             blk.call(url) if blk
           end
+
+        # When ccng/dea_ng are overloaded app staging will result
+        # in nginx cutting off api request. Goal here is to make
+        # tests resilient to such failure; however, we want to
+        # report such failures at the end.
+        rescue CFoundry::Timeout => e
+          timeout_retries_remaining -= 1
+          timeout_retries_remaining > 0 ? retry : raise
+
         rescue Exception => e
           # Use e.inspect to capture both message and error class
           msg = <<-MSG
