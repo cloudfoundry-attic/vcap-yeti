@@ -42,9 +42,4 @@ describe "Simple::Node" do
     app.stats.should_not == nil
     app.get_response(:get).to_str.should == "hello from node-gyp"
   end
-
-  it "Simple node app and no URL" do
-    app = create_push_app("standalone_node_app")
-    app.logs =~ /it's running version/
-  end
 end
