@@ -457,6 +457,41 @@ describe "ServiceLifecycle" do
     result["result"]["snapshot_id"].should == nil
   end
 
+  it "Take rabbit snapshot with complex configuration and rollback to a certain snapshot", :rabbit => true do
+    quota = snapshot_quota('rabbit')
+    pending('This test requires quota > 0') unless quota > 0
+    app = create_push_app('app_sinatra_service2', nil, nil, [RABBITMQ_MANIFEST])
+
+    content = app.get_response(:get, '/env')
+    service_id = parse_service_id(content, 'rabbit')
+    items = { "queues" => [["test_queue", false], ["test_durable_queue", true]],
+              "exchanges" => [["test_exchange", false], ["test_durable_exchange", true]] }
+    create_items_and_verify_rabbit(RABBITMQ_MANIFEST, app, items)
+
+    result = create_snapshot(service_id)
+    snapshot_id = result["result"]["snapshot_id"]
+
+    snapshot = get_snapshot(service_id, snapshot_id)
+    snapshot["snapshot_id"].should == snapshot_id
+    snapshot["size"].should > 0
+    snapshot["date"].should_not == nil
+
+    snapshots = get_snapshots(service_id)
+    snapshot = snapshots["snapshots"].find {|s| s["snapshot_id"] == snapshot_id}
+    snapshot.should_not == nil
+    snapshot["size"].should > 0
+    snapshot["date"].should_not == nil
+
+    clear_and_verify_rabbit(RABBITMQ_MANIFEST, app, items)
+    rollback_snapshot(service_id, snapshot_id)
+    included_items, excluded_items = {}, {}
+    items.each do |k, v|
+      included_items[k] = [v[1]]
+      excluded_items[k] = [v[0]]
+    end
+    get_and_verify_rabbit(RABBITMQ_MANIFEST, app, included_items, excluded_items)
+  end
+
   it "Import and export serialized data for rabbit service", :rabbit => true do
     quota = snapshot_quota('rabbit')
     pending('This test requires quota > 2') unless quota > 2 # FIXME

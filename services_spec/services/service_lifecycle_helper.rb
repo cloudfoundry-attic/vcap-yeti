@@ -211,10 +211,42 @@ module BVT::Spec
     return true if job["status"] == "completed" || job["status"] == "failed"
   end
 
+  def create_items_and_verify_rabbit(service_manifest, app, items)
+    cred = app.services[0].manifest[:entity][:credentials]
+    url = "http://#{cred[:username]}:#{cred[:password]}@#{cred[:host]}:#{cred[:admin_port]}/api"
+    resource = RestClient::Resource.new url
+    items.each do |type, objects|
+      objects.each do |object|
+        name, durable = object
+        #post is not supported for this path
+        resource["#{type}/#{cred[:vhost]}/#{name}"].put({:durable => durable}.to_json, :content_type => "application/json")
+      end
+    end
 
+    get_and_verify_rabbit(service_manifest, app, items, nil)
+  end
+
+  def clear_and_verify_rabbit(service_manifest, app, items)
+    cred = app.services[0].manifest[:entity][:credentials]
+    url = "http://#{cred[:username]}:#{cred[:password]}@#{cred[:host]}:#{cred[:admin_port]}/api"
+    resource = RestClient::Resource.new url
+    items.each do |type, objects|
+      objects.each { |object| resource["#{type}/#{cred[:vhost]}/#{object[0]}"].delete }
+    end
+
+    get_and_verify_rabbit(service_manifest, app, nil, items)
+  end
+
+  def get_and_verify_rabbit(service_manifest, app, included_items, excluded_items)
+    cred = app.services[0].manifest[:entity][:credentials]
+    url = "http://#{cred[:username]}:#{cred[:password]}@#{cred[:host]}:#{cred[:admin_port]}/api"
+    resource = RestClient::Resource.new(url)
+    queues = JSON.parse(resource["queues"].get).map { |queue| [queue["name"], queue["durable"]] }
+    exchanges = JSON.parse(resource["exchanges"].get).map { |exchange| [exchange["name"], exchange["durable"]] }
+    server_items = queues + exchanges
+    included_items.values.flatten(1).each { |item| server_items.include?(item).should == true } if included_items
+    excluded_items.values.flatten(1).each { |item| server_items.include?(item).should == false } if excluded_items
+  end
 
   end
 end
-
-
-
