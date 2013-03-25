@@ -32,7 +32,16 @@ describe "App lifecycle" do
     end
   end
 
-  describe "app acting as a background worker (no bound uris)" do
+  describe "slow responding app" do
+    with_app "basic"
+
+    it "waits for long responses" do
+      res = app.get_response(:get, "/sleep?duration=75", "", nil, 100)
+      res.to_str.should == "slept for 75 secs"
+    end
+  end
+
+  describe "background worker app (no bound uris)" do
     with_app "worker"
 
     def check_logs(app, match)

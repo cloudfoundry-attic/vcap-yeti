@@ -74,6 +74,11 @@ rails3:
   command: "bundle exec rake db:migrate --trace && bundle exec rails server thin -p $PORT"
 
 # Lifecycle apps:
+basic:
+  memory: 512
+  path: "assets/lifecycle/basic"
+  command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
+
 worker:
   memory: 512
   path: "assets/lifecycle/worker"
@@ -427,9 +432,4 @@ elasticsearch_app:
 oauth2_app:
   memory: 512
   path: "assets/sinatra/oauth2_app"
-  command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
-
-sleeper:
-  memory: 512
-  path: "assets/sinatra/sleeper"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
