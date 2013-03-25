@@ -148,6 +148,7 @@ module BVT::Harness
         @log.error "Application: #{@app.name} does not exist!"
         raise RuntimeError, "Application: #{@app.name} does not exist!"
       end
+
       begin
         @log.info("Display application: #{@app.name} status")
         @app.stats
