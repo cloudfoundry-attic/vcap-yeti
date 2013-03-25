@@ -93,15 +93,23 @@ module BVT::Harness
 
       unless @app.running?
         @log.info "Start App: #{@app.name}"
+
         begin
           @app.start!(true) do |url|
             puts "Pushing #{@app.name} - #{url}"
             blk.call(url) if blk
           end
         rescue Exception => e
-          @log.error "Start App: #{@app.name} failed.\n#{e.to_s}"
-          raise RuntimeError, "Start App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
+          # Use e.inspect to capture both message and error class
+          msg = <<-MSG
+            Start App: #{@app.name} failed.
+            #{e.inspect}
+            #{@session.print_client_logs}
+          MSG
+          @log.error(msg)
+          raise RuntimeError, msg
         end
+
         check_application if need_check
       end
     end
