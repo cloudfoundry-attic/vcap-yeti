@@ -30,7 +30,7 @@ module BVT::Harness
         end
       end
 
-      LoggerHelper::set_logger(@TARGET)
+      LoggerHelper.set_logger(@TARGET)
 
       @log = get_logger
       @namespace = get_namespace
