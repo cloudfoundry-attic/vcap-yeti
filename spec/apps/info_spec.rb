@@ -91,7 +91,7 @@ describe "Simple::Info" do
 
   def get_crashes(name)
     app = @client.app_by_name(name)
-    secs = VCAP_BVT_APP_ASSETS["timeout_secs"]
+    secs = BVT::Harness::VCAP_BVT_APP_ASSETS["timeout_secs"]
 
     begin
       crashes = app.crashes

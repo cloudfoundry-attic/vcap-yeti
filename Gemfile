@@ -2,7 +2,7 @@ source "http://rubygems.org"
 
 gem "rake"
 gem "rspec"
-gem "rspec_parallel", ">= 0.1.6"
+gem "parallel_tests"
 
 gem "rest-client"
 gem "mongo"

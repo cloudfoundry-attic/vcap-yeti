@@ -46,11 +46,7 @@ require "harness/service"
 require "harness/user"
 require "harness/http_response_code"
 require "harness/scripts_helper"
-require "harness/parallel_helper"
 require "harness/ccng_user_helper"
-
-## to arrange rails console cases in parallel
-require "harness/parallel_monkey_patch"
 
 require "harness/console_helper"
 require "harness/cfconsole_monkey_patch"

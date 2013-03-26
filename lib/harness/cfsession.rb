@@ -340,22 +340,22 @@ module BVT::Harness
 
       "[#{date}]  #{time}\t#{request_id}  #{rest_method}\t-> #{code}\t#{url}"
     end
-  end
 
-  private
+    private
 
-  def is_user_admin?(email, passwd)
-    if v1? && @client
-      @client.user(email).admin?
-    else
-      # Currently cfoundry v2 can only check
-      # if user is an admin if we logged in as admin
-      check_admin_client = CFoundry::Client.new(@TARGET)
-      check_admin_client.login(email, passwd)
-      begin
-        check_admin_client.current_user.admin?
-      rescue CFoundry::APIError
-        false
+    def is_user_admin?(email, passwd)
+      if v1? && @client
+        @client.user(email).admin?
+      else
+        # Currently cfoundry v2 can only check
+        # if user is an admin if we logged in as admin
+        check_admin_client = CFoundry::Client.new(@TARGET)
+        check_admin_client.login(email, passwd)
+        begin
+          check_admin_client.current_user.admin?
+        rescue CFoundry::APIError
+          false
+        end
       end
     end
   end

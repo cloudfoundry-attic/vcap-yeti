@@ -10,9 +10,9 @@ module BVT::Harness
   module RakeHelper
     include Interactive, ColorHelpers
 
-    VCAP_BVT_DEFAULT_TARGET =   "api.vcap.me"
-    VCAP_BVT_DEFAULT_USER   =   "test@vcap.me"
-    VCAP_BVT_DEFAULT_ADMIN  =   "admin@vcap.me"
+    VCAP_BVT_DEFAULT_TARGET = "api.vcap.me"
+    VCAP_BVT_DEFAULT_USER   = "test@vcap.me"
+    VCAP_BVT_DEFAULT_ADMIN  = "admin@vcap.me"
 
     def prepare_all(threads=nil)
       Dir.mkdir(VCAP_BVT_HOME) unless Dir.exists?(VCAP_BVT_HOME)
@@ -354,6 +354,14 @@ module BVT::Harness
       parallel_users
     end
 
+    def set_up_parallel_user
+      if running_in_parallel?
+        login = get_parallel_users[parallel_run_number]
+        ENV["YETI_PARALLEL_USER"] = login["email"]
+        ENV["YETI_PARALLEL_USER_PASSWD"] = login["passwd"]
+      end
+    end
+
     def get_check_env_user(parallel_users)
       if parallel_users.size > 0
         return parallel_users[0]
@@ -534,6 +542,18 @@ module BVT::Harness
       else
         raise RuntimeError, "Fail to download binary #{filename}"
       end
+    end
+
+    private
+
+    def running_in_parallel?
+      ENV["TEST_ENV_NUMBER"]
+    end
+
+    def parallel_run_number
+      raise ArgumentError, "Not running in parallel" \
+        unless running_in_parallel?
+      ENV["TEST_ENV_NUMBER"].to_i
     end
 
     extend self
