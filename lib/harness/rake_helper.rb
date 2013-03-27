@@ -10,10 +10,9 @@ module BVT::Harness
       end
 
       Dir.mkdir(VCAP_BVT_HOME) unless Dir.exists?(VCAP_BVT_HOME)
-      @print_config = []
 
       get_target
-      check_network_connection
+      check_target
 
       parallel_users = get_parallel_users(true)
       if threads > 1
@@ -26,9 +25,7 @@ module BVT::Harness
 
       user = get_check_env_user(parallel_users)
       generate_profile(user)
-
       save_config
-      print_test_config
     end
 
     def generate_profile(user)
@@ -49,11 +46,11 @@ module BVT::Harness
       File.open($vcap_bvt_profile_file, "w") { |f| f.write YAML.dump(profile) }
     end
 
-    def check_network_connection
+    def check_target
       url = "#{@config['target']}/info"
 
       begin
-        r = RestClient.get url
+        r = RestClient.get(url)
       rescue
         raise RuntimeError,
           "Cannot connect to target environment, #{url}\n" +
@@ -64,12 +61,6 @@ module BVT::Harness
         raise RuntimeError,
           "URL: #{url} response code is: " +
           "#{r.code}\nPlease check your target environment first."
-      end
-    end
-
-    def print_test_config
-      @print_config.each do |line|
-        puts line
       end
     end
 
@@ -236,7 +227,8 @@ module BVT::Harness
         get_user
         get_user_passwd
       end
-      {'email' => @config['user']['email'], 'passwd' => @config['user']['passwd']}
+      { 'email' => @config['user']['email'],
+        'passwd' => @config['user']['passwd'] }
     end
 
     def format_target(str)
@@ -247,11 +239,11 @@ module BVT::Harness
       end
     end
 
+    private
+
     def get_uaa_cc_secret
       require_env!("VCAP_BVT_UAA_CC_SECRET")
     end
-
-    private
 
     def get_script_git_hash
       `git log -1 --pretty=oneline`.split("\n").first
