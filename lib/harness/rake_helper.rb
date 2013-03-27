@@ -138,13 +138,15 @@ module BVT::Harness
     def get_user
       get_config unless @config
       @config['user'] ||= {}
-      @config['user']['email'] = require_env!("VCAP_BVT_USER")
+      @config['user']['email'] = \
+        require_env!("VCAP_BVT_USER", first_parallel_user)
     end
 
     def get_user_passwd
       get_config unless @config
       @config['user'] ||= {}
-      @config['user']['passwd'] = require_env!("VCAP_BVT_USER_PASSWD")
+      @config['user']['passwd'] = \
+        require_env!("VCAP_BVT_USER_PASSWD", first_parallel_user_passwd)
     end
 
     def create_parallel_users(user_number)
@@ -241,6 +243,18 @@ module BVT::Harness
 
     private
 
+    def first_parallel_user
+      return unless users = get_parallel_users
+      return unless user = users[0]
+      user['email']
+    end
+
+    def first_parallel_user_passwd
+      return unless users = get_parallel_users
+      return unless user = users[0]
+      user['passwd']
+    end
+
     def get_uaa_cc_secret
       require_env!("VCAP_BVT_UAA_CC_SECRET")
     end
@@ -259,9 +273,11 @@ module BVT::Harness
       ENV["TEST_ENV_NUMBER"].to_i
     end
 
-    def require_env!(var_name)
+    def require_env!(var_name, default_value=nil)
       if value = ENV[var_name]
         value
+      elsif default_value
+        default_value
       else
         abort("Please specify #{var_name}")
       end

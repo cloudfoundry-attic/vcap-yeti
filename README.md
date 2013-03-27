@@ -22,6 +22,10 @@ run tests:
     bundle exec rspec
     bundle exec rspec spec/apps/ruby_spec.rb
 
+Tip: If you do not want to set `VCAP_BVT_USER` and `VCAP_BVT_USER_PASSWD`
+you can run `rake prepare` (task used with parallel set up) once
+and after that tests will just use first parallel user.
+
 ## Parallel
 
 Tests require several environment variables to be set:
