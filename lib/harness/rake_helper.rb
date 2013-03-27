@@ -1,12 +1,9 @@
 require "yaml"
-require "interact"
 require "harness"
 require "tempfile"
 
 module BVT::Harness
   module RakeHelper
-    include Interactive, ColorHelpers
-
     def prepare_all(threads)
       if threads < 1 || threads > VCAP_BVT_PARALLEL_MAX_USERS
         abort("Threads number must be within 1..#{VCAP_BVT_PARALLEL_MAX_USERS}")
@@ -23,7 +20,7 @@ module BVT::Harness
         if parallel_users.size == 0
           parallel_users = create_parallel_users(VCAP_BVT_PARALLEL_MAX_USERS)
         elsif parallel_users.size < threads
-          puts yellow("Not enough parallel users, yeti will use all of the #{parallel_users.size} users")
+          puts "Not enough parallel users, yeti will use all of the #{parallel_users.size} users"
         end
       end
 
@@ -59,14 +56,14 @@ module BVT::Harness
         r = RestClient.get url
       rescue
         raise RuntimeError,
-          red("Cannot connect to target environment, #{url}\n" +
-              "Please check your network connection to target environment.")
+          "Cannot connect to target environment, #{url}\n" +
+          "Please check your network connection to target environment."
       end
 
       unless r.code == HTTP_RESPONSE_CODE::OK
         raise RuntimeError,
-          red("URL: #{url} response code is: " +
-              "#{r.code}\nPlease check your target environment first.")
+          "URL: #{url} response code is: " +
+          "#{r.code}\nPlease check your target environment first."
       end
     end
 

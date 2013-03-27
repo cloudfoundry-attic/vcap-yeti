@@ -1,7 +1,6 @@
 $:.unshift(File.join(File.dirname(__FILE__), "../../lib"))
 
 require "yaml"
-require "interact"
 require "tools"
 require "mongo"
 require "yajl"
@@ -10,7 +9,7 @@ require "harness"
 
 module Tools
   module AssetsHelper
-    include Interactive, BVT::Harness::ColorHelpers, BVT::Harness::HTTP_RESPONSE_CODE
+    include BVT::Harness::ColorHelpers, BVT::Harness::HTTP_RESPONSE_CODE
 
     def update_local_hash(update_list)
       if Dir.exist?(VCAP_BVT_ASSETS_PACKAGES_HOME)

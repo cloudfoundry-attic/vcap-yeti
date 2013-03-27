@@ -12,8 +12,6 @@ gem "yajl-ruby"
 gem "nokogiri"
 
 group :vcap do
-  gem "interact"
-
   # Used to create users in CCNGUserHelper
   gem "cf-uaac", "= 1.3.3"
   gem "vcap_logging", ">= 1.0"
