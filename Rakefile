@@ -19,6 +19,7 @@ end
 namespace :assets do
   desc "Sync yeti assets binaries"
   task :sync do
-    RakeHelper.sync_assets
+    require "harness/assets"
+    BVT::Harness::Assets.new.sync
   end
 end

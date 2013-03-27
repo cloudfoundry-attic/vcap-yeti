@@ -1,18 +1,11 @@
 require "yaml"
 require "interact"
 require "harness"
-require "mongo"
-require "yajl"
-require "digest/md5"
 require "tempfile"
 
 module BVT::Harness
   module RakeHelper
     include Interactive, ColorHelpers
-
-    VCAP_BVT_DEFAULT_TARGET = "api.vcap.me"
-    VCAP_BVT_DEFAULT_USER   = "test@vcap.me"
-    VCAP_BVT_DEFAULT_ADMIN  = "admin@vcap.me"
 
     def prepare_all(threads)
       if threads < 1 || threads > VCAP_BVT_PARALLEL_MAX_USERS
@@ -57,7 +50,7 @@ module BVT::Harness
         File.join(BVT::Harness::VCAP_BVT_HOME,
                   "profile.#{target_without_http}.yml")
       File.open($vcap_bvt_profile_file, "w") { |f| f.write YAML.dump(profile) }
-      end
+    end
 
     def check_network_connection
       url = "#{@config['target']}/info"
@@ -75,63 +68,6 @@ module BVT::Harness
           red("URL: #{url} response code is: " +
               "#{r.code}\nPlease check your target environment first.")
       end
-    end
-
-    def sync_assets
-      downloads = get_assets_info
-      if downloads == nil
-        raise RuntimeError,
-          red("Get remote file list faild, might be caused by unstable network.\n" +
-              "Please try again.")
-      end
-      if File.exist?(VCAP_BVT_ASSETS_PACKAGES_MANIFEST)
-        locals = YAML.load_file(VCAP_BVT_ASSETS_PACKAGES_MANIFEST)['packages']
-      else
-        locals = []
-      end
-      puts "check local assets binaries"
-      skipped = []
-      unless locals.empty?
-        total = locals.length
-        locals.each_with_index do |item, index|
-          downloads_index = downloads.index {|e| e['filename'] == item['filename']}
-          index_str = "[#{(index + 1).to_s}/#{total.to_s}]"
-          if downloads_index
-            if downloads[downloads_index]['md5'] == item['md5']
-              puts green("#{index_str}Skipped\t\t#{item['filename']}")
-              downloads.delete_at(downloads_index)
-              skipped << Hash['filename' => item['filename'], 'md5' => item['md5']]
-            else
-              puts yellow("#{index_str}Need to update\t#{item['filename']}")
-            end
-          else
-            puts red("#{index_str}Remove\t\t#{item['filename']}")
-            File.delete(File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, item['filename']))
-          end
-        end
-      end
-
-      unless downloads.empty?
-        puts "\ndownloading assets binaries"
-        Dir.mkdir(VCAP_BVT_ASSETS_PACKAGES_HOME) unless Dir.exist?(VCAP_BVT_ASSETS_PACKAGES_HOME)
-        total = downloads.length
-        downloads.each_with_index do |item, index|
-          index_str = "[#{(index + 1).to_s}/#{total.to_s}]"
-          filepath = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME, item['filename'])
-          puts yellow("#{index_str}downloading\t#{item['filename']}")
-          download_binary(filepath)
-          actual_md5 = check_md5(filepath)
-          unless actual_md5 == item['md5']
-            puts red("#{index_str}fail to download\t\t#{item['filename']}.\n"+
-                     "Might be caused by unstable network, please try again.")
-          end
-          skipped << Hash['filename' => item['filename'], 'md5' => actual_md5]
-          File.open(VCAP_BVT_ASSETS_PACKAGES_MANIFEST, "w") do |f|
-            f.write YAML.dump(Hash['packages' => skipped])
-          end
-        end
-      end
-      puts green("sync assets binaries finished")
     end
 
     def print_test_config
@@ -323,56 +259,6 @@ module BVT::Harness
     def get_script_git_hash
       `git log -1 --pretty=oneline`.split("\n").first
     end
-
-    def get_assets_info
-      url = "#{VCAP_BVT_ASSETS_STORE_URL}/list"
-      begin
-        r = RestClient.get url
-      rescue
-        raise RuntimeError,
-          "Cannot connect to yeti assets storage server, #{url}\n" +
-          "Please check your network connection."
-      end
-
-      if r.code == HTTP_RESPONSE_CODE::OK
-        parser = Yajl::Parser.new
-        return parser.parse(r.to_str)
-      end
-    end
-
-    def check_md5(filepath)
-      Digest::MD5.hexdigest(File.read(filepath))
-    end
-
-    def download_binary(filepath)
-      filename = File.basename(filepath)
-      url = "#{VCAP_BVT_ASSETS_STORE_URL}/files/#{filename}"
-      r = nil
-      begin
-        # retry 5 times if download failed
-        5.times do
-          begin
-            r = RestClient.get url
-          rescue
-            next
-          end
-          break if r.code == HTTP_RESPONSE_CODE::OK
-          sleep(1)
-        end
-      rescue
-        raise RuntimeError,
-          "Download failed, might be caused by unstable network."
-      end
-
-      if r && r.code == HTTP_RESPONSE_CODE::OK
-        contents = r.to_str.chomp
-        File.open(filepath, 'wb') { |f| f.write(contents) }
-      else
-        raise RuntimeError, "Fail to download binary #{filename}"
-      end
-    end
-
-    private
 
     def running_in_parallel?
       ENV["TEST_ENV_NUMBER"]
