@@ -12,4 +12,4 @@ else
 fi
 
 echo -e "\n### sync pre-compiled java apps"
-rake sync_assets
+rake assets:sync
