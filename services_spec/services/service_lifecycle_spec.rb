@@ -3,6 +3,7 @@ require 'spec_helper'
 require 'json'
 require 'tempfile'
 require 'base64'
+require_relative 'service_lifecycle_helper'
 include BVT::Spec
 
 describe "ServiceLifecycle" do

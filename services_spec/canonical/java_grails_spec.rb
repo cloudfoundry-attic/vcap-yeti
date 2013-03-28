@@ -1,5 +1,6 @@
 require "harness"
 require "spec_helper"
+require_relative "canonical_helper"
 include BVT::Spec
 include BVT::Spec::CanonicalHelper
 

@@ -1,6 +1,7 @@
 require "harness"
 require "spec_helper"
 require "nokogiri"
+require_relative "autostaging_helper.rb"
 include BVT::Spec
 include BVT::Spec::AutoStagingHelper
 
