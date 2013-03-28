@@ -34,9 +34,9 @@ describe "App lifecycle" do
   describe "slow responding app" do
     with_app "basic"
 
-    it "waits for long responses" do
-      res = app.get_response(:get, "/sleep?duration=75", "", nil, 100)
-      res.to_str.should == "slept for 75 secs"
+    it "waits for minimum of 30 seconds of inactivity" do
+      res = app.get_response(:get, "/sleep?duration=30", "", nil, 100)
+      res.to_str.should == "slept for 30 secs"
     end
   end
 
