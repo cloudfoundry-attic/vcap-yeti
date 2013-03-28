@@ -5,31 +5,49 @@ include BVT::Spec
 describe "Node" do
   before(:all) { @session = BVT::Harness::CFSession.new }
 
-  after(:each) do
-    @session.cleanup!
+  def self.it_supports_basics(version, opts={})
+    it "starts the app successfully" do
+      res = app.get_response(:get, "/node_version")
+      res.to_str.should start_with("v#{version}.")
+    end
+
+    it "supports git modules" do
+      # The only to make sure that semver came from git (via npm)
+      # is to check npm's _git-remotes internal dir.
+      # (Older npm versions do not create _git-remotes)
+      if opts[:skip_git_remotes]
+        package_json = app.file("app/package.json")
+        package_json.should include %q{"semver": "git://github.com}
+      else
+        files = app.files("app/.npm/_git-remotes").flatten
+        files.should include "git-github-com-isaacs-node-semver-git-6952f3ca/"
+      end
+
+      res = app.get_response(:get, "/git_module")
+      res.to_str.should == "ok"
+    end
+
+    it "supports native extensions via node-gyp" do
+      log = app.file("logs/staging_task.log")
+      log.should include "CXX(target) Release/obj.target/bcrypt_lib/src/blowfish.o"
+
+      res = app.get_response(:get, "/native_ext")
+      res.to_str.should == "ok"
+    end
   end
 
-  it "access my application root and see it's running version" do
-    app = create_push_app("app_node_version04")
-    app.stats.should_not == nil
-    app.get_response(:get).to_str.should =~ /running version/
+  describe "node 0.6" do
+    with_app "node0_6"
+    it_supports_basics "0.6", :skip_git_remotes => true
   end
 
-  it "access my application root and see hello from git" do
-    app = create_push_app("node_git_modules")
-    app.stats.should_not == nil
-    app.get_response(:get).to_str.should == "hello from git"
+  describe "node 0.8" do
+    with_app "node0_8"
+    it_supports_basics "0.8"
   end
 
-  it "access my application root and see hello from express" do
-    app = create_push_app("app_node_dependencies06")
-    app.stats.should_not == nil
-    app.get_response(:get).to_str.should == "hello from express"
-  end
-
-  it "access my application root and see hello from node-gyp" do
-    app = create_push_app("app_node_dependencies08")
-    app.stats.should_not == nil
-    app.get_response(:get).to_str.should == "hello from node-gyp"
+  describe "node 0.10" do
+    with_app "node0_10"
+    it_supports_basics "0.10"
   end
 end

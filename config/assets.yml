@@ -73,6 +73,22 @@ rails3:
   path: "assets/ruby/rails3"
   command: "bundle exec rake db:migrate --trace && bundle exec rails server thin -p $PORT"
 
+# Node apps:
+node0_6:
+  memory: 512
+  path: "assets/node/node0_6"
+  command: "node app.js"
+
+node0_8:
+  memory: 512
+  path: "assets/node/node0_8"
+  command: "node app.js"
+
+node0_10:
+  memory: 512
+  path: "assets/node/node0_10"
+  command: "node app.js"
+
 # Lifecycle apps:
 basic:
   memory: 512
@@ -228,16 +244,6 @@ app_node_service:
   memory: 512
   path: "assets/node/app_node_service"
   command: "node main.js"
-
-app_node_dependencies06:
-  memory: 512
-  path: "assets/node/node_dependencies06"
-  command: "node app.js"
-
-app_node_dependencies08:
-  memory: 512
-  path: "assets/node/node_dependencies08"
-  command: "node app.js"
 
 app_node_version04:
   memory: 512
