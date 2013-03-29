@@ -5,12 +5,10 @@ include BVT::Spec
 describe "Ruby" do
   before(:all) { @session = BVT::Harness::CFSession.new }
 
-  describe "ruby 1.8" do
-    with_app "ruby18"
-
+  def self.it_supports_basics(version)
     it "starts the app successfully" do
       res = app.get_response(:get, "/ruby_version")
-      res.to_str.should == "1.8.7"
+      res.to_str.should start_with(version)
     end
 
     it "supports git gems" do
@@ -19,32 +17,21 @@ describe "Ruby" do
       end
     end
 
-    it "installs 1.8 native extensions" do
+    it "installs native extensions" do
       app.file("logs/staging_task.log").tap do |log|
         log.should include "Installing ffi"
       end
     end
   end
 
+  describe "ruby 1.8" do
+    with_app "ruby18"
+    it_supports_basics "1.8.7"
+  end
+
   describe "ruby 1.9" do
     with_app "ruby19"
-
-    it "starts the app successfully" do
-      res = app.get_response(:get, "/ruby_version")
-      res.to_str.should start_with("1.9")
-    end
-
-    it "supports git gems" do
-      app.file("logs/staging_task.log").tap do |log|
-        log.should match %r{Using cf .* git://github.com/cloudfoundry/cf.git}
-      end
-    end
-
-    it "installs 1.9 native extensions" do
-      app.file("logs/staging_task.log").tap do |log|
-        log.should include "Installing ffi"
-      end
-    end
+    it_supports_basics "1.9"
   end
 
   describe "rails" do
