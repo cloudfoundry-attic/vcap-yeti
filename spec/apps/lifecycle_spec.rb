@@ -22,7 +22,7 @@ describe "App lifecycle" do
 
       # stop app
       app.stop
-      app.stats == {}
+      app.stats.should == {}
 
       # delete app
       len = @session.apps.length
