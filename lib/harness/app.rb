@@ -224,6 +224,9 @@ module BVT::Harness
         if @session.v2?
           host, domain_name = simple.split(".", 2)
 
+          # New routes might have been added!
+          @app.invalidate!
+
           route = @app.routes.find do |r|
             r.host == host && r.domain.name == domain_name
           end
@@ -439,6 +442,7 @@ module BVT::Harness
       path = relative_path.start_with?("/") ? relative_path : "/" + relative_path
 
       url = get_url(second_domain) + path
+      puts "request to '#{url}'"
       begin
         resource = RestClient::Resource.new(url, :timeout => timeout, :open_timeout => timeout)
         case method
@@ -468,6 +472,10 @@ module BVT::Harness
           raise RuntimeError, "Cannot #{method} response from/to #{url}\n#{e.to_s}"
         end
       end
+    end
+
+    def get(path, domain=nil)
+      get_response(:get, path, "", domain).to_str
     end
 
     def load_manifest(appid = nil)
