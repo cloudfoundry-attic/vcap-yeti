@@ -1,5 +1,6 @@
 require "harness"
 require "spec_helper"
+require "securerandom"
 include BVT::Spec
 
 describe "App lifecycle" do
@@ -20,9 +21,13 @@ describe "App lifecycle" do
       hash_all = app.stats["0"]
       hash_all[:state].should == "RUNNING"
 
+      # redeploy app
+      app.push(nil, "modified_simple_app2")
+      wait { app.get("/").should =~ /Hello from modified/ }
+
       # stop app
       app.stop
-      app.stats == {}
+      wait { app.get("/").should =~ /404 Not Found/ }
 
       # delete app
       len = @session.apps.length
@@ -31,12 +36,53 @@ describe "App lifecycle" do
     end
   end
 
-  describe "slow responding app" do
+  describe "basic app" do
     with_app "basic"
 
-    it "waits for long responses" do
-      res = app.get_response(:get, "/sleep?duration=75", "", nil, 100)
-      res.to_str.should == "slept for 75 secs"
+    it "waits for minimum of 30 seconds of inactivity" do
+      res = app.get_response(:get, "/sleep?duration=30", "", nil, 100)
+      res.to_str.should == "slept for 30 secs"
+    end
+
+    it "is able to scale number of instances" do
+      original_num_of_instances = app.instances.length
+      new_num_of_instances = original_num_of_instances + 2
+      original_memory = 512
+
+      app.scale(new_num_of_instances, original_memory)
+      wait do |i = app.instances|
+        i.map(&:state).uniq.should == ["RUNNING"]
+        i.length.should == new_num_of_instances
+      end
+
+      app.scale(original_num_of_instances, original_memory)
+      wait do |i = app.instances|
+        i.map(&:state).uniq.should == ["RUNNING"]
+        i.length.should == original_num_of_instances
+      end
+    end
+  end
+
+  # Should be combined with 'basic app' tests above
+  # after DEA is fixed to not register instances
+  # that are about to be stopped.
+  describe "basic app (url mapping)" do
+    with_app "basic"
+
+    it "is able to map/unmap a route" do
+      new_subdomain = "#{SecureRandom.hex}"
+
+      app.map(app.get_url(new_subdomain))
+      wait do
+        app.get("/health").should == "ok"
+        app.get("/health", new_subdomain).should == "ok"
+      end
+
+      app.unmap(app.get_url(new_subdomain))
+      wait do
+        app.get("/health").should == "ok"
+        app.get("/health", new_subdomain).should =~ /404 Not Found/
+      end
     end
   end
 

@@ -18,8 +18,8 @@ simple_app:
 simple_app2:
   instances: 1
   memory: 512
-  command: "bundle exec ruby foo.rb -p $VCAP_APP_PORT"
   path: "assets/sinatra/hello_vcap"
+  command: "bundle exec ruby foo.rb -p $VCAP_APP_PORT"
 
 modified_simple_app2:
   instances: 2
