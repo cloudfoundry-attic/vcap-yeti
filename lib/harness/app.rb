@@ -85,7 +85,7 @@ module BVT::Harness
       end
     end
 
-    def start(need_check = true, async = false, &blk)
+    def start(need_check = true, &blk)
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
         raise RuntimeError, "Application: #{@app.name} does not exist!"
@@ -96,9 +96,18 @@ module BVT::Harness
         timeout_retries_remaining = 5
 
         begin
+          log = ""
+
           @app.start!(true) do |url|
             puts "Pushing #{@app.name} - #{url}"
-            blk.call(url) if blk
+
+            if blk
+              blk.call(url)
+            elsif url
+              @app.stream_update_log(log_url) do |chunk|
+                log << chunk
+              end
+            end
           end
 
         # When ccng/dea_ng are overloaded app staging will result
@@ -106,15 +115,17 @@ module BVT::Harness
         # tests resilient to such failure; however, we want to
         # report such failures at the end.
         rescue CFoundry::Timeout => e
+          @log.error("Timed out: #{e}")
           timeout_retries_remaining -= 1
           timeout_retries_remaining > 0 ? retry : raise
 
         rescue Exception => e
           # Use e.inspect to capture both message and error class
-          msg = <<-MSG
+          msg = <<-MSG.gsub(/^\s+/, "")
             Start App: #{@app.name} failed.
             #{e.inspect}
             #{@session.print_client_logs}
+            #{log}
           MSG
           @log.error(msg)
           raise RuntimeError, msg
@@ -632,6 +643,10 @@ module BVT::Harness
       end
     end
 
+    # TODO: maybe App#stream_update_log really just belongs on client
+    def stream_log(url, &blk)
+      @app.stream_update_log(url, &blk)
+    end
   end
 
   class RestResult

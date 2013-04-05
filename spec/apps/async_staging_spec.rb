@@ -22,25 +22,17 @@ describe "Async app staging" do
       app.manifest["no_start"] = true
       app.create_app("standalone_ruby_app#{rand(65046056)}", app.manifest["path"], nil, false)
 
-      app.start(false, true) do |url|
+      app.start(!:need_check) do |url|
         staging_log_url = url
       end
     end
 
     step "tail staging log" do
-      tail_uri = URI.parse(staging_log_url + "&tail_offset=0&tail")
+      tail_uri = staging_log_url + "&tail_offset=0&tail"
       tailed_log = ""
 
-      begin
-        Net::HTTP.start(tail_uri.host, tail_uri.port) do |http|
-          req = Net::HTTP::Get.new(tail_uri.request_uri)
-          req["Authorization"] = @session.token.auth_header
-
-          http.request(req) do |response|
-            response.read_body { |chunk| tailed_log << chunk }
-          end
-        end
-      rescue Timeout::Error
+      app.stream_log(tail_uri) do |chunk|
+        tailed_log << chunk
       end
 
       tailed_log.should match /Using Ruby/

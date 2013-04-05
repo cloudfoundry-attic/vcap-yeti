@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/cloudfoundry/cfoundry.git
-  revision: 87c192a714fd6b21bb7bceade789424a9bf779e1
+  revision: 7658f56e45f606093787b058a5a5a37b68b25051
   submodules: true
   specs:
     cfoundry (0.6.1.rc3)
