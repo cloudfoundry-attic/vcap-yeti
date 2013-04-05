@@ -564,31 +564,16 @@ module BVT::Harness
     def sync_app(app, path)
       upload_app(app, path)
 
-      diff = {}
+      app.memory = @manifest['memory']
+      app.total_instances = @manifest['instances']
+      app.command = @manifest['command']
 
-      mem = @manifest['memory']
-      if mem != app.memory
-        diff[:memory] = [app.memory, mem]
-        app.memory = mem
-      end
-
-      instances = @manifest['instances']
-      if instances != app.total_instances
-        diff[:instances] = [app.total_instances, instances]
-        app.total_instances = instances
-      end
-
-      command = @manifest['command']
-      if command != app.command
-        diff[:command] = [app.command, command]
-        app.command = command
-      end
-
-      unless diff.empty?
-        diff.each do |name, change|
+      if app.changed?
+        app.changes.each do |name, change|
           old, new = change
           @log.debug("Application: #{app.name}, Change: #{old} -> #{new}")
         end
+
         begin
           app.update!
         rescue Exception => e
@@ -596,6 +581,7 @@ module BVT::Harness
           raise RuntimeError, "Fail to update Application: #{app.name}\n#{e.inspect}"
         end
       end
+
       restart
     end
 
