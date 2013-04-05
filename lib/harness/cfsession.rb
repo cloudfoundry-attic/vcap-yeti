@@ -263,7 +263,7 @@ module BVT::Harness
       end
 
       @client.log = []
-      lines.reverse.last(5).join("\n")
+      lines.last(5).join("\n")
     end
 
     private
