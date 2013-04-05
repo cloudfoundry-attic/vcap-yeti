@@ -1,5 +1,5 @@
-require 'tunnel-vmc-plugin/tunnel'
-require 'console-vmc-plugin/console'
+require 'tunnel-cf-plugin/tunnel'
+require 'console-cf-plugin/console'
 
 class CFConsole < CFTunnel
 

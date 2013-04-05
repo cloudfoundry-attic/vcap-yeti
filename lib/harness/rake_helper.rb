@@ -1,6 +1,7 @@
 require "yaml"
 require "harness"
 require "tempfile"
+require "securerandom"
 
 module BVT::Harness
   module RakeHelper
@@ -150,54 +151,41 @@ module BVT::Harness
     end
 
     def create_parallel_users(user_number)
-      puts "Using admin account to create parallel users:"
       get_admin_user
       get_admin_user_passwd
 
-      @config['parallel'] = []
-      session = BVT::Harness::CFSession.new(
-        :admin => true,
-        :email => @config['admin']['email'],
-        :passwd => @config['admin']['passwd'],
-        :target => @config['target']
+      user_creator = CCNGUserHelper.new(
+        @config["target"],
+        @config["admin"]["email"],
+        @config["admin"]["passwd"],
       )
 
-      passwd = 'aZ_x13YcIa4nhl'  #parallel user secret
+      puts "Using admin account to create parallel users"
+      puts " ('#{user_creator.target}' with '#{user_creator.admin_user}'):"
+
+      namespace = SecureRandom.uuid.gsub("-", "")
+      passwd = "password"
+      @config["parallel"] = []
 
       (1..user_number).to_a.each do |index|
-        config = {}
+        @config["parallel"] << config = {
+          "email" => "#{namespace}-#{index}-test_user@vmware.com",
+          "passwd" => passwd,
+        }
 
-        if session.v2?
-          uaa_url = @config['target'].gsub(/\/\/\w+/, '//uaa')
-          email = "#{session.namespace}#{index}-test_user@vmware.com"
-          org_name = "#{session.namespace}yeti_test_org-#{index}"
-          space_name = "yeti_test_space"
+        user_creator.setup_user(
+          config["email"],
+          config["passwd"],
+          "#{namespace}-yeti_test_org-#{index}",
+          "yeti_test_space",
+        )
 
-          CCNGUserHelper.create_user(
-            uaa_url, get_uaa_cc_secret,
-            @config['target'],
-            @config['admin']['email'],
-            @config['admin']['passwd'],
-            email, passwd,
-            org_name, space_name
-          )
-          config['email'] = email
-        else
-          email = "#{index}-test_user@vmware.com"
-          user  = session.user(email)
-          user.create(passwd)
-          config['email']  = user.email
-        end
-
-        config['passwd'] = passwd
-        puts " - #{config['email']}"
+        puts " - #{config["email"]}"
         $stdout.flush
-
-        @config['parallel'] << config
       end
 
-      @config['admin'].delete('passwd')
-      @config['parallel']
+      @config["admin"].delete("passwd")
+      @config["parallel"]
     end
 
     def get_parallel_users(check_first_user=false)

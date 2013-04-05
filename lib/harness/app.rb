@@ -573,15 +573,6 @@ module BVT::Harness
         app.command = command
       end
 
-      if @session.v2?
-        production = @manifest['plan'] ? true : false
-
-        if production != app.production
-          diff[:production] = [app.production, production]
-          app.production = production
-        end
-      end
-
       unless diff.empty?
         diff.each do |name, change|
           old, new = change
