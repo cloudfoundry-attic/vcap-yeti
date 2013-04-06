@@ -104,7 +104,7 @@ module BVT::Harness
             if blk
               blk.call(url)
             elsif url
-              @app.stream_update_log(log_url) do |chunk|
+              @app.stream_update_log(url) do |chunk|
                 log << chunk
               end
             end
