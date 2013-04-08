@@ -85,17 +85,19 @@ module BVT::Harness
 
       begin
         res = RestClient.get(url)
-      rescue
+      rescue => e
         raise RuntimeError, <<-MSG
           Cannot connect to yeti assets storage server, #{url}
           Please check your network connection.
+          Response: #{"#{res.code} #{res.to_str}" if res}
+          Exception: #{e.inspect}\n#{e.backtrace}
         MSG
       end
 
       unless res.code == HTTP_RESPONSE_CODE::OK
         raise RuntimeError, <<-MSG
-          Get remote file list faild, might be caused by unstable network.
-          #{res.code} - #{res.to_str}
+          Get remote file list failed, might be caused by unstable network.
+          Response: #{"#{res.code} #{res.to_str}" if res}
         MSG
       end
 
@@ -132,7 +134,7 @@ module BVT::Harness
       else
         raise RuntimeError, <<-MSG
           Failed to download binary #{filename}:
-          #{res.code} - #{res.to_str}
+          Response: #{"#{res.code} #{res.to_str}" if res}
         MSG
       end
     end
