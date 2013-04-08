@@ -27,8 +27,7 @@ module BVT::Harness
       rescue Exception => e
         @log.error("Fail to create space (#{@space.name} " +
                        "\n#{e.to_s}")
-        raise RuntimeError, "Fail to create service (#{@space.name} " +
-            "\n#{e.to_s}"
+        raise
       end
     end
 
@@ -51,8 +50,7 @@ module BVT::Harness
           @space.delete!
         rescue Exception => e
           @log.error("Fail to delete space ( #{@space.name} )" )
-          raise RuntimeError, "Fail to delete space ( #{@space.name} )" +
-              "\n#{e.to_s}"
+          raise
         end
       end
     end
@@ -70,8 +68,7 @@ module BVT::Harness
           }
         rescue Exception => e
           @log.error("Fail to remove domain ( #{domain.name} )" )
-          raise RuntimeError, "Fail to remove domain ( #{domain.name} )" +
-              "\n#{e.to_s}\n#{@session.print_client_logs}"
+          raise
         end
       end
     end

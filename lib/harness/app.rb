@@ -39,7 +39,7 @@ module BVT::Harness
         @app.delete!
       rescue Exception => e
         @log.error "Delete App: #{@app.name} failed. "
-        raise RuntimeError, "Delete App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -48,7 +48,7 @@ module BVT::Harness
         @app.routes
       rescue Exception => e
         @log.error "Get routes failed. App: #{@app.name}"
-        raise RuntimeError, "Get routes failed. App: #{@app.name}\n#{e.to_s}\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -58,8 +58,8 @@ module BVT::Harness
         @app.update!
         restart
       rescue Exception => e
-        @log.error "Update App: #{@app.name} failed.\n#{e.to_s}"
-        raise RuntimeError, "Update App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
+        @log.error "Update App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -79,8 +79,8 @@ module BVT::Harness
         begin
           @app.stop!
         rescue
-          @log.error "Stop App: #{@app.name} failed. "
-          raise RuntimeError, "Stop App: #{@app.name} failed.\n#{@session.print_client_logs}"
+          @log.error "Stop App: #{@app.name} failed.\n#{@session.print_client_logs}"
+          raise
         end
       end
     end
@@ -88,7 +88,7 @@ module BVT::Harness
     def start(need_check = true, &blk)
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
-        raise RuntimeError, "Application: #{@app.name} does not exist!"
+        raise
       end
 
       unless @app.running?
@@ -128,7 +128,7 @@ module BVT::Harness
             #{log}
           MSG
           @log.error(msg)
-          raise RuntimeError, msg
+          raise
         end
 
         check_application if need_check
@@ -146,8 +146,7 @@ module BVT::Harness
       rescue Exception => e
         @log.error("Fail to bind Service: #{service.name} to Application:" +
                        " #{@app.name}\n#{e.to_s}")
-        raise RuntimeError, "Fail to bind Service: #{service.name} to " +
-            "Application: #{@app.name}\n#{e.to_s}\n#{@session.print_client_logs}"
+        raise
       end
       restart if restart_app
     end
@@ -167,8 +166,7 @@ module BVT::Harness
       rescue
         @log.error("Fail to unbind service: #{service.name} for " +
                        "application: #{@app.name}")
-        raise RuntimeError, "Fail to unbind service: #{service.name} for " +
-            "application: #{@app.name}\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -221,7 +219,7 @@ module BVT::Harness
         end
       rescue Exception => e
         @log.error("Fail to map url: #{simple} to application: #{@app.name}!\n#{e.to_s}")
-        raise RuntimeError, "Fail to map url: #{simple} to application: #{@app.name}!\n#{e.to_s}\n#{@session.print_client_logs}"
+        raise
       end
 
       @log.debug("Application: #{@app.name}, URLs: #{@app.urls}")
@@ -256,7 +254,7 @@ module BVT::Harness
         end
       rescue Exception => e
         @log.error("Fail to unmap url: #{simple} to application: #{@app.name}!\n#{e.to_s}")
-        raise RuntimeError, "Fail to unmap url: #{simple} to application: #{@app.name}!\n#{e.to_s}\n#{@session.print_client_logs}"
+        raise
       end
       @log.debug("Application: #{@app.name}, URLs: #{@app.urls}")
     end
@@ -276,7 +274,7 @@ module BVT::Harness
         @app.files(path)
       rescue Exception => e
         @log.error("Fail to examine an application: #{@app.name} files!\n#{e.to_s}")
-        raise RuntimeError, "Fail to examine an application: #{@app.name} files!\n#{e.to_s}\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -290,7 +288,7 @@ module BVT::Harness
         @app.file(path)
       rescue Exception => e
         @log.error("Fail to examine an application: #{@app.name} file!\n#{e.to_s}")
-        raise RuntimeError, "Fail to examine an application: #{@app.name} file!\n#{e.to_s}\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -308,8 +306,7 @@ module BVT::Harness
       rescue
         @log.error("Fail to Update the instances/memory limit for " +
                    "Application: #{@app.name}!")
-        raise RuntimeError, "Fail to update the instances/memory limit for " +
-                   "Application: #{@app.name}!\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -323,7 +320,7 @@ module BVT::Harness
         @app.instances
       rescue
         @log.error("Fail to list the instances for Application: #{@app.name}!")
-        raise RuntimeError, "Fail to list the instances for Application: #{@app.name}!\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -337,7 +334,7 @@ module BVT::Harness
         @app.total_instances = val
       rescue
         @log.error("Fail to set the total instances for Application: #{@app.name}!")
-        raise RuntimeError, "Fail to set the total instances for Application: #{@app.name}!\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -351,7 +348,7 @@ module BVT::Harness
         @app.total_instances
       rescue
         @log.error("Fail to get the total instances for Application: #{@app.name}!")
-        raise RuntimeError, "Fail to get the total instances for Application: #{@app.name}!\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -365,7 +362,7 @@ module BVT::Harness
         @app.env
       rescue
         @log.error("Fail to get the env for Application: #{@app.name}!")
-        raise RuntimeError, "Fail to get the env for Application: #{@app.name}!\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -379,7 +376,7 @@ module BVT::Harness
         @app.env = val
       rescue
         @log.error("Fail to set the env for Application: #{@app.name}!")
-        raise RuntimeError, "Fail to set the env for Application: #{@app.name}!\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -393,7 +390,7 @@ module BVT::Harness
         @app.services
       rescue
         @log.error("Fail to list the services for Application: #{@app.name}!")
-        raise RuntimeError, "Fail to list the services for Application: #{@app.name}!\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -412,8 +409,7 @@ module BVT::Harness
         end
       rescue Exception => e
         @log.error("Fail to get logs for Application: #{@app.name}!")
-        raise RuntimeError, "Fail to get logs for Application: #{@app.name}!" +
-            "\n#{e.to_s}\n#{@session.print_client_logs}"
+        raise
       end
       @log.debug("=============== Get Application #{@app.name}, logs contents: #{body}")
       body
@@ -480,7 +476,7 @@ module BVT::Harness
           RestResult.new(e.http_code, e.http_body)
         rescue
           @log.error("Cannot #{method} response from/to #{url}\n#{e.to_s}")
-          raise RuntimeError, "Cannot #{method} response from/to #{url}\n#{e.to_s}"
+          raise
         end
       end
     end
@@ -578,7 +574,7 @@ module BVT::Harness
           app.update!
         rescue Exception => e
           @log.error("Fail to update Application: #{app.name}\n#{e.inspect}")
-          raise RuntimeError, "Fail to update Application: #{app.name}\n#{e.inspect}"
+          raise
         end
       end
 
@@ -607,7 +603,7 @@ module BVT::Harness
         app.create!
       rescue Exception => e
         @log.error("Fail to create Application: #{app.name}\n#{e.inspect}")
-        raise RuntimeError, "Fail to create Application: #{app.name}\n#{e.inspect}"
+        raise
       end
 
       @app = app
@@ -625,7 +621,7 @@ module BVT::Harness
         app.upload(path)
       rescue Exception => e
         @log.error("Fail to push/upload file path: #{path} for Application: #{app.name}\n#{e.inspect}")
-        raise RuntimeError, "Fail to push/upload file path: #{path} for Application: #{app.name}\n#{e.inspect}"
+        raise
       end
     end
 

@@ -50,10 +50,8 @@ module BVT::Harness
       begin
         @token = @client.login(@email, @passwd)
       rescue Exception => e
-        @log.error "Fail to login in, target: #{@TARGET}, user: #{@email}\n#{e.to_s}"
-        raise "Cannot login target environment:\n" +
-              "target = '#{@TARGET}', user: '#{@email}'.\n" +
-              "Pleae check your ENV and #{VCAP_BVT_CONFIG_FILE}" + "\n#{e.to_s}\n#{print_client_logs}"
+        @log.error "Fail to log in, target: #{@TARGET}, user: #{@email}\n#{e.to_s}"
+        raise
       end
       # TBD - ABS: This is a hack around the 1 sec granularity of our token time stamp
       sleep(1)
@@ -138,7 +136,7 @@ module BVT::Harness
         space.add_developer @client.current_user
         @current_space = space
       else
-        spaces.each{ |s|
+        spaces.each { |s|
           @current_space = s if s.name == space_name
         } unless space_name == ""
         @current_space = spaces.first if @current_space.nil?
@@ -180,8 +178,7 @@ module BVT::Harness
         BVT::Harness::Space.new( space, self)
       rescue Exception => e
         @log.error("Fail to get space: #{name}")
-        raise RuntimeError, "Fail to get space: " +
-            "\n#{e.to_s}\n#{print_client_logs}"
+        raise
       end
     end
 
@@ -196,8 +193,7 @@ module BVT::Harness
         BVT::Harness::Domain.new( domain, self)
       rescue Exception => e
         @log.error("Fail to create domain: #{name}")
-        raise RuntimeError, "Fail to create domain: " +
-            "\n#{e.to_s}\n#{print_client_logs}"
+        raise
       end
     end
 
@@ -207,8 +203,7 @@ module BVT::Harness
         users = @client.users.collect {|user| User.new(user, self)}
       rescue Exception => e
         @log.error("Fail to list users for target: #{@client.target}, login email: #{@email}")
-        raise RuntimeError, "Fail to list users for target: " +
-            "#{@client.target}, login email: #{@email}\n#{e.to_s}"
+        raise
       end
     end
 
@@ -304,9 +299,7 @@ module BVT::Harness
       else
         @log.error "user type does not match. Expected User Privilege: #{expect_privilege}" +
                        " Actual User Privilege: #{actual_privilege}"
-        raise RuntimeError, "user type does not match.\n" +
-            " Expected User Privilege: #{expect_privilege}" +
-            " Actual User Privilege: #{actual_privilege}"
+        raise
       end
     end
 
@@ -316,8 +309,7 @@ module BVT::Harness
       rescue Exception => e
         @log.error("Fail to check user's admin privilege. Target: #{@client.target},"+
                        " login email: #{@email}\n#{e.to_s}")
-        raise RuntimeError, "Fail to check user's admin privilege. Target: #{@client.target},"+
-            " login email: #{@email}\n#{e.to_s}\n#{print_client_logs}"
+        raise
       end
     end
 
