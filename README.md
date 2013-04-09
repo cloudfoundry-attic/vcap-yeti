@@ -49,6 +49,10 @@ After setting up your environment here is how to run tests in parallel:
 See [parallel_tests gem](https://github.com/grosser/parallel_tests)
 for more information.
 
+# Debugging Tips
+
+- `VCAP_BVT_TRACE=1` turns on tracing of cfoundry calls
+
 # Assets
 
 Binary assets are stored in `http://blobs.cloudfoundry.com` which is a

@@ -6,7 +6,7 @@ describe "Simple::Info" do
   VAR_INSTANCE_COUNT = 4
   VAR_MEMORY         = 64
 
-  before(:all) do
+  before(:each) do
     @session = BVT::Harness::CFSession.new
     @client = @session.client
   end

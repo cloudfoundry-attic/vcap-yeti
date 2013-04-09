@@ -12,18 +12,13 @@ gem "yajl-ruby"
 gem "nokogiri"
 
 group :vcap do
-  # Used to create users in CCNGUserHelper
-  gem "cf-uaac", "= 1.3.3"
   gem "vcap_logging", ">= 1.0"
 
-  # Specific version of cfoundry is needed to be
-  # compatible with deps from cf-uaas. Update with care!
   gem "cfoundry", {
-  	:github => "cloudfoundry/vmc-lib",
-  	:ref => "e11ddf5d",
-  	:submodules => true,
+    :github => "cloudfoundry/cfoundry",
+    :submodules => true,
   }
 
-  gem "tunnel-vmc-plugin", :github => "cloudfoundry/tunnel-vmc-plugin"
-  gem "console-vmc-plugin", :github => "cloudfoundry/console-vmc-plugin"
+  gem "tunnel-cf-plugin", :github => "cloudfoundry/tunnel-cf-plugin"
+  gem "console-cf-plugin", :github => "cloudfoundry/console-cf-plugin"
 end

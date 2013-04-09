@@ -1,10 +1,10 @@
-require 'console-vmc-plugin/console'
+require 'console-cf-plugin/console'
 
 module BVT::Harness
   module ConsoleHelpers
 
     def init_console(client, app, port = 10000)
-      console = CFConsole.new(client, app)      
+      console = CFConsole.new(client, app)
       console.pick_port!(port)
 
       console_open(console)

@@ -27,8 +27,7 @@ module BVT::Harness
       rescue Exception => e
         @log.error("Fail to create domain (#{@domain.name} ) " +
                        "\n#{e.to_s}")
-        raise RuntimeError, "Fail to create domain (#{@domain.name} )" +
-            "\n#{e.to_s}\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -42,8 +41,7 @@ module BVT::Harness
       rescue Exception => e
         @log.error("Fail to add domain (#{domain} )" +
                        "\n#{e.to_s}")
-        raise RuntimeError, "Fail to add domain (#{domain} ) " +
-            "\n#{e.to_s}\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -75,8 +73,7 @@ module BVT::Harness
           @domain.delete!
         rescue Exception => e
           @log.error("Fail to delete domain ( #{@domain.name} )" )
-          raise RuntimeError, "Fail to delete domain ( #{@domain.name} )" +
-              "\n#{e.to_s}\n#{@session.print_client_logs}"
+          raise
         end
       end
     end

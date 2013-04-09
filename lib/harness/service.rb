@@ -42,20 +42,24 @@ module BVT::Harness
       end
       @log.debug("Prepare to create service: #{@instance.name}")
       begin
+        plans = service.service_plans
+
         if service_manifest[:plan]
           plan = service_manifest[:plan]
         elsif ENV['VCAP_BVT_SERVICE_PLAN']
           plan = ENV['VCAP_BVT_SERVICE_PLAN']
+        elsif @session.v2?
+          plan = plans.first.name
         else
-          plan = @session.v2? ? "100" : "free"
+          plan = "free"
         end
+
         if @session.v2?
-          plans = service.service_plans.select { |p| p.name == plan}
+          plans = plans.select { |p| p.name == plan }
           if plans.size == 0
-            plan_list = []
-            service.service_plans.each {|p| plan_list << p.name}
-            @log.error("can't find service plan #{plan}, supported plans: #{plan_list}")
-            raise RuntimeError, "can't find service plan #{plan}, supported plans: #{plan_list}"
+            plan_names = plans.map(&:name).join(", ")
+            @log.error("can't find service plan #{plan}, supported plans: #{plan_names}")
+            raise RuntimeError, "can't find service plan #{plan}, supported plans: #{plan_names}"
           end
           plan = plans.first
           @instance.service_plan = plan
@@ -75,8 +79,7 @@ module BVT::Harness
       rescue Exception => e
         @log.error("Fail to create service (#{instance_info}):" +
                        " #{@instance.name}\n#{e.to_s}")
-        raise RuntimeError, "Fail to create service (#{instance_info}):" +
-            " #{@instance.name}\n#{e.to_s}\n#{@session.print_client_logs}"
+        raise
       end
     end
 
@@ -94,7 +97,7 @@ module BVT::Harness
           @instance.delete!
         rescue Exception => e
           @log.error("Fail to delete service (#{instance_info}): #{@instance.name}\n#{e.to_s}")
-          raise RuntimeError, "Fail to delete service (#{instance_info}): #{@instance.name}\n#{e.to_s}\n#{@session.print_client_logs}"
+          raise
         end
       end
     end
