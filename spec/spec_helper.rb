@@ -55,7 +55,7 @@ RSpec.configure do |config|
       BVT::Harness::RakeHelper.get_user
       BVT::Harness::RakeHelper.get_user_passwd
       user = BVT::Harness::RakeHelper.get_config['user']
-      BVT::Harness::RakeHelper.check_environment(user)
+      BVT::Harness::RakeHelper.generate_profile(user)
     end
 
     $vcap_bvt_profile_file ||= profile_file
