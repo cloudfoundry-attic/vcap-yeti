@@ -26,10 +26,8 @@ describe "Simple::FileRange" do
     num_bytes = 10
 
     file_contents = File.read("#{@app.manifest['path']}/#{filename}")
-    url = "#{@session.TARGET}/apps/#{@app.name}/instances/0/files/app/#{filename}"
-    hdrs = {"AUTHORIZATION" => @session.token.auth_header, "Range" => "bytes=#{range}"}
+    resp = @app.get_file("app/#{filename}", "Range" => "bytes=#{range}")
 
-    resp = RestClient.get(url, hdrs)
     resp.should_not be_nil
     resp.body.should == file_contents.slice(file_contents.size - num_bytes, num_bytes)
   end
@@ -39,10 +37,8 @@ describe "Simple::FileRange" do
     num_bytes = 10
 
     file_contents = File.read("#{@app.manifest['path']}/#{filename}")
-    url = "#{@session.TARGET}/apps/#{@app.name}/instances/0/files/app/#{filename}"
-    hdrs = {"AUTHORIZATION" => @session.token.auth_header, "Range" => "bytes=#{range}"}
+    resp = @app.get_file("app/#{filename}", "Range" => "bytes=#{range}")
 
-    resp = RestClient.get(url, hdrs)
     resp.should_not be_nil
     resp.body.should == file_contents.slice(num_bytes, file_contents.size)
   end
@@ -52,10 +48,8 @@ describe "Simple::FileRange" do
     num_bytes = 11
 
     file_contents = File.read("#{@app.manifest['path']}/#{filename}")
-    url = "#{@session.TARGET}/apps/#{@app.name}/instances/0/files/app/#{filename}"
-    hdrs = {"AUTHORIZATION" => @session.token.auth_header, "Range" => "bytes=#{range}"}
+    resp = @app.get_file("app/#{filename}", "Range" => "bytes=#{range}")
 
-    resp = RestClient.get(url, hdrs)
     resp.should_not be_nil
     resp.body.should == file_contents.slice(10, num_bytes)
   end

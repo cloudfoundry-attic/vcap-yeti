@@ -1,4 +1,5 @@
 require "cfoundry"
+require "rest-client"
 
 module BVT::Harness
   class App
@@ -628,6 +629,12 @@ module BVT::Harness
     # TODO: maybe App#stream_update_log really just belongs on client
     def stream_log(url, &blk)
       @app.stream_update_log(url, &blk)
+    end
+
+    def get_file(path, headers = {})
+      url = "#{@session.TARGET}/v2/apps/#{@app.guid}/instances/0/files/#{path}"
+      hdrs = headers.merge("AUTHORIZATION" => @session.token.auth_header)
+      RestClient.get(url, hdrs)
     end
   end
 
