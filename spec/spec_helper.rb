@@ -43,6 +43,8 @@ end
 RSpec.configure do |config|
   include BVT::Harness::ColorHelpers
 
+  config.tty = true # allow Jenkins to color output
+
   config.before(:suite) do
     target = BVT::Harness::RakeHelper.get_target
     target_without_http = target.split('//')[-1]

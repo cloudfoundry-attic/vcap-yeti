@@ -198,7 +198,11 @@ describe "Simple::Domain" do
 
     app = create_push_app("simple_app", '', new_domain.name)
 
-    lambda {domain.delete}.should raise_error(RuntimeError, /The request is invalid/)
+    expect {
+      domain.delete
+    }.to raise_error(
+      CFoundry::APIError, /10006: Please delete the routes associations for your domains./
+    )
     domain.check_domain_of_org.should == true
 
     #clean up app, domain

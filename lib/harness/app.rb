@@ -552,9 +552,20 @@ module BVT::Harness
     end
 
     def instances_are_all_running?
+      not_staged_retry = 0
       instances = @app.instances
       instances.map(&:state).uniq == ["RUNNING"]
-    rescue CFoundry::Timeout => e
+    rescue CFoundry::APIError => e
+      if e.error_code != 170002
+        @log.error("App failed to stage: #{e.inspect}")
+        return false
+      end
+
+      # Still pending, i.e. downloading the staged app to CC. The app will start "starting" soon
+      not_staged_retry += 1
+      sleep 0.2
+      not_staged_retry < 3 ? retry : raise
+    rescue CFoundry::Timeout
       false
     end
 
