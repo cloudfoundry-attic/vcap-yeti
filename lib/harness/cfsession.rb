@@ -223,13 +223,13 @@ module BVT::Harness
     def cleanup!(mode = "current")
       if v2?
         target_domain = get_target_domain
-        if (mode == "all")
-          @client.spaces.each{ |s|
-            s.service_instances.each {|service| service.delete!}
-            s.apps.each {|app| app.delete!}
-          }
+        if mode == "all"
+          @client.spaces.each do |s|
+            s.service_instances.each { |service| service.delete! }
+            s.apps.each { |app| app.delete! }
+          end
           @client.routes.each { |route| route.delete! }
-        elsif (mode == "current")
+        elsif mode == "current"
           # CCNG cannot delete service which binded to application
           # therefore, remove application first
           @client.current_organization = @current_organization

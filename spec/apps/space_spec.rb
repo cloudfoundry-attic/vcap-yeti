@@ -5,15 +5,15 @@ include BVT::Spec
 
 describe "Simple::Space" do
 
-  before(:each) do
+  before do
     @session = BVT::Harness::CFSession.new
     pending("cloud controller v1 API does not support org/space") unless @session.v2?
   end
 
-  after(:each) do
+  after do
     @session.client.spaces.each do |space|
       space.apps.each do |app|
-        app.service_bindings.each(&:delete)
+        app.service_bindings.each(&:delete!)
       end
     end
     @session.cleanup!("all")
@@ -29,9 +29,9 @@ describe "Simple::Space" do
     space.create
     spaces = @session.spaces
     match = false
-    spaces.each { |s|
+    spaces.each do |s|
       match = true if s.name == space_name
-    }
+    end
     match.should == true
 
     space.delete
@@ -52,7 +52,7 @@ describe "Simple::Space" do
     @space.delete(true)
   end
 
-  it "test create and delete app/service in space" do
+  xit "test create and delete app/service in space" do
     use_space(space_name)
 
     create_push_app("simple_app", nil, nil, [MYSQL_MANIFEST])
