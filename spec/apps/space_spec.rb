@@ -52,27 +52,6 @@ describe "Simple::Space" do
     @space.delete(true)
   end
 
-  xit "test create and delete app/service in space" do
-    use_space(space_name)
-
-    create_push_app("simple_app", nil, nil, [MYSQL_MANIFEST])
-
-    space = @session.current_space
-
-    app = space.apps[0]
-    app.name.should =~ /simple_app/
-    service = space.service_instances[0]
-    service.name.should =~ /mysql/
-
-    app.delete!
-    space.apps.should == []
-    service.delete!
-    space.service_instances.should == []
-
-    app.routes.each(&:delete!)
-    @space.delete(true)
-  end
-
   it "test create and delete app/route in space" do
     use_space(space_name)
 
