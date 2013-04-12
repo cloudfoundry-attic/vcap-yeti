@@ -11,11 +11,6 @@ describe "Simple::Space" do
   end
 
   after(:each) do
-    @session.client.spaces do |space|
-      space.apps.each do |app|
-        app.service_bindings.each(&:delete)
-      end
-    end
     @session.cleanup!("all")
   end
 

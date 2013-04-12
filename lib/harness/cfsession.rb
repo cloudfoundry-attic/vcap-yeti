@@ -225,8 +225,11 @@ module BVT::Harness
         target_domain = get_target_domain
         if (mode == "all")
           @client.spaces.each{ |s|
-            s.apps.each {|app| app.delete!}
             s.service_instances.each {|service| service.delete!}
+            s.apps.each do |app|
+              app.service_bindings.each(&:delete)
+              app.delete!
+            end
           }
           @client.routes.each { |route| route.delete! }
         elsif (mode == "current")
