@@ -226,10 +226,7 @@ module BVT::Harness
         if (mode == "all")
           @client.spaces.each{ |s|
             s.service_instances.each {|service| service.delete!}
-            s.apps.each do |app|
-              app.service_bindings.each(&:delete)
-              app.delete!
-            end
+            s.apps.each {|app| app.delete!}
           }
           @client.routes.each { |route| route.delete! }
         elsif (mode == "current")
