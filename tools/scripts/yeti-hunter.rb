@@ -34,7 +34,7 @@ useless_orgs.each do |org|
 
   begin
     org.delete!
-  rescue CFoundry::InvalidRequest
+  rescue CFoundry::APIError
     begin
       org.domains.each do |domain|
         next unless domain.owning_organization == org
@@ -49,7 +49,7 @@ useless_orgs.each do |org|
 
         begin
           space.delete!
-        rescue CFoundry::InvalidRequest
+        rescue CFoundry::APIError
           puts "    Clearing the space's contents first..."
 
           routes.select { |r| r.space == space }.each(&:delete!)
@@ -76,7 +76,7 @@ useless_orgs.each do |org|
       org.delete!
 
       puts "OK"
-    rescue CFoundry::InvalidRequest
+    rescue CFoundry::APIError
       puts "FAILED"
       next
     end
