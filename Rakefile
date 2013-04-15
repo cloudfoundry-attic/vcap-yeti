@@ -16,6 +16,12 @@ task :delete_orgs do
   exec "./tools/scripts/yeti-hunter.rb"
 end
 
+desc "Clear ~/.bvt/config file"
+task :clear_bvt_config do
+  require 'fileutils'
+  FileUtils.rm_rf(File.expand_path("~/.bvt/config.yml"))
+end
+
 namespace :assets do
   desc "Sync yeti assets binaries"
   task :sync do
