@@ -36,6 +36,11 @@ Tests require several environment variables to be set:
     export VCAP_BVT_ADMIN_USER="admin-user@example.com"
     export VCAP_BVT_ADMIN_USER_PASSWD="admin-password"
 
+Optional environment variables:
+
+  Will create organizations with this string - useful for automated clean-up. 
+    export VCAP_BVT_ORG_NAMESPACE="jenkins"
+
 (Admin credentials are only used for creating other users.)
 
 Run `rake prepare` to create 16 users to be used in parallel specs.

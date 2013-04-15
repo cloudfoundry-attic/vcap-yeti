@@ -9,7 +9,7 @@ puts "Going hunting..."
 
 all_orgs = client.organizations
 useless_orgs = all_orgs.select do |org|
-  org.name =~ /(^org(anization)?-|yeti_test_org)/
+  org.name =~ /(^org(anization)?-|#{ENV['VCAP_BVT_ORG_NAMESPACE']}_?yeti_test_org)/
 end
 
 puts "Targets acquired:"

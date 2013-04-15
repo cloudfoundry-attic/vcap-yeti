@@ -176,7 +176,7 @@ module BVT::Harness
         user_creator.setup_user(
           config["email"],
           config["passwd"],
-          "#{namespace}-yeti_test_org-#{index}",
+          "#{namespace}-#{ENV['VCAP_BVT_ORG_NAMESPACE']}_yeti_test_org-#{index}",
           "yeti_test_space",
         )
 
