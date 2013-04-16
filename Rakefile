@@ -4,22 +4,29 @@ require "harness"
 include BVT::Harness
 
 desc "Prepare for running parallel specs"
-task :prepare => ["assets:sync", "create_users"]
+task :prepare => ["assets:sync", "users:create"]
 
-desc "Create 16 non-admin users (saved to ~/.bvt/config)"
-task :create_users do
-  RakeHelper.prepare_all(16)
+namespace :users do
+  desc "Create 16 non-admin users (saved to #{VCAP_BVT_CONFIG_FILE})"
+  task :create do
+    RakeHelper.prepare_all(16)
+  end
 end
 
-desc "Delete yeti-like organizations"
-task :delete_orgs do
-  exec "./tools/scripts/yeti-hunter.rb"
+namespace :orgs do
+  desc "Delete yeti-like organizations"
+  task :delete do
+    exec "./tools/scripts/yeti-hunter.rb"
+  end
 end
 
-desc "Clear ~/.bvt/config file"
-task :clear_bvt_config do
-  require 'fileutils'
-  FileUtils.rm_rf(File.expand_path("~/.bvt/config.yml"))
+namespace :config do
+  desc "Clear current BVT config file"
+  task :clear_bvt do
+    require 'fileutils'
+    puts "Removing #{VCAP_BVT_CONFIG_FILE}"
+    FileUtils.rm_rf(VCAP_BVT_CONFIG_FILE)
+  end
 end
 
 namespace :assets do
