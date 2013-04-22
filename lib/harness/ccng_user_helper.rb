@@ -10,7 +10,7 @@ module BVT::Harness
 
     def setup_user(email, password, org_name, space_name)
       create_user(client, email, password).tap do |user|
-        org = create_org(client, user, org_name, "yeti")
+        org = create_org(client, user, org_name, "paid")
         space = create_space(client, user, org, space_name)
       end
     end
