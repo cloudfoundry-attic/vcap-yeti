@@ -245,11 +245,11 @@ module BVT::Harness
     end
 
     def v1?
-      @client.is_a?(CFoundry::V1::Client)
+      false
     end
 
     def v2?
-      @client.is_a?(CFoundry::V2::Client)
+      true
     end
 
     def print_client_logs

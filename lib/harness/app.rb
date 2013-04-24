@@ -37,7 +37,7 @@ module BVT::Harness
             r.delete!
           end
         end
-        @app.delete!
+        @app.delete! :recursive => true
       rescue Exception => e
         @log.error "Delete App: #{@app.name} failed. "
         raise
