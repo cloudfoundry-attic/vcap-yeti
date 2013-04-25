@@ -21,7 +21,7 @@ describe "Mysql RDS Service" do
   let(:service_info) {{:vendor=>"rds_mysql", :version=>"n/a", :plan => service_plan, :provider => "aws"}}
   let(:provision_name) { "yoursql"}
 
-  it "allows users to provision and bind a mysql instance" do
+  it "allows users to provision, bind, and insert into a mysql instance to a certain data size" do
     service_instance = create_service(service_info, provision_name)
 
     service_list = @session.current_space.service_instances
@@ -53,17 +53,12 @@ describe "Mysql RDS Service" do
 
     response = nil
     25.times do
-      response = app.get_response(:post, '/service/mysql/query', "insert into big values ('i am not allowed')")
+      insert_query = "insert into big values ('i am not allowed')"
+      puts insert_query
+      response = app.get_response(:post, '/service/mysql/query', insert_query)
       break if response.to_str =~ /error/i
       sleep 1
     end
     response.to_str.should =~ /Error.*INSERT command denied/
-
-    response = app.get_response(:post, '/service/mysql/query', "delete from big")
-    25.times do
-      response = app.get_response(:post, '/service/mysql/query', "insert into big values ('hey I am back')")
-      break unless response.to_str =~ /error/i
-      sleep 1
-    end
   end
 end
