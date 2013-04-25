@@ -38,7 +38,32 @@ describe "Mysql RDS Service" do
     app.push([service_instance])
 
     app.services.should include(service_instance.instance)
-
     verify_keys(app, "mysql")
+
+    app.get_response(:post, '/service/mysql/query', "create table big (bronies char(180))")
+    app.get_response(:post, '/service/mysql/query', "insert into big values ('rainbow warrior')")
+    16.times do
+      app.get_response(:post, '/service/mysql/query', "insert into big select * from big")
+    end
+    query = <<-QUERY
+      use information_schema;
+      select concat(round(sum(DATA_LENGTH/1024/1024),2),'MB') as data from TABLES
+    QUERY
+    app.get_response(:post, '/service/mysql/query', query)
+
+    response = nil
+    25.times do
+      response = app.get_response(:post, '/service/mysql/query', "insert into big values ('i am not allowed')")
+      break if response.to_str =~ /error/i
+      sleep 1
+    end
+    response.to_str.should =~ /Error.*INSERT command denied/
+
+    response = app.get_response(:post, '/service/mysql/query', "delete from big")
+    25.times do
+      response = app.get_response(:post, '/service/mysql/query', "insert into big values ('hey I am back')")
+      break unless response.to_str =~ /error/i
+      sleep 1
+    end
   end
 end

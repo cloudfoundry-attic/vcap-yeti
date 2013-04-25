@@ -210,49 +210,6 @@ describe "ServiceQuota" do
     r.to_str.should == 'ok'
   end
 
-  it "max_db_size for mysql service", :mysql => true do
-    mysql_max_db_size = service_quota['mysql']['max_db_size']
-
-    app = create_push_app("service_quota_app", nil, nil, [MYSQL_MANIFEST])
-
-    #when will we receive the following errors?
-    #Query execution was interrupted: connection closed during a query
-    #MySQL server has gone away: connection closed before a query
-    #Lost connection to MySQL server during query: client side error. connection closed during a query
-    verify_max_db_size(mysql_max_db_size, app, '/service/mysql/tables/quota_table',
-                       'INSERT command denied to user', ['Query execution was interrupted', 'MySQL server has gone away', 'Lost connection to MySQL server during query'])
-
-
-    # can not create objects any more
-    r = app.get_response(:post, '/service/mysql/tables/test_table', '')
-    r.code.should == 200
-    r.to_str.should =~ /CREATE command denied to user/
-
-    # read data
-    r = app.get_response(:get, "/service/mysql/tables/quota_table")
-    r.code.should == 200
-    r.to_str.should == 'ok'
-
-    # delete data from the table
-    r = app.get_response(:delete, '/service/mysql/tables/quota_table/data', '')
-    r.code.should == 200
-    sleep 2
-
-    # can insert data again
-    r = app.get_response(:post, '/service/mysql/tables/quota_table/1/1', '')
-    r.code.should == 200
-    r.to_str.should == 'ok'
-
-    # can create objects again
-    r = app.get_response(:post, '/service/mysql/tables/test_table', '')
-    r.code.should == 200
-    r.to_str.should == 'test_table'
-
-    # read data
-    r = app.get_response(:get, "/service/mysql/tables/quota_table")
-    r.code.should == 200
-    r.to_str.should == 'ok'
-  end
 
   it "max_memory of redis service", :redis => true do
     redis_max_memory = service_quota['redis']['max_memory'].to_f
