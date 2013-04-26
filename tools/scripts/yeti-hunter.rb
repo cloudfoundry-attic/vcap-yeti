@@ -7,7 +7,7 @@ client.login(ENV["VCAP_BVT_ADMIN_USER"], ENV["VCAP_BVT_ADMIN_USER_PASSWD"])
 
 puts "Going hunting..."
 
-all_orgs = client.organizations
+all_orgs = client.organizations :depth => 0
 useless_orgs = all_orgs.select do |org|
   org.name =~ /(^org(anization)?-|#{ENV['VCAP_BVT_ORG_NAMESPACE']}_?yeti_test_org)/
 end
@@ -27,59 +27,13 @@ unless ans.downcase.start_with?("y")
   exit(1)
 end
 
-routes = client.routes
-
 useless_orgs.each do |org|
   puts "Killing #{org.name}..."
 
   begin
-    org.delete!
+    org.delete! :recursive => true
   rescue CFoundry::APIError
-    begin
-      org.domains.each do |domain|
-        next unless domain.owning_organization == org
-
-        puts "  Clearing domain #{domain.name} first..."
-        domain.delete!
-        puts "  OK"
-      end
-
-      org.spaces.each do |space|
-        puts "  Clearing space #{space.name} first..."
-
-        begin
-          space.delete!
-        rescue CFoundry::APIError
-          puts "    Clearing the space's contents first..."
-
-          routes.select { |r| r.space == space }.each(&:delete!)
-
-          space.apps.each do |app|
-            puts "      Deleting app #{app.name}..."
-            app.delete!
-            puts "      OK"
-          end
-
-          space.service_instances.each do |svc|
-            puts "      Deleting service instance #{svc.name}..."
-            svc.delete!
-            puts "      OK"
-          end
-
-          space.delete!
-          puts "    OK"
-        end
-
-        puts "  OK"
-      end
-
-      org.delete!
-
-      puts "OK"
-    rescue CFoundry::APIError
-      puts "FAILED"
-      next
-    end
+    puts "FAILED"
   end
 end
 

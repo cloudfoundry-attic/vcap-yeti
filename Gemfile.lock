@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/cloudfoundry/cfoundry.git
-  revision: b0ae70adc237871788c2f3ae1df4e12a45177a9a
+  revision: 93effc6b5e0b4dea4ce2206862d4339262fb85e5
   submodules: true
   specs:
-    cfoundry (0.7.0.rc8)
+    cfoundry (0.7.0.rc10)
       cf-uaa-lib (~> 1.3.10)
       multi_json (~> 1.3)
       multipart-post (~> 1.1)
