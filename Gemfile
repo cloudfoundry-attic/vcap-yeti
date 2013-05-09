@@ -20,6 +20,5 @@ group :vcap do
     :submodules => true,
   }
 
-  gem "tunnel-cf-plugin", :github => "cloudfoundry/tunnel-cf-plugin"
-  gem "console-cf-plugin", :github => "cloudfoundry/console-cf-plugin"
+  gem "cf", :github => "cloudfoundry/cf"
 end

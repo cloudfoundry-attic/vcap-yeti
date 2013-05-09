@@ -642,6 +642,10 @@ module BVT::Harness
       @app.stream_update_log(url, &blk)
     end
 
+    def events
+      @app.events
+    end
+
     def get_file(path, headers = {})
       url = "#{@session.TARGET}/v2/apps/#{@app.guid}/instances/0/files/#{path}"
       hdrs = headers.merge("AUTHORIZATION" => @session.token.auth_header)

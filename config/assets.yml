@@ -439,3 +439,8 @@ oauth2_app:
   memory: 512
   path: "assets/sinatra/oauth2_app"
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
+
+memory_hog:
+  memory: 128
+  path: "assets/bad_apps/mem"
+  command: "bundle exec ruby memhog.rb"

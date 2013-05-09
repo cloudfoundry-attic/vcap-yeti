@@ -1,4 +1,4 @@
-require 'console-cf-plugin/console'
+require 'console/console'
 
 module BVT::Harness
   module ConsoleHelpers

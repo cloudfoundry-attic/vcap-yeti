@@ -106,4 +106,20 @@ describe "App lifecycle" do
       check_logs(app, "running for 20 secs")
     end
   end
+
+  describe "app that dies of memory overdose" do
+    with_app "memory_hog"
+
+    it "dies when we hit the evil endpoint" do
+      app.get("/evil").should =~ /502 Bad Gateway/
+    end
+
+    it "registers a crash event with description 'out of memory'" do
+      app.events.first.exit_description.should =~ /out of memory/i
+    end
+
+    it "has an exit status that means something" do
+      [-1, nil].should_not include(app.events.first.exit_status)
+    end
+  end
 end
