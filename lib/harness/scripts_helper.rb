@@ -17,7 +17,7 @@ module BVT::Harness
             Service:
               #{service_manifest[:vendor]}
               #{service_manifest[:version]}
-            is not available on target: #{@session.TARGET}
+            is not available on target: #{@session.api_endpoint}
           MSG
 
           @session.log.debug(msg)

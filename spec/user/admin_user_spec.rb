@@ -25,7 +25,7 @@ describe "Users::AdminUser" do
     # login as created user
     test_session = BVT::Harness::CFSession.new(:email => test_user.email,
                                                :passwd => test_user.passwd,
-                                               :target => @admin_session.TARGET)
+                                               :api_endpoint => @admin_session.api_endpoint)
 
     # change passwd
     test_user = test_session.user(test_session.email, :require_namespace => false)
@@ -35,6 +35,6 @@ describe "Users::AdminUser" do
     # login as new passwd
     test_session = BVT::Harness::CFSession.new(:email => test_user.email,
                                                :passwd => new_passwd,
-                                               :target => @admin_session.TARGET)
+                                               :api_endpoint => @admin_session.api_endpoint)
   end
 end

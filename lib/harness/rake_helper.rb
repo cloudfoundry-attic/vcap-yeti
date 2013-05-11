@@ -12,7 +12,7 @@ module BVT::Harness
 
       Dir.mkdir(VCAP_BVT_HOME) unless Dir.exists?(VCAP_BVT_HOME)
 
-      get_target
+      get_api_endpoint
       check_target
 
       parallel_users = get_parallel_users(true)
@@ -33,22 +33,22 @@ module BVT::Harness
       client = BVT::Harness::CFSession.new(
         :email => user['email'],
         :passwd => user['passwd'],
-        :target => @config['target']
+        :api_endpoint => @config['api_endpoint']
       )
 
       profile = {}
       profile[:services] = client.system_services
       profile[:script_hash] = get_script_git_hash
 
-      target_without_http = @config['target'].split('//')[-1]
+      api_without_http = @config['api_endpoint'].split('//')[-1]
       $vcap_bvt_profile_file ||=
         File.join(BVT::Harness::VCAP_BVT_HOME,
-                  "profile.#{target_without_http}.yml")
+                  "profile.#{api_without_http}.yml")
       File.open($vcap_bvt_profile_file, "w") { |f| f.write YAML.dump(profile) }
     end
 
     def check_target
-      url = "#{@config['target']}/info"
+      url = "#{@config['api_endpoint']}/info"
 
       begin
         r = RestClient.get(url)
@@ -78,12 +78,12 @@ module BVT::Harness
 
       # since multi-target information is stored in one config file,
       # so usually get_config method just initiate @config, and @multi_target_config
-      # however, once user set environment variable VCAP_BVT_TARGET,
+      # however, once user set environment variable VCAP_BVT_API_ENDPOINT,
       # get_config method should return specific target information
-      if ENV['VCAP_BVT_TARGET']
-        target = format_target(ENV['VCAP_BVT_TARGET'])
+      if ENV['VCAP_BVT_API_ENDPOINT']
+        api_endpoint = format_target(ENV['VCAP_BVT_API_ENDPOINT'])
         @multi_target_config.keys.each do |key|
-          if target.include? key
+          if api_endpoint.include? key
             @config = @multi_target_config[key]
             break
           end
@@ -99,9 +99,9 @@ module BVT::Harness
       @config['admin'].delete('passwd') if @config['admin']
 
       ## remove http(s) from target
-      @config['target'] = @config['target'].split('//')[-1]
+      @config['api_endpoint'] = @config['api_endpoint'].split('//')[-1]
 
-      @multi_target_config[@config['target']] = @config
+      @multi_target_config[@config['api_endpoint']] = @config
 
       File.open(VCAP_BVT_CONFIG_FILE, "w") do |f|
         f.write YAML.dump(@multi_target_config)
@@ -110,18 +110,18 @@ module BVT::Harness
       puts "Wrote config to #{VCAP_BVT_CONFIG_FILE}"
     end
 
-    def get_target
-      target = require_env!("VCAP_BVT_TARGET")
-      target = format_target(target)
+    def get_api_endpoint
+      api_endpoint = require_env!("VCAP_BVT_API_ENDPOINT")
+      api_endpoint = format_target(api_endpoint)
 
       @multi_target_config ||= {}
-      @multi_target_config[target] ||= {}
+      @multi_target_config[api_endpoint] ||= {}
 
-      @config = @multi_target_config[target]
-      ENV['VCAP_BVT_TARGET'] = target
+      @config = @multi_target_config[api_endpoint]
+      ENV['VCAP_BVT_API_ENDPOINT'] = api_endpoint
 
       get_config
-      @config['target'] = target
+      @config['api_endpoint'] = api_endpoint
     end
 
     def get_admin_user
@@ -155,7 +155,7 @@ module BVT::Harness
       get_admin_user_passwd
 
       user_creator = CCNGUserHelper.new(
-        @config["target"],
+        @config["api_endpoint"],
         @config["admin"]["email"],
         @config["admin"]["passwd"],
       )
@@ -164,7 +164,7 @@ module BVT::Harness
       puts " ('#{user_creator.target}' with '#{user_creator.admin_user}'):"
 
       namespace = SecureRandom.uuid.gsub("-", "")
-      passwd = "password"
+      passwd = "longstrong9064r5passwork"
       @config["parallel"] = []
 
       (1..user_number).to_a.each do |index|
@@ -275,7 +275,7 @@ module BVT::Harness
       BVT::Harness::CFSession.new(
         :email => user['email'],
         :passwd => user['passwd'],
-        :target => @config['target']
+        :api_endpoint => @config['api_endpoint']
       )
       true
     rescue => e

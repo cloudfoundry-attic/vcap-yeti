@@ -7,7 +7,7 @@ include BVT::Spec
 describe "User::UAA" do
 
   before(:all) do
-    target_domain = BVT::Harness::RakeHelper.get_target.split(".", 2).last
+    target_domain = BVT::Harness::RakeHelper.get_api_endpoint.split(".", 2).last
     @uaabase = ENV['VCAP_BVT_UAA_BASE'] || "uaa.#{target_domain}"
     @loginbase = ENV['VCAP_BVT_LOGIN_BASE'] || @uaabase
     @uaahelper = UaaHelper.instance

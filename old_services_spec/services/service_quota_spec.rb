@@ -21,7 +21,7 @@ describe "ServiceQuota" do
       end
     end
     pending "service doesn't has this plan for quota testing" unless service && service_quota[service]
-    if @session.TARGET =~ /\.vcap\.me$/
+    if @session.api_endpoint =~ /\.vcap\.me$/
       pending "service quota cases are not available in dev setup env"
     end
   end

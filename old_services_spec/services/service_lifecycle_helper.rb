@@ -15,7 +15,7 @@ module BVT::Spec
   end
 
   def get_snapshots(service_id)
-    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots"
+    url = "#{@session.api_endpoint}/services/v1/configurations/#{service_id}/snapshots"
     begin
       r = RestClient.get(url, auth_headers)
     rescue RestClient::Exception => e
@@ -32,7 +32,7 @@ module BVT::Spec
   end
 
   def get_serialized_url(service_id, snapshot_id)
-    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}"
+    url = "#{@session.api_endpoint}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}"
     begin
       r = RestClient.get(url, auth_headers)
     rescue RestClient::Exception => e
@@ -64,7 +64,7 @@ module BVT::Spec
   end
 
   def import_service_from_url(service_id, serialized_url)
-    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url"
+    url = "#{@session.api_endpoint}/services/v1/configurations/#{service_id}/serialized/url"
     r = RestClient.put(url, {:url=>serialized_url}.to_json, auth_headers)
 
     resp = r.to_str
@@ -78,7 +78,7 @@ module BVT::Spec
   end
 
   def import_service_from_data(service_id, serialized_data)
-    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/data"
+    url = "#{@session.api_endpoint}/services/v1/configurations/#{service_id}/serialized/data"
     r = RestClient.put(url, {:data_file=>File.new(serialized_data.path)}, auth_headers)
 
     resp = r.to_str
@@ -106,7 +106,7 @@ module BVT::Spec
   end
 
   def create_serialized_url(service_id, snapshot_id)
-    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}"
+    url = "#{@session.api_endpoint}/services/v1/configurations/#{service_id}/serialized/url/snapshots/#{snapshot_id}"
     r = RestClient.post(url, '', auth_headers)
 
     r.code.should == 200
@@ -130,7 +130,7 @@ module BVT::Spec
   end
 
   def create_snapshot(service_id)
-    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots"
+    url = "#{@session.api_endpoint}/services/v1/configurations/#{service_id}/snapshots"
     r = RestClient.post(url, '', auth_headers)
 
     r.code.should == 200
@@ -141,7 +141,7 @@ module BVT::Spec
   end
 
   def get_snapshot(service_id, snapshot_id)
-    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
+    url = "#{@session.api_endpoint}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
     begin
       r = RestClient.get(url, auth_headers)
     rescue
@@ -158,7 +158,7 @@ module BVT::Spec
   end
 
   def rollback_snapshot(service_id, snapshot_id)
-    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
+    url = "#{@session.api_endpoint}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
     r = RestClient.put(url, '', auth_headers)
 
     r.code.should == 200
@@ -171,7 +171,7 @@ module BVT::Spec
   end
 
   def delete_snapshot(service_id, snapshot_id)
-    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
+    url = "#{@session.api_endpoint}/services/v1/configurations/#{service_id}/snapshots/#{snapshot_id}"
     r = RestClient.delete(url, auth_headers)
 
     r.code.should == 200
@@ -199,7 +199,7 @@ module BVT::Spec
   end
 
   def get_job(service_id, job_id)
-    url = "#{@session.TARGET}/services/v1/configurations/#{service_id}/jobs/#{job_id}"
+    url = "#{@session.api_endpoint}/services/v1/configurations/#{service_id}/jobs/#{job_id}"
     r = RestClient.get(url, auth_headers)
 
     resp = r.to_str

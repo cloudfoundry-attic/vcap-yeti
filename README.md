@@ -11,7 +11,7 @@ Don't forget to pull in all submodules.
 
 Tests require several environment variables to be set:
 
-    export VCAP_BVT_TARGET="http://api.example.com"
+    export VCAP_BVT_API_ENDPOINT="http://api.example.com"
 
     export VCAP_BVT_USER="non-admin-user@example.com"
     export VCAP_BVT_USER_PASSWD="non-admin-password"
@@ -30,7 +30,7 @@ and after that tests will just use first parallel user.
 
 Tests require several environment variables to be set:
 
-    export VCAP_BVT_TARGET="http://api.example.com"
+    export VCAP_BVT_API_ENDPOINT="http://api.example.com"
     export VCAP_BVT_UAA_CC_SECRET="some-secret"
 
     export VCAP_BVT_ADMIN_USER="admin-user@example.com"

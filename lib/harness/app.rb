@@ -192,8 +192,7 @@ module BVT::Harness
         if @session.v2?
           host, domain_name = simple.split(".", 2)
 
-          domain =
-            @session.current_space.domain_by_name(domain_name, :depth => 0)
+          domain = @session.current_space.domain_by_name(domain_name, :depth => 0)
 
           unless domain
             @log.error("Invalid domain '#{domain_name}, please check your input url: #{url}")
@@ -515,7 +514,7 @@ module BVT::Harness
       # '_' is not a valid character for hostname according to RFC 822,
       # use '-' to replace it.
       second_domain = "-#{second_domain}" if second_domain
-      "#{@name}#{second_domain}.#{@session.TARGET.gsub(/http[s]?:\/\/\w+\./, "")}".gsub("_", "-")
+      "#{@name.gsub("_", "-")}#{second_domain}.#{@session.get_target_domain}"
     end
 
     def check_application
@@ -647,7 +646,7 @@ module BVT::Harness
     end
 
     def get_file(path, headers = {})
-      url = "#{@session.TARGET}/v2/apps/#{@app.guid}/instances/0/files/#{path}"
+      url = "#{@session.api_endpoint}/v2/apps/#{@app.guid}/instances/0/files/#{path}"
       hdrs = headers.merge("AUTHORIZATION" => @session.token.auth_header)
       RestClient.get(url, hdrs)
     end

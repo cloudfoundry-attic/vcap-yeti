@@ -68,7 +68,7 @@ describe "Canonical::JavaSpring" do
     app_name.should == app.name
     provider_url = app.get_response(:get, "/properties/sources/property/cloud"+
                                           ".provider.url").to_str
-    provider_url.should == @session.TARGET.split('.', 2)[-1]
+    provider_url.should == @session.api_endpoint.split('.', 2)[-1]
 
     redis_service = bind_service(REDIS_MANIFEST, app)
     type = app.get_response(:get, "/properties/sources/property/cloud."+

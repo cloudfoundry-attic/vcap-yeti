@@ -5,7 +5,7 @@ describe "User::NormalUser" do
 
   before(:each) do
     @session = BVT::Harness::CFSession.new
-    @session.token.should_not be(nil), "cannot login target environment, #{@session.TARGET}"
+    @session.token.should_not be(nil), "cannot login target environment, #{@session.api_endpoint}"
   end
 
   it "check JWT token" do

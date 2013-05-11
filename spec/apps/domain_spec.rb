@@ -134,10 +134,7 @@ describe "Simple::Domain" do
 
     #list domains of this space
     domains = space.domains
-    domains_list = [ ]
-    domains.each{ |s|
-      domains_list = domains_list + [ s.name ]
-    }
+    domains_list = domains.collect(&:name)
 
     #check if domains of this space are list correctly
     domains_list.sort!

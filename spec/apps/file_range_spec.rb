@@ -7,7 +7,7 @@ describe "Simple::FileRange" do
   before(:all) do
     @session = BVT::Harness::CFSession.new
 
-    if @session.TARGET =~ /\.vcap\.me$/
+    if @session.api_endpoint =~ /\.vcap\.me$/
       pending("File range content feature is only available on multi-node cloud foundry environment," +
                   " is not available on dev_setup")
     end

@@ -4,7 +4,7 @@ require "harness/rake_helper"
 
 module BVT::Harness
   class CFSession
-    attr_reader :log, :namespace, :TARGET, :email, :passwd, :token, :current_organization, :current_space,
+    attr_reader :log, :namespace, :api_endpoint, :email, :passwd, :token, :current_organization, :current_space,
                 :client
 
     def initialize(options = {})
@@ -13,10 +13,10 @@ module BVT::Harness
                  :passwd => nil,
                  :target => nil}.merge(options)
 
-      if options[:target]
-        @TARGET = RakeHelper.format_target(options[:target])
+      if options[:api_endpoint]
+        @api_endpoint = RakeHelper.format_target(options[:api_endpoint])
       else
-        @TARGET = RakeHelper.get_target
+        @api_endpoint = RakeHelper.get_api_endpoint
       end
 
       @email = options[:email] ? options[:email] : get_login_email(options[:admin])
@@ -30,7 +30,7 @@ module BVT::Harness
         end
       end
 
-      LoggerHelper.set_logger(@TARGET)
+      LoggerHelper.set_logger(@api_endpoint)
 
       @log = get_logger
       @namespace = get_namespace
@@ -39,18 +39,18 @@ module BVT::Harness
     end
 
     def inspect
-      "#<BVT::Harness::CFSession '#@TARGET', '#@email'>"
+      "#<BVT::Harness::CFSession '#@api_endpoint', '#@email'>"
     end
 
     def login
-      @log.info("Login in, target: #{@TARGET}, email = #{@email}")
-      @client = CFoundry::Client.new(@TARGET)
+      @log.info("Login in, target: #{@api_endpoint}, email = #{@email}")
+      @client = CFoundry::Client.new(@api_endpoint)
       @client.trace = true if ENV['VCAP_BVT_TRACE']
       @client.log = []
       begin
         @token = @client.login(@email, @passwd)
       rescue Exception => e
-        @log.error "Fail to log in, target: #{@TARGET}, user: #{@email}\n#{e.to_s}"
+        @log.error "Fail to log in, target: #{@api_endpoint}, user: #{@email}\n#{e.to_s}"
         raise
       end
       # TBD - ABS: This is a hack around the 1 sec granularity of our token time stamp
@@ -62,12 +62,12 @@ module BVT::Harness
     end
 
     def logout
-      @log.debug "logout, target: #{@TARGET}, email = #{@email}"
+      @log.debug "logout, target: #{@api_endpoint}, email = #{@email}"
       @client = nil
     end
 
     def info
-      @log.debug "get target info, target: #{@TARGET}"
+      @log.debug "get target info, target: #{@api_endpoint}"
       @client.info
     end
 
@@ -77,7 +77,7 @@ module BVT::Harness
     end
 
     def system_services
-      @log.debug "get system services, target: #{@TARGET}"
+      @log.debug "get system services, target: #{@api_endpoint}"
       services = {}
 
       @client.services.each do |service|
@@ -214,7 +214,11 @@ module BVT::Harness
     end
 
     def get_target_domain
-      @TARGET.split(".", 2).last
+      if ENV['VCAP_BVT_APP_DOMAIN']
+        ENV['VCAP_BVT_APP_DOMAIN']
+      else
+        @api_endpoint.split(".", 2).last
+      end
     end
 
     # It will delete all services and apps belong to login token via client object
@@ -341,7 +345,7 @@ module BVT::Harness
       else
         # Currently cfoundry v2 can only check
         # if user is an admin if we logged in as admin
-        check_admin_client = CFoundry::Client.new(@TARGET)
+        check_admin_client = CFoundry::Client.new(@api_endpoint)
         check_admin_client.login(email, passwd)
         begin
           check_admin_client.current_user.admin?

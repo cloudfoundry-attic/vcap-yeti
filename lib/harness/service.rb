@@ -20,9 +20,9 @@ module BVT::Harness
     def create(service_manifest, check_available = true)
       if check_available && !available?(service_manifest)
         @log.error("Service: #{service_manifest[:vendor]} #{service_manifest[:version]} " +
-                       "is not available on target: #{@session.TARGET}")
+                       "is not available on target: #{@session.api_endpoint}")
         raise RuntimeError, "Service: #{service_manifest[:vendor]}" +
-            " #{service_manifest[:version]} is not available on target: #{@session.TARGET}"
+            " #{service_manifest[:version]} is not available on target: #{@session.api_endpoint}"
       end
 
       services = @session.client.services
