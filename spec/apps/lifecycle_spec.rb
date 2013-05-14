@@ -107,7 +107,7 @@ describe "App lifecycle" do
     end
   end
 
-  describe "app that dies of memory o verdose" do
+  describe "app that dies of memory overdose" do
     with_app "memory_hog"
 
     it "dies when we hit the evil endpoint" do

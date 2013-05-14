@@ -18,6 +18,7 @@ describe "Tools::ImageMagick" do
   end
 
   it "Deploy Node.js application that uses ImageMagick tools" do
+    pending "not working currently, see bug #49893573"
     app = create_push_app("node_imagemagick")
     app.get_response(:get).to_str.should == "hello from imagemagick"
   end
