@@ -24,7 +24,9 @@ run tests:
 
 Tip: If you do not want to set `VCAP_BVT_USER` and `VCAP_BVT_USER_PASSWD`
 you can run `rake prepare` (task used with parallel set up) once
-and after that tests will just use first parallel user.
+and after that tests will just use first parallel user. (You will have
+to set the VCAP_BVT_ADMIN_USER and VCAP_BVT_ADMIN_USER_PASSWD for this.
+See below.)
 
 ## Parallel
 
