@@ -18,8 +18,8 @@ describe "Mysql RDS Service" do
   end
 
   let(:service_plan) {"10mb"}
-  let(:service_info) {{:vendor=>"rds_mysql", :version=>"n/a", :plan => service_plan, :provider => "aws"}}
-  let(:provision_name) { "yoursql"}
+  let(:service_info) {{:vendor=>"rds-mysql", :version=>"n/a", :plan => service_plan, :provider => "aws"}}
+  let(:provision_name) { "yoursql" }
 
   it "allows users to provision, bind, and insert into a mysql instance to a certain data size" do
     service_instance = create_service(service_info, provision_name)
@@ -30,7 +30,7 @@ describe "Mysql RDS Service" do
 
     provisioned_service.name.should == provision_name
     provisioned_service.service_plan.name.should == service_plan
-    provisioned_service.service_plan.service.label.should == "rds_mysql"
+    provisioned_service.service_plan.service.label.should == "rds-mysql"
     provisioned_service.service_plan.service.provider.should == "aws"
     provisioned_service.service_plan.service.version.should == "n/a"
 
