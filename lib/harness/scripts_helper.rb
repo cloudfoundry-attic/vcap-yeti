@@ -12,18 +12,6 @@ module BVT::Harness
         require_namespace = name.nil?
         service = @session.service(service_name, require_namespace)
 
-        unless service.available?(service_manifest)
-          msg = <<-MSG
-            Service:
-              #{service_manifest[:vendor]}
-              #{service_manifest[:version]}
-            is not available on target: #{@session.api_endpoint}
-          MSG
-
-          @session.log.debug(msg)
-          pending(msg)
-        end
-
         service.create(service_manifest)
         service
       end

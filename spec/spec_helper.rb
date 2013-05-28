@@ -62,7 +62,6 @@ RSpec.configure do |config|
 
     $vcap_bvt_profile_file ||= profile_file
     profile = YAML.load_file($vcap_bvt_profile_file)
-    BVT::Harness::VCAP_BVT_SYSTEM_SERVICES = profile[:services]
   end
 
   config.before(:each) do

@@ -37,7 +37,6 @@ module BVT::Harness
       )
 
       profile = {}
-      profile[:services] = client.system_services
       profile[:script_hash] = get_script_git_hash
 
       api_without_http = @config['api_endpoint'].split('//')[-1]

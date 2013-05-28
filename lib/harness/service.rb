@@ -105,7 +105,7 @@ module BVT::Harness
     def available?(service_manifest)
       match = false
 
-      VCAP_BVT_SYSTEM_SERVICES.each do |name, providers|
+      @session.system_services.each do |name, providers|
         next unless name =~ /#{service_manifest[:vendor]}/
 
         # if :provider is not set, 'core' is default value
