@@ -37,17 +37,14 @@ module BVT::Harness
         apps = @space.apps
         instances = @space.service_instances
 
-        if force == true
-          apps.each{ |app| app.delete! } unless apps.empty?
-          instances.each{ |instance| instance.delete! } unless instances.empty?
-        elsif !apps.empty? || !instances.empty?
+        if !force && (!apps.empty? || !instances.empty?)
           @log.error("Fail to delete space (#{@space.name})")
           raise RuntimeError, "Fail to delete space ( #{@space.name} )" +
               "\nSpace ( #{@space.name} ) is not empty!"
         end
 
         begin
-          @space.delete!
+          force ? @space.delete!(:recursive => true) : @space.delete!
         rescue Exception => e
           @log.error("Fail to delete space ( #{@space.name} )" )
           raise
