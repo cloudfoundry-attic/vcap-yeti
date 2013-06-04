@@ -17,8 +17,8 @@ describe "Marketplace gateway Service" do
     @session.cleanup!
   end
 
-  let(:service_from_appdirect) { 'dummy' }
-  let(:provider_from_appdirect) { 'dummy' }
+  let(:service_from_appdirect) { 'mongolab-dev' }
+  let(:provider_from_appdirect) { 'mongolab' }
 
   it "allows user to see services from the marketplace gateway" do
     all_services = @session.system_services
