@@ -19,7 +19,7 @@ describe "Simple::Java" do
     contents.should_not == nil
 
     response = app.logs
-    response.should =~ /Java version: 1.6/
+    response.should =~ /Java version: 1.7/
     response.should include '-Xms512m'
     response.should include '-Djava.io.tmpdir=appdir/tmp'
   end
