@@ -526,7 +526,7 @@ module BVT::Harness
         sleep 1
         seconds += 1
 
-        if seconds == VCAP_BVT_APP_ASSETS['timeout_secs']
+        if seconds > VCAP_BVT_APP_ASSETS['timeout_secs']
           @log.error \
             "Application: #{@app.name} cannot be started " +
             "in #{VCAP_BVT_APP_ASSETS['timeout_secs']} seconds"
@@ -557,7 +557,7 @@ module BVT::Harness
     rescue CFoundry::APIError => e
       if e.error_code != 170002
         @log.error("App failed to stage: #{e.inspect}")
-        return false
+        raise
       end
 
       # Still pending, i.e. downloading the staged app to CC. The app will start "starting" soon
