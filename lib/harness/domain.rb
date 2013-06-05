@@ -23,6 +23,7 @@ module BVT::Harness
       @log.info("Create Domain ( #{@domain.name} ) in organization ( #{org.name} )")
       begin
         @domain.create!
+        @session.test_domains << @domain
         @domain
       rescue Exception => e
         @log.error("Fail to create domain (#{@domain.name} ) " +
@@ -71,6 +72,7 @@ module BVT::Harness
 
         begin
           @domain.delete!
+          @session.test_domains.delete(@domain)
         rescue Exception => e
           @log.error("Fail to delete domain ( #{@domain.name} )" )
           raise

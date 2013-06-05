@@ -5,7 +5,7 @@ require "harness/rake_helper"
 module BVT::Harness
   class CFSession
     attr_reader :log, :namespace, :api_endpoint, :email, :passwd, :token, :current_organization, :current_space,
-                :client
+                :client, :test_domains
 
     def initialize(options = {})
       options = {:admin => false,
@@ -29,6 +29,8 @@ module BVT::Harness
             " user with admin privileges"
         end
       end
+
+      @test_domains = []
 
       LoggerHelper.set_logger(@api_endpoint)
 

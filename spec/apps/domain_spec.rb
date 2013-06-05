@@ -16,6 +16,7 @@ describe "Simple::Domain" do
   end
 
   after do
+    @session.test_domains.each { |domain| domain.delete }
     @session.select_org_and_space("", @original_space.name)
   end
 
