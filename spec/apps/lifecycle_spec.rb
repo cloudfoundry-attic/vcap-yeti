@@ -7,11 +7,9 @@ describe "App lifecycle" do
   before(:all) { @session = BVT::Harness::CFSession.new }
 
   describe "app serving web requests" do
-    after(:each) do
-      @session.cleanup!
-    end
+    after { @session.cleanup! }
 
-    it "create/start/stop/delete application" do
+    it "create/start/edit/stop/delete application" do
       # create app
       app = create_push_app("simple_app2")
       app.should_not == nil
@@ -23,16 +21,34 @@ describe "App lifecycle" do
 
       # redeploy app
       app.push(nil, "modified_simple_app2")
-      wait { app.get("/").should =~ /Hello from modified/ }
+      app_up?(app)
+
+      # edit
+      app.total_instances = 0
+      app.update!(:restart => false)
+      app.env = {"some_env" => "true"}
+      app.update!(:restart => false)
+      app_down?(app)
+      app.scale(1)
+      app_up?(app)
 
       # stop app
       app.stop
-      wait { app.get("/").should =~ /404 Not Found/ }
+      app_down?(app)
 
       # delete app
       len = @session.apps.length
       app.delete
       @session.apps.length.should == len - 1
+      app_down?(app)
+    end
+
+    def app_up?(app)
+      wait { app.get("/").should =~ /Hello from modified/ }
+    end
+
+    def app_down?(app)
+      wait { app.get_response(:get, "/").code.should eq 404 }
     end
   end
 

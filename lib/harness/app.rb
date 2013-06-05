@@ -53,11 +53,12 @@ module BVT::Harness
       end
     end
 
-    def update!
-      @log.info("Update App: #{@app.name}")
+    def update!(opts = {})
+      {:restart => true}.merge(opts)
+      @log.info("Update App: #{@app.name}, restart: #{opts[:restart]}")
       begin
         @app.update!
-        restart
+        restart if opts[:restart]
       rescue Exception => e
         @log.error "Update App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
         raise
@@ -292,7 +293,7 @@ module BVT::Harness
       end
     end
 
-    def scale(instance, memory)
+    def scale(instance, memory = nil)
       unless @app.exists?
         @log.error "Application: #{@app.name} does not exist!"
         raise RuntimeError, "Application: #{@app.name} does not exist!"
@@ -301,7 +302,7 @@ module BVT::Harness
         @log.info("Update the instances/memory: #{instance}/#{memory} " +
                       "for Application: #{@app.name}")
         @app.total_instances = instance.to_i
-        @app.memory = memory
+        @app.memory = memory if memory
         @app.update!
       rescue
         @log.error("Fail to Update the instances/memory limit for " +

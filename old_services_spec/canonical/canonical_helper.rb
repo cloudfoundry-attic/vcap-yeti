@@ -21,8 +21,7 @@ module BVT::Spec
     end
 
     def add_env(app, key, value)
-      env = {"#{key}"=>"#{value}"}
-      app.env = env
+      app.env = {"#{key}"=>"#{value}"}
       app.update!
     end
   end
