@@ -444,3 +444,7 @@ memory_hog:
   memory: 128
   path: "assets/bad_apps/mem"
   command: "bundle exec ruby memhog.rb"
+
+connect_to_ip:
+  memory: 128
+  path: "assets/sinatra/connect_to_ip"
