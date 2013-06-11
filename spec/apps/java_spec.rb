@@ -20,8 +20,6 @@ describe "Simple::Java" do
 
     response = app.logs
     response.should =~ /Java version: 1.7/
-    response.should include '-Xms512m'
-    response.should include '-Djava.io.tmpdir=appdir/tmp'
   end
 
 end
