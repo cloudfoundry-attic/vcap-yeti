@@ -98,8 +98,6 @@ module BVT::Harness
         timeout_retries_remaining = 5
 
         begin
-          log = ""
-
           @app.start!(true) do |url|
             puts "Pushing #{@app.name} - #{url}"
 
@@ -107,7 +105,7 @@ module BVT::Harness
               blk.call(url)
             elsif url
               @app.stream_update_log(url) do |chunk|
-                log << chunk
+                puts "       STAGE LOG => #{chunk}"
               end
             end
           end
@@ -127,7 +125,6 @@ module BVT::Harness
             Start App: #{@app.name} failed.
             #{e.inspect}
             #{@session.print_client_logs}
-            #{log}
           MSG
           @log.error(msg)
           raise
@@ -554,7 +551,9 @@ module BVT::Harness
     def instances_are_all_running?
       not_staged_retry = 0
       instances = @app.instances
-      instances.map(&:state).uniq == ["RUNNING"]
+      states = instances.map(&:state)
+      puts "       CHECKING LOG => #{states}"
+      states.uniq == ["RUNNING"]
     rescue CFoundry::APIError => e
       if e.error_code != 170002
         @log.error("App failed to stage: #{e.inspect}")
