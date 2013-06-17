@@ -582,14 +582,12 @@ module BVT::Harness
         end
 
         begin
-          app.update!
+          app.update! # Restarts an app
         rescue Exception => e
           @log.error("Fail to update Application: #{app.name}\n#{e.inspect}")
           raise
         end
       end
-
-      restart
     end
 
     def create_app(name, path, services, need_check)
