@@ -448,3 +448,7 @@ memory_hog:
 connect_to_ip:
   memory: 128
   path: "assets/sinatra/connect_to_ip"
+
+large_file:
+  memory: 128
+  path: "assets/sinatra/large_file_app"
