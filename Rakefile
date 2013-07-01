@@ -4,7 +4,7 @@ require "harness"
 include BVT::Harness
 
 desc "Prepare for running parallel specs"
-task :prepare => ["assets:sync", "users:create"]
+task :prepare => ["users:create"]
 
 namespace :users do
   desc "Create 16 non-admin users (saved to #{VCAP_BVT_CONFIG_FILE})"
@@ -26,13 +26,5 @@ namespace :config do
     require 'fileutils'
     puts "Removing #{VCAP_BVT_CONFIG_FILE}"
     FileUtils.rm_rf(VCAP_BVT_CONFIG_FILE)
-  end
-end
-
-namespace :assets do
-  desc "Sync yeti assets binaries"
-  task :sync do
-    require "harness/assets"
-    BVT::Harness::Assets.new.sync
   end
 end

@@ -59,12 +59,3 @@ for more information.
 # Debugging Tips
 
 - `VCAP_BVT_TRACE=1` turns on tracing of cfoundry calls
-
-# Assets
-
-Binary assets are stored in `http://blobs.cloudfoundry.com` which is a
-simple Sinatra application with blob service backend hosted on CloudFoundry.
-These assets are then synchronized via `rake assets:sync` into the
-`.assets-binaries` directory.
-
-Refer to [asset docs](docs/how-to-build-assets.md) for more information.

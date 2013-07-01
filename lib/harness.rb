@@ -26,7 +26,6 @@ module BVT
                                                    "../.assets-binaries")
     VCAP_BVT_ASSETS_PACKAGES_MANIFEST =  File.join(VCAP_BVT_ASSETS_PACKAGES_HOME,
                                                    "packages.yml")
-    VCAP_BVT_ASSETS_STORE_URL         =  "http://blobs.cloudfoundry.com"
 
     ## parallel
     VCAP_BVT_PARALLEL_MAX_USERS  = 16
