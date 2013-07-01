@@ -9,7 +9,6 @@ module Tools
                                                 "../../.assets-binaries")
   VCAP_BVT_ASSETS_PACKAGES_MANIFEST = File.join(VCAP_BVT_ASSETS_PACKAGES_HOME,
                                                 "packages.yml")
-  VCAP_BVT_ASSETS_STORE_URL         = "http://bolbs.cloudfoundry.com"
 end
 
 require "assets_helper"
