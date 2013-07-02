@@ -2,8 +2,6 @@
 \#*\#
 .#*
 *~
-tools/.build
-tools/play-*
 vendor/
 !vendor/cache/vcap_logging-1.0.0.gem
 .bundle/

@@ -13,7 +13,7 @@ describe "Tools::ImageMagick" do
   end
 
   it "Deploy Java 6 Spring application that uses ImageMagick tools" do
-    app = create_push_app("spring_imagemagick_java6")
+    app = create_push_app("spring_imagemagick")
     app.get_response(:get).to_str.should == "hello from imagemagick"
   end
 

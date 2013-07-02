@@ -31,7 +31,7 @@ module BVT::Harness
         app = @session.app(app_name, prefix, domain)
         app.load_manifest
         if app.manifest['path'].end_with?('.jar') || app.manifest['path'].end_with?('.war')
-          pending "Package not found, please run update.sh" unless File.exist? app.manifest['path']
+          fail "Package not found, please run rake build_test_apps" unless File.exist? app.manifest['path']
         end
         @current_app = app
         app

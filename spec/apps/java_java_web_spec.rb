@@ -15,7 +15,7 @@ describe "Simple::JavaJavaWeb" do
 
   it "get application list" do
     app1 = create_push_app("simple_app2")
-    app2 = create_push_app("tiny_java_app")
+    app2 = create_push_app("java_tiny_app")
 
     app_list = @session.apps
     app_list.each { |app|
@@ -24,7 +24,7 @@ describe "Simple::JavaJavaWeb" do
   end
 
   it "start java app with startup delay" do
-    app = create_push_app("java_app_with_startup_delay")
+    app = create_push_app("app_with_startup_delay")
 
     contents = app.get_response(:get)
     contents.should_not == nil

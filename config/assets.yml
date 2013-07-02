@@ -37,7 +37,7 @@ memcached_app:
   path: "assets/sinatra/memcached_app"
   command: "bundle exec ruby memcached.rb -p $VCAP_APP_PORT"
 
-tiny_java_app:
+java_tiny_app:
   instances: 1
   memory: 512
   path: ".assets-binaries/java_tiny_app.war"
@@ -117,15 +117,6 @@ broken_gem_app:
   path: "assets/sinatra/broken_gem_app"
   command: "bundle exec ruby main.rb -p $VCAP_APP_PORT"
 
-jpa_app:
-  memory: 512
-  path: ".assets-binaries/jpa-guestbook.war"
-
-hibernate_app:
-  instances: 1
-  memory: 512
-  path: ".assets-binaries/hibernate-guestbook.war"
-
 dbrails_app:
   memory: 512
   path: "assets/rails3/dbrails_app"
@@ -134,22 +125,6 @@ dbrails_app:
 dbrails_broken_app:
   memory: 512
   path: "assets/rails3/dbrails_broken_app"
-
-grails_app:
-  memory: 512
-  path: ".assets-binaries/guestbook.war"
-
-roo_app:
-  memory: 512
-  path: ".assets-binaries/roo-guestbook.war"
-
-simple-lift-app:
-  memory: 512
-  path: ".assets-binaries/hello_lift.war"
-
-lift-db-app:
-  memory: 512
-  path: ".assets-binaries/lift-db-app.war"
 
 tomcat-version-check-app:
   memory: 512
@@ -270,11 +245,6 @@ node_git_modules:
   path: "assets/node/node_git"
   command: "node app.js"
 
-app_spring_service:
-  instances: 1
-  memory: 512
-  path: ".assets-binaries/app_spring_service.war"
-
 my_test_app_env_test_app:
   memory: 512
   path: "assets/sinatra/hello_vcap"
@@ -284,18 +254,6 @@ neo4j_app:
   memory: 512
   path: "assets/sinatra/neo4j_app"
   command: "bundle exec ruby neo4j.rb -p $VCAP_APP_PORT"
-
-spring-env-app:
-  memory: 512
-  path: ".assets-binaries/spring-env.war"
-
-auto-reconfig-test-app:
-  memory: 512
-  path: ".assets-binaries/auto-reconfig-test-app.war"
-
-auto-reconfig-missing-deps-test-app:
-  memory: 512
-  path: ".assets-binaries/auto-reconfig-missing-deps-test-app.war"
 
 atmos_app:
   memory: 512
@@ -312,7 +270,7 @@ brokered_service_app:
   path: "assets/sinatra/brokered_service_app"
   command: "bundle exec ruby server.rb -p $VCAP_APP_PORT"
 
-java_app_with_startup_delay:
+app_with_startup_delay:
   instances: 1
   memory: 512
   path: ".assets-binaries/app_with_startup_delay.war"
@@ -342,12 +300,6 @@ standalone_simple_ruby_app:
   path: "assets/standalone/simple_ruby_app"
   no_url: true
 
-standalone_java_app:
-  command: "bin/hello-cloud"
-  memory: 512
-  path: ".assets-binaries/java_app.zip"
-  no_url: true
-
 standalone_node_app:
   command: "node app.js"
   memory: 512
@@ -357,59 +309,6 @@ standalone_ruby18_autoconfig:
   command: "bundle exec ruby app.rb -p $VCAP_APP_PORT"
   memory: 512
   path: "assets/standalone/ruby_autoconfig"
-
-play_computer_database_autoconfig_disabled_app_20:
-  memory: 512
-  path: ".assets-binaries/computer_database_autoconfig_disabled.zip"
-
-play_computer_database_cf_by_name_app_20:
-  memory: 512
-  path: ".assets-binaries/computer_database_cf_by_name.zip"
-
-play_computer_database_cf_by_type_app_20:
-  memory: 512
-  path: ".assets-binaries/computer_database_cf_by_type.zip"
-
-play_computer_database_jpa_mysql_app_20:
-  memory: 512
-  path: ".assets-binaries/computer_database_jpa_mysql.zip"
-
-play_computer_database_jpa_app_21:
-  memory: 512
-  path: ".assets-binaries/computer_database_jpa-2.1.zip"
-
-play_computer_database_multi_dbs_app_20:
-  memory: 512
-  path: ".assets-binaries/computer_database_multi_dbs.zip"
-
-play_computer_database_scala_app_20:
-  memory: 512
-  path: ".assets-binaries/computer_database_scala.zip"
-
-play_todolist_app_20:
-  memory: 512
-  path: ".assets-binaries/todolist.zip"
-
-play_todolist_with_cfruntime_app_21:
-  memory: 512
-  path: ".assets-binaries/todolist_with_cfruntime-2.1.zip"
-
-play_zentasks_cf_by_name_app_20:
-  memory: 512
-  path: ".assets-binaries/zentasks_cf_by_name.zip"
-
-play_zentasks_cf_by_type_app_21:
-  memory: 512
-  path: ".assets-binaries/zentasks_cf_by_type-2.1.zip"
-
-auto-reconfig-annotation-app:
-  memory: 512
-  path: ".assets-binaries/auto-reconfig-annotation-app.war"
-
-javaee-namespace-app:
-  startup: "thin start"
-  memory: 512
-  path: ".assets-binaries/javaee-namespace-app.war"
 
 sinatra_imagemagick:
   memory: 512
@@ -421,7 +320,7 @@ node_imagemagick:
   path: "assets/node/node_imagemagick"
   command: "node app.js"
 
-spring_imagemagick_java6:
+spring_imagemagick:
   memory: 512
   path: ".assets-binaries/spring_imagemagick.war"
 

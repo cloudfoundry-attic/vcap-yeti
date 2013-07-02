@@ -59,16 +59,16 @@ describe "Simple::Info" do
 
   it "list applications" do
     app = create_push_app("simple_app2")
-    app2 = create_push_app("tiny_java_app")
+    app2 = create_push_app("java_tiny_app")
 
     apps = @session.apps
     apps.should_not == nil
 
     simple_app = get_app_info(apps, app.name)
-    tiny_java_app = get_app_info(apps, app2.name)
+    java_tiny_app = get_app_info(apps, app2.name)
 
     simple_app.should_not == nil
-    tiny_java_app.should_not == nil
+    java_tiny_app.should_not == nil
   end
 
   it "get crash information for an application" do
