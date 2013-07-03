@@ -77,8 +77,15 @@ describe "App lifecycle" do
         i.length.should == original_num_of_instances
       end
     end
+  end
 
-    it "is able to map/unmap a subdomain on the default domain" do
+  # Should be combined with 'basic app' tests above
+  # after DEA is fixed to not register instances
+  # that are about to be stopped.
+  describe "basic app (url mapping)" do
+    with_app "basic"
+
+    it "is able to map/unmap a route" do
       new_subdomain = "#{SecureRandom.hex}"
 
       app.map(app.get_url(new_subdomain))
