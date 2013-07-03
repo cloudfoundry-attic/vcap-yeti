@@ -13,16 +13,6 @@ describe "Simple::JavaJavaWeb" do
     @session.cleanup!
   end
 
-  it "get application list" do
-    app1 = create_push_app("simple_app2")
-    app2 = create_push_app("java_tiny_app")
-
-    app_list = @session.apps
-    app_list.each { |app|
-      app.healthy?.should be_true, "Application #{app.name} is not running"
-    }
-  end
-
   it "start java app with startup delay" do
     app = create_push_app("app_with_startup_delay")
 
