@@ -48,50 +48,34 @@ module BVT::Harness
           plan = service_manifest[:plan]
         elsif ENV['VCAP_BVT_SERVICE_PLAN']
           plan = ENV['VCAP_BVT_SERVICE_PLAN']
-        elsif @session.v2?
-          plan = plans.first.name
         else
-          plan = "free"
+          plan = plans.first.name
         end
 
-        if @session.v2?
-          plans = plans.select { |p| p.name == plan }
-          if plans.size == 0
-            plan_names = plans.map(&:name).join(", ")
-            @log.error("can't find service plan #{plan}, supported plans: #{plan_names}")
-            raise RuntimeError, "can't find service plan #{plan}, supported plans: #{plan_names}"
-          end
-          plan = plans.first
-          @instance.service_plan = plan
-          @instance.space = @session.current_space
-          instance_info = "#{service.label} #{service.version} " +
-              "#{service.provider}"
-        else
-          @instance.type = service.type
-          @instance.vendor = service.label
-          @instance.version = service.version
-          @instance.tier = plan
-          instance_info = "#{@instance.vendor} #{@instance.version} #{@instance.tier}"
+        plans = plans.select { |p| p.name == plan }
+        if plans.size == 0
+          plan_names = plans.map(&:name).join(", ")
+          @log.error("can't find service plan #{plan}, supported plans: #{plan_names}")
+          raise RuntimeError, "can't find service plan #{plan}, supported plans: #{plan_names}"
         end
+        plan = plans.first
+        @instance.service_plan = plan
+        @instance.space = @session.current_space
+        instance_info = "#{service.label} #{service.version} #{service.provider}"
 
         @log.info("Create Service (#{instance_info}): #{@instance.name}")
         @instance.create!
       rescue Exception => e
-        @log.error("Fail to create service (#{instance_info}):" +
-                       " #{@instance.name}\n#{e.to_s}")
+        @log.error("Fail to create service (#{instance_info}): #{@instance.name}\n#{e.to_s}")
         raise
       end
     end
 
     def delete
       if @instance.exists?
-        if @session.v2?
-          plan = @instance.service_plan
-          service = plan.service
-          instance_info = "#{service.label} #{service.version} #{plan.name} #{service.provider}"
-        else
-          instance_info = "#{@instance.vendor} #{@instance.version} #{@instance.tier}"
-        end
+        plan = @instance.service_plan
+        service = plan.service
+        instance_info = "#{service.label} #{service.version} #{plan.name} #{service.provider}"
         @log.info("Delete Service (#{instance_info}): #{@instance.name}")
         begin
           @instance.delete!
@@ -119,16 +103,12 @@ module BVT::Harness
         next unless version
 
         ###default service plan
-        #in v1, we don't need to verify plan infomation;
-        #in v2, use 'D100' as default
-        if @session.v2?
-          default_service_plan = "100"
-          service_manifest[:plan] ||= (ENV['VCAP_BVT_SERVICE_PLAN'] || default_service_plan)
-          plan = meta[:plans].find { |p|
-            p =~ /#{service_manifest[:plan]}/
-          }
-          next unless plan
-        end
+        default_service_plan = "100"
+        service_manifest[:plan] ||= (ENV['VCAP_BVT_SERVICE_PLAN'] || default_service_plan)
+        plan = meta[:plans].find { |p|
+          p =~ /#{service_manifest[:plan]}/
+        }
+        next unless plan
 
         match = true
         break

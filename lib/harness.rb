@@ -46,12 +46,8 @@ require "harness/ccng_user_helper"
 
 require "harness/console_helper"
 require "harness/cfconsole_monkey_patch"
-## support v2
 require "harness/space"
 require "harness/domain"
-
-## test ccng v1 API
-require "harness/ccng-v1-test-monkey-patch" if ENV['VCAP_BVT_CCNG_V1_TEST']
 
 ## exception handling in rest-client
 require "harness/restclient_monkey_patch"

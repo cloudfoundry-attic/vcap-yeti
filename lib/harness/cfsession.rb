@@ -37,7 +37,6 @@ module BVT::Harness
       @log = get_logger
       @namespace = get_namespace
       login
-      check_privilege(options[:admin]) unless v2?
     end
 
     def inspect
@@ -58,9 +57,7 @@ module BVT::Harness
       # TBD - ABS: This is a hack around the 1 sec granularity of our token time stamp
       sleep(1)
 
-      if v2?
-        select_org_and_space
-      end
+      select_org_and_space
     end
 
     def logout
@@ -91,7 +88,7 @@ module BVT::Harness
         end
         versions          << service.version.to_s unless versions.index(service.version.to_s)
         s[:provider]      = service.provider
-        s[:plans]         = service.service_plans.collect {|p| p.name } if v2?
+        s[:plans]         = service.service_plans.collect {|p| p.name }
         services[service.label] ||= {}
         services[service.label][service.provider] = s
         services[service.label][service.provider][:versions] = versions
@@ -147,27 +144,15 @@ module BVT::Harness
     end
 
     def organizations
-      if v2?
-        @client.organizations
-      else
-        raise RuntimeError, "not support in CCNG v1 API"
-      end
+      @client.organizations
     end
 
     def spaces
-      if v2?
-        @client.spaces.collect {|space| BVT::Harness::Space.new(space, self)}
-      else
-        raise RuntimeError, "not support in CCNG v1 API"
-      end
+      @client.spaces.collect {|space| BVT::Harness::Space.new(space, self)}
     end
 
     def domains
-      if v2?
-        @client.domains.collect {|domain| BVT::Harness::Domain.new(domain, self)}
-      else
-        raise RuntimeError, "not support in CCNG v1 API"
-      end
+      @client.domains.collect {|domain| BVT::Harness::Domain.new(domain, self)}
     end
 
     def space(name, require_namespace=true)
@@ -227,35 +212,22 @@ module BVT::Harness
     # mode: current -> delete app/service_instance in current space.
     # mode: all -> delete app/service_instance in each space
     def cleanup!(mode = "current")
-      if v2?
-        target_domain = get_target_domain
-        if mode == "all"
-          @client.spaces.each do |s|
-            s.service_instances.each { |service| service.delete! }
-            s.apps.each { |app| app.delete! }
-          end
-          @client.routes.each { |route| route.delete! }
-        elsif mode == "current"
-          # CCNG cannot delete service which binded to application
-          # therefore, remove application first
-          @client.current_organization = @current_organization
-          @client.current_space = @current_space
-          apps.each {|app| app.delete}
-          services.each {|service| service.delete}
-          @client.routes.each { |route| route.delete! }
+      target_domain = get_target_domain
+      if mode == "all"
+        @client.spaces.each do |s|
+          s.service_instances.each { |service| service.delete! }
+          s.apps.each { |app| app.delete! }
         end
-      else
-        apps.each { |app| app.delete }
-        services.each { |service| service.delete }
+        @client.routes.each { |route| route.delete! }
+      elsif mode == "current"
+        # CCNG cannot delete service which binded to application
+        # therefore, remove application first
+        @client.current_organization = @current_organization
+        @client.current_space = @current_space
+        apps.each {|app| app.delete}
+        services.each {|service| service.delete}
+        @client.routes.each { |route| route.delete! }
       end
-    end
-
-    def v1?
-      false
-    end
-
-    def v2?
-      true
     end
 
     def print_client_logs
@@ -319,10 +291,6 @@ module BVT::Harness
       end
     end
 
-    def no_v2
-      fail "not implemented for v2." if v2?
-    end
-
     def parse_log_line(item)
       date        = item[:response][:headers]["date"]
       time        = "%.6f" % item[:time].to_f
@@ -342,18 +310,12 @@ module BVT::Harness
     private
 
     def is_user_admin?(email, passwd)
-      if v1? && @client
-        @client.user(email).admin?
-      else
-        # Currently cfoundry v2 can only check
-        # if user is an admin if we logged in as admin
-        check_admin_client = CFoundry::Client.new(@api_endpoint)
-        check_admin_client.login(email, passwd)
-        begin
-          check_admin_client.current_user.admin?
-        rescue CFoundry::APIError
-          false
-        end
+      check_admin_client = CFoundry::Client.new(@api_endpoint)
+      check_admin_client.login(email, passwd)
+      begin
+        check_admin_client.current_user.admin?
+      rescue CFoundry::APIError
+        false
       end
     end
   end
