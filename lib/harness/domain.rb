@@ -26,8 +26,7 @@ module BVT::Harness
         @session.test_domains << @domain
         @domain
       rescue Exception => e
-        @log.error("Fail to create domain (#{@domain.name} ) " +
-                       "\n#{e.to_s}")
+        @log.error("Fail to create domain (#{@domain.name} ) \n#{e.to_s}")
         raise
       end
     end
@@ -40,30 +39,17 @@ module BVT::Harness
       begin
         space.add_domain(domain)
       rescue Exception => e
-        @log.error("Fail to add domain (#{domain} )" +
-                       "\n#{e.to_s}")
+        @log.error("Fail to add domain (#{domain} )\n#{e.to_s}")
         raise
       end
     end
 
     def check_domain_of_space
-      space = @session.current_space
-
-      domains = space.domains
-      match = false
-      domains.each{ |s|
-        match = true if s.name == @name
-      }
-      match
+      @session.current_space.domains.any? { |d| d.name == @name }
     end
 
     def check_domain_of_org
-      domains = @session.domains
-      match = false
-      domains.each{ |s|
-        match = true if s.name == @name
-      }
-      match
+      @session.domains.any? { |d| d.name == @name }
     end
 
     def delete
