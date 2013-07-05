@@ -7,7 +7,6 @@ describe "Simple::Space" do
 
   before do
     @session = BVT::Harness::CFSession.new
-    pending("cloud controller v1 API does not support org/space") unless @session.v2?
   end
 
   after do

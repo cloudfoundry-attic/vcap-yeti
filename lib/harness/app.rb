@@ -31,14 +31,12 @@ module BVT::Harness
     def delete
       @log.info("Delete App: #{@app.name}")
       begin
-        if @session.v2?
-          @app.routes.each do |r|
-            @log.debug("Delete route #{r.name} from app: #{@app.name}")
-            r.delete!
-          end
+        @app.routes.each do |r|
+          @log.debug("Delete route #{r.name} from app: #{@app.name}")
+          r.delete!
         end
         @app.delete! :recursive => true
-      rescue Exception => e
+      rescue Exception
         @log.error "Delete App: #{@app.name} failed. "
         raise
       end
@@ -47,7 +45,7 @@ module BVT::Harness
     def routes
       begin
         @app.routes
-      rescue Exception => e
+      rescue Exception
         @log.error "Get routes failed. App: #{@app.name}"
         raise
       end
@@ -187,34 +185,29 @@ module BVT::Harness
       @log.info("Map URL: #{url} to Application: #{@app.name}.")
       simple = url.sub(/^https?:\/\/(.*)\/?/i, '\1')
       begin
-        if @session.v2?
-          host, domain_name = simple.split(".", 2)
+        host, domain_name = simple.split(".", 2)
 
-          domain = @session.current_space.domain_by_name(domain_name, :depth => 0)
+        domain = @session.current_space.domain_by_name(domain_name, :depth => 0)
 
-          unless domain
-            @log.error("Invalid domain '#{domain_name}, please check your input url: #{url}")
-            raise RuntimeError, "Invalid domain '#{domain_name}, please check your input url: #{url}"
-          end
-
-          route = @session.client.routes_by_host(host, :depth => 0).find do |r|
-            r.domain == domain
-          end
-
-          unless route
-            route = @session.client.route
-            route.host = host
-            route.domain = domain
-            route.space = @session.current_space
-            route.create!
-          end
-
-          @log.debug("Binding #{simple} to application: #{@app.name}")
-          @app.add_route(route)
-        else
-          @app.urls << simple
-          @app.update!
+        unless domain
+          @log.error("Invalid domain '#{domain_name}, please check your input url: #{url}")
+          raise RuntimeError, "Invalid domain '#{domain_name}, please check your input url: #{url}"
         end
+
+        route = @session.client.routes_by_host(host, :depth => 0).find do |r|
+          r.domain == domain
+        end
+
+        unless route
+          route = @session.client.route
+          route.host = host
+          route.domain = domain
+          route.space = @session.current_space
+          route.create!
+        end
+
+        @log.debug("Binding #{simple} to application: #{@app.name}")
+        @app.add_route(route)
       rescue Exception => e
         @log.error("Fail to map url: #{simple} to application: #{@app.name}!\n#{e.to_s}")
         raise
@@ -228,28 +221,23 @@ module BVT::Harness
       @log.info("Unmap URL: #{url} to Application: #{@app.name}")
       simple = url.sub(/^https?:\/\/(.*)\/?/i, '\1')
       begin
-        if @session.v2?
-          host, domain_name = simple.split(".", 2)
+        host, domain_name = simple.split(".", 2)
 
-          # New routes might have been added!
-          @app.invalidate!
+        # New routes might have been added!
+        @app.invalidate!
 
-          route = @app.routes.find do |r|
-            r.host == host && r.domain.name == domain_name
-          end
-
-          unless route
-            @log.error("Invalid route '#{simple}', please check your input url: #{url}")
-            raise RuntimeError, "Invalid route '#{simple}', please check your input url: #{url}"
-          end
-
-          @log.debug("Removing route #{simple}")
-          @app.remove_route(route)
-          route.delete! if options[:delete]
-        else
-          @app.urls.delete(simple)
-          @app.update!
+        route = @app.routes.find do |r|
+          r.host == host && r.domain.name == domain_name
         end
+
+        unless route
+          @log.error("Invalid route '#{simple}', please check your input url: #{url}")
+          raise RuntimeError, "Invalid route '#{simple}', please check your input url: #{url}"
+        end
+
+        @log.debug("Removing route #{simple}")
+        @app.remove_route(route)
+        route.delete! if options[:delete]
       rescue Exception => e
         @log.error("Fail to unmap url: #{simple} to application: #{@app.name}!\n#{e.to_s}")
         raise
@@ -595,7 +583,7 @@ module BVT::Harness
       app.name = name
       app.space = @session.current_space if @session.current_space
       app.total_instances = @manifest['instances']
-      app.production = @manifest['plan'] if @session.v2? && @manifest['plan']
+      app.production = @manifest['plan'] if @manifest['plan']
 
       app.command = @manifest['command']
 

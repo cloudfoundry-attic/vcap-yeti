@@ -48,10 +48,6 @@ module BVT::Harness
 
         app.push(service_instances)
 
-        unless @session.v2?
-          app.healthy?.should be_true, "Application #{app.name} is not running"
-        end
-
         app
       end
     end

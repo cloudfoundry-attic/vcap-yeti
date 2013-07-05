@@ -8,7 +8,6 @@ describe "Simple::Domain" do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
-    pending("cloud controller v1 API does not support custom domain") unless @session.v2?
   end
 
   before do
