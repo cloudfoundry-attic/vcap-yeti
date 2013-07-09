@@ -35,13 +35,13 @@ describe "Async app staging" do
         tailed_log << chunk
       end
 
-      tailed_log.should match /Using Ruby/
-      tailed_log.should match /Your bundle is complete!/
+      tailed_log.should =~ /Using Ruby/
+      tailed_log.should =~ /Your bundle is complete!/
     end
 
     step "check app is running" do
       app.check_application
-      app.get_response(:get).to_str.should == "running version 1.9.2"
+      app.get_response(:get).to_str.should =~ /running version/
     end
   end
 end
