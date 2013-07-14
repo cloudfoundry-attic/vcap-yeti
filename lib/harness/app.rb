@@ -23,6 +23,7 @@ module BVT::Harness
       @app = @session.client.app_by_name(@name)
       if @app
         sync_app(@app, @manifest['path'])
+        restart(need_check) if @app.started?
       else
         create_app(@name, @manifest['path'], services, need_check)
       end
@@ -51,23 +52,20 @@ module BVT::Harness
       end
     end
 
-    def update!(opts = {})
-      opts = {:restart => true}.merge(opts)
-
-      @log.info("Update App: #{@app.name}, restart: #{opts[:restart]}")
+    def update!
+      @log.info("Update App: #{@app.name}")
 
       begin
-        @app.update!
-        restart if opts[:restart]
+        @app.update!(true, &staging_callback)
       rescue Exception => e
         @log.error "Update App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
         raise
       end
     end
 
-    def restart
+    def restart(need_check = true)
       stop
-      start
+      start(need_check = true)
     end
 
     def stop
@@ -98,17 +96,7 @@ module BVT::Harness
         timeout_retries_remaining = 5
 
         begin
-          @app.start!(true) do |url|
-            puts "Pushing #{@app.name} - #{url}"
-
-            if blk
-              blk.call(url)
-            elsif url
-              @app.stream_update_log(url) do |chunk|
-                puts "       STAGE LOG => #{chunk}"
-              end
-            end
-          end
+          @app.start!(true, &staging_callback(blk))
 
         # When ccng/dea_ng are overloaded app staging will result
         # in nginx cutting off api request. Goal here is to make
@@ -290,7 +278,7 @@ module BVT::Harness
                       "for Application: #{@app.name}")
         @app.total_instances = instance.to_i
         @app.memory = memory if memory
-        @app.update!
+        @app.update!(true, &staging_callback)
       rescue
         @log.error("Fail to Update the instances/memory limit for " +
                    "Application: #{@app.name}!")
@@ -568,11 +556,11 @@ module BVT::Harness
       if app.changed?
         app.changes.each do |name, change|
           old, new = change
-          @log.debug("Application: #{app.name}, Change: #{old} -> #{new}")
+          @log.debug("Application: #{app.name}, #{name} changed: #{old} -> #{new}")
         end
 
         begin
-          app.update! # Restarts an app
+          app.update!(true, &staging_callback)
         rescue Exception => e
           @log.error("Fail to update Application: #{app.name}\n#{e.inspect}")
           raise
@@ -637,6 +625,24 @@ module BVT::Harness
       url = "#{@session.api_endpoint}/v2/apps/#{@app.guid}/instances/0/files/#{path}"
       hdrs = headers.merge("AUTHORIZATION" => @session.token.auth_header)
       RestClient.get(url, hdrs)
+    end
+
+    private
+
+    def staging_callback(blk = nil)
+      proc do |url|
+        next unless url
+
+        puts "Staging #{@app.name} - #{url}"
+
+        if blk
+          blk.call(url)
+        elsif url
+          @app.stream_update_log(url) do |chunk|
+            puts "       STAGE LOG => #{chunk}"
+          end
+        end
+      end
     end
   end
 

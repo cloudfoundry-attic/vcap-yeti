@@ -20,15 +20,13 @@ describe "App lifecycle" do
       hash_all[:state].should == "RUNNING"
 
       # redeploy app
+      app.stop
       app.push(nil, "modified_simple_app2")
-      app.restart
+      app.start
       app_up?(app)
 
       # edit
-      app.total_instances = 0
-      app.update!(:restart => false)
-      app.env = {"some_env" => "true"}
-      app.update!(:restart => false)
+      app.scale(0)
       app_down?(app)
       app.scale(1)
       app_up?(app)
