@@ -21,6 +21,7 @@ describe "App lifecycle" do
 
       # redeploy app
       app.push(nil, "modified_simple_app2")
+      app.restart
       app_up?(app)
 
       # edit
