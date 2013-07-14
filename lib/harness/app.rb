@@ -52,8 +52,10 @@ module BVT::Harness
     end
 
     def update!(opts = {})
-      {:restart => true}.merge(opts)
+      opts = {:restart => true}.merge(opts)
+
       @log.info("Update App: #{@app.name}, restart: #{opts[:restart]}")
+
       begin
         @app.update!
         restart if opts[:restart]
