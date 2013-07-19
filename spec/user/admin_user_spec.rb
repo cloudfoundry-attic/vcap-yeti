@@ -2,19 +2,10 @@ require "harness"
 require "spec_helper"
 
 describe "Users::AdminUser" do
-  pending "This test was disabled before. It is still using the old non-UAA workflow."
-
-  before(:each) do
+  it "test add-user/users/delete-user/passwd command" do
+    pending "This test was disabled before. It is still using the old non-UAA workflow."
     @admin_session = BVT::Harness::CFSession.new(:admin => true)
     @test_email = "my_fake@email.address"
-  end
-
-  after(:each) do
-    test_user = @admin_session.user(@test_email)
-    test_user.delete
-  end
-
-  it "test add-user/users/delete-user/passwd command" do
     # create user
     test_user = @admin_session.user(@test_email)
     test_pwd = "test-pwd"
@@ -36,5 +27,7 @@ describe "Users::AdminUser" do
     test_session = BVT::Harness::CFSession.new(:email => test_user.email,
                                                :passwd => new_passwd,
                                                :api_endpoint => @admin_session.api_endpoint)
+    test_user = @admin_session.user(@test_email)
+    test_user.delete
   end
 end
