@@ -52,7 +52,7 @@ module BVT::Harness
     def client
       @client ||= CFoundry::V2::Client.new(@target).tap do |c|
         c.trace = !!ENV["VCAP_BVT_TRACE"]
-        c.login(@admin_user, @admin_password)
+        c.login(:username => @admin_user, :password => @admin_password)
       end
     end
   end

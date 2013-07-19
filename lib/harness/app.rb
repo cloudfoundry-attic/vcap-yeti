@@ -56,7 +56,7 @@ module BVT::Harness
       @log.info("Update App: #{@app.name}")
 
       begin
-        @app.update!(true, &staging_callback)
+        @app.update!(&staging_callback)
       rescue Exception => e
         @log.error "Update App: #{@app.name} failed.\n#{e.to_s}\n#{@session.print_client_logs}"
         raise
@@ -96,7 +96,7 @@ module BVT::Harness
         timeout_retries_remaining = 5
 
         begin
-          @app.start!(true, &staging_callback(blk))
+          @app.start!(&staging_callback(blk))
 
         # When ccng/dea_ng are overloaded app staging will result
         # in nginx cutting off api request. Goal here is to make
@@ -278,7 +278,7 @@ module BVT::Harness
                       "for Application: #{@app.name}")
         @app.total_instances = instance.to_i
         @app.memory = memory if memory
-        @app.update!(true, &staging_callback)
+        @app.update!(&staging_callback)
       rescue
         @log.error("Fail to Update the instances/memory limit for " +
                    "Application: #{@app.name}!")
@@ -560,7 +560,7 @@ module BVT::Harness
         end
 
         begin
-          app.update!(true, &staging_callback)
+          app.update!(&staging_callback)
         rescue Exception => e
           @log.error("Fail to update Application: #{app.name}\n#{e.inspect}")
           raise

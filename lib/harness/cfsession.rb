@@ -45,11 +45,11 @@ module BVT::Harness
 
     def login
       @log.info("Login in, target: #{@api_endpoint}, email = #{@email}")
-      @client = CFoundry::Client.new(@api_endpoint)
+      @client = CFoundry::Client.get(@api_endpoint)
       @client.trace = true if ENV['VCAP_BVT_TRACE']
       @client.log = []
       begin
-        @token = @client.login(@email, @passwd)
+        @token = @client.login(:username => @email, :password => @passwd)
       rescue Exception => e
         @log.error "Fail to log in, target: #{@api_endpoint}, user: #{@email}\n#{e.to_s}"
         raise
@@ -310,8 +310,8 @@ module BVT::Harness
     private
 
     def is_user_admin?(email, passwd)
-      check_admin_client = CFoundry::Client.new(@api_endpoint)
-      check_admin_client.login(email, passwd)
+      check_admin_client = CFoundry::Client.get(@api_endpoint)
+      check_admin_client.login(:username => email, :password => passwd)
       begin
         check_admin_client.current_user.admin?
       rescue CFoundry::APIError

@@ -1,11 +1,11 @@
 GIT
   remote: git://github.com/cloudfoundry/cf.git
-  revision: 00572b95e8d57def9b7c628f578940c4033f5862
+  revision: 5967fe66b7fd2efcdac16c77336031ed6a4c697e
   specs:
-    cf (1.1.3.rc1)
+    cf (4.2.4)
       addressable (~> 2.2)
       caldecott-client (~> 0.0.2)
-      cfoundry (~> 1.5)
+      cfoundry (~> 3.0)
       interact (~> 0.5)
       json_pure (~> 1.6)
       mothership (>= 0.5.1, < 1.0)
@@ -15,10 +15,10 @@ GIT
 
 GIT
   remote: git://github.com/cloudfoundry/cfoundry.git
-  revision: 5e8b0f50c84a131117b574e77f56820ea145e5d2
+  revision: c085b93400224243adf29e5e919990bcaa07c1f2
   submodules: true
   specs:
-    cfoundry (1.5.3)
+    cfoundry (3.0.0)
       activemodel (~> 3.2.13)
       cf-uaa-lib (~> 1.3.10)
       multi_json (~> 1.7)
@@ -34,7 +34,7 @@ GEM
     activesupport (3.2.13)
       i18n (= 0.6.1)
       multi_json (~> 1.0)
-    addressable (2.3.4)
+    addressable (2.3.5)
     bson (1.8.6)
     bson_ext (1.8.6)
       bson (~> 1.8.6)
@@ -58,7 +58,7 @@ GEM
     mongo (1.8.6)
       bson (~> 1.8.6)
     mothership (0.5.1)
-    multi_json (1.7.4)
+    multi_json (1.7.7)
     multipart-post (1.2.0)
     nokogiri (1.5.9)
     parallel (0.6.5)

@@ -73,18 +73,17 @@ describe "Simple::Info" do
       crashes = get_crashes(app.name)
 
       crash = crashes.first
-      crash.since.should_not == nil
+      crash.timestamp.should_not == nil
 
-      crash.files("/").should_not == nil
-      crash.files("/app").should_not == nil
+      app.files("/").should_not == nil
+      app.files("/app").should_not == nil
     end
 
     def get_crashes(name)
       app = @client.app_by_name(name)
       secs = BVT::Harness::VCAP_BVT_APP_ASSETS["timeout_secs"]
-
       begin
-        crashes = app.crashes
+        crashes = app.events
         secs -= 1
       end while crashes.empty? && secs > 0 && sleep(1)
 

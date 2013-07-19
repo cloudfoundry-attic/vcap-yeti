@@ -2,8 +2,8 @@
 require "rubygems"
 require "cfoundry"
 
-client = CFoundry::Client.new(ENV["VCAP_BVT_API_ENDPOINT"])
-client.login(ENV["VCAP_BVT_ADMIN_USER"], ENV["VCAP_BVT_ADMIN_USER_PASSWD"])
+client = CFoundry::Client.get(ENV["VCAP_BVT_API_ENDPOINT"])
+client.login(:username => ENV["VCAP_BVT_ADMIN_USER"], :password => ENV["VCAP_BVT_ADMIN_USER_PASSWD"])
 
 puts "Going hunting..."
 
