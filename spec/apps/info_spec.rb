@@ -24,6 +24,7 @@ describe "Simple::Info" do
     it "can get application files" do
       @simple_app.files("/").should_not be_nil
       @simple_app.files("/app").should_not be_nil
+      @simple_app.files("/app/assets/style.css").should_not be_nil
     end
 
     it "get resource usage information for an application" do
