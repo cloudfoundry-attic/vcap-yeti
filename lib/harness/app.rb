@@ -618,6 +618,7 @@ module BVT::Harness
     end
 
     def events
+      @app.invalidate!
       @app.events
     end
 
