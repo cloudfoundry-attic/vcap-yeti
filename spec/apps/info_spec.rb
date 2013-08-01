@@ -9,7 +9,6 @@ describe "Simple::Info" do
   context "after an app has been pushed" do
     before(:all) do
       @session = BVT::Harness::CFSession.new
-      @client = @session.client
       @simple_app = create_push_app("simple_app2")
     end
 
@@ -47,7 +46,6 @@ describe "Simple::Info" do
   context "with individual apps per spec" do
     before(:each) do
       @session = BVT::Harness::CFSession.new
-      @client = @session.client
     end
 
     after(:each) do
@@ -81,7 +79,7 @@ describe "Simple::Info" do
     end
 
     def get_crashes(name)
-      app = @client.app_by_name(name)
+      app = @session.find_app(name)
       secs = BVT::Harness::VCAP_BVT_APP_ASSETS["timeout_secs"]
       begin
         crashes = app.events
@@ -94,7 +92,5 @@ describe "Simple::Info" do
 
       crashes
     end
-
-
   end
 end

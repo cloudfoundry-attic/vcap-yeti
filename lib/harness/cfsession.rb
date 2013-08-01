@@ -106,6 +106,10 @@ module BVT::Harness
       @client.apps.collect {|app| App.new(app, self)}
     end
 
+    def find_app(name)
+      App.new(@client.app_by_name(name), self, nil)
+    end
+
     def services
       @client.service_instances.collect {|service| Service.new(service, self)}
     end
