@@ -1,11 +1,11 @@
 GIT
   remote: git://github.com/cloudfoundry/cf.git
-  revision: 5967fe66b7fd2efcdac16c77336031ed6a4c697e
+  revision: a83d7c9b2a0ba8a9f09e959f40bc6486cd2e9e86
   specs:
-    cf (4.2.4)
+    cf (4.2.10.rc1)
       addressable (~> 2.2)
       caldecott-client (~> 0.0.2)
-      cfoundry (~> 3.0)
+      cfoundry (~> 4.0.3)
       interact (~> 0.5)
       json_pure (~> 1.6)
       mothership (>= 0.5.1, < 1.0)
@@ -15,10 +15,10 @@ GIT
 
 GIT
   remote: git://github.com/cloudfoundry/cfoundry.git
-  revision: c085b93400224243adf29e5e919990bcaa07c1f2
+  revision: da4fa941a79a1f21e92313c09bd1e0c40ef684a8
   submodules: true
   specs:
-    cfoundry (3.0.0)
+    cfoundry (4.0.4.rc1)
       activemodel (~> 3.2.13)
       cf-uaa-lib (~> 1.3.10)
       multi_json (~> 1.7)
@@ -28,57 +28,69 @@ GIT
 GEM
   remote: http://rubygems.org/
   specs:
-    activemodel (3.2.13)
-      activesupport (= 3.2.13)
+    activemodel (3.2.14)
+      activesupport (= 3.2.14)
       builder (~> 3.0.0)
-    activesupport (3.2.13)
-      i18n (= 0.6.1)
+    activesupport (3.2.14)
+      i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     addressable (2.3.5)
-    bson (1.8.6)
-    bson_ext (1.8.6)
-      bson (~> 1.8.6)
+    beefcake (0.3.7)
+    bson (1.9.1)
+    bson_ext (1.9.1)
+      bson (~> 1.9.1)
     builder (3.0.4)
     caldecott-client (0.0.2)
       multi_json (~> 1.3)
     cf-uaa-lib (1.3.10)
       multi_json
     columnize (0.3.6)
-    debugger (1.6.0)
+    debugger (1.6.1)
       columnize (>= 0.3.1)
       debugger-linecache (~> 1.2.0)
-      debugger-ruby_core_source (~> 1.2.1)
+      debugger-ruby_core_source (~> 1.2.3)
     debugger-linecache (1.2.0)
-    debugger-ruby_core_source (1.2.2)
+    debugger-ruby_core_source (1.2.3)
     diff-lcs (1.2.4)
-    i18n (0.6.1)
+    eventmachine (1.0.3)
+    faye-websocket (0.6.2)
+      eventmachine (>= 0.12.0)
+      websocket-driver (>= 0.2.0)
+    i18n (0.6.4)
     interact (0.5.2)
     json_pure (1.8.0)
     mime-types (1.23)
-    mongo (1.8.6)
-      bson (~> 1.8.6)
+    mini_portile (0.5.1)
+    mongo (1.9.1)
+      bson (~> 1.9.1)
     mothership (0.5.1)
     multi_json (1.7.7)
     multipart-post (1.2.0)
-    nokogiri (1.5.9)
-    parallel (0.6.5)
-    parallel_tests (0.13.3)
+    nokogiri (1.6.0)
+      mini_portile (~> 0.5.0)
+    parallel (0.7.1)
+    parallel_tests (0.15.0)
       parallel
-    rake (10.0.4)
+    rake (10.1.0)
     rest-client (1.6.7)
       mime-types (>= 1.16)
-    rspec (2.13.0)
-      rspec-core (~> 2.13.0)
-      rspec-expectations (~> 2.13.0)
-      rspec-mocks (~> 2.13.0)
-    rspec-core (2.13.1)
-    rspec-expectations (2.13.0)
+    rspec (2.14.1)
+      rspec-core (~> 2.14.0)
+      rspec-expectations (~> 2.14.0)
+      rspec-mocks (~> 2.14.0)
+    rspec-core (2.14.4)
+    rspec-expectations (2.14.0)
       diff-lcs (>= 1.1.3, < 2.0)
-    rspec-mocks (2.13.1)
+    rspec-mocks (2.14.2)
     rubyzip (0.9.9)
+    tail-cf-plugin (0.0.18.pre)
+      beefcake (~> 0.3.7)
+      cf (>= 4.2.5, < 5.0)
+      faye-websocket (~> 0.6.1)
     uuidtools (2.1.4)
     vcap_logging (1.0.0)
       rake
+    websocket-driver (0.2.1)
     yajl-ruby (1.1.0)
 
 PLATFORMS
@@ -95,5 +107,6 @@ DEPENDENCIES
   rake
   rest-client
   rspec
+  tail-cf-plugin (~> 0.0.18.pre)
   vcap_logging (>= 1.0)
   yajl-ruby

@@ -38,7 +38,7 @@ module BVT::Harness
       end
     end
 
-    def create_push_app(app_name, prefix = '', domain=nil, services=[])
+    def create_push_app(app_name, prefix = '', domain=nil, services=[], no_start=false)
       time_block "create_push_app '#{app_name}'" do
         app = create_app(app_name, prefix, domain)
 
@@ -46,7 +46,7 @@ module BVT::Harness
           create_service(service)
         end
 
-        app.push(service_instances)
+        app.push(service_instances, nil, true, no_start)
 
         app
       end

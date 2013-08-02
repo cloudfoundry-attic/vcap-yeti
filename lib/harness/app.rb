@@ -18,14 +18,18 @@ module BVT::Harness
       "#<BVT::Harness::App '#@name' '#@manifest'>"
     end
 
-    def push(services = nil, appid = nil, need_check = true)
+    def guid
+      @app.guid
+    end
+
+    def push(services = nil, appid = nil, need_check = true, no_start = false)
       load_manifest(appid)
       @app = @session.client.app_by_name(@name)
       if @app
         sync_app(@app, @manifest['path'])
-        restart(need_check) if @app.started?
+        restart(need_check) if (@app.started? && (no_start == false))
       else
-        create_app(@name, @manifest['path'], services, need_check)
+        create_app(@name, @manifest['path'], services, need_check, no_start)
       end
     end
 
@@ -568,7 +572,7 @@ module BVT::Harness
       end
     end
 
-    def create_app(name, path, services, need_check)
+    def create_app(name, path, services, need_check, no_start = false)
       app = @session.client.app
       app.name = name
       app.space = @session.current_space if @session.current_space
@@ -600,7 +604,7 @@ module BVT::Harness
       services.each { |service| bind(service, false)} if services
       upload_app(app, path)
 
-      start(need_check) unless @manifest["no_start"]
+      start(need_check) unless (no_start || @manifest["no_start"])
     end
 
     def upload_app(app, path)
