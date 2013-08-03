@@ -10,7 +10,6 @@ gem "mongo"
 gem "bson_ext"
 gem "yajl-ruby"
 gem "nokogiri"
-gem "debugger"
 
 group :vcap do
   gem "vcap_logging", ">= 1.0"
