@@ -1,7 +1,6 @@
 require "harness"
 require "spec_helper"
-require "logs-cf-plugin/loggregator_client"
-require "logs-cf-plugin/message_writer"
+require "logs-cf-plugin/plugin"
 
 include BVT::Spec
 
@@ -17,7 +16,7 @@ describe "Tools::Loggregator" do
   end
 
   let(:loggregator_io) { StringIO.new }
-  let(:loggregator_client) { LogsCfPlugin::LoggregatorClient.new(loggregator_host, cf_client.token.auth_header, loggregator_io, true) }
+  let(:loggregator_client) { LogsCfPlugin::LoggregatorClient.new(loggregator_host, cf_client.token.auth_header, loggregator_io, false) }
   let(:cf_client) { @session.client }
 
   def loggregator_host
@@ -36,6 +35,7 @@ describe "Tools::Loggregator" do
     Timeout.timeout(10) do
       until loggregator_io.string =~ /STDOUT/
         @app.get('/logs')
+        sleep(0.5)
       end
     end
 
@@ -58,6 +58,7 @@ describe "Tools::Loggregator" do
     Timeout.timeout(10) do
       until loggregator_io.string =~ /STDOUT/
         @app.get('/logs')
+        sleep(0.5)
       end
     end
 
