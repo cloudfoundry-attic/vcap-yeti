@@ -1,6 +1,8 @@
 require "harness"
 require "spec_helper"
-require "tail-cf-plugin/loggregator_client"
+require "logs-cf-plugin/loggregator_client"
+require "logs-cf-plugin/message_writer"
+
 include BVT::Spec
 
 describe "Tools::Loggregator" do
@@ -15,7 +17,7 @@ describe "Tools::Loggregator" do
   end
 
   let(:loggregator_io) { StringIO.new }
-  let(:loggregator_client) { TailCfPlugin::LoggregatorClient.new(loggregator_io) }
+  let(:loggregator_client) { LogsCfPlugin::LoggregatorClient.new(loggregator_host, cf_client.token.auth_header, loggregator_io, true) }
   let(:cf_client) { @session.client }
 
   def loggregator_host
@@ -23,34 +25,46 @@ describe "Tools::Loggregator" do
     "loggregator.#{target_base}"
   end
 
-  it 'can tail app logs' do
+  it "can tail app logs" do
+    @app.start
+
     th = Thread.new do
-      loggregator_client.listen(loggregator_host, cf_client.current_space.guid, @app.guid, cf_client.token.auth_header)
+      loggregator_client.listen(:org => @session.current_organization.guid, :space => @session.current_space.guid, :app => @app.guid)
     end
 
-    @app.start
-    @app.get('/logs')
+    # It takes couple of seconds for loggregator to send data to client
+    Timeout.timeout(10) do
+      until loggregator_io.string =~ /STDOUT/
+        @app.get('/logs')
+      end
+    end
+
     Thread.kill(th)
 
     output_lines = loggregator_io.string.split("\n")
-    expect(output_lines.first).to match /Connected to server/
-    #expect(output_lines.last).to match /Server dropped connection/
+    expect(output_lines).to include(match /Connected to server/)
     expect(output_lines).to include(match /(\w+-){4}\w+\s+STDOUT stdout log/)
     expect(output_lines).to include(match /(\w+-){4}\w+\s+STDERR stderr log/)
   end
 
-  it 'can tail space logs' do
+  it "can tail space logs" do
+    @app.start
+
     th = Thread.new do
-      loggregator_client.listen(loggregator_host, cf_client.current_space.guid, nil, cf_client.token.auth_header)
+      loggregator_client.listen(:org => @session.current_organization.guid, :space => @session.current_space.guid)
     end
 
-    @app.start
-    @app.get('/logs')
+    # It takes couple of seconds for loggregator to send data to client
+    Timeout.timeout(10) do
+      until loggregator_io.string =~ /STDOUT/
+        @app.get('/logs')
+      end
+    end
+
     Thread.kill(th)
 
     output_lines = loggregator_io.string.split("\n")
-    expect(output_lines.first).to match /Connected to server/
-    #expect(output_lines.last).to match /Server dropped connection/
+    expect(output_lines).to include(match /Connected to server/)
     expect(output_lines).to include(match /(\w+-){4}\w+\s+STDOUT stdout log/)
     expect(output_lines).to include(match /(\w+-){4}\w+\s+STDERR stderr log/)
   end
