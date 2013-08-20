@@ -52,10 +52,13 @@ GEM
     i18n (0.6.4)
     interact (0.5.2)
     json_pure (1.8.0)
-    logs-cf-plugin (0.0.27.pre)
+    loggregator_messages (0.0.1.pre)
+      beefcake (~> 0.3.7)
+    logs-cf-plugin (0.0.30.pre)
       beefcake (~> 0.3.7)
       cf (>= 4.2.5, < 5.0)
       faye-websocket (~> 0.6.1)
+      loggregator_messages (~> 0.0.1.pre)
     mime-types (1.23)
     mini_portile (0.5.1)
     mongo (1.9.1)
@@ -93,7 +96,7 @@ DEPENDENCIES
   bson_ext
   cf!
   cfoundry!
-  logs-cf-plugin (~> 0.0.27.pre)
+  logs-cf-plugin (~> 0.0.30.pre)
   mongo
   nokogiri
   parallel_tests

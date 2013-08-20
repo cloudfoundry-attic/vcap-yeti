@@ -28,30 +28,7 @@ describe "Tools::Loggregator" do
     @app.start
 
     th = Thread.new do
-      loggregator_client.listen(:org => @session.current_organization.guid, :space => @session.current_space.guid, :app => @app.guid)
-    end
-
-    # It takes couple of seconds for loggregator to send data to client
-    Timeout.timeout(10) do
-      until loggregator_io.string =~ /STDOUT/
-        @app.get('/logs')
-        sleep(0.5)
-      end
-    end
-
-    Thread.kill(th)
-
-    output_lines = loggregator_io.string.split("\n")
-    expect(output_lines).to include(match /Connected to server/)
-    expect(output_lines).to include(match /(\w+-){4}\w+\s+STDOUT stdout log/)
-    expect(output_lines).to include(match /(\w+-){4}\w+\s+STDERR stderr log/)
-  end
-
-  it "can tail space logs" do
-    @app.start
-
-    th = Thread.new do
-      loggregator_client.listen(:org => @session.current_organization.guid, :space => @session.current_space.guid)
+      loggregator_client.listen(:app => @app.guid)
     end
 
     # It takes couple of seconds for loggregator to send data to client

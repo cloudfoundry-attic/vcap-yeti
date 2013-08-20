@@ -20,5 +20,5 @@ group :vcap do
   }
 
   gem "cf", :github => "cloudfoundry/cf"
-  gem "logs-cf-plugin", "~> 0.0.27.pre"
+  gem "logs-cf-plugin", "~> 0.0.30.pre"
 end
