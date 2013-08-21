@@ -5,7 +5,12 @@ of integration tests for the CloudFoundry platform.
 
 # Running Tests
 
-Don't forget to pull in all submodules.
+Prepare for tests:
+
+```
+git submodule update --init
+rake prepare
+```
 
 ## Non-parallel
 
