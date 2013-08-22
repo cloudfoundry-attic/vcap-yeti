@@ -70,12 +70,8 @@ describe "Simple::Info" do
       contents = app.get_response(:get, "/crash/#{pid}")
 
       crashes = get_crashes(app.name)
-
       crash = crashes.first
       crash.timestamp.should_not == nil
-
-      app.files("/").should_not == nil
-      app.files("/app").should_not == nil
     end
 
     def get_crashes(name)
