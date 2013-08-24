@@ -10,8 +10,7 @@ describe "Users::AdminUser" do
     test_user = @admin_session.user(@test_email)
     test_pwd = "test-pwd"
     test_user.create(test_pwd)
-    @admin_session.users.collect(&:email).include?(test_user.email).should \
-      be_true, "cannot find created user-email, #{test_user.email}"
+    @admin_session.users.collect(&:email).include?(test_user.email).should be_true, "cannot find created user-email, #{test_user.email}"
 
     # login as created user
     test_session = BVT::Harness::CFSession.new(:email => test_user.email,

@@ -8,25 +8,19 @@ module BVT::Harness
                 :client, :test_domains
 
     def initialize(options = {})
-      options = {:admin => false,
-                 :email => nil,
-                 :passwd => nil,
-                 :target => nil}.merge(options)
-
       if options[:api_endpoint]
         @api_endpoint = RakeHelper.format_target(options[:api_endpoint])
       else
         @api_endpoint = RakeHelper.get_api_endpoint
       end
 
-      @email = options[:email] ? options[:email] : get_login_email(options[:admin])
-      @passwd = options[:passwd] ? options[:passwd] : get_login_passwd(options[:admin])
+      @email = options.fetch(:email) { get_login_email(options[:admin]) }
+      @passwd = options.fetch(:passwd) { get_login_passwd(options[:admin]) }
 
       # Restrict admin from performing non-admin operations
       unless options[:admin]
         if is_user_admin?(@email, @passwd)
-          raise RuntimeError, "current operation can not be performed as" +
-            " user with admin privileges"
+          raise RuntimeError, "current operation can not be performed as user with admin privileges"
         end
       end
 
@@ -40,7 +34,7 @@ module BVT::Harness
     end
 
     def inspect
-      "#<BVT::Harness::CFSession '#@api_endpoint', '#@email'>"
+      "#<BVT::Harness::CFSession '#{@api_endpoint}', '#{@email}'>"
     end
 
     def login

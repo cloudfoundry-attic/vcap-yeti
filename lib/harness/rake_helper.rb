@@ -29,7 +29,7 @@ module BVT::Harness
       save_config
     end
 
-    def generate_profile(user)
+    def generate_profile(user, profile_file)
       client = BVT::Harness::CFSession.new(
         :email => user['email'],
         :passwd => user['passwd'],
@@ -39,11 +39,7 @@ module BVT::Harness
       profile = {}
       profile[:script_hash] = get_script_git_hash
 
-      api_without_http = @config['api_endpoint'].split('//')[-1]
-      $vcap_bvt_profile_file ||=
-        File.join(BVT::Harness::VCAP_BVT_HOME,
-                  "profile.#{api_without_http}.yml")
-      File.open($vcap_bvt_profile_file, "w") { |f| f.write YAML.dump(profile) }
+      File.open(profile_file, "w") { |f| f.write YAML.dump(profile) }
     end
 
     def check_target
@@ -67,8 +63,7 @@ module BVT::Harness
     def get_config
       if File.exists?(VCAP_BVT_CONFIG_FILE)
         @multi_target_config = YAML.load_file(VCAP_BVT_CONFIG_FILE)
-        raise "Invalid config file format, #{VCAP_BVT_CONFIG_FILE}" \
-          unless @multi_target_config.is_a?(Hash)
+        raise "Invalid config file format, #{VCAP_BVT_CONFIG_FILE}" unless @multi_target_config.is_a?(Hash)
       else
         @multi_target_config ||= {}
       end
@@ -138,15 +133,13 @@ module BVT::Harness
     def get_user
       get_config unless @config
       @config['user'] ||= {}
-      @config['user']['email'] = \
-        require_env!("VCAP_BVT_USER", first_parallel_user)
+      @config['user']['email'] = require_env!("VCAP_BVT_USER", first_parallel_user)
     end
 
     def get_user_passwd
       get_config unless @config
       @config['user'] ||= {}
-      @config['user']['passwd'] = \
-        require_env!("VCAP_BVT_USER_PASSWD", first_parallel_user_passwd)
+      @config['user']['passwd'] = require_env!("VCAP_BVT_USER_PASSWD", first_parallel_user_password)
     end
 
     def create_parallel_users(user_number)
@@ -189,7 +182,8 @@ module BVT::Harness
 
     def get_parallel_users(check_first_user=false)
       @config ||= {}
-      return [] unless parallel_users = @config['parallel']
+      parallel_users = @config['parallel']
+      return [] unless parallel_users
 
       if check_first_user
         first_user = parallel_users[0]
@@ -255,8 +249,7 @@ module BVT::Harness
     end
 
     def parallel_run_number
-      raise ArgumentError, "Not running in parallel" \
-        unless running_in_parallel?
+      raise ArgumentError, "Not running in parallel" unless running_in_parallel?
       ENV["TEST_ENV_NUMBER"].to_i
     end
 

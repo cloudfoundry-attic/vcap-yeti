@@ -50,18 +50,17 @@ RSpec.configure do |config|
     target_without_http = target.split('//')[-1]
 
     BVT::Harness::RakeHelper.get_config
-    BVT::Harness::RakeHelper.set_up_parallel_user
+    BVT::Harness::RakeHelper.set_up_parallel_user # sets YETI_PARALLEL_USER and YETI_PARALLEL_PASSWD to correspond with the parallel user for this parallel index
     profile_file = File.join(BVT::Harness::VCAP_BVT_HOME, "profile.#{target_without_http}.yml")
 
     unless File.exists?(profile_file)
       BVT::Harness::RakeHelper.get_user
       BVT::Harness::RakeHelper.get_user_passwd
       user = BVT::Harness::RakeHelper.get_config['user']
-      BVT::Harness::RakeHelper.generate_profile(user)
+      BVT::Harness::RakeHelper.generate_profile(user, profile_file)
     end
 
-    $vcap_bvt_profile_file ||= profile_file
-    profile = YAML.load_file($vcap_bvt_profile_file)
+    YAML.load_file(profile_file) # make sure YAML.dump works
   end
 
   config.before(:each) do
