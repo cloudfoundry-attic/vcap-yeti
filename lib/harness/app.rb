@@ -551,6 +551,7 @@ module BVT::Harness
       app.memory = @manifest['memory']
       app.total_instances = @manifest['instances']
       app.command = @manifest['command']
+      app.buildpack = @manifest['buildpack']
 
       if app.changed?
         app.changes.each do |name, change|
@@ -575,6 +576,7 @@ module BVT::Harness
       app.production = @manifest['plan'] if @manifest['plan']
 
       app.command = @manifest['command']
+      app.buildpack = @manifest['buildpack']
 
       if @domain
         url = "#{@name}.#{@domain}"
