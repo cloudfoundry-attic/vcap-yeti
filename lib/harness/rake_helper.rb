@@ -143,7 +143,7 @@ module BVT::Harness
     def get_user_passwd
       get_config unless @config
       @config['user'] ||= {}
-      @config['user']['passwd'] = require_env!("VCAP_BVT_USER_PASSWD", first_parallel_user_password)
+      @config['user']['passwd'] = require_env!("VCAP_BVT_USER_PASSWD", first_parallel_user_passwd)
     end
 
     def create_parallel_users(user_number)

@@ -25,6 +25,8 @@ describe "Tools::Loggregator" do
   end
 
   it "can tail app logs" do
+    pending "yeti users need loggregator scope"
+
     @app.start
 
     th = Thread.new do
