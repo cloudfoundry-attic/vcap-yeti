@@ -25,12 +25,16 @@ module BVT::Harness
       end
 
       user = get_check_env_user(parallel_users)
-      generate_profile(user)
+      generate_profile(user, profile_file)
       save_config
     end
 
-    def generate_profile(user, profile_file)
-      client = BVT::Harness::CFSession.new(
+    def profile_file
+      File.join(BVT::Harness::VCAP_BVT_HOME, "profile.#{get_api_endpoint.split('//')[-1]}.yml")
+    end
+
+    def generate_profile(user, file_path)
+      BVT::Harness::CFSession.new(
         :email => user['email'],
         :passwd => user['passwd'],
         :api_endpoint => @config['api_endpoint']
@@ -39,7 +43,7 @@ module BVT::Harness
       profile = {}
       profile[:script_hash] = get_script_git_hash
 
-      File.open(profile_file, "w") { |f| f.write YAML.dump(profile) }
+      File.open(file_path, "w") { |f| f.write YAML.dump(profile) }
     end
 
     def check_target

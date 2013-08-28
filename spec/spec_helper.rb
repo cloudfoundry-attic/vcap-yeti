@@ -46,12 +46,9 @@ RSpec.configure do |config|
   config.tty = true # allow Jenkins to color output
 
   config.before(:suite) do
-    target = BVT::Harness::RakeHelper.get_api_endpoint
-    target_without_http = target.split('//')[-1]
-
     BVT::Harness::RakeHelper.get_config
     BVT::Harness::RakeHelper.set_up_parallel_user # sets YETI_PARALLEL_USER and YETI_PARALLEL_PASSWD to correspond with the parallel user for this parallel index
-    profile_file = File.join(BVT::Harness::VCAP_BVT_HOME, "profile.#{target_without_http}.yml")
+    profile_file = BVT::Harness::RakeHelper.profile_file
 
     unless File.exists?(profile_file)
       BVT::Harness::RakeHelper.get_user

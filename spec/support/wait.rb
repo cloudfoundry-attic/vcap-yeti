@@ -1,7 +1,7 @@
 module WaitHelper
   def wait(retries_left = 20, &blk)
     blk.call
-  rescue => e
+  rescue
     retries_left -= 1
     if retries_left > 0
       sleep(1)
