@@ -1,26 +1,26 @@
 GIT
   remote: git://github.com/cloudfoundry/cf.git
-  revision: a83d7c9b2a0ba8a9f09e959f40bc6486cd2e9e86
+  revision: e5814ae4c827e75c506b66738e8e3add719083f1
   specs:
-    cf (4.2.10.rc1)
-      addressable (~> 2.2)
+    cf (5.2.1.rc15)
+      addressable
       caldecott-client (~> 0.0.2)
-      cfoundry (~> 4.0.3)
-      interact (~> 0.5)
-      json_pure (~> 1.6)
-      mothership (>= 0.5.1, < 1.0)
+      cfoundry (~> 4.3.5.rc1)
+      interact (>= 0.5)
+      json_pure
+      mothership (>= 0.5.1)
       multi_json (~> 1.3)
       rest-client (~> 1.6)
       uuidtools (~> 2.1)
 
 GIT
   remote: git://github.com/cloudfoundry/cfoundry.git
-  revision: da4fa941a79a1f21e92313c09bd1e0c40ef684a8
+  revision: e9b597586ef39dadc24f2093aac2df42f3747ff9
   submodules: true
   specs:
-    cfoundry (4.0.4.rc1)
-      activemodel (~> 3.2.13)
-      cf-uaa-lib (~> 1.3.10)
+    cfoundry (4.3.6)
+      activemodel (>= 3.2.13, < 5.0.0)
+      cf-uaa-lib (~> 2.0.0)
       multi_json (~> 1.7)
       multipart-post (~> 1.1)
       rubyzip (~> 0.9)
@@ -28,48 +28,53 @@ GIT
 GEM
   remote: http://rubygems.org/
   specs:
-    activemodel (3.2.14)
-      activesupport (= 3.2.14)
-      builder (~> 3.0.0)
-    activesupport (3.2.14)
+    activemodel (4.0.0)
+      activesupport (= 4.0.0)
+      builder (~> 3.1.0)
+    activesupport (4.0.0)
       i18n (~> 0.6, >= 0.6.4)
-      multi_json (~> 1.0)
+      minitest (~> 4.2)
+      multi_json (~> 1.3)
+      thread_safe (~> 0.1)
+      tzinfo (~> 0.3.37)
     addressable (2.3.5)
+    atomic (1.1.13)
     beefcake (0.3.7)
-    bson (1.9.1)
-    bson_ext (1.9.1)
-      bson (~> 1.9.1)
-    builder (3.0.4)
+    bson (1.9.2)
+    bson_ext (1.9.2)
+      bson (~> 1.9.2)
+    builder (3.1.4)
     caldecott-client (0.0.2)
       multi_json (~> 1.3)
-    cf-uaa-lib (1.3.10)
+    cf-uaa-lib (2.0.0)
       multi_json
     diff-lcs (1.2.4)
     eventmachine (1.0.3)
     faye-websocket (0.6.3)
       eventmachine (>= 0.12.0)
       websocket-driver (>= 0.2.0)
-    i18n (0.6.4)
+    i18n (0.6.5)
     interact (0.5.2)
     json_pure (1.8.0)
-    loggregator_messages (0.0.1.pre)
+    loggregator_messages (0.0.3.pre)
       beefcake (~> 0.3.7)
-    logs-cf-plugin (0.0.30.pre)
+    logs-cf-plugin (0.0.34.pre)
       beefcake (~> 0.3.7)
-      cf (>= 4.2.5, < 5.0)
+      cf (~> 5.0)
       faye-websocket (~> 0.6.1)
-      loggregator_messages (~> 0.0.1.pre)
-    mime-types (1.23)
+      loggregator_messages (~> 0.0.3.pre)
+    mime-types (1.24)
     mini_portile (0.5.1)
-    mongo (1.9.1)
-      bson (~> 1.9.1)
+    minitest (4.7.5)
+    mongo (1.9.2)
+      bson (~> 1.9.2)
     mothership (0.5.1)
-    multi_json (1.7.7)
+    multi_json (1.7.9)
     multipart-post (1.2.0)
     nokogiri (1.6.0)
       mini_portile (~> 0.5.0)
     parallel (0.7.1)
-    parallel_tests (0.15.0)
+    parallel_tests (0.15.3)
       parallel
     rake (10.1.0)
     rest-client (1.6.7)
@@ -78,11 +83,14 @@ GEM
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)
       rspec-mocks (~> 2.14.0)
-    rspec-core (2.14.4)
-    rspec-expectations (2.14.0)
+    rspec-core (2.14.5)
+    rspec-expectations (2.14.2)
       diff-lcs (>= 1.1.3, < 2.0)
-    rspec-mocks (2.14.2)
+    rspec-mocks (2.14.3)
     rubyzip (0.9.9)
+    thread_safe (0.1.2)
+      atomic
+    tzinfo (0.3.37)
     uuidtools (2.1.4)
     vcap_logging (1.0.0)
       rake
@@ -96,7 +104,7 @@ DEPENDENCIES
   bson_ext
   cf!
   cfoundry!
-  logs-cf-plugin (~> 0.0.30.pre)
+  logs-cf-plugin (~> 0.0.34.pre)
   mongo
   nokogiri
   parallel_tests
