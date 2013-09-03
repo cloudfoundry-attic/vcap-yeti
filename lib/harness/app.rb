@@ -480,8 +480,11 @@ module BVT::Harness
 
         app_manifest = VCAP_BVT_APP_ASSETS[appid].dup
         app_manifest['instances'] = 1 unless app_manifest['instances']
-        app_manifest['path']      =
+
+        unless app_manifest['path'] =~ /^\//
+          app_manifest['path']      =
             File.join(File.dirname(__FILE__), "../..", app_manifest['path'])
+        end
 
         @manifest = app_manifest
       end
