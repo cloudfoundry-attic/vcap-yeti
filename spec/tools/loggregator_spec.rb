@@ -25,17 +25,18 @@ describe "Tools::Loggregator" do
   end
 
   it "can tail app logs" do
-    @app.start
-
     th = Thread.new do
       loggregator_client.listen(:app => @app.guid)
     end
+
+    @app.start
 
     # Check that we get logs before we time out. If we don't, this test should fail.
     Timeout.timeout(10) do
       until loggregator_io.string =~ /STDOUT stdout log/ &&
           loggregator_io.string =~ /STDERR stderr log/ &&
-          loggregator_io.string =~ /CF\[Router\]  STDOUT #{@app.get_url}/
+          loggregator_io.string =~ /CF\[Router\]  STDOUT #{@app.get_url}/ &&
+          loggregator_io.string =~ /CF\[DEA\]  STDOUT/ 
         @app.get('/logs')
         sleep(0.5)
       end
