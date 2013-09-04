@@ -26,7 +26,7 @@ describe "Tools::Loggregator" do
 
   it "can tail app logs" do
     th = Thread.new do
-      loggregator_client.listen(:app => @app.guid)
+      loggregator_client.listen(@app)
     end
 
     @app.start
@@ -37,7 +37,7 @@ describe "Tools::Loggregator" do
           loggregator_io.string =~ /STDERR stderr log/ &&
           loggregator_io.string =~ /CF\[Router\]  STDOUT #{@app.get_url}/ &&
           loggregator_io.string =~ /CF\[DEA\]  STDOUT/ &&
-          loggregator_io.string =~ /CF\[CC\]  STDOUT/ 
+          loggregator_io.string =~ /CF\[CC\]  STDOUT/
         @app.get('/logs')
         sleep(0.5)
       end
