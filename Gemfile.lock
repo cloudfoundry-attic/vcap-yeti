@@ -58,7 +58,7 @@ GEM
     json_pure (1.8.0)
     loggregator_messages (0.0.3.pre)
       beefcake (~> 0.3.7)
-    logs-cf-plugin (0.0.38.pre)
+    logs-cf-plugin (0.0.40.pre)
       beefcake (~> 0.3.7)
       cf (~> 5.0)
       faye-websocket (~> 0.6.1)
@@ -104,7 +104,7 @@ DEPENDENCIES
   bson_ext
   cf!
   cfoundry!
-  logs-cf-plugin (~> 0.0.38.pre)
+  logs-cf-plugin (~> 0.0.40.pre)
   mongo
   nokogiri
   parallel_tests

@@ -16,7 +16,10 @@ describe "Tools::Loggregator" do
   end
 
   let(:loggregator_io) { StringIO.new }
-  let(:loggregator_client) { LogsCfPlugin::LoggregatorClient.new(loggregator_host, cf_client.token.auth_header, loggregator_io, false) }
+  let(:loggregator_client) do
+    config = LogsCfPlugin::ClientConfig.new(loggregator_host, 4443, cf_client.token.auth_header, loggregator_io, false)
+    LogsCfPlugin::TailingLogsClient.new(config)
+  end
   let(:cf_client) { @session.client }
 
   def loggregator_host
@@ -26,7 +29,7 @@ describe "Tools::Loggregator" do
 
   it "can tail app logs" do
     th = Thread.new do
-      loggregator_client.listen(@app)
+      loggregator_client.logs_for(@app)
     end
 
     @app.start
