@@ -344,6 +344,10 @@ memory_hog:
   path: "assets/bad_apps/mem"
   command: "bundle exec ruby memhog.rb"
 
+dora:
+  memory: 256
+  path: "assets/sinatra/dora"
+
 connect_to_ip:
   memory: 128
   path: "assets/sinatra/connect_to_ip"
