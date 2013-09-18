@@ -121,8 +121,8 @@ describe "Simple::Domain" do
     harness_space = BVT::Harness::Space.new(space, @session)
 
     #add newly-created custom domain into this space
-    target_domain = @session.get_target_domain
-    domain_array = [ target_domain ]
+    existing_domains = space.domains.collect(&:name)
+    domain_array = existing_domains.dup
     10.times do |i|
       new_name = 'new-domain' + i.to_s + '.com'
       domain = @session.domain(new_name)
@@ -145,7 +145,7 @@ describe "Simple::Domain" do
     domains = space.domains.collect {|domain| BVT::Harness::Domain.new(domain, @session)}
     domains.each{ |s|
       domain_array.each do |item|
-        if (s.name != target_domain ) and (s.name == item )
+        if (!existing_domains.include? s.name) and (s.name == item )
           s.delete
           s.check_domain_of_org.should == false
         end
