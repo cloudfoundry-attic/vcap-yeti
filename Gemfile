@@ -11,6 +11,8 @@ gem "bson_ext"
 gem "yajl-ruby"
 gem "nokogiri"
 
+gem "ci_reporter"
+
 group :vcap do
   gem "vcap_logging", ">= 1.0"
 
