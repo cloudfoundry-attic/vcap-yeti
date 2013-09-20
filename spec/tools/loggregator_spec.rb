@@ -38,9 +38,9 @@ describe "Tools::Loggregator" do
     Timeout.timeout(10) do
       until loggregator_io.string =~ /STDOUT stdout log/ &&
           loggregator_io.string =~ /STDERR stderr log/ &&
-          loggregator_io.string =~ /CF\[Router\]  STDOUT #{@app.get_url}/ &&
-          loggregator_io.string =~ /CF\[DEA\]  STDOUT/ &&
-          loggregator_io.string =~ /CF\[CC\]  STDOUT/
+          loggregator_io.string =~ /CF\[Router\] STDOUT #{@app.get_url}/ &&
+          loggregator_io.string =~ /CF\[DEA\] STDOUT/ &&
+          loggregator_io.string =~ /CF\[CC\] STDOUT/
         @app.get('/logs')
         sleep(0.5)
       end
