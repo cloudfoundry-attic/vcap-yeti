@@ -8,7 +8,6 @@ describe "Tools::Loggregator" do
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
-    @app = create_push_app('node0_6', '', nil, [], true)
   end
 
   after(:all) do
@@ -46,17 +45,20 @@ describe "Tools::Loggregator" do
     "loggregator.#{target_base}"
   end
 
+  with_app "dora"
+
   it "can tail app logs" do
     th = Thread.new do
-      loggregator_client.logs_for(@app)
+      loggregator_client.logs_for(app)
     end
-
-    @app.start
 
     # Check that we get logs before we time out. If we don't, this test should fail.
     begin
       Timeout.timeout(10) do
         while true
+          app.get('/echo/stdout/hello-out')
+          app.get('/echo/stderr/hello-err')
+
           logged_output = loggregator_io.string
 
           if logged_output =~ /Server dropped connection/
@@ -64,9 +66,9 @@ describe "Tools::Loggregator" do
           end
 
           matches = [
-            /STDOUT stdout log/,
-            /STDERR stderr log/,
-            /CF\[Router\] STDOUT #{@app.get_url}/,
+            /STDOUT hello-out/,
+            /STDERR hello-err/,
+            /CF\[Router\] STDOUT #{app.get_url}/,
           ]
 
           break if matches.all? { |match|
@@ -78,8 +80,6 @@ describe "Tools::Loggregator" do
               false
             end
           }
-
-          @app.get('/logs')
 
           sleep(0.5)
         end

@@ -107,7 +107,7 @@ DEPENDENCIES
   cf!
   cfoundry!
   ci_reporter
-  logs-cf-plugin (~> 0.0.40.pre)
+  logs-cf-plugin (~> 0.0.44.pre)
   mongo
   nokogiri
   parallel_tests
