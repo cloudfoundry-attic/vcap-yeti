@@ -35,15 +35,38 @@ describe "Tools::Loggregator" do
     @app.start
 
     # Check that we get logs before we time out. If we don't, this test should fail.
-    Timeout.timeout(10) do
-      until loggregator_io.string =~ /STDOUT stdout log/ &&
-          loggregator_io.string =~ /STDERR stderr log/ &&
-          loggregator_io.string =~ /CF\[Router\] STDOUT #{@app.get_url}/ &&
-          loggregator_io.string =~ /CF\[DEA\] STDOUT/ &&
-          loggregator_io.string =~ /CF\[CC\] STDOUT/
-        @app.get('/logs')
-        sleep(0.5)
+    begin
+      Timeout.timeout(10) do
+        while true
+          logged_output = loggregator_io.string
+
+          if logged_output =~ /Server dropped connection/
+            raise "Connection dropped! Output:\n#{logged_output}"
+          end
+
+          matches = [
+            /STDOUT stdout log/,
+            /STDERR stderr log/,
+            /CF\[Router\] STDOUT #{@app.get_url}/,
+          ]
+
+          break if matches.all? { |match|
+            if logged_output =~ match
+              puts "LOGS MATCH #{match}"
+              true
+            else
+              puts "LOGS DO NOT MATCH #{match}?"
+              false
+            end
+          }
+
+          @app.get('/logs')
+
+          sleep(0.5)
+        end
       end
+    rescue Timeout::Error
+      raise "Did not see matching lines. Output:\n#{loggregator_io.string}"
     end
 
     Thread.kill(th)
