@@ -16,10 +16,29 @@ describe "Tools::Loggregator" do
   end
 
   let(:loggregator_io) { StringIO.new }
-  let(:loggregator_client) do
-    config = LogsCfPlugin::ClientConfig.new(loggregator_host, 4443, cf_client.token.auth_header, loggregator_io, false)
-    LogsCfPlugin::TailingLogsClient.new(config)
+
+  let(:loggregator_client_config) do
+    loggregator_port, use_ssl =
+      if @session.api_endpoint.start_with?("https")
+        [4443, true]
+      else
+        [80, false]
+      end
+
+    LogsCfPlugin::ClientConfig.new(
+      loggregator_host,
+      loggregator_port,
+      cf_client.token.auth_header,
+      loggregator_io,
+      false,
+      use_ssl,
+    )
   end
+
+  let(:loggregator_client) do
+    LogsCfPlugin::TailingLogsClient.new(loggregator_client_config)
+  end
+
   let(:cf_client) { @session.client }
 
   def loggregator_host
