@@ -14,7 +14,7 @@ describe "Tools::Loggregator" do
     @session.cleanup!
   end
 
-  let(:loggregator_io) { StringIO.new }
+  let(:loggregator_io) { StringIO.new.set_encoding("utf-8") }
 
   let(:loggregator_client_config) do
     loggregator_port, use_ssl =
@@ -52,6 +52,8 @@ describe "Tools::Loggregator" do
       loggregator_client.logs_for(app)
     end
 
+    app.restart
+
     # Check that we get logs before we time out. If we don't, this test should fail.
     begin
       Timeout.timeout(10) do
@@ -69,6 +71,8 @@ describe "Tools::Loggregator" do
             /STDOUT hello-out/,
             /STDERR hello-err/,
             /CF\[Router\] STDOUT #{app.get_url}/,
+            /CF\[CC\] STDOUT/,
+            /CF\[DEA\] STDOUT/,
           ]
 
           break if matches.all? { |match|
