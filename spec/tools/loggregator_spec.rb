@@ -86,8 +86,8 @@ describe "Tools::Loggregator" do
       end
     rescue Timeout::Error
       raise "Did not see matching lines. Output:\n#{loggregator_io.string}"
+    ensure
+      Thread.kill(th)
     end
-
-    Thread.kill(th)
   end
 end
