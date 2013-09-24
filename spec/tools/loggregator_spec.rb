@@ -14,7 +14,7 @@ describe "Tools::Loggregator" do
     @session.cleanup!
   end
 
-  let(:loggregator_io) { StringIO.new.set_encoding("utf-8") }
+  let(:loggregator_io) { StringIO.new.set_encoding('ASCII-8BIT') }
 
   let(:loggregator_client_config) do
     loggregator_port, use_ssl =
@@ -60,7 +60,6 @@ describe "Tools::Loggregator" do
         while true
           app.get('/echo/stdout/hello-out')
           app.get('/echo/stderr/hello-err')
-
           logged_output = loggregator_io.string
 
           if logged_output =~ /Server dropped connection/
@@ -71,8 +70,8 @@ describe "Tools::Loggregator" do
             /STDOUT hello-out/,
             /STDERR hello-err/,
             /CF\[Router\] STDOUT #{app.get_url}/,
-            /CF\[CC\/\d+\] STDOUT/,
-            /CF\[DEA\/\d+\] STDOUT/,
+            /CF\[CC\d?\] STDOUT/,
+            /CF\[DEA\d?\] STDOUT/,
           ]
 
           break if matches.all? { |match|
