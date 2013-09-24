@@ -71,8 +71,8 @@ describe "Tools::Loggregator" do
             /STDOUT hello-out/,
             /STDERR hello-err/,
             /CF\[Router\] STDOUT #{app.get_url}/,
-            /CF\[CC\] STDOUT/,
-            /CF\[DEA\] STDOUT/,
+            /CF\[CC\/\d+\] STDOUT/,
+            /CF\[DEA\/\d+\] STDOUT/,
           ]
 
           break if matches.all? { |match|
