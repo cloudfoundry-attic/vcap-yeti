@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require "harness"
 require "spec_helper"
 require "logs-cf-plugin/plugin"
@@ -76,35 +78,32 @@ describe "Tools::Loggregator" do
       Timeout.timeout(10) do
         while true
           result = app.get_response(:get)
-          if result.code.to_i == 200
-            logged_output = loggregator_io.string
 
-            if logged_output =~ /Server dropped connection/
-              raise "Connection dropped! Output:\n#{logged_output}"
-            end
+          raise "Could not get response from loggregator test app" if result.code.to_i != 200
 
-            matchers.each do |matcher, matched|
-              next if matched
-              if logged_output =~ matcher
-                puts "LOGS MATCH #{matcher}"
-                matchers[matcher]=true
-              else
-                puts "LOGS DO NOT MATCH #{matcher}?"
-              end
-            end
+          logged_output = loggregator_io.string
 
-            break if matchers.values.all? { |matched| matched }
-
-          else
-            puts "Loggregator test app didn't return a response"
-            loggregator_io.write("Loggregator test app didn't return a response")
+          if logged_output =~ /Server dropped connection/
+            raise "Connection dropped! Output:\n#{logged_output}\n\nEvents:#{app.events.inspect}"
           end
+
+          matchers.each do |matcher, matched|
+            next if matched
+            if logged_output =~ matcher
+              puts "LOGS MATCH #{matcher}"
+              matchers[matcher]=true
+            else
+              puts "LOGS DO NOT MATCH #{matcher}?"
+            end
+          end
+
+          break if matchers.values.all? { |matched| matched }
 
           sleep(0.5)
         end
       end
     rescue Timeout::Error
-      raise "Did not see matching lines. Output:\n#{loggregator_io.string}"
+      raise "Did not see matching lines. Output:\n#{loggregator_io.string}\n\nEvents:#{app.events.inspect}"
     ensure
       Thread.kill(th)
     end
