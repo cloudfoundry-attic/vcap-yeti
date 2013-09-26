@@ -359,3 +359,7 @@ connect_to_ip:
 large_file:
   memory: 128
   path: "assets/sinatra/large_file_app"
+
+buildpack_test:
+  memory: 128
+  path: "assets/buildpacks/buildpack_test_app"
