@@ -348,6 +348,10 @@ dora:
   memory: 256
   path: "assets/sinatra/dora"
 
+loggregator:
+  memory: 128
+  path: "assets/sinatra/loggregator"
+
 connect_to_ip:
   memory: 128
   path: "assets/sinatra/connect_to_ip"

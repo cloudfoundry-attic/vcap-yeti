@@ -14,23 +14,23 @@ describe "Tools::Loggregator" do
     @session.cleanup!
   end
 
-  let(:loggregator_io) { StringIO.new.set_encoding('ASCII-8BIT') }
+  let(:loggregator_io) { StringIO.new }
 
   let(:loggregator_client_config) do
     loggregator_port, use_ssl =
-      if @session.api_endpoint.start_with?("https")
-        [4443, true]
-      else
-        [80, false]
-      end
+        if @session.api_endpoint.start_with?("https")
+          [4443, true]
+        else
+          [80, false]
+        end
 
     LogsCfPlugin::ClientConfig.new(
-      loggregator_host,
-      loggregator_port,
-      cf_client.token.auth_header,
-      loggregator_io,
-      false,
-      use_ssl,
+        loggregator_host,
+        loggregator_port,
+        cf_client.token.auth_header,
+        loggregator_io,
+        false,
+        use_ssl,
     )
   end
 
@@ -45,44 +45,60 @@ describe "Tools::Loggregator" do
     "loggregator.#{target_base}"
   end
 
-  with_app "dora"
+  with_app "loggregator"
 
   it "can tail app logs" do
+
     th = Thread.new do
       loggregator_client.logs_for(app)
     end
 
+    # We need to restart the app after the loggregator tail is running so we can test various logs
     app.restart
+
+    begin
+      Timeout.timeout(10) do
+        loop { break if app.application_is_really_running? }
+      end
+    rescue Timeout::Error
+      raise "Loggregator test app didn't startup correctly"
+    end
+
+    matchers = {}
+    matchers[/Hello on STDOUT/] =  false
+    matchers[/Hello on STDERR/] =  false
+    matchers[/CF\[Router(\/\d)?\] STDOUT #{app.get_url}/] =  false
+    matchers[/CF\[CC(\/\d)?\] STDOUT/] =  false
+    matchers[/CF\[DEA(\/\d)?\] STDOUT/] =  false
 
     # Check that we get logs before we time out. If we don't, this test should fail.
     begin
       Timeout.timeout(10) do
         while true
-          app.get('/echo/stdout/hello-out')
-          app.get('/echo/stderr/hello-err')
-          logged_output = loggregator_io.string
+          result = app.get_response(:get)
+          if result.code.to_i == 200
+            logged_output = loggregator_io.string
 
-          if logged_output =~ /Server dropped connection/
-            raise "Connection dropped! Output:\n#{logged_output}"
-          end
-
-          matches = [
-            /STDOUT hello-out/,
-            /STDERR hello-err/,
-            /CF\[Router\] STDOUT #{app.get_url}/,
-            /CF\[CC(\/\d)?\] STDOUT/,
-            /CF\[DEA(\/\d)?\] STDOUT/,
-          ]
-
-          break if matches.all? { |match|
-            if logged_output =~ match
-              puts "LOGS MATCH #{match}"
-              true
-            else
-              puts "LOGS DO NOT MATCH #{match}?"
-              false
+            if logged_output =~ /Server dropped connection/
+              raise "Connection dropped! Output:\n#{logged_output}"
             end
-          }
+
+            matchers.each do |matcher, matched|
+              next if matched
+              if logged_output =~ matcher
+                puts "LOGS MATCH #{matcher}"
+                matchers[matcher]=true
+              else
+                puts "LOGS DO NOT MATCH #{matcher}?"
+              end
+            end
+
+            break if matchers.values.all? { |matched| matched }
+
+          else
+            puts "Loggregator test app didn't return a response"
+            loggregator_io.write("Loggregator test app didn't return a response")
+          end
 
           sleep(0.5)
         end
