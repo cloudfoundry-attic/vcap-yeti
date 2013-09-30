@@ -361,5 +361,10 @@ large_file:
   path: "assets/sinatra/large_file_app"
 
 buildpack_test:
-  memory: 128
+  memory: 64
   path: "assets/buildpacks/buildpack_test_app"
+
+specific_buildpack_test:
+  memory: 64
+  path: "assets/buildpacks/buildpack_test_app"
+  buildpack: "another_buildpack"
