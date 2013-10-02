@@ -71,11 +71,14 @@ describe "Tools::Loggregator" do
     BlueShell::Runner.run "#{cli_path} target -o #{@session.current_organization.name} -s #{@session.current_space.name}"
     BlueShell::Runner.run "#{cli_path} logs #{app.name}" do |runner|
       runner.should say 'Connected, tailing...'
-      app.get_response(:get)
+
+      20.times do
+        app.get_response(:get)
+        sleep 0.1
+      end
+
       runner.should say /Router #{app.get_url}/
-      app.get_response(:get)
       runner.should say 'Hello on STDOUT'
-      app.get_response(:get)
       runner.should say 'Hello on STDERR'
       app.restart
       runner.should say /API Updated app with guid #{app.guid}.* Executor Registering instance/m
