@@ -10,6 +10,7 @@ gem "mongo"
 gem "bson_ext"
 gem "yajl-ruby"
 gem "nokogiri"
+gem "blue-shell", :github => "shageman/blue-shell"
 
 gem "ci_reporter"
 
@@ -22,5 +23,4 @@ group :vcap do
   }
 
   gem "cf", :github => "cloudfoundry/cf"
-  gem "logs-cf-plugin", "~> 0.0.44.pre"
 end

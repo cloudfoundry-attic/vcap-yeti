@@ -34,7 +34,7 @@ module BVT::Harness
     end
 
     def inspect
-      "#<BVT::Harness::CFSession '#{@api_endpoint}', '#{@email}'>"
+      "#<BVT::Harness::CFSession '#{@api_endpoint}', '#{@email}', '#{@passwd}', '#{@current_organization.name}', '#{@current_space.name}'>"
     end
 
     def login

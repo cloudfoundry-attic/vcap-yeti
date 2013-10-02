@@ -1,8 +1,10 @@
+require "blue-shell"
 require "harness"
 require "json"
-require 'yaml'
-require 'syck'
-YAML::ENGINE.yamler = 'syck'
+require "syck"
+require "yaml"
+
+YAML::ENGINE.yamler = "syck"
 
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].map { |f| require f }
 
@@ -65,4 +67,6 @@ RSpec.configure do |config|
   end
 
   config.include BVT::Harness::ScriptsHelper
+
+  config.include BlueShell::Matchers
 end

@@ -2,59 +2,62 @@
 
 require "harness"
 require "spec_helper"
-require "logs-cf-plugin/plugin"
 
 include BVT::Spec
 
 describe "Tools::Loggregator" do
+  def tmp_dir
+    File.expand_path(File.join(__FILE__, "../../../tmp"))
+  end
+
+  def cli_path
+    tmp_dir + "/go-cf"
+  end
+
+  def windows?
+    (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
+  end
+
+  def mac?
+    (/darwin/ =~ RUBY_PLATFORM) != nil
+  end
+
+  def linux?
+    !windows? && !mac?
+  end
+
+  def system_architecture
+    return :linux if linux?
+    return :mac if mac?
+  end
+
+  def download_cli_for_arch
+    binary_urls = {
+      :mac    => "http://go-cli.s3.amazonaws.com/go-cf-darwin-amd64.tgz",
+      :win386 => "http://go-cli.s3.amazonaws.com/go-cf-windows-386.tgz",
+      :win64  => "http://go-cli.s3.amazonaws.com/go-cf-windows-amd64.tgz",
+      :linux  => "http://go-cli.s3.amazonaws.com/go-cf-linux-amd64.tgz"
+    }
+
+    Dir.mkdir(tmp_dir) unless File.exists?(tmp_dir)
+    new_file_path = File.join(tmp_dir, "go-cli")
+
+    `wget #{binary_urls[system_architecture]} -O #{new_file_path}.tgz && tar xzf #{new_file_path}.tgz -C #{tmp_dir}`
+  end
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
+    download_cli_for_arch
   end
 
   after(:all) do
     @session.cleanup!
-  end
-
-  let(:loggregator_io) { StringIO.new }
-
-  let(:loggregator_client_config) do
-    loggregator_port, use_ssl =
-        if @session.api_endpoint.start_with?("https")
-          [4443, true]
-        else
-          [80, false]
-        end
-
-    LogsCfPlugin::ClientConfig.new(
-        loggregator_host,
-        loggregator_port,
-        cf_client.token.auth_header,
-        loggregator_io,
-        false,
-        use_ssl,
-    )
-  end
-
-  let(:loggregator_client) do
-    LogsCfPlugin::TailingLogsClient.new(loggregator_client_config)
-  end
-
-  let(:cf_client) { @session.client }
-
-  def loggregator_host
-    target_base = @session.api_endpoint.sub(/^https?:\/\/([^\.]+\.)?(.+)\/?/, '\2')
-    "loggregator.#{target_base}"
+    BlueShell::Runner.run "#{cli_path} logout"
   end
 
   with_app "loggregator"
 
   it "can tail app logs" do
-
-    th = Thread.new do
-      loggregator_client.logs_for(app)
-    end
-
     begin
       Timeout.timeout(10) do
         loop { break if app.application_is_really_running? }
@@ -63,55 +66,20 @@ describe "Tools::Loggregator" do
       raise "Loggregator test app didn't startup correctly"
     end
 
-    matchers = {}
-    matchers[/Hello on STDOUT/] = false
-    matchers[/Hello on STDERR/] = false
-    matchers[/CF\[Router(\/\d)?\] STDOUT #{app.get_url}/] = false
-
-    wait_for_matchers(app, matchers, loggregator_io, true)
-
-    app.restart
-
-    matchers = {}
-    matchers[/CF\[CC(\/\d)?\] STDOUT/] = false
-    matchers[/CF\[DEA(\/\d)?\] STDOUT/] = false
-
-    wait_for_matchers(app, matchers, loggregator_io)
-  end
-end
-
-def wait_for_matchers(app, matchers, loggregator_io, should_hit_app = false)
-  # Check that we get logs before we time out. If we don't, this test should fail.
-  begin
-    Timeout.timeout(10) do
-      while true
-        if should_hit_app
-          result = app.get_response(:get)
-          raise "Could not get response from loggregator test app" if result.code.to_i != 200
-        end
-
-        logged_output = loggregator_io.string
-
-        if logged_output =~ /Server dropped connection/
-          raise "Connection dropped! Output:\n#{logged_output}\n\nEvents:#{app.events.inspect}"
-        end
-
-        matchers.each do |matcher, matched|
-          next if matched
-          if logged_output =~ matcher
-            puts "LOGS MATCH #{matcher}"
-            matchers[matcher]=true
-          else
-            puts "LOGS DO NOT MATCH #{matcher}?"
-          end
-        end
-
-        break if matchers.values.all? { |matched| matched }
-
-        sleep(0.5)
-      end
+    BlueShell::Runner.run "#{cli_path} api #{@session.api_endpoint}"
+    BlueShell::Runner.run "#{cli_path} login #{@session.email} #{@session.passwd}"
+    BlueShell::Runner.run "#{cli_path} target -o #{@session.current_organization.name} -s #{@session.current_space.name}"
+    BlueShell::Runner.run "#{cli_path} logs #{app.name}" do |runner|
+      runner.should say 'Connected, tailing...'
+      app.get_response(:get)
+      runner.should say /Router #{app.get_url}/
+      app.get_response(:get)
+      runner.should say 'Hello on STDOUT'
+      app.get_response(:get)
+      runner.should say 'Hello on STDERR'
+      app.restart
+      runner.should say /API Updated app with guid #{app.guid}.* Executor Registering instance/m
+      runner.kill
     end
-  rescue Timeout::Error
-    raise "Did not see matching lines. Output:\n#{loggregator_io.string}\n\nEvents:#{app.events.inspect}"
   end
 end
