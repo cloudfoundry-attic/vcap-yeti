@@ -33,10 +33,10 @@ describe "Tools::Loggregator" do
 
   def download_cli_for_arch
     binary_urls = {
-      :mac    => "http://go-cli.s3.amazonaws.com/go-cf-darwin-amd64.tgz",
-      :win386 => "http://go-cli.s3.amazonaws.com/go-cf-windows-386.tgz",
-      :win64  => "http://go-cli.s3.amazonaws.com/go-cf-windows-amd64.tgz",
-      :linux  => "http://go-cli.s3.amazonaws.com/go-cf-linux-amd64.tgz"
+      :mac    => "https://go-cli.s3.amazonaws.com/go-cf-darwin-amd64.tgz",
+      :win386 => "https://go-cli.s3.amazonaws.com/go-cf-windows-386.tgz",
+      :win64  => "https://go-cli.s3.amazonaws.com/go-cf-windows-amd64.tgz",
+      :linux  => "https://go-cli.s3.amazonaws.com/go-cf-linux-amd64.tgz"
     }
 
     Dir.mkdir(tmp_dir) unless File.exists?(tmp_dir)
