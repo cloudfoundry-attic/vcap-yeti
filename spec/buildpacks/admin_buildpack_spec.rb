@@ -2,7 +2,7 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe "Admin Buildpacks" do
+describe "Admin Buildpacks", :runtime => true do
   before(:all) do
     @session = BVT::Harness::CFSession.new
     @tmpdir = Dir.mktmpdir

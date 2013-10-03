@@ -2,7 +2,7 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe "Ruby" do
+describe "Ruby", :runtime => true do
   before(:all) { @session = BVT::Harness::CFSession.new }
 
   def self.it_supports_basics(version)

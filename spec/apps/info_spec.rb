@@ -2,7 +2,7 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe "Simple::Info" do
+describe "Dynamic app information", :runtime => true do
   VAR_INSTANCE_COUNT = 4
   VAR_MEMORY         = 64
 

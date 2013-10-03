@@ -2,302 +2,62 @@ require "harness"
 require "spec_helper"
 require "cfoundry"
 
-include BVT::Spec
+describe "Domains", :runtime => true do
+  before { @session = BVT::Harness::CFSession.new }
 
-describe "Simple::Domain" do
+  after { @session.cleanup! }
 
-  before(:all) do
-    @session = BVT::Harness::CFSession.new
-  end
+  it "cannot be created with duplicate names" do
+    new_domain = "random-domain-#{SecureRandom.uuid}.some-domain.com"
 
-  before { @original_space = @session.current_space }
-
-  after do
-    @session.test_domains.each { |domain| domain.delete }
-    @session.select_org_and_space("", @original_space.name)
-  end
-
-  it "create and delete custom domain" do
-    @org_name = @session.current_organization.name
-    new_name = 'new-domain.com'
-    domain = @session.domain(new_name)
-
-    domain.create
-    domain.check_domain_of_org.should be_true, "domain: #{domain.name} does not exist in org: #{@org_name}."
-
-    domain.delete
-    domain.check_domain_of_org.should be_false, "domain: #{domain.name} is not successfully deleted from org: #{@org_name}."
-  end
-
-  it "create and delete multiple custom domains" do
-    #create multiple custom domains
-    domain_array = []
-    10.times do |i|
-      new_name = 'new-domain' + i.to_s + '.com'
-      domain = @session.domain(new_name)
-      domain.create
-      domain_array << domain.name
-      domain.check_domain_of_org.should == true
-    end
-
-    # delete multiple custom domains and verify deletion
-    domains = @session.domains
-    domains.each do |s|
-      domain_array.each do |item|
-        if s.name == item
-          s.delete
-          s.check_domain_of_org.should == false
-        end
-      end
-    end
-  end
-
-  it "create duplicated custom domain(negative testing)" do
-    new_name = 'new-domain.com'
-    domain = @session.domain(new_name)
-
-    domain.create
-    domain.check_domain_of_org.should == true
-
-    lambda { domain.create }.should raise_error(RuntimeError, /The domain name is taken/)
-
-    domain.delete
-    domain.check_domain_of_org.should == false
-  end
-
-  it "add and delete custom domain" do
-    @org_name = @session.current_organization.name
-    new_name = 'new-domain.com'
-    domain = @session.domain(new_name)
-
-    new_domain = domain.create
-    domain.check_domain_of_org.should be_true, "domain: #{domain.name} does not exist in org: #{@org_name}."
-
-    domain.add(new_domain)
-    domain.check_domain_of_space.should be_true, "domain: #{domain.name} does not exist in space: #{@session.current_space.name}."
-
-    domain.delete
-    domain.check_domain_of_space.should be_false, "domain: #{domain.name} is not successfully deleted from space: #{@session.current_space.name}."
-  end
-
-  it "add and delete multiple custom domains" do
-    #add multiple custom domains
-    domain_array = []
-    10.times do |i|
-      new_name = 'new-domain' + i.to_s + '.com'
-      domain = @session.domain(new_name)
-      new_domain = domain.create
-      domain.check_domain_of_org.should == true
-      domain.add(new_domain)
-      domain_array << domain.name
-      domain.check_domain_of_space.should == true
-    end
-
-    #delete multiple custom domains of space and verify deletion
-    space = @session.current_space
-    domains = space.domains.collect { |domain| BVT::Harness::Domain.new(domain, @session) }
-    domains.each do |s|
-      domain_array.each do |item|
-        if s.name == item
-          s.delete
-          s.check_domain_of_org.should == false
-        end
-      end
-    end
-  end
-
-  it "list domains in one space" do
-    #create one space & setting this space as current space
-    #record current space before we set new current space, so that we can reset back
-    previous_space = @session.current_space
-    space = @session.space("domain-space")
-    space.create
-    @session.select_org_and_space("", space.name)
-    space = @session.current_space
-    space.name.should == space.name
-    harness_space = BVT::Harness::Space.new(space, @session)
-
-    #add newly-created custom domain into this space
-    existing_domains = space.domains.collect(&:name)
-    domain_array = existing_domains.dup
-    10.times do |i|
-      new_name = 'new-domain' + i.to_s + '.com'
-      domain = @session.domain(new_name)
-      new_domain = domain.create
-      domain.check_domain_of_org.should == true
-      domain.add(new_domain)
-      domain_array << domain.name
-    end
-
-    #list domains of this space
-    domains = space.domains
-    domains_list = domains.collect(&:name)
-
-    #check if domains of this space are list correctly
-    domains_list.sort!
-    domain_array.sort!
-    domains_list.should == domain_array
-
-    #delete multiple custom domains of space
-    domains = space.domains.collect { |domain| BVT::Harness::Domain.new(domain, @session) }
-    domains.each do |s|
-      domain_array.each do |item|
-        if (!existing_domains.include? s.name) and (s.name == item)
-          s.delete
-          s.check_domain_of_org.should == false
-        end
-      end
-    end
-
-    #delete space
-    harness_space.delete
-
-    #reset back to previous space
-    @session.select_org_and_space("", previous_space.name)
-    space = @session.current_space
-    space.name.should == previous_space.name
-  end
-
-  it "push app to one custom domain" do
-    new_name = 'new-domain.com'
-    domain = @session.domain(new_name)
-
-    new_domain = domain.create
-    domain.check_domain_of_org.should == true
-
-    domain.add(new_domain)
-    domain.check_domain_of_space.should == true
-
-    app = create_push_app("simple_app", '', new_domain.name)
-
-    #check if app is successfully pushed to custom domain
-    expected_url = app.name + "." + new_domain.name
-    app.stats["0"][:state].should == "RUNNING"
-    app.stats["0"][:stats][:uris][0].should == expected_url
-
-    #clean up app, domain
-    app.delete
-    domain.delete
-  end
-
-  it "delete custom domain with apps(negative testing)" do
-    new_name = 'negative-domain.com'
-    domain = @session.domain(new_name)
-
-    new_domain = domain.create
-    domain.check_domain_of_org.should == true
-
-    domain.add(new_domain)
-    domain.check_domain_of_space.should == true
-
-    app = create_push_app("simple_app", '', new_domain.name)
+    domain = make_domain(new_domain)
+    domain.create!
 
     expect {
-      domain.delete
-    }.to raise_error(
-      CFoundry::APIError, /10006: Please delete the routes associations for your domains./
-    )
-    domain.check_domain_of_org.should == true
-
-    #clean up app, domain
-    app.delete
-    domain.delete
+      domain.create!
+    }.to raise_error(/The domain name is taken/)
   end
 
-  it "delete custom domain that was ever bound with app" do
-    #add custom domain in one space
-    new_name = 'new-domain.com'
-    domain = @session.domain(new_name)
-    new_domain = domain.create
-    domain.add(new_domain)
-    domain.check_domain_of_space.should == true
+  it "can be used for an app's routes" do
+    new_domain = "random-domain-#{SecureRandom.uuid}.some-domain.com"
 
-    #push app into the custom domain
-    app = create_push_app("simple_app", '', new_domain.name)
-    app.stats["0"][:state].should == "RUNNING"
+    app = make_app
+    app.create!
 
-    #delete app
-    app.delete
+    domain = make_domain(new_domain)
+    domain.create!
 
-    #delete custom domain and check if the domain can be successfully deleted.
-    domain.delete
-    domain.check_domain_of_org.should == false
+    app.space.add_domain(domain)
+
+    route = map_route(app, SecureRandom.uuid, domain)
+
+    app.upload(asset("sinatra/dora"))
+    app.start!(&staging_callback)
+
+    app.stats["0"][:stats][:uris][0].should == route.name
   end
 
-  it "remove custom domain" do
-    #create one space & setting this space as current space
-    @space = @session.space("domain-space")
-    @space.create
-    @session.select_org_and_space("", @space.name)
-    current_space = @session.current_space
-    current_space.name.should == @space.name
+  context "when there are routes using the domain" do
+    it "cannot be deleted" do
+      new_domain = "random-domain-#{SecureRandom.uuid}.some-domain.com"
 
-    #create newly-created custom domain
-    new_name = 'new-domain.com'
-    domain = @session.domain(new_name)
-    new_domain = domain.create
-    domain.check_domain_of_org.should be_true, "domain: #{domain.name} does not exist in org: #{@org_name}."
+      domain = make_domain(new_domain)
+      domain.create!
 
-    #add newly-created custom domain into the space
-    domain.add(new_domain)
-    domain.check_domain_of_space.should be_true, "domain: #{domain.name} does not exist in space: #{@session.current_space.name}."
-    harness_space = BVT::Harness::Space.new(current_space, @session)
-    harness_space.remove_domain(domain)
+      @session.current_space.add_domain(domain)
 
-    #check if the domain is removed from the space
-    domain.check_domain_of_space.should be_false, "domain: #{domain.name} is not successfully removed from space: #{@session.current_space.name}."
-    domain.check_domain_of_org.should be_true, "domain: #{domain.name} should not be removed from org: #{@org_name}."
+      route = make_route(domain)
+      route.create!
 
-    #clean up domain, space
-    domain.delete
-    harness_space.delete
-  end
+      expect {
+        domain.delete!
+      }.to raise_error(
+        CFoundry::APIError, /10006: Please delete the routes associations for your domains./
+      )
 
-  it "app can be bound to the routes based of custom domain" do
-    #add multiple custom domains
-    num_domain = 4
-    domain_array = []
-    num_domain.times do |i|
-      new_name = "new-domain#{i + 5}.com"
-      domain = @session.domain(new_name)
-      new_domain = domain.create
-      domain.check_domain_of_org.should == true
-      domain.add(new_domain)
-      domain_array << domain.name
-      domain.check_domain_of_space.should == true
-    end
+      route.delete!
 
-    #push app into one new domain and check if app is successfully pushed to custom domain
-    app = create_push_app("simple_app", '', domain_array[0])
-    expected_url = app.name + "." + domain_array[0]
-    app.stats["0"][:state].should == "RUNNING"
-    app.stats["0"][:stats][:uris][0].should == expected_url
-
-    #map this app to other custom domains
-    domain_array.each { |d| app.map("#{app.name}.#{d}") }
-
-    #check route list
-    routes = @session.client.routes.select { |r| r.host == app.name }
-    routes.length.should == num_domain
-
-    #clean up
-    domain_array.each { |d| app.unmap("#{app.name}.#{d}", :delete => true) }
-
-    #clean up app, domain
-    app.delete
-
-    #delete multiple custom domains of space and verify deletion
-    space = BVT::Harness::Space.new(@session.current_space, @session)
-    domains = @session.current_space.domains.collect { |domain| BVT::Harness::Domain.new(domain, @session) }
-
-    domains.each do |d|
-      domain_array.each do |item|
-        if d.name == item
-          space.remove_domain(d)
-          d.delete
-          d.check_domain_of_org.should == false
-        end
-      end
+      expect { domain.delete! }.to_not raise_error
     end
   end
 end

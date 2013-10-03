@@ -42,6 +42,10 @@ module BVT
   end
 end
 
+def asset(path)
+  File.expand_path("../../assets/#{path}", __FILE__)
+end
+
 RSpec.configure do |config|
   include BVT::Harness::ColorHelpers
 
@@ -69,4 +73,6 @@ RSpec.configure do |config|
   config.include BVT::Harness::ScriptsHelper
 
   config.include BlueShell::Matchers
+
+  config.include CFoundryHelpers
 end

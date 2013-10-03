@@ -3,7 +3,7 @@ require "spec_helper"
 require "securerandom"
 include BVT::Spec
 
-describe "App lifecycle" do
+describe "App lifecycle", :runtime => true do
   before(:all) { @session = BVT::Harness::CFSession.new }
 
   describe "app serving web requests" do

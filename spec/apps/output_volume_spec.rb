@@ -2,7 +2,7 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe "An app with a bunch of output" do
+describe "An app with a bunch of output", :runtime => true do
   before(:all) { @session = BVT::Harness::CFSession.new }
 
   with_app "dora"

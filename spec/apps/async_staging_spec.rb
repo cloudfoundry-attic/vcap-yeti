@@ -2,7 +2,7 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe "Async app staging" do
+describe "Async app staging", :runtime => true do
   before(:all) { @session = BVT::Harness::CFSession.new }
 
   after { @session.cleanup! }

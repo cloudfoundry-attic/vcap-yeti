@@ -3,7 +3,7 @@ require "spec_helper"
 require "securerandom"
 include BVT::Spec
 
-describe "Large Applications", big_app: true do
+describe "Large Applications", big_app: true, runtime: true do
   before(:all) { @session = BVT::Harness::CFSession.new }
   after(:all) do
     @session.cleanup!

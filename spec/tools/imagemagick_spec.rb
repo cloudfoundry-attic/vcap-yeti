@@ -2,8 +2,7 @@ require "harness"
 require "spec_helper"
 include BVT::Spec
 
-describe "Tools::ImageMagick" do
-
+describe "Tools::ImageMagick", :runtime => true do
   before(:all) do
     @session = BVT::Harness::CFSession.new
   end

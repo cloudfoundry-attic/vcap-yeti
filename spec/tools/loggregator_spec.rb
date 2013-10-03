@@ -5,7 +5,7 @@ require "spec_helper"
 
 include BVT::Spec
 
-describe "Tools::Loggregator" do
+describe "Tools::Loggregator", :loggregator => true do
   def tmp_dir
     File.expand_path(File.join(__FILE__, "../../../tmp"))
   end

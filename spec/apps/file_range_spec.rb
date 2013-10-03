@@ -3,7 +3,7 @@ require "spec_helper"
 require "rest-client"
 include BVT::Spec
 
-describe "Simple::FileRange" do
+describe "Simple::FileRange", :runtime => true do
   before(:all) do
     @session = BVT::Harness::CFSession.new
 

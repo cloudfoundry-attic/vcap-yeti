@@ -3,7 +3,7 @@ require "spec_helper"
 require "securerandom"
 include BVT::Spec
 
-describe "Network Lockdown" do
+describe "Network Lockdown", :runtime => true do
   before(:all) { @session = BVT::Harness::CFSession.new }
   after(:all) { @session.cleanup! if @session }
 
