@@ -1,0 +1,4 @@
+--format ParallelTests::RSpec::SummaryLogger
+--out tmp/spec_summary.log
+-o "-t ~exclude_in_warden_cpi"
+-n 4

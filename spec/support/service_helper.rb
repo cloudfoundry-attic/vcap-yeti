@@ -8,5 +8,4 @@ RSpec::Matchers.define :have_service do |name, version|
     name, version = expected
     "should support service #{name} version #{version}"
   end
-
 end

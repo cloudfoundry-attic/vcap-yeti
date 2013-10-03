@@ -4,44 +4,35 @@ include BVT::Spec
 
 describe "Async app staging" do
   before(:all) { @session = BVT::Harness::CFSession.new }
-  after(:each) do
-    @session.cleanup!
-  end
 
-  def step(name)
-    yield
-  end
+  after { @session.cleanup! }
 
   it "successfully finishes staging of the app" do
-    app = nil
     staging_log_url = nil
 
-    step "create and push the app" do
-      app = create_app("standalone_ruby_app")
+    # create and push the app
+    app = create_app("standalone_ruby_app")
 
-      app.manifest["no_start"] = true
-      app.create_app("standalone_ruby_app#{rand(65046056)}", app.manifest["path"], nil, false)
+    app.manifest["no_start"] = true
+    app.create_app("standalone_ruby_app#{rand(65046056)}", app.manifest["path"], nil, false)
 
-      app.start(!:need_check) do |url|
-        staging_log_url = url
-      end
+    app.start(!:need_check) do |url|
+      staging_log_url = url
     end
 
-    step "tail staging log" do
-      tail_uri = staging_log_url + "&tail_offset=0&tail"
-      tailed_log = ""
+    # tail staging log
+    tail_uri = staging_log_url + "&tail_offset=0&tail"
+    tailed_log = ""
 
-      app.stream_log(tail_uri) do |chunk|
-        tailed_log << chunk
-      end
-
-      tailed_log.should =~ /Using Ruby/
-      tailed_log.should =~ /Your bundle is complete!/
+    app.stream_log(tail_uri) do |chunk|
+      tailed_log << chunk
     end
 
-    step "check app is running" do
-      app.check_application
-      app.get_response(:get).to_str.should =~ /running version/
-    end
+    tailed_log.should =~ /Using Ruby/
+    tailed_log.should =~ /Your bundle is complete!/
+
+    # check app is running
+    app.check_application
+    app.get_response(:get).to_str.should =~ /running version/
   end
 end

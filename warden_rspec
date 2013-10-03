@@ -1,0 +1,6 @@
+echo parallel_rspec spec --test-options "-t ~exclude_in_warden_cpi" -n 4
+parallel_rspec spec --test-options "-t ~exclude_in_warden_cpi" -n 4
+
+echo ++++++++++++++++++++++++++++++++++
+cat tmp/spec_summary.log
+echo ++++++++++++++++++++++++++++++++++

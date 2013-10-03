@@ -10,9 +10,7 @@ describe "Simple::Domain" do
     @session = BVT::Harness::CFSession.new
   end
 
-  before do
-    @original_space = @session.current_space
-  end
+  before { @original_space = @session.current_space }
 
   after do
     @session.test_domains.each { |domain| domain.delete }
@@ -42,16 +40,16 @@ describe "Simple::Domain" do
       domain.check_domain_of_org.should == true
     end
 
-    #delete multiple custom domains and verify deletion
+    # delete multiple custom domains and verify deletion
     domains = @session.domains
-    domains.each{ |s|
+    domains.each do |s|
       domain_array.each do |item|
         if s.name == item
           s.delete
           s.check_domain_of_org.should == false
         end
       end
-    }
+    end
   end
 
   it "create duplicated custom domain(negative testing)" do
@@ -61,7 +59,7 @@ describe "Simple::Domain" do
     domain.create
     domain.check_domain_of_org.should == true
 
-    lambda {domain.create}.should raise_error(RuntimeError, /The domain name is taken/)
+    lambda { domain.create }.should raise_error(RuntimeError, /The domain name is taken/)
 
     domain.delete
     domain.check_domain_of_org.should == false
@@ -97,16 +95,15 @@ describe "Simple::Domain" do
 
     #delete multiple custom domains of space and verify deletion
     space = @session.current_space
-    domains = space.domains.collect {|domain| BVT::Harness::Domain.new(domain, @session)}
-    domains.each{ |s|
+    domains = space.domains.collect { |domain| BVT::Harness::Domain.new(domain, @session) }
+    domains.each do |s|
       domain_array.each do |item|
         if s.name == item
           s.delete
           s.check_domain_of_org.should == false
         end
       end
-    }
-
+    end
   end
 
   it "list domains in one space" do
@@ -115,7 +112,7 @@ describe "Simple::Domain" do
     previous_space = @session.current_space
     space = @session.space("domain-space")
     space.create
-    @session.select_org_and_space("",space.name)
+    @session.select_org_and_space("", space.name)
     space = @session.current_space
     space.name.should == space.name
     harness_space = BVT::Harness::Space.new(space, @session)
@@ -142,21 +139,21 @@ describe "Simple::Domain" do
     domains_list.should == domain_array
 
     #delete multiple custom domains of space
-    domains = space.domains.collect {|domain| BVT::Harness::Domain.new(domain, @session)}
-    domains.each{ |s|
+    domains = space.domains.collect { |domain| BVT::Harness::Domain.new(domain, @session) }
+    domains.each do |s|
       domain_array.each do |item|
-        if (!existing_domains.include? s.name) and (s.name == item )
+        if (!existing_domains.include? s.name) and (s.name == item)
           s.delete
           s.check_domain_of_org.should == false
         end
       end
-    }
+    end
 
     #delete space
     harness_space.delete
 
     #reset back to previous space
-    @session.select_org_and_space("",previous_space.name)
+    @session.select_org_and_space("", previous_space.name)
     space = @session.current_space
     space.name.should == previous_space.name
   end
@@ -277,7 +274,7 @@ describe "Simple::Domain" do
     app.stats["0"][:stats][:uris][0].should == expected_url
 
     #map this app to other custom domains
-    domain_array.each { |d| app.map("#{app.name}.#{d}")}
+    domain_array.each { |d| app.map("#{app.name}.#{d}") }
 
     #check route list
     routes = @session.client.routes.select { |r| r.host == app.name }
@@ -291,7 +288,7 @@ describe "Simple::Domain" do
 
     #delete multiple custom domains of space and verify deletion
     space = BVT::Harness::Space.new(@session.current_space, @session)
-    domains = @session.current_space.domains.collect {|domain| BVT::Harness::Domain.new(domain, @session)}
+    domains = @session.current_space.domains.collect { |domain| BVT::Harness::Domain.new(domain, @session) }
 
     domains.each do |d|
       domain_array.each do |item|

@@ -67,7 +67,7 @@ describe "Simple::Info" do
       file.should_not == nil
       pid = file.chomp
 
-      contents = app.get_response(:get, "/crash/#{pid}")
+      app.get_response(:get, "/crash/#{pid}")
 
       crashes = get_crashes(app.name)
       crash = crashes.first

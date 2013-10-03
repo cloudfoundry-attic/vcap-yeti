@@ -75,6 +75,7 @@ describe "Admin Buildpacks" do
   def make_payload(zip_file_path)
     {
       :buildpack => UploadIO.new(File.expand_path(zip_file_path), 'application/zip'),
-      :buildpack_path => File.basename(zip_file_path)}
+      :buildpack_path => File.basename(zip_file_path)
+    }
   end
 end

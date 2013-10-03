@@ -104,50 +104,25 @@ describe "App lifecycle" do
   describe "background worker app (no bound uris)" do
     with_app "worker"
 
-    def check_logs(app, match)
-      logs = nil
-      15.times do
-        logs = app.logs
-        return if logs.include?(match)
-        sleep(2)
-      end
-      raise "Could not find '#{match}' in '#{logs}'"
-    end
-
     it "continues to run" do
-      check_logs(app, "running for 5 secs")
-      check_logs(app, "running for 10 secs")
-      check_logs(app, "running for 15 secs")
-      check_logs(app, "running for 20 secs")
+      wait(4) { expect(app.logs).to include("running for 1.0 secs") }
+      wait(4) { expect(app.logs).to include("running for 1.5 secs") }
     end
   end
 
-  describe "app that dies of memory overdose" do
+  describe "app that dies of memory overdose", exclude_in_warden_cpi: true do
     with_app "memory_hog"
 
-    it "dies when we hit the evil endpoint" do
-      app.get("/evil").should =~ /502 Bad Gateway/
-    end
+    it "correctly has events" do
+      # ensuring that en event is created for the crash
+      expect(app.get("/evil")).to match /502 Bad Gateway/
+      wait { expect(app.events.size).to be > 0 }
 
-    def crash_app
-      app.get("/evil")
+      # listing the correct out of memory exception
+      expect(app.events.first.exit_description).to match /out of memory/i
 
-      5.times do
-        return if app.events.size > 0
-        sleep(1)
-      end
-
-      raise "Could not find crash events for '#{app.name}'"
-    end
-
-    it "registers a crash event with description 'out of memory'" do
-      crash_app
-      app.events.first.exit_description.should =~ /out of memory/i
-    end
-
-    it "has an exit status that means something" do
-      crash_app
-      [-1, nil].should_not include(app.events.first.exit_status)
+      # including the correct exit status
+      expect([-1, nil]).to_not include(app.events.first.exit_status)
     end
   end
 end

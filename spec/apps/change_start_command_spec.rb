@@ -4,9 +4,9 @@ require "securerandom"
 include BVT::Spec
 
 describe "Changing an app's start command" do
-  before(:all) { @session = BVT::Harness::CFSession.new }
+  before { @session = BVT::Harness::CFSession.new }
 
-  after(:all) { @session.cleanup! }
+  after { @session.cleanup! }
 
   it "does not require the app to be pushed again" do
     command = "bundle exec ruby explore.rb -p $PORT"
