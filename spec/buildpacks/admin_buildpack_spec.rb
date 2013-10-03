@@ -22,7 +22,7 @@ describe "Admin Buildpacks", :runtime => true do
     with_app "buildpack_test"
 
     it 'uses the uploaded buildpack' do
-      wait { app.get('/').should match "hi from a simple admin buildpack" }
+      app.staging_log.should =~ /simple buildpack/i
     end
   end
 
@@ -30,8 +30,8 @@ describe "Admin Buildpacks", :runtime => true do
     it "doesn't use any admin buildpack except the one whose name was specified" do
       begin
         @buildpack_guid_never_detects = upload_buildpack("another_buildpack")
-        app = create_push_app("specific_buildpack_test")
-        wait { app.get('/').should match "hi from another buildpack" }
+        app2 = create_push_app("specific_buildpack_test")
+        app2.staging_log.should =~ /another buildpack/i
       ensure
         @admin_session.client.base.delete("/v2/buildpacks/#{@buildpack_guid_never_detects}")
       end

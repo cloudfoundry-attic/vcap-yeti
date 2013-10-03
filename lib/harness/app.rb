@@ -528,6 +528,10 @@ module BVT::Harness
       }.all?
     end
 
+    def staging_log
+      file("logs/staging_task.log")
+    end
+
     def instances_are_all_running?
       not_staged_retry = 0
       instances = @app.instances

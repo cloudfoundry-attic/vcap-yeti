@@ -28,7 +28,7 @@ describe "Node", :runtime => true do
     end
 
     it "supports native extensions via node-gyp" do
-      log = app.file("logs/staging_task.log")
+      log = app.staging_log
       log.should include "CXX(target) Release/obj.target/bcrypt_lib/src/blowfish.o"
 
       res = app.get_response(:get, "/native_ext")

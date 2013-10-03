@@ -12,13 +12,13 @@ describe "Ruby", :runtime => true do
     end
 
     it "supports git gems" do
-      app.file("logs/staging_task.log").tap do |log|
+      app.staging_log.tap do |log|
         log.should match %r{Using cf .* git://github.com/cloudfoundry/cf.git}
       end
     end
 
     it "installs native extensions" do
-      app.file("logs/staging_task.log").tap do |log|
+      app.staging_log.tap do |log|
         log.should include "Installing ffi"
       end
     end
