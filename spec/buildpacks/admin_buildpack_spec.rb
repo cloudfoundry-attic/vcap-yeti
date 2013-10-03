@@ -22,7 +22,7 @@ describe "Admin Buildpacks", :runtime => true do
     with_app "buildpack_test"
 
     it 'uses the uploaded buildpack' do
-      app.get('/').should match "hi from a simple admin buildpack"
+      wait { app.get('/').should match "hi from a simple admin buildpack" }
     end
   end
 
@@ -31,15 +31,16 @@ describe "Admin Buildpacks", :runtime => true do
       begin
         @buildpack_guid_never_detects = upload_buildpack("another_buildpack")
         app = create_push_app("specific_buildpack_test")
-        app.get('/').should_not match "hi from a simple admin buildpack"
-        app.get('/').should match "hi from another buildpack"
+        wait { app.get('/').should match "hi from another buildpack" }
       ensure
         @admin_session.client.base.delete("/v2/buildpacks/#{@buildpack_guid_never_detects}")
       end
     end
   end
 
-  def delete_buildpack_if_exists(buildpack_name, existing_buildpacks)
+  def delete_buildpack_if_exists(buildpack_name)
+    existing_buildpacks = JSON.parse @admin_session.client.base.get("/v2/buildpacks")
+
     buildpack_with_same_name = existing_buildpacks["resources"].detect do |resource|
       resource["entity"]["name"] == buildpack_name
     end
@@ -55,11 +56,9 @@ describe "Admin Buildpacks", :runtime => true do
     zip_file_name = File.join(@tmpdir, "#{buildpack_name}.zip")
     zip(zip_file_name, buildpack_dir)
 
-    existing_buildpacks = JSON.parse @admin_session.client.base.get("/v2/buildpacks")
+    delete_buildpack_if_exists(buildpack_name)
 
-    delete_buildpack_if_exists(buildpack_name, existing_buildpacks)
-
-    buildpack = JSON.parse(@admin_session.client.base.post("/v2/buildpacks", :payload => {:name => buildpack_name}.to_json))
+    buildpack = JSON.parse(@admin_session.client.base.post("/v2/buildpacks", :payload => { :name => buildpack_name }.to_json))
     guid = buildpack.fetch('metadata').fetch('guid')
 
     @admin_session.client.base.post("/v2/buildpacks/#{guid}/bits", :payload => make_payload(File.expand_path(zip_file_name, @tmpdir)))
