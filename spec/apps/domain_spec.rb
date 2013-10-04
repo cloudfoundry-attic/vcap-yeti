@@ -33,7 +33,12 @@ describe "Domains", :runtime => true do
     app.upload(asset("sinatra/dora"))
     app.start!(&staging_callback)
 
-    app.stats["0"][:stats][:uris][0].should == route.name
+    wait do
+      stats = app.stats
+      expect(stats).to include("0")
+      expect(stats["0"]).to include(:stats)
+      expect(stats["0"][:stats][:uris]).to eq([route.name])
+    end
   end
 
   context "when there are routes using the domain" do

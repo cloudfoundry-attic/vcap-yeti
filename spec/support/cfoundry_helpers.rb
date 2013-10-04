@@ -33,6 +33,7 @@ module CFoundryHelpers
   end
 
   def get_endpoint(app, path)
+    raise "No routes mapped to app: #{app.name}" unless app.url
     Net::HTTP.get(URI.parse("http://#{app.url}#{path}"))
   end
 

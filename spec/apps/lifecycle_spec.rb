@@ -1,7 +1,6 @@
 require "harness"
 require "spec_helper"
 require "securerandom"
-include BVT::Spec
 
 describe "App lifecycle", :runtime => true do
   before(:all) { @session = BVT::Harness::CFSession.new }
@@ -11,43 +10,59 @@ describe "App lifecycle", :runtime => true do
 
     it "create/start/edit/stop/delete application" do
       # create app
-      app = create_push_app("simple_app2")
-      app.should_not == nil
+      app = make_app
+      app.create!
+
+      # make it routable
+      map_route(app)
+
+      # upload app
+      app.upload(asset("sinatra/dora"))
 
       # start app
-      app.start
-      hash_all = app.stats["0"]
-      hash_all[:state].should == "RUNNING"
+      app.start!(&staging_callback)
+      wait { expect(get_endpoint(app, "/")).to match(/Hello/) }
 
-      # redeploy app
-      app.stop
-      app.push(nil, "modified_simple_app2")
-      app.start
-      app_up?(app)
+      # modify app bits
+      Dir.mktmpdir("dora-ng") do |dora_ng|
+        FileUtils.cp_r(asset("sinatra/dora"), dora_ng)
 
-      # edit
-      app.scale(0)
-      app_down?(app)
-      app.scale(1)
-      app_up?(app)
+        app_path = File.join(dora_ng, "dora")
+
+        File.open(File.join(app_path, "config.ru"), "w") do |io|
+          io.puts <<EOF
+app = lambda do |env|
+  body = "Hi, I'm modified!"
+  [200, {"Content-Type" => "text/plain", "Content-Length" => body.length.to_s}, [body]]
+end
+
+run app
+EOF
+        end
+
+        app.upload(app_path)
+      end
+
+      # restart app
+      app.stop!
+      app.start!(&staging_callback)
+      wait { expect(get_endpoint(app, "/")).to eq("Hi, I'm modified!") }
+
+      # edit CC attributes
+      app.total_instances = 0
+      app.update!
+      wait { expect(get_endpoint(app, "/")).to match(/404/) }
+
+      app.total_instances = 1
+      app.update!
+      wait { expect(get_endpoint(app, "/")).to eq("Hi, I'm modified!") }
 
       # stop app
-      app.stop
-      app_down?(app)
+      app.stop!
+      wait { expect(get_endpoint(app, "/")).to match(/404/) }
 
       # delete app
-      len = @session.apps.length
-      app.delete
-      @session.apps.length.should == len - 1
-      app_down?(app)
-    end
-
-    def app_up?(app)
-      wait { app.get("/").should =~ /Hello from modified/ }
-    end
-
-    def app_down?(app)
-      wait { app.get_response(:get, "/").code.should eq 404 }
+      app.delete!
     end
   end
 
