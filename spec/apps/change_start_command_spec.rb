@@ -1,7 +1,5 @@
 require "harness"
 require "spec_helper"
-require "securerandom"
-include BVT::Spec
 
 describe "Changing an app's start command", :runtime => true do
   before { @session = BVT::Harness::CFSession.new }

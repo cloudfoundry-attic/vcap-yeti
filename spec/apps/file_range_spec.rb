@@ -1,7 +1,6 @@
 require "harness"
 require "spec_helper"
 require "rest-client"
-include BVT::Spec
 
 describe "Simple::FileRange", :runtime => true do
   before(:all) do

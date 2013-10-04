@@ -1,6 +1,5 @@
 require "harness"
 require "spec_helper"
-include BVT::Spec
 
 describe "Dynamic app information", :runtime => true do
   VAR_INSTANCE_COUNT = 4

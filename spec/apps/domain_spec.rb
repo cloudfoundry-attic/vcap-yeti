@@ -1,6 +1,5 @@
 require "harness"
 require "spec_helper"
-require "cfoundry"
 
 describe "Domains", :runtime => true do
   before { @session = BVT::Harness::CFSession.new }

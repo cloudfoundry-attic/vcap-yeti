@@ -1,3 +1,5 @@
+require "cfoundry"
+
 module CFoundryHelpers
   def make_app
     @session.client.app.tap do |app|

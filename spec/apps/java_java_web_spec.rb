@@ -1,7 +1,6 @@
 require "harness"
 require "spec_helper"
 require "nokogiri"
-include BVT::Spec
 
 describe "Simple::JavaJavaWeb", :runtime => true do
   before(:each) do
