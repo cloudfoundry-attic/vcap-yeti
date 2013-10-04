@@ -3,36 +3,32 @@ require "spec_helper"
 include BVT::Spec
 
 describe "Async app staging", :runtime => true do
-  before(:all) { @session = BVT::Harness::CFSession.new }
+  before { @session = BVT::Harness::CFSession.new }
 
   after { @session.cleanup! }
 
   it "successfully finishes staging of the app" do
-    staging_log_url = nil
+    app = make_app
+    app.create!
 
-    # create and push the app
-    app = create_app("standalone_ruby_app")
+    map_route(app)
 
-    app.manifest["no_start"] = true
-    app.create_app("standalone_ruby_app#{rand(65046056)}", app.manifest["path"], nil, false)
+    app.upload(asset("sinatra/dora"))
 
-    app.start(!:need_check) do |url|
-      staging_log_url = url
-    end
-
-    # tail staging log
-    tail_uri = staging_log_url + "&tail_offset=0&tail"
     tailed_log = ""
 
-    app.stream_log(tail_uri) do |chunk|
-      tailed_log << chunk
+    app.start! do |staging_log_url|
+      stream_update_log(staging_log_url) do |chunk|
+        puts "       STAGE LOG => #{chunk}"
+        tailed_log << chunk
+      end
     end
 
     tailed_log.should =~ /Using Ruby/
     tailed_log.should =~ /Your bundle is complete!/
 
-    # check app is running
-    app.check_application
-    app.get_response(:get).to_str.should =~ /running version/
+    wait { expect(app.running?).to be_true }
+
+    expect(get_endpoint(app, "/")).to match(/Hello from VCAP!/)
   end
 end
