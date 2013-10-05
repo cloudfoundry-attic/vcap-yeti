@@ -2,90 +2,53 @@ require "harness"
 require "spec_helper"
 
 describe "Dynamic app information", :runtime => true do
-  VAR_INSTANCE_COUNT = 4
-  VAR_MEMORY         = 64
+  before(:all) do
+    @session = BVT::Harness::CFSession.new
 
-  context "after an app has been pushed" do
-    before(:all) do
-      @session = BVT::Harness::CFSession.new
-      @simple_app = create_push_app("simple_app2")
-    end
+    @app = make_app
+    @app.create!
 
-    after(:all) do
-      @session.cleanup!
-    end
+    map_route(@app)
 
-    it "query application status" do
-      @simple_app.stats.should_not be_nil
-    end
+    @app.upload(asset("sinatra/dora"))
+    @app.start!(&staging_callback)
 
-    it "can get application files" do
-      @simple_app.files("/").should_not be_nil
-      @simple_app.files("/app").should_not be_nil
-      @simple_app.files("/app/assets/style.css").should_not be_nil
-    end
-
-    it "get resource usage information for an application" do
-      hash_all = @simple_app.stats["0"]
-      hash_all[:state].should == "RUNNING"
-      hash_stats = hash_all[:stats]
-      arr_name = hash_stats[:name].split("-")
-      arr_name[1].should == "simple_app2"
-    end
-
-    it "can list multiple applications" do
-      java_app = create_push_app("java_tiny_app")
-
-      apps = @session.apps
-      apps.map(&:name).should =~ [java_app.name, @simple_app.name]
-      apps.all?(&:healthy?).should == true
-    end
+    wait { expect(@app).to be_running }
   end
 
-  context "with individual apps per spec" do
-    before(:each) do
-      @session = BVT::Harness::CFSession.new
-    end
+  after(:all) { @session.cleanup! }
 
-    after(:each) do
-      @session.cleanup!
-    end
+  it "can be queried for stats" do
+    stats = @app.stats
+    expect(stats.size).to eq(@app.total_instances)
+    expect(stats["0"][:state]).to eq("RUNNING")
+  end
 
-    #should get status on all instances of my application(multiple instances)
-    it "get instances information" do
-      app = create_push_app("simple_app2")
-      app.scale(VAR_INSTANCE_COUNT, VAR_MEMORY)
-      app.instances.length.should == VAR_INSTANCE_COUNT
-    end
+  it "can have its files inspected" do
+    @app.files("/").should_not be_nil
+    @app.files("/app").should_not be_nil
+    @app.files("/app/config.ru").should_not be_nil
+  end
 
+  it "can be queried for instances" do
+    expect {
+      @app.total_instances = @app.total_instances + 1
+      @app.update!
 
-    it "get crash information for an application" do
-      app = create_push_app("simple_app2")
+      wait { expect(@app).to be_running }
+    }.to change { @app.instances.size }.by(1)
+  end
 
-      file = app.file('/run.pid')
-      file.should_not == nil
-      pid = file.chomp
+  it "can be queried for crashes" do
+    expect(@app.crashes).to be_empty
 
-      app.get_response(:get, "/crash/#{pid}")
+    get_endpoint(@app, "/sigterm/KILL")
 
-      crashes = get_crashes(app.name)
-      crash = crashes.first
-      crash.timestamp.should_not == nil
-    end
+    wait do
+      expect(@app.crashes).to_not be_empty
 
-    def get_crashes(name)
-      app = @session.find_app(name)
-      secs = BVT::Harness::VCAP_BVT_APP_ASSETS["timeout_secs"]
-      begin
-        crashes = app.events
-        secs -= 1
-      end while crashes.empty? && secs > 0 && sleep(1)
-
-      if crashes.empty?
-        raise "Failed to find crashes for an app."
-      end
-
-      crashes
+      stdout = @app.crashes.first.file("logs/stdout.log")
+      expect(stdout).to match(/Killing process \d+ with signal KILL/)
     end
   end
 end
