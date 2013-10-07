@@ -74,13 +74,14 @@ describe "Tools::Loggregator", :loggregator => true do
 
       20.times do
         app.get_response(:get)
-        sleep 0.1
+        sleep 0.4
       end
 
       runner.should say /Router #{app.get_url}/
       runner.should say 'Hello on STDOUT'
       runner.should say 'Hello on STDERR'
       app.restart
+      sleep 5.0
       runner.should say /API Updated app with guid #{app.guid}.* Executor Registering instance/m
       runner.kill
     end
