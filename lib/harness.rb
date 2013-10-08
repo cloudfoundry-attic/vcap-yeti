@@ -13,21 +13,14 @@ module BVT
     end
 
     VCAP_BVT_CONFIG_FILE  = ENV['VCAP_BVT_CONFIG_FILE'] || File.join(VCAP_BVT_HOME, "config.yml")
-    VCAP_BVT_ERROR_LOG    = File.join(VCAP_BVT_HOME, "error.log")
 
     VCAP_BVT_APP_CONFIG   = File.join(File.dirname(__FILE__), "../config/assets.yml")
     VCAP_BVT_APP_ASSETS   = YAML.load_file(VCAP_BVT_APP_CONFIG)
 
-    VCAP_BVT_RERUN_FILE   = File.join(File.dirname(__FILE__), "../rerun.sh")
-
-    # Assets Data Store Config
-    VCAP_BVT_ASSETS_DATASTORE_CONFIG  =  File.join(VCAP_BVT_HOME, "datastore.yml")
     VCAP_BVT_ASSETS_PACKAGES_HOME     =  File.join(File.dirname(__FILE__), "../.assets-binaries")
 
     ## parallel
     VCAP_BVT_PARALLEL_MAX_USERS  = 16
-    VCAP_BVT_PARALLEL_SYNC_FILE  = File.join(VCAP_BVT_HOME, "sync.yml")
-
   end
 end
 
