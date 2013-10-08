@@ -32,6 +32,15 @@ module CFoundryHelpers
     route
   end
 
+  #blocks until the app is actually running
+  def start_app_blocking(app, wait_time=15)
+    app.start!(&staging_callback)
+
+    Timeout::timeout(wait_time) do
+      sleep(1) until app.running?
+    end
+  end
+
   def get_endpoint(app, path)
     raise "No routes mapped to app: #{app.name}" unless app.url
     Net::HTTP.get(URI.parse("http://#{app.url}#{path}"))

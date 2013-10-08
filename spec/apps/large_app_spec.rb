@@ -14,7 +14,7 @@ describe "Large Applications", big_app: true, runtime: true do
       map_route(app)
 
       app.upload(asset("sinatra/large_file_app"))
-      app.start!(&staging_callback)
+      start_app_blocking(app)
 
       get_endpoint(app, "/").to_i.should > 64000
     end
@@ -42,7 +42,7 @@ describe "Large Applications", big_app: true, runtime: true do
         app.create!
 
         app.upload(app_path)
-        app.start!(&staging_callback)
+        start_app_blocking(app)
 
         assets = app.file("app")
         assets.should include("big_file")
