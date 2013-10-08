@@ -64,9 +64,6 @@ RSpec.configure do |config|
     end
 
     YAML.load_file(profile_file) # make sure YAML.dump works
-
-    # CFoundry trace goes to stderr by default; to avoid having all stderr interleaved, redirect stderr for each process
-    $stderr.reopen("yeti_stderr#{ENV["TEST_ENV_NUMBER"]}.txt", "w") if ENV["VCAP_BVT_TRACE"]
   end
 
   config.before(:each) do
