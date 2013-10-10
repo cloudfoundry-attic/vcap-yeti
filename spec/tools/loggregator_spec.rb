@@ -69,27 +69,24 @@ describe "Tools::Loggregator", :loggregator => true do
     BlueShell::Runner.run "#{cli_path} api #{@session.api_endpoint}"
     BlueShell::Runner.run "#{cli_path} login #{@session.email} #{@session.passwd}"
     BlueShell::Runner.run "#{cli_path} target -o #{@session.current_organization.name} -s #{@session.current_space.name}"
-    BlueShell::Runner.run "#{cli_path} logs #{app.name} && sleep 5.0" do |runner|
-      #runner.should have_output 'Connected, tailing...'
+    BlueShell::Runner.run "#{cli_path} logs #{app.name}" do |runner|
+      runner.should have_output 'Connected, tailing...'
 
-      10.times do
+      20.times do
         app.get_response(:get)
         sleep 0.2
       end
 
-      #sleep 5.0
+      sleep 5.0
 
-      #runner.should have_output 'Hello on STDOUT'
-      #runner.should have_output 'Hello on STDERR'
-      #runner.should have_output /Router #{app.get_url}/
+      runner.should have_output /Router #{app.get_url}/
+      runner.should have_output 'Hello on STDOUT'
+      runner.should have_output 'Hello on STDERR'
 
       app.restart
       sleep 5.0
 
-      puts "Runner Output:"
-      puts runner.output
-
-      #runner.should have_output /API Updated app with guid #{app.guid}.* Executor Registering instance/m
+      runner.should have_output /API Updated app with guid #{app.guid}.* Executor Registering instance/m
       runner.kill
     end
   end
