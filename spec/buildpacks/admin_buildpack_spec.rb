@@ -61,7 +61,7 @@ describe "Admin Buildpacks", :runtime => true do
     buildpack = JSON.parse(@admin_session.client.base.post("/v2/buildpacks", :payload => { :name => buildpack_name }.to_json))
     guid = buildpack.fetch('metadata').fetch('guid')
 
-    @admin_session.client.base.post("/v2/buildpacks/#{guid}/bits", :payload => make_payload(File.expand_path(zip_file_name, @tmpdir)))
+    @admin_session.client.base.put("/v2/buildpacks/#{guid}/bits", :payload => make_payload(File.expand_path(zip_file_name, @tmpdir)))
     guid
   end
 
