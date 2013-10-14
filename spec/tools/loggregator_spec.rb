@@ -72,50 +72,26 @@ describe "Tools::Loggregator", :loggregator => true do
     BlueShell::Runner.run "#{cli_path} logs #{app.name}" do |runner|
       runner.should have_output 'Connected, tailing...'
 
-      number_of_tries = 0
-      all_log_messages_received = false
-      while !all_log_messages_received && number_of_tries < 100 do
+      20.times do
         app.get_response(:get)
-
-        all_log_messages_received =
-            runner.output.match(/\[App/) &&
-            runner.output.match(/\[Router/) &&
-            runner.output.match(/#{app.get_url}/) &&
-            runner.output.match(/Hello on STDOUT/) &&
-            runner.output.match(/Hello on STDERR/)
-
-        sleep 0.3
-        number_of_tries += 1
+        sleep 1
       end
 
-      if !all_log_messages_received
-        fail "Expected to see output from router and app, but did not get it. Output was: #{runner.output}"
-      else
-        puts "It took #{number_of_tries} to get the required log output for the running app"
-      end
+      runner.should have_output("[App")
+      runner.should have_output("Hello on STDOUT")
+      runner.should have_output("Hello on STDERR")
+
+      runner.should have_output("[Router")
+      runner.should have_output("#{app.get_url}")
 
       app.restart
 
-      number_of_tries = 0
-      all_log_messages_received = false
-      while !all_log_messages_received && number_of_tries < 100 do
-        all_log_messages_received =
-            runner.output.match(/\[API/) &&
-                runner.output.match(/\[Executor/) &&
-                runner.output.match(/#{app.get_url}/) &&
-                runner.output.match(/Updated app with guid #{app.guid}/) &&
-                runner.output.match(/Registering instance/)
+      #Do not reorder! Blueshell expectations are Order Specific
+      runner.should have_output("[API")
+      runner.should have_output("Updated app")
 
-        sleep 0.3
-        number_of_tries += 1
-      end
-
-
-      if !all_log_messages_received
-        fail "Expected to see output from app restarting from Executor and API, but did not get it. Output was: #{runner.output}"
-      else
-        puts "It took #{number_of_tries} to get the required log output when restarting the app"
-      end
+      runner.should have_output("[Executor")
+      runner.should have_output("Registering instance")
 
       runner.kill
     end
