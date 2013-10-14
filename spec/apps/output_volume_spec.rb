@@ -22,6 +22,6 @@ describe "An app with a bunch of output", :runtime => true do
     after_id.should == before_id
 
     res = app.get_response(:get, "/logspew/2")
-    res.to_str.should == "Just wrote 2 random bytes to the log"
+    res.to_str.should == "Just wrote 2 bytes of zeros to the log"
   end
 end
