@@ -14,7 +14,7 @@ describe "Large Applications", big_app: true, runtime: true do
       map_route(app)
 
       app.upload(asset("sinatra/large_file_app"))
-      start_app_blocking(app)
+      start_app_blocking(app, 60)
 
       get_endpoint(app, "/").to_i.should > 64000
     end
