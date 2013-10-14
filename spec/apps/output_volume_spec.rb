@@ -11,7 +11,7 @@ describe "An app with a bunch of output", :runtime => true do
     before_id = app.get_response(:get, "/id")
 
     res = app.get_response(:get, "/logspew/104857600")
-    res.to_str.should == "Just wrote 104857600 random bytes to the log"
+    res.to_str.should == "Just wrote 104857600 bytes of zeros to the log"
 
     # Give time for components (i.e. Warden) to react to the output
     # and potentially make bad decisions (like killing the app)
