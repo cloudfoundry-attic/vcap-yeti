@@ -72,21 +72,51 @@ describe "Tools::Loggregator", :loggregator => true do
     BlueShell::Runner.run "#{cli_path} logs #{app.name}" do |runner|
       runner.should have_output 'Connected, tailing...'
 
-      20.times do
+      number_of_tries = 0
+      all_log_messages_received = false
+      while !all_log_messages_received && number_of_tries < 100 do
         app.get_response(:get)
-        sleep 0.2
+
+        all_log_messages_received =
+            runner.output.match(/\[App/) &&
+            runner.output.match(/\[Router/) &&
+            runner.output.match(/#{app.get_url}/) &&
+            runner.output.match(/Hello on STDOUT/) &&
+            runner.output.match(/Hello on STDERR/)
+
+        sleep 0.3
+        number_of_tries += 1
       end
 
-      sleep 5.0
-
-      runner.should have_output /Router #{app.get_url}/
-      runner.should have_output 'Hello on STDOUT'
-      runner.should have_output 'Hello on STDERR'
+      if !all_log_messages_received
+        fail "Expected to see output from router and app, but did not get it. Output was: #{runner.output}"
+      else
+        puts "It took #{number_of_tries} to get the required log output for the running app"
+      end
 
       app.restart
-      sleep 5.0
 
-      runner.should have_output /API Updated app with guid #{app.guid}.* Executor Registering instance/m
+      number_of_tries = 0
+      all_log_messages_received = false
+      while !all_log_messages_received && number_of_tries < 100 do
+        all_log_messages_received =
+            runner.output.match(/\[API/) &&
+                runner.output.match(/\[Executor/) &&
+                runner.output.match(/#{app.get_url}/) &&
+                runner.output.match(/Updated app with guid #{app.guid}/) &&
+                runner.output.match(/Registering instance/)
+
+        sleep 0.3
+        number_of_tries += 1
+      end
+
+
+      if !all_log_messages_received
+        fail "Expected to see output from app restarting from Executor and API, but did not get it. Output was: #{runner.output}"
+      else
+        puts "It took #{number_of_tries} to get the required log output when restarting the app"
+      end
+
       runner.kill
     end
   end
