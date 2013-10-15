@@ -9,6 +9,7 @@ Prepare for tests:
 
 ```
 git submodule update --init
+bundle
 rake prepare
 ```
 
