@@ -10,7 +10,7 @@ Prepare for tests:
 ```
 git submodule update --init
 bundle
-rake prepare
+bundle exec rake prepare
 ```
 
 ## Non-parallel
