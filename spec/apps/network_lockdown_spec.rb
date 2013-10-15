@@ -79,6 +79,16 @@ describe "Network Lockdown", :runtime => true do
       res.to_str.should =~ /is NOT open/
     end
 
+    it 'should not be able to talk to loggregator' do
+      res = request(:loggregator)
+      res.to_str.should =~ /is NOT open/
+    end
+
+    it 'should not be able to talk to loggregator trafficcontroller' do
+      res = request(:loggregator_trafficcontroller)
+      res.to_str.should =~ /is NOT open/
+    end
+
     it 'should not be able to talk to EC2 status endpoint' do
       res = request(:ec2_status_endpoint)
       res.to_str.should =~ /is NOT open/
