@@ -42,7 +42,7 @@ describe "Large Applications", big_app: true, runtime: true do
         app.create!
 
         app.upload(app_path)
-        start_app_blocking(app, 180)
+        start_app_blocking(app, 300)
 
         assets = app.file("app")
         assets.should include("big_file")
