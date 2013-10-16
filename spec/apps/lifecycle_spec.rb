@@ -120,8 +120,8 @@ EOF
     with_app "worker"
 
     it "continues to run" do
-      wait(4) { expect(app.logs).to include("running for 1.0 secs") }
-      wait(4) { expect(app.logs).to include("running for 1.5 secs") }
+      wait(10) { expect(app.logs).to include("running for 1.0 secs") }
+      wait(10) { expect(app.logs).to include("running for 1.5 secs") }
     end
   end
 
