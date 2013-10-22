@@ -70,7 +70,7 @@ describe "Tools::Loggregator", :loggregator => true do
     BlueShell::Runner.run "#{cli_path} auth #{@session.email} #{@session.passwd}"
     BlueShell::Runner.run "#{cli_path} target -o #{@session.current_organization.name} -s #{@session.current_space.name}"
     BlueShell::Runner.run "#{cli_path} logs #{app.name}" do |runner|
-      runner.should have_output 'Connected, tailing...'
+      runner.should have_output "Connected, tailing logs for app #{app.name}"
 
       20.times do
         app.get_response(:get)
