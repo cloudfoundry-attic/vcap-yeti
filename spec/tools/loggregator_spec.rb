@@ -31,23 +31,25 @@ describe "Tools::Loggregator", :loggregator => true do
     return :mac if mac?
   end
 
-  def download_cli_for_arch
-    binary_urls = {
-      :mac    => "https://go-cli.s3.amazonaws.com/go-cf-darwin-amd64.tgz",
-      :win386 => "https://go-cli.s3.amazonaws.com/go-cf-windows-386.tgz",
-      :win64  => "https://go-cli.s3.amazonaws.com/go-cf-windows-amd64.tgz",
-      :linux  => "https://go-cli.s3.amazonaws.com/go-cf-linux-amd64.tgz"
+  def cli_for_arch
+    cli_archives_path = File.expand_path(File.join(__FILE__, "../../support/go-cf"))
+    binary_names = {
+      :mac    => "go-cf-darwin-amd64.tgz",
+      :win386 => "go-cf-windows-386.tgz",
+      :win64  => "go-cf-windows-amd64.tgz",
+      :linux  => "go-cf-linux-amd64.tgz"
     }
+    binary_source_path = File.join(cli_archives_path, binary_names[system_architecture])
 
     Dir.mkdir(tmp_dir) unless File.exists?(tmp_dir)
-    new_file_path = File.join(tmp_dir, "go-cli")
+    new_file_path = File.join(tmp_dir, "go-cli.tgz")
 
-    `wget #{binary_urls[system_architecture]} -O #{new_file_path}.tgz && tar xzf #{new_file_path}.tgz -C #{tmp_dir}`
+    `cp #{binary_source_path} #{new_file_path} && tar xzf #{new_file_path} -C #{tmp_dir}`
   end
 
   before(:all) do
     @session = BVT::Harness::CFSession.new
-    download_cli_for_arch
+    cli_for_arch
   end
 
   after(:all) do
