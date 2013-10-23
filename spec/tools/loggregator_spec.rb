@@ -83,7 +83,7 @@ describe "Tools::Loggregator", :loggregator => true do
       runner.should have_output("Hello on STDOUT")
       runner.should have_output("Hello on STDERR")
 
-      runner.should have_output("[Router")
+      runner.should have_output("[RTR")
       runner.should have_output("#{app.get_url}")
 
       app.restart
@@ -92,7 +92,7 @@ describe "Tools::Loggregator", :loggregator => true do
       runner.should have_output("[API")
       runner.should have_output("Updated app")
 
-      runner.should have_output("[Executor")
+      runner.should have_output("[DEA")
       runner.should have_output("Registering instance")
 
       runner.kill
