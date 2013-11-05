@@ -36,20 +36,18 @@ describe "Node", :runtime => true do
     end
   end
 
-  pending("NPM recovery")
+  describe "node 0.6" do
+    with_app "node0_6"
+    it_supports_basics "0.6", :skip_git_remotes => true
+  end
 
-  #describe "node 0.6" do
-  #  with_app "node0_6"
-  #  it_supports_basics "0.6", :skip_git_remotes => true
-  #end
-  #
-  #describe "node 0.8" do
-  #  with_app "node0_8"
-  #  it_supports_basics "0.8"
-  #end
-  #
-  #describe "node 0.10" do
-  #  with_app "node0_10"
-  #  it_supports_basics "0.10"
-  #end
+  describe "node 0.8" do
+    with_app "node0_8"
+    it_supports_basics "0.8"
+  end
+
+  describe "node 0.10" do
+    with_app "node0_10"
+    it_supports_basics "0.10"
+  end
 end
