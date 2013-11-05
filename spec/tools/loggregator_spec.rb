@@ -11,7 +11,7 @@ describe "Tools::Loggregator", :loggregator => true do
   end
 
   def cli_path
-    tmp_dir + "/go-cf"
+    tmp_dir + "/gcf"
   end
 
   def windows?
@@ -34,10 +34,10 @@ describe "Tools::Loggregator", :loggregator => true do
   def cli_for_arch
     cli_archives_path = File.expand_path(File.join(__FILE__, "../../support/go-cf"))
     binary_names = {
-      :mac    => "go-cf-darwin-amd64.tgz",
-      :win386 => "go-cf-windows-386.tgz",
-      :win64  => "go-cf-windows-amd64.tgz",
-      :linux  => "go-cf-linux-amd64.tgz"
+      :mac    => "gcf-darwin-amd64.tgz",
+      :win386 => "gcf-windows-386.zip",
+      :win64  => "gcf-windows-amd64.zip",
+      :linux  => "gcf-linux-amd64.tgz"
     }
     binary_source_path = File.join(cli_archives_path, binary_names[system_architecture])
 
