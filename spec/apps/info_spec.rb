@@ -35,7 +35,7 @@ describe "Dynamic app information", :runtime => true do
       @app.total_instances = @app.total_instances + 1
       @app.update!
 
-      wait { expect(@app).to be_running }
+      wait(100) { expect(@app).to be_running }
     }.to change { @app.instances.size }.by(1)
   end
 
