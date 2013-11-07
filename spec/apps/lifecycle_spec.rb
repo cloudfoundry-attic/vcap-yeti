@@ -80,13 +80,13 @@ EOF
       original_memory = 512
 
       app.scale(new_num_of_instances, original_memory)
-      wait do |i = app.instances|
+      wait(100) do |i = app.instances|
         i.map(&:state).uniq.should == ["RUNNING"]
         i.length.should == new_num_of_instances
       end
 
       app.scale(original_num_of_instances, original_memory)
-      wait do |i = app.instances|
+      wait(100) do |i = app.instances|
         i.map(&:state).uniq.should == ["RUNNING"]
         i.length.should == original_num_of_instances
       end
