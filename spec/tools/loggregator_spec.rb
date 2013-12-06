@@ -57,7 +57,7 @@ describe "Tools::Loggregator", :loggregator => true do
     BlueShell::Runner.run "#{cli_path} logout"
   end
 
-  with_app "loggregator"
+  with_app "loggregator-test"
 
   it "can tail app logs" do
     begin
