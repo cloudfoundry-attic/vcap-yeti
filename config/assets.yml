@@ -120,7 +120,7 @@ dora:
   memory: 256
   path: "assets/sinatra/dora"
 
-loggregator:
+loggregator-test:
   memory: 128
   path: "assets/sinatra/loggregator"
 
