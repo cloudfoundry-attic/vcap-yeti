@@ -61,7 +61,7 @@ describe "Tools::Loggregator", :loggregator => true do
 
   it "can tail app logs" do
     begin
-      Timeout.timeout(10) do
+      Timeout.timeout(30) do
         loop { break if app.application_is_really_running? }
       end
     rescue Timeout::Error
