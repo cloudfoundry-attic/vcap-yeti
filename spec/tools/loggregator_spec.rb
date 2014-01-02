@@ -93,7 +93,7 @@ describe "Tools::Loggregator", :loggregator => true do
       runner.should have_output("Updated app")
 
       runner.should have_output("[DEA")
-      runner.should have_output("Registering instance")
+      runner.should have_output("Registering app instance")
 
       runner.kill
     end
